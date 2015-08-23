@@ -1,0 +1,53 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3#249#0#6'Height'#3'j'#1#3'Top'#3#136#0#5'W'
+  +'idth'#3#129#2#18'HorzScrollBar.Page'#3#128#2#18'VertScrollBar.Page'#3'i'#1#7
+  +'Caption'#6#5'Form1'#12'ClientHeight'#3'j'#1#11'ClientWidth'#3#129#2#11'Font'
+  +'.Height'#2#245#9'Font.Name'#6#13'MS Sans Serif'#8'OnCreate'#7#10'FormCreate'
+  +#10'LCLVersion'#6#6'0.9.29'#0#14'TGLSceneViewer'#13'GLSceneViewer'#4'Left'#2
+  +#0#6'Height'#3'j'#1#3'Top'#2#0#5'Width'#3#255#1#6'Camera'#7#9'GLCamera1'#11
+  +'FieldOfView'#5#0#0#0#0#0'x'#29#149#6'@'#5'Align'#7#8'alClient'#11'OnMouseDo'
+  +'wn'#7#22'GLSceneViewerMouseDown'#11'OnMouseMove'#7#22'GLSceneViewerMouseMov'
+  +'e'#0#0#6'TPanel'#6'Panel1'#4'Left'#3#255#1#6'Height'#3'j'#1#3'Top'#2#0#5'Wi'
+  +'dth'#3#130#0#5'Align'#7#7'alRight'#10'BevelOuter'#7#9'bvLowered'#12'ClientH'
+  +'eight'#3'j'#1#11'ClientWidth'#3#130#0#11'Font.Height'#2#245#9'Font.Name'#6#5
+  +'Arial'#11'FullRepaint'#8#10'ParentFont'#8#8'TabOrder'#2#0#0#6'TLabel'#6'Lab'
+  +'el1'#4'Left'#2#8#6'Height'#2#19#3'Top'#2#8#5'Width'#2'S'#7'Caption'#6#11'He'
+  +'ightField'#11'Font.Height'#2#241#9'Font.Name'#6#5'Arial'#10'Font.Style'#11#6
+  +'fsBold'#0#11'ParentColor'#8#10'ParentFont'#8#0#0#6'TLabel'#6'Label2'#4'Left'
+  +#2#24#6'Height'#2#19#3'Top'#2' '#5'Width'#2'4'#7'Caption'#6#7'picking'#11'Fo'
+  +'nt.Height'#2#241#9'Font.Name'#6#5'Arial'#10'Font.Style'#11#6'fsBold'#0#11'P'
+  +'arentColor'#8#10'ParentFont'#8#0#0#6'TLabel'#6'Label3'#4'Left'#2#1#6'Height'
+  +#3#185#0#3'Top'#3#176#0#5'Width'#3#128#0#5'Align'#7#8'alBottom'#8'AutoSize'#8
+  +#7'Caption'#6#154'This demo uses a crude method for heightfield picking base'
+  +'d on the Z-Buffer. This method can be easily adapted for a variety of objec'
+  +'ts and 2.5D problems.'#11'ParentColor'#8#8'WordWrap'#9#0#0#12'TRadioButton'
+  +#7'RBPaint'#4'Left'#2#16#6'Height'#2#18#3'Top'#2'P'#5'Width'#2'+'#7'Caption'
+  +#6#5'Paint'#7'Checked'#9#5'State'#7#9'cbChecked'#8'TabOrder'#2#0#0#0#12'TRad'
+  +'ioButton'#12'RadioButton2'#4'Left'#2#16#6'Height'#2#18#3'Top'#2'p'#5'Width'
+  +#2'3'#7'Caption'#6#6'Rotate'#8'TabOrder'#2#1#0#0#0#8'TGLScene'#8'GLScene1'#4
+  +'left'#2#8#3'top'#2'('#0#14'TGLHeightField'#11'HeightField'#8'TagFloat'#5#0#0
+  +#0#0#0#0#0#0#0#0#21'Direction.Coordinates'#10#16#0#0#0#0#0#0#0#0#0#128'?'#0#0
+  +#0#0#0#0#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0
+  +#0#0#0#0#17'Scale.Coordinates'#10#16#0#0#0#154#153#25'?'#154#153#25'?'#0#0#0
+  +'?'#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#14'Up.Coordinates'#10#16#0#0#0
+  +#0#0#0#0#0#0#0#0#0#0#128#191#0#0#0#0#18'XSamplingScale.Min'#5#0#0#0#0#0#0#0
+  +#176#1#192#18'XSamplingScale.Max'#5#0#0#0#0#0#0#0#176#1'@'#21'XSamplingScale'
+  +'.Origin'#5#0#0#0#0#0#0#0#0#0#0#19'XSamplingScale.Step'#5#0#0#0#0#0#205#204
+  +#204#252'?'#18'YSamplingScale.Min'#5#0#0#0#0#0#0#0#176#1#192#18'YSamplingSca'
+  +'le.Max'#5#0#0#0#0#0#0#0#176#1'@'#21'YSamplingScale.Origin'#5#0#0#0#0#0#0#0#0
+  +#0#0#19'YSamplingScale.Step'#5#0#0#0#0#0#205#204#204#252'?'#9'ColorMode'#7#21
+  +'hfcmAmbientAndDiffuse'#11'OnGetHeight'#7#20'HeightFieldGetHeight'#0#0#14'TG'
+  +'LLightSource'#14'GLLightSource1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#13'Ambie'
+  +'nt.Color'#10#16#0#0#0#154#153#25'>'#154#153#25'>'#154#153#25'>'#0#0#128'?'
+  +#16'ConstAttenuation'#5#0#0#0#0#0#0#0#128#255'?'#13'Diffuse.Color'#10#16#0#0
+  +#0#154#153'Y?'#154#153'Y?'#154#153'Y?'#0#0#128'?'#17'LinearAttenuation'#5#0#0
+  +#0#0#0#0#0#0#0#0#20'QuadraticAttenuation'#5#0#0#0#0#0#0#0#0#0#0#20'Position.'
+  +'Coordinates'#10#16#0#0#0#0#0#224'@'#0#0'pA'#0#0#160'@'#0#0#128'?'#10'SpotCu'
+  +'tOff'#5#0#0#0#0#0#0#0#180#6'@'#12'SpotExponent'#5#0#0#0#0#0#0#0#0#0#0#0#0#9
+  +'TGLCamera'#9'GLCamera1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#11'DepthOfView'#5
+  +#0#0#0#0#0#0#0#200#5'@'#11'FocalLength'#5#0#0#0#0#0#0#0#200#4'@'#12'TargetOb'
+  +'ject'#7#11'HeightField'#20'Position.Coordinates'#10#16#0#0#0#0#0#160'@'#0#0
+  +#128'@'#0#0'@@'#0#0#128'?'#0#0#0#0
+]);

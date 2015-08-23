@@ -1,0 +1,61 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3#144#1#6'Height'#3#20#1#3'Top'#3#130#0#5'W'
+  +'idth'#3'3'#2#18'HorzScrollBar.Page'#3'2'#2#18'VertScrollBar.Page'#3#19#1#7
+  +'Caption'#6#5'Form1'#12'ClientHeight'#3#20#1#11'ClientWidth'#3'3'#2#11'Font.'
+  +'Height'#2#245#9'Font.Name'#6#5'Arial'#8'OnCreate'#7#10'FormCreate'#10'LCLVe'
+  +'rsion'#6#6'0.9.29'#0#6'TLabel'#6'Label1'#4'Left'#2'8'#6'Height'#2#15#3'Top'
+  +#2#8#5'Width'#2'E'#7'Caption'#6#13'Centered X, Y'#11'ParentColor'#8#0#0#6'TL'
+  +'abel'#6'Label2'#4'Left'#3#232#0#6'Height'#2#15#3'Top'#2#8#5'Width'#2'8'#7'C'
+  +'aption'#6#10'Centered Y'#11'ParentColor'#8#0#0#6'TLabel'#6'Label3'#4'Left'#3
+  +#152#1#6'Height'#2#15#3'Top'#2#8#5'Width'#2'R'#7'Caption'#6#16'Centered X, Y'
+  +', Z'#11'ParentColor'#8#0#0#14'TGLSceneViewer'#14'GLSceneViewer1'#4'Left'#2#8
+  +#6'Height'#3#209#0#3'Top'#2' '#5'Width'#3#1#2#6'Camera'#7#9'GLCamera1'#22'Bu'
+  +'ffer.BackgroundColor'#4#174#174#174#0#11'FieldOfView'#5#0#0#0#0#0#178#25#241
+  +#4'@'#0#0#9'TTrackBar'#9'TrackBar1'#4'Left'#3#16#2#6'Height'#3#209#0#3'Top'#2
+  +' '#5'Width'#2#25#9'Frequency'#2#10#3'Max'#2'P'#3'Min'#2#176#8'OnChange'#7#15
+  +'TrackBar1Change'#11'Orientation'#7#10'trVertical'#8'Position'#2#0#8'TabOrde'
+  +'r'#2#0#0#0#8'TGLScene'#8'GLScene1'#4'left'#2#16#3'top'#2'8'#0#12'TGLDummyCu'
+  +'be'#10'DummyCube3'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#10'PitchAngle'#5#0#0#0
+  +#0#0#0#0#0#0#0#20'Position.Coordinates'#10#16#0#0#0#0#0#0#192#0#0#0#0#0#0#0#0
+  +#0#0#128'?'#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#8'ShowAxes'#9#9'TurnAngle'#5#0
+  +#0#0#0#0#0#0#0#0#0#8'CubeSize'#5#0#0#0#0#0#0#0#128#255'?'#16'VisibleAtRunTim'
+  +'e'#9#0#11'TGLFreeForm'#9'FreeForm3'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0'&Mate'
+  +'rial.FrontProperties.Diffuse.Color'#10#16#0#0#0#0#0#128'?'#129#128#0'?'#129
+  +#128#128'>'#0#0#128'?0Material.Texture.MappingTCoordinates.Coordinates'#10#16
+  +#0#0#0#0#0#0#0#0#0#128'?'#0#0#0#0#0#0#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0
+  +#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#0#0
+  +#0#12'TGLDummyCube'#10'DummyCube2'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#10'Pitc'
+  +'hAngle'#5#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#8'ShowAxes'
+  +#9#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#8'CubeSize'#5#0#0#0#0#0#0#0#128#255'?'
+  +#16'VisibleAtRunTime'#9#0#11'TGLFreeForm'#9'FreeForm2'#8'TagFloat'#5#0#0#0#0
+  +#0#0#0#0#0#0'&Material.FrontProperties.Diffuse.Color'#10#16#0#0#0#0#0#128'?'
+  +#129#128#0'?'#129#128#128'>'#0#0#128'?0Material.Texture.MappingTCoordinates.'
+  +'Coordinates'#10#16#0#0#0#0#0#0#0#0#0#128'?'#0#0#0#0#0#0#0#0#10'PitchAngle'#5
+  +#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0#0
+  +#0#0#0#0#0#0#0#0#0#0#12'TGLDummyCube'#10'DummyCube1'#8'TagFloat'#5#0#0#0#0#0
+  +#0#0#0#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#20'Position.Coordinates'#10
+  +#16#0#0#0#0#0#0'@'#0#0#0#0#0#0#0#0#0#0#128'?'#9'RollAngle'#5#0#0#0#0#0#0#0#0
+  +#0#0#8'ShowAxes'#9#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#8'CubeSize'#5#0#0#0#0#0
+  +#0#0#128#255'?'#16'VisibleAtRunTime'#9#0#11'TGLFreeForm'#9'FreeForm1'#8'TagF'
+  +'loat'#5#0#0#0#0#0#0#0#0#0#0'&Material.FrontProperties.Diffuse.Color'#10#16#0
+  +#0#0#0#0#128'?'#129#128#0'?'#129#128#128'>'#0#0#128'?0Material.Texture.Mappi'
+  +'ngTCoordinates.Coordinates'#10#16#0#0#0#0#0#0#0#0#0#128'?'#0#0#0#0#0#0#0#0
+  +#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'T'
+  +'urnAngle'#5#0#0#0#0#0#0#0#0#0#0#0#0#0#14'TGLLightSource'#14'GLLightSource1'
+  +#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#16'ConstAttenuation'#5#0#0#0#0#0#0#0#128
+  +#255'?'#17'LinearAttenuation'#5#0#0#0#0#0#0#0#0#0#0#20'QuadraticAttenuation'
+  +#5#0#0#0#0#0#0#0#0#0#0#20'Position.Coordinates'#10#16#0#0#0#0#0'@@'#0#0' A'#0
+  +#0#160'@'#0#0#128'?'#10'SpotCutOff'#5#0#0#0#0#0#0#0#180#6'@'#12'SpotExponent'
+  +#5#0#0#0#0#0#0#0#0#0#0#0#0#12'TGLDummyCube'#8'DCCamera'#8'TagFloat'#5#0#0#0#0
+  +#0#0#0#0#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0
+  +#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#8'CubeSize'#5#0#0#0#0#0#0#0#128
+  +#255'?'#0#9'TGLCamera'#9'GLCamera1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#11'Dep'
+  +'thOfView'#5#0#0#0#0#0#0#0#200#5'@'#11'FocalLength'#5#0#0#0#0#0#0#0#180#6'@'
+  +#12'TargetObject'#7#10'DummyCube2'#20'Position.Coordinates'#10#16#0#0#0#0#0#0
+  +#0#0#0#0'@'#0#0'pA'#0#0#128'?'#4'left'#3#0#1#3'top'#2'`'#0#0#0#0#11'TGLCaden'
+  +'cer'#11'GLCadencer1'#5'Scene'#7#8'GLScene1'#12'MaxDeltaTime'#5#0#0#0#0#0#0#0
+  +#0#0#0#12'MinDeltaTime'#5#0#0#0#0#0#0#0#0#0#0#14'FixedDeltaTime'#5#0#0#0#0#0
+  +#0#0#0#0#0#4'left'#2'0'#3'top'#2'8'#0#0#0
+]);

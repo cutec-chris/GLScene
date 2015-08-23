@@ -1,0 +1,1137 @@
+object Form1: TForm1
+  Left = 182
+  Height = 403
+  Top = 91
+  Width = 513
+  Caption = 'Form1'
+  ClientHeight = 383
+  ClientWidth = 513
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Menu = MainMenu1
+  OnKeyDown = FormKeyDown
+  OnKeyPress = FormKeyPress
+  OnKeyUp = FormKeyUp
+  LCLVersion = '0.9.29'
+  object GLSceneViewer1: TGLSceneViewer
+    Left = 0
+    Height = 383
+    Top = 0
+    Width = 513
+    Camera = GLCamera1
+    Buffer.BackgroundColor = clBlack
+    FieldOfView = 150.73388671875
+    Align = alClient
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+    OnMouseUp = GLSceneViewer1MouseUp
+  end
+  object GLScene1: TGLScene
+    ObjectsSorting = osNone
+    left = 16
+    top = 16
+    object GLLightSource1: TGLLightSource
+      TagFloat = 0
+      ConstAttenuation = 1
+      LinearAttenuation = 0
+      QuadraticAttenuation = 0
+      Position.Coordinates = {
+        0000204100002041000020410000803F
+      }
+      SpotCutOff = 180
+      SpotExponent = 0
+    end
+    object GLForm1: TGLForm
+      TagFloat = 0
+      RedrawAtOnce = False
+      GuiLayout = GLGuiLayout1
+      GuiLayoutName = 'form'
+      Rotation = 0
+      AlphaChannel = 0.5
+      NoZWrite = False
+      DoChangesOnProgress = False
+      Width = 300
+      Height = 170
+      Left = 100
+      Top = 100
+      Position.Coordinates = {
+        0000C8420000C842000000000000803F
+      }
+      BitmapFont = WindowsBitmapFont1
+      DefaultColor = clMaroon
+      Caption = 'Gui Form'
+      TitleColor = clWhite
+      TitleOffset = 2
+      object GLButton1: TGLButton
+        TagFloat = 0
+        RedrawAtOnce = False
+        GuiLayout = GLGuiLayout1
+        GuiLayoutName = 'panel'
+        Rotation = 0
+        NoZWrite = False
+        DoChangesOnProgress = False
+        Width = 140
+        Height = 25
+        Left = 180
+        Top = 220
+        Position.Coordinates = {
+          0000344300005C43000000000000803F
+        }
+        BitmapFont = WindowsBitmapFont1
+        DefaultColor = clBlack
+        Caption = 'Set Title'
+        Focused = False
+        FocusedColor = clBlack
+        Group = -1
+        Pressed = False
+        OnButtonClick = GLButton1ButtonClick
+        GuiLayoutNamePressed = 'panel'
+        LogicWidth = 0
+        LogicHeight = 0
+        XOffset = 0
+        YOffset = 0
+        AllowUp = True
+      end
+      object GLEdit1: TGLEdit
+        TagFloat = 0
+        RedrawAtOnce = False
+        GuiLayout = GLGuiLayout1
+        GuiLayoutName = 'panel'
+        Rotation = 0
+        NoZWrite = False
+        DoChangesOnProgress = False
+        Width = 180
+        Height = 21
+        Left = 200
+        Top = 170
+        Position.Coordinates = {
+          0000484300002A43000000000000803F
+        }
+        BitmapFont = WindowsBitmapFont1
+        DefaultColor = clBlack
+        Caption = 'New Title'
+        Focused = False
+        FocusedColor = clBlack
+        EditChar = '*'
+        SelStart = 0
+      end
+      object GLLabel1: TGLLabel
+        TagFloat = 0
+        RedrawAtOnce = False
+        GuiLayout = GLGuiLayout1
+        Rotation = 0
+        NoZWrite = False
+        DoChangesOnProgress = False
+        Width = 80
+        Height = 21
+        Left = 110
+        Top = 170
+        Position.Coordinates = {
+          0000DC4200002A43000000000000803F
+        }
+        BitmapFont = WindowsBitmapFont1
+        DefaultColor = clBlack
+        Caption = 'Title'
+        Alignment = taLeftJustify
+        TextLayout = tlCenter
+      end
+    end
+    object GLCamera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 50
+      Position.Coordinates = {
+        0000A04000004040000080400000803F
+      }
+      left = 240
+      top = 152
+    end
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    OnProgress = GLCadencer1Progress
+    left = 16
+    top = 48
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    left = 16
+    top = 80
+  end
+  object WindowsBitmapFont1: TGLWindowsBitmapFont
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    left = 48
+    top = 48
+  end
+  object MainMenu1: TMainMenu
+    left = 112
+    top = 48
+    object Font1: TMenuItem
+      Caption = 'Font'
+      object WindowsFont1: TMenuItem
+        Caption = 'Set New Font'
+        OnClick = WindowsFont1Click
+      end
+    end
+  end
+  object FontDialog1: TFontDialog
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    MinFontSize = 0
+    MaxFontSize = 0
+    left = 112
+    top = 16
+  end
+  object GLGuiLayout1: TGLGuiLayout
+    BitmapFont = WindowsBitmapFont1
+    Material.MaterialLibrary = GLMaterialLibrary1
+    Material.LibMaterialName = 'Gui'
+    GuiComponents = <    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            BottomRight.Coordinates = {
+              000088410000F0410000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00008841000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E0420000F0410000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000F8410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000410000DA420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E042000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000F0410000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000F0420000F0410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000DE420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00007041000000430000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000070410000F0420000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E242000000430000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E2420000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00000043000000430000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'form'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00005041000086420000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00003041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002042000084420000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000040410000BC420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001842000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C42000086420000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001C42000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000BC420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000410000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000050410000C2420000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000030410000BA420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000C2420000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000018420000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000C2420000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'panel'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            BottomRight.Coordinates = {
+              000088410000F0410000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00008841000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E0420000F0410000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000F8410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000410000DA420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E042000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000F0410000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000F0420000F0410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000DE420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00007041000000430000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000070410000F0420000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E242000000430000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E2420000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00000043000000430000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'form'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00005041000086420000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00003041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002042000084420000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000040410000BC420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001842000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C42000086420000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001C42000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000BC420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000410000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000050410000C2420000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000030410000BA420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000C2420000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000018420000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000C2420000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'panel'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            BottomRight.Coordinates = {
+              000088410000F0410000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00008841000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E0420000F0410000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000F8410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000410000DA420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E042000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000F0410000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000F0420000F0410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000DE420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00007041000000430000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000070410000F0420000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E242000000430000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E2420000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00000043000000430000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'form'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00005041000086420000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00003041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002042000084420000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000040410000BC420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001842000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C42000086420000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001C42000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000BC420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000410000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000050410000C2420000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000030410000BA420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000C2420000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000018420000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000C2420000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'panel'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            BottomRight.Coordinates = {
+              000088410000F0410000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00008841000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E0420000F0410000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000F8410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000410000DA420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E042000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000F0410000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000F0420000F0410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000DE420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00007041000000430000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000070410000F0420000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E242000000430000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E2420000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00000043000000430000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'form'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00005041000086420000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00003041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002042000084420000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000040410000BC420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001842000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C42000086420000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001C42000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000BC420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000410000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000050410000C2420000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000030410000BA420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000C2420000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000018420000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000C2420000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'panel'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            BottomRight.Coordinates = {
+              000088410000F0410000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00008841000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E0420000F0410000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000F8410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000410000DA420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E042000000000000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000F0410000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000F0420000F0410000000000000000
+            }
+            BottomRight.Coordinates = {
+              000000430000DE420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000000000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00007041000000430000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000070410000F0420000000000000000
+            }
+            BottomRight.Coordinates = {
+              0000E242000000430000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              0000E2420000E2420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00000043000000430000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'form'
+      end    
+      item
+        Elements = <        
+          item
+            TopLeft.Coordinates = {
+              00003041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000BC420000000000000000
+            }
+            Align = GLAlCenter
+            Name = 'center1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00005041000086420000000000000000
+            }
+            Align = GLAlTopLeft
+            Name = 'TopLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00003041000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002042000084420000000000000000
+            }
+            Align = GLAlTop
+            Name = 'Top1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00000041000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000040410000BC420000000000000000
+            }
+            Align = GLAlLeft
+            Name = 'Left1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001842000078420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C42000086420000000000000000
+            }
+            Align = GLAlTopRight
+            Name = 'TopRight1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              00001C42000082420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000BC420000000000000000
+            }
+            Align = GLAlRight
+            Name = 'Right1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000000410000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000050410000C2420000000000000000
+            }
+            Align = GLAlBottomLeft
+            Name = 'BottomLeft1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000030410000BA420000000000000000
+            }
+            BottomRight.Coordinates = {
+              000020420000C2420000000000000000
+            }
+            Align = GLAlBottom
+            Name = 'Bottom1'
+          end        
+          item
+            TopLeft.Coordinates = {
+              000018420000B8420000000000000000
+            }
+            BottomRight.Coordinates = {
+              00002C420000C2420000000000000000
+            }
+            Align = GLAlBottomRight
+            Name = 'BottomRight1'
+          end>
+        Name = 'panel'
+      end>
+    FileName = '..\..\media\default.layout'
+    left = 176
+    top = 16
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'Gui'
+        Material.Texture.ImageClassName = 'TGLPicFileImage'
+        Material.Texture.Image.PictureFileName = '..\..\media\DefaultSkin.bmp'
+        Material.Texture.ImageAlpha = tiaOpaque
+        Material.Texture.Disabled = False
+        Tag = 0
+      end>
+    left = 144
+    top = 16
+  end
+end

@@ -1,0 +1,260 @@
+object Form1: TForm1
+  Left = 200
+  Height = 355
+  Top = 110
+  Width = 508
+  HorzScrollBar.Page = 507
+  VertScrollBar.Page = 354
+  Caption = 'Form1'
+  ClientHeight = 355
+  ClientWidth = 508
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  LCLVersion = '0.9.29'
+  object Label2: TLabel
+    Left = 312
+    Height = 14
+    Top = 136
+    Width = 95
+    Caption = 'Central objects :'
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 312
+    Height = 14
+    Top = 240
+    Width = 102
+    Caption = 'Orbiting spheres :'
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object GLSceneViewer1: TGLSceneViewer
+    Left = 8
+    Height = 313
+    Top = 8
+    Width = 297
+    Camera = GLCamera1
+    Buffer.BackgroundColor = 13224393
+    FieldOfView = 135.998596191406
+  end
+  object RBSTC: TRadioButton
+    Left = 328
+    Height = 17
+    Top = 160
+    Width = 118
+    Caption = 'Sphere, Torus, Cone'
+    OnClick = RBSTCClick
+    TabOrder = 0
+  end
+  object RBTSC: TRadioButton
+    Left = 328
+    Height = 17
+    Top = 184
+    Width = 118
+    Caption = 'Torus, Sphere, Cone'
+    OnClick = RBTSCClick
+    TabOrder = 1
+  end
+  object RBTCS: TRadioButton
+    Left = 328
+    Height = 17
+    Top = 208
+    Width = 118
+    Caption = 'Torus, Cone, Sphere'
+    Checked = True
+    OnClick = RBTCSClick
+    State = cbChecked
+    TabOrder = 2
+  end
+  object CBSorting: TCheckBox
+    Left = 328
+    Height = 17
+    Top = 288
+    Width = 88
+    Caption = 'osFarthestFirst'
+    Checked = True
+    OnClick = CBSortingClick
+    State = cbChecked
+    TabOrder = 3
+  end
+  object CBAdditive: TCheckBox
+    Left = 328
+    Height = 17
+    Top = 264
+    Width = 101
+    Caption = 'Additive blending'
+    OnClick = CBAdditiveClick
+    TabOrder = 4
+  end
+  object Memo1: TMemo
+    Left = 320
+    Height = 120
+    Top = 8
+    Width = 184
+    Lines.Strings = (
+      'With Transparency and  Z-Buffering, '
+      'ordering your objects is important.'
+      ''
+      'In this sample, only the spheres are'
+      'transparent.'
+      ''
+      'Try the various options and see the'
+      'differences ordering and blending'
+      'mode make.'
+    )
+    ReadOnly = True
+    TabOrder = 5
+  end
+  object GLScene1: TGLScene
+    left = 16
+    top = 16
+    object GLLightSource1: TGLLightSource
+      TagFloat = 0
+      ConstAttenuation = 1
+      LinearAttenuation = 0
+      QuadraticAttenuation = 0
+      Position.Coordinates = {
+        0000A041000048420000F0410000803F
+      }
+      SpotCutOff = 180
+      SpotExponent = 0
+    end
+    object BaseDummyCube: TGLDummyCube
+      TagFloat = 0
+      ObjectsSorting = osRenderFarthestFirst
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      CubeSize = 1
+      object OrbitingSphere1: TGLSphere
+        TagFloat = 0
+        Material.FrontProperties.Diffuse.Color = {
+          0000803F0000803F000000000000003F
+        }
+        Material.BlendingMode = bmTransparency
+        Material.Texture.MappingTCoordinates.Coordinates = {
+          000000000000803F0000000000000000
+        }
+        PitchAngle = 0
+        Position.Coordinates = {
+          0000004000000000000000000000803F
+        }
+        RollAngle = 0
+        TurnAngle = 0
+        Radius = 0.5
+      end
+      object OrbitingSphere2: TGLSphere
+        TagFloat = 0
+        Material.FrontProperties.Diffuse.Color = {
+          0000803F0000803F000000000000003F
+        }
+        Material.BlendingMode = bmTransparency
+        Material.Texture.MappingTCoordinates.Coordinates = {
+          000000000000803F0000000000000000
+        }
+        PitchAngle = 0
+        Position.Coordinates = {
+          000000C000000000000000000000803F
+        }
+        RollAngle = 0
+        TurnAngle = 0
+        Radius = 0.5
+      end
+      object DCCentral: TGLDummyCube
+        TagFloat = 0
+        ObjectsSorting = osNone
+        PitchAngle = 0
+        RollAngle = 0
+        TurnAngle = 0
+        CubeSize = 1
+        object Torus1: TGLTorus
+          TagFloat = 0
+          Material.FrontProperties.Diffuse.Color = {
+            CDCC4C3EA1A0203EFAF9793F0000803F
+          }
+          Material.FrontProperties.Emission.Color = {
+            CDCCCC3DCDCCCC3DCDCCCC3D0000803F
+          }
+          Material.Texture.MappingTCoordinates.Coordinates = {
+            000000000000803F0000000000000000
+          }
+          Direction.Coordinates = {
+            000000000000803F2EBD3BB300000000
+          }
+          PitchAngle = 0
+          RollAngle = 0
+          TurnAngle = 0
+          Up.Coordinates = {
+            000000002EBD3BB3000080BF00000000
+          }
+          MajorRadius = 0.80000001192092
+          MinorRadius = 0.10000000149011
+        end
+        object Cone1: TGLCone
+          TagFloat = 0
+          Material.FrontProperties.Diffuse.Color = {
+            FBFA7A3FA5A4243EF9F8F83D0000803F
+          }
+          Material.FrontProperties.Emission.Color = {
+            E5E4E43EC1C0403CE1E0603D0000803F
+          }
+          Material.Texture.MappingTCoordinates.Coordinates = {
+            000000000000803F0000000000000000
+          }
+          PitchAngle = 0
+          Position.Coordinates = {
+            000000009A99993E000000000000803F
+          }
+          RollAngle = 0
+          TurnAngle = 0
+          BottomRadius = 0.30000001192092
+          Height = 2
+        end
+        object CentralSphere: TGLSphere
+          TagFloat = 0
+          Material.FrontProperties.Diffuse.Color = {
+            D3D2523FCCCB4B3FFFFE7E3F9A99193F
+          }
+          Material.FrontProperties.Emission.Color = {
+            CDCC4C3ECDCC4C3ECDCC4C3E0000803F
+          }
+          Material.BlendingMode = bmTransparency
+          Material.Texture.MappingTCoordinates.Coordinates = {
+            000000000000803F0000000000000000
+          }
+          PitchAngle = 0
+          RollAngle = 0
+          TurnAngle = 0
+          Radius = 0.60000002384185
+        end
+      end
+    end
+    object GLCamera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 60
+      TargetObject = DCCentral
+      Position.Coordinates = {
+        0000A04000002040000020400000803F
+      }
+      left = 240
+      top = 144
+    end
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    OnProgress = GLCadencer1Progress
+    left = 16
+    top = 48
+  end
+end

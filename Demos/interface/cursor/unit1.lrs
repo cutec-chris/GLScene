@@ -1,0 +1,70 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#2#0#6'Height'#3#184#2#3'Top'#2#24#5'Width'#3
+  +#0#4#18'HorzScrollBar.Page'#3#255#3#18'VertScrollBar.Page'#3#160#2#7'Caption'
+  +#6#5'Form1'#12'ClientHeight'#3#164#2#11'ClientWidth'#3#0#4#11'Font.Height'#2
+  +#245#9'Font.Name'#6#13'MS Sans Serif'#4'Menu'#7#9'MainMenu1'#8'OnCreate'#7#10
+  +'FormCreate'#10'LCLVersion'#6#6'0.9.29'#11'WindowState'#7#11'wsMaximized'#0#6
+  +'TBevel'#6'Bevel1'#4'Left'#2#0#6'Height'#2#3#3'Top'#2#0#5'Width'#3#0#4#5'Ali'
+  +'gn'#7#5'alTop'#5'Shape'#7#9'bsTopLine'#0#0#14'TGLSceneViewer'#14'GLSceneVie'
+  +'wer1'#4'Left'#2#0#6'Height'#3#141#2#3'Top'#2#3#5'Width'#3#0#4#6'Camera'#7#9
+  +'GLCamera1'#11'AfterRender'#7#25'GLSceneViewer1AfterRender'#16'Buffer.DepthT'
+  +'est'#8#11'FieldOfView'#5#0#0#0#0#0'9'#150#162#6'@'#5'Align'#7#8'alClient'#11
+  +'OnMouseMove'#7#23'GLSceneViewer1MouseMove'#0#0#10'TStatusBar'#10'StatusBar1'
+  +#4'Left'#2#0#6'Height'#2#20#3'Top'#3#144#2#5'Width'#3#0#4#6'Panels'#14#0#11
+  +'SimplePanel'#8#0#0#8'TGLScene'#8'GLScene1'#14'ObjectsSorting'#7#6'osNone'#4
+  +'left'#2#8#3'top'#2#16#0#12'TGLHUDSprite'#8'HSBitmap'#8'TagFloat'#5#0#0#0#0#0
+  +#0#0#0#0#0'''Material.FrontProperties.Emission.Color'#10#16#0#0#0#0#0#128'?'
+  +#0#0#128'?'#0#0#128'?'#0#0#128'?0Material.Texture.MappingTCoordinates.Coordi'
+  +'nates'#10#16#0#0#0#0#0#0#0#0#0#128'?'#0#0#0#0#0#0#0#0#25'Material.Texture.D'
+  +'isabled'#8#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#20'Position.Coordinates'#10
+  +#16#0#0#0#0#0'HB'#0#0'HB'#0#0#0#0#0#0#128'?'#9'RollAngle'#5#0#0#0#0#0#0#0#0#0
+  +#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#5'Width'#5#0#0#0#0#0#0#0#128#7'@'#6'He'
+  +'ight'#5#0#0#0#0#0#0#0#128#7'@'#8'Rotation'#5#0#0#0#0#0#0#0#0#0#0#0#0#12'TGL'
+  +'Particles'#12'GLParticles1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#10'PitchAngle'
+  +#5#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0
+  +#0#0#0#0#0#0#0#0#8'CubeSize'#5#0#0#0#0#0#0#0#128#255'?'#18'OnActivateParticl'
+  +'e'#7#28'GLParticles1ActivateParticle'#0#12'TGLHUDSprite'#10'HSParticle'#8'T'
+  +'agFloat'#5#0#0#0#0#0#0#0#0#0#0#24'Material.MaterialLibrary'#7#18'GLMaterial'
+  +'Library1'#24'Material.LibMaterialName'#6#6'cursor'#10'PitchAngle'#5#0#0#0#0
+  +#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0#0
+  +#0#0#0#10'OnProgress'#7#18'HSParticleProgress'#8'Rotation'#5#0#0#0#0#0#0#0#0
+  +#0#0#0#0#0#12'TGLHUDSprite'#8'HSCursor'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#24
+  +'Material.MaterialLibrary'#7#18'GLMaterialLibrary1'#24'Material.LibMaterialN'
+  +'ame'#6#6'cursor'#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#20'Position.Coordinat'
+  +'es'#10#16#0#0#0#0#0'HB'#0#0'HB'#0#0#0#0#0#0#128'?'#9'RollAngle'#5#0#0#0#0#0
+  +#0#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#8'Rotation'#5#0#0#0#0#0#0#0#0#0
+  +#0#0#0#9'TGLCamera'#9'GLCamera1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#11'DepthO'
+  +'fView'#5#0#0#0#0#0#0#0#200#5'@'#11'FocalLength'#5#0#0#0#0#0#0#0#200#4'@'#4
+  +'left'#3#232#0#3'top'#3#152#0#0#0#0#9'TMainMenu'#9'MainMenu1'#4'left'#2'('#3
+  +'top'#2#16#0#9'TMenuItem'#6'MIFile'#7'Caption'#6#4'File'#0#9'TMenuItem'#11'M'
+  +'ILoadImage'#7'Caption'#6#13'Load image...'#7'OnClick'#7#16'MILoadImageClick'
+  +#0#0#9'TMenuItem'#2'N1'#7'Caption'#6#1'-'#0#0#9'TMenuItem'#6'MIExit'#7'Capti'
+  +'on'#6#4'Exit'#7'OnClick'#7#11'MIExitClick'#0#0#0#9'TMenuItem'#2'O1'#7'Capti'
+  +'on'#6#7'Options'#0#9'TMenuItem'#7'MITrail'#7'Caption'#6#5'Trail'#7'OnClick'
+  +#7#12'MITrailClick'#0#0#0#0#18'TOpenPictureDialog'#18'OpenPictureDialog1'#6
+  +'Filter'#12#166#2#0#0'Graphic (*.tga;*.jpeg;*.jpg;*.pbm;*.pgm;*.ppm;*.tga;*.'
+  +'jpeg;*.jpg;*.ico;*.ppm;*.pgm;*.pbm;*.png;*.xpm;*.bmp)|*.tga;*.jpeg;*.jpg;*.'
+  +'pbm;*.pgm;*.ppm;*.tga;*.jpeg;*.jpg;*.ico;*.ppm;*.pgm;*.pbm;*.png;*.xpm;*.bm'
+  +'p|TGA Image File (*.tga)|*.tga|JPEG Image File (*.jpeg)|*.jpeg|JPEG Image F'
+  +'ile (*.jpg)|*.jpg|PNM Image File (*.pbm)|*.pbm|PNM Image File (*.pgm)|*.pgm'
+  +'|PNM Image File (*.ppm)|*.ppm|Targa (*.tga)|*.tga|JPEG Image File (*.jpeg)|'
+  +'*.jpeg|JPEG Image File (*.jpg)|*.jpg|Icon (*.ico)|*.ico|Portable PixMap (*.'
+  +'ppm)|*.ppm|Portable GrayMap (*.pgm)|*.pgm|Portable BitMap (*.pbm)|*.pbm|Por'
+  +'table Network Graphic (*.png)|*.png|Pixmap (*.xpm)|*.xpm|Bitmaps (*.bmp)|*.'
+  +'bmp|All files (*.*)|*.*|'#11'FilterIndex'#2#0#7'Options'#11#14'ofHideReadOn'
+  +'ly'#15'ofFileMustExist'#14'ofEnableSizing'#0#4'left'#2'H'#3'top'#2#16#0#0#11
+  +'TGLCadencer'#11'GLCadencer1'#5'Scene'#7#8'GLScene1'#12'MaxDeltaTime'#5#0#0#0
+  +#0#0#0#0#0#0#0#12'MinDeltaTime'#5#0#0#0#0#0#0#0#0#0#0#14'FixedDeltaTime'#5#0
+  +#0#0#0#0#0#0#0#0#0#10'OnProgress'#7#19'GLCadencer1Progress'#4'left'#2'h'#3't'
+  +'op'#2#16#0#0#18'TGLMaterialLibrary'#18'GLMaterialLibrary1'#9'Materials'#14#1
+  +#4'Name'#6#6'cursor''Material.FrontProperties.Emission.Color'#10#16#0#0#0#0#0
+  +#128'?'#0#0#128'?'#0#0#128'?'#0#0#128'?'#21'Material.BlendingMode'#7#14'bmTr'
+  +'ansparency'#27'Material.Texture.ImageAlpha'#7#31'tiaTopLeftPointColorTransp'
+  +'arent'#28'Material.Texture.TextureMode'#7#10'tmModulate0Material.Texture.Ma'
+  +'ppingTCoordinates.Coordinates'#10#16#0#0#0#0#0#0#0#0#0#128'?'#0#0#0#0#0#0#0
+  +#0#25'Material.Texture.Disabled'#8#3'Tag'#2#0#0#0#4'left'#3#136#0#3'top'#2#16
+  ,#0#0#6'TTimer'#6'Timer1'#7'OnTimer'#7#11'Timer1Timer'#4'left'#3#168#0#3'top'
+  +#2#16#0#0#0
+]);

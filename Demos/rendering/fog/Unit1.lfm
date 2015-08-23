@@ -1,0 +1,276 @@
+object Form1: TForm1
+  Left = 192
+  Height = 456
+  Top = 119
+  Width = 510
+  HorzScrollBar.Page = 509
+  VertScrollBar.Page = 455
+  Caption = 'Form1'
+  ClientHeight = 456
+  ClientWidth = 510
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.29'
+  object LFogStart: TLabel
+    Left = 8
+    Height = 14
+    Top = 312
+    Width = 39
+    Caption = 'fog start'
+    ParentColor = False
+  end
+  object LFogEnd: TLabel
+    Left = 8
+    Height = 14
+    Top = 365
+    Width = 37
+    Caption = 'fog end'
+    ParentColor = False
+  end
+  object LFogColor: TLabel
+    Left = 425
+    Height = 14
+    Top = 292
+    Width = 42
+    Caption = 'fog color'
+    ParentColor = False
+  end
+  object SFogColor: TShape
+    Left = 424
+    Height = 16
+    Top = 320
+    Width = 57
+    OnMouseDown = SFogColorMouseDown
+  end
+  object LFogDensity: TLabel
+    Left = 283
+    Height = 14
+    Top = 391
+    Width = 145
+    Caption = 'fog density (for fmExp/fmExp2)'
+    ParentColor = False
+  end
+  object GLSceneViewer1: TGLSceneViewer
+    Left = 8
+    Height = 274
+    Top = 8
+    Width = 502
+    Camera = GLCamera1
+    FieldOfView = 139.899520874023
+    Anchors = [akTop, akLeft, akRight]
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+  end
+  object CBFogEnable: TCheckBox
+    Left = 8
+    Height = 17
+    Top = 288
+    Width = 67
+    Caption = 'fog on/off'
+    OnClick = CBFogEnableClick
+    TabOrder = 1
+  end
+  object RGFogDistance: TRadioGroup
+    Left = 120
+    Height = 97
+    Top = 288
+    Width = 105
+    AutoFill = True
+    Caption = '[ fog mode ]'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 79
+    ClientWidth = 101
+    ItemIndex = 0
+    Items.Strings = (
+      'fdDefault'
+      'fdEyePlane'
+      'fdEyeRadial'
+    )
+    OnClick = RGFogModeClick
+    TabOrder = 0
+  end
+  object RGFogMode: TRadioGroup
+    Left = 232
+    Height = 97
+    Top = 288
+    Width = 105
+    AutoFill = True
+    Caption = '[ fog mode ]'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 79
+    ClientWidth = 101
+    ItemIndex = 0
+    Items.Strings = (
+      'fmLinear'
+      'fmExp'
+      'fmExp2'
+    )
+    OnClick = RGFogModeClick
+    TabOrder = 2
+  end
+  object CBApplyToBackground: TCheckBox
+    Left = 345
+    Height = 17
+    Top = 344
+    Width = 104
+    Caption = 'background too ?'
+    Checked = True
+    OnClick = CBApplyToBackgroundClick
+    State = cbChecked
+    TabOrder = 3
+  end
+  object GBTexture: TGroupBox
+    Left = 112
+    Height = 41
+    Top = 409
+    Width = 217
+    Caption = '[ texture ]'
+    ClientHeight = 23
+    ClientWidth = 213
+    TabOrder = 4
+    object CBTextureEnabled: TCheckBox
+      Left = 8
+      Height = 17
+      Top = 0
+      Width = 58
+      Caption = 'enabled'
+      Checked = True
+      OnClick = CBTextureEnabledClick
+      State = cbChecked
+      TabOrder = 0
+    end
+    object CBTextureIgnoreFog: TCheckBox
+      Left = 78
+      Height = 17
+      Top = 0
+      Width = 67
+      Caption = 'ignore fog'
+      OnClick = CBTextureIgnoreFogClick
+      TabOrder = 1
+    end
+  end
+  object EFogStart: TEdit
+    Left = 8
+    Height = 21
+    Top = 336
+    Width = 57
+    OnChange = EFogStartChange
+    TabOrder = 5
+    Text = '-30'
+  end
+  object EFogEnd: TEdit
+    Left = 8
+    Height = 21
+    Top = 391
+    Width = 57
+    OnChange = EFogStartChange
+    TabOrder = 6
+    Text = '30'
+  end
+  object EFogDensity: TEdit
+    Left = 424
+    Height = 21
+    Top = 424
+    Width = 57
+    OnChange = EFogStartChange
+    TabOrder = 7
+    Text = '100'
+  end
+  object GLScene1: TGLScene
+    left = 16
+    top = 16
+    object GLDummyCube1: TGLDummyCube
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      CubeSize = 1
+    end
+    object GLLightSource1: TGLLightSource
+      TagFloat = 0
+      ConstAttenuation = 1
+      LinearAttenuation = 0
+      QuadraticAttenuation = 0
+      Position.Coordinates = {
+        000096430000FA430000C8430000803F
+      }
+      SpotCutOff = 180
+      SpotExponent = 0
+    end
+    object GLSphere1: TGLSphere
+      TagFloat = 0
+      PitchAngle = 0
+      Position.Coordinates = {
+        000000000000A0C1000000000000803F
+      }
+      RollAngle = 0
+      TurnAngle = 0
+      Radius = 0.5
+    end
+    object GLCamera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 50
+      TargetObject = GLDummyCube1
+      Position.Coordinates = {
+        0000C04000008040000000410000803F
+      }
+    end
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    SleepLength = 1
+    OnProgress = GLCadencer1Progress
+    left = 48
+    top = 16
+  end
+  object ColorDialog1: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 80
+    top = 16
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    left = 112
+    top = 16
+  end
+end

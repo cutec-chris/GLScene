@@ -1,0 +1,50 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3#253#0#6'Height'#3'/'#1#3'Top'#3#136#0#5'W'
+  +'idth'#3'X'#1#18'HorzScrollBar.Page'#3'W'#1#18'VertScrollBar.Page'#3'.'#1#7
+  +'Caption'#6#5'Form1'#12'ClientHeight'#3'/'#1#11'ClientWidth'#3'X'#1#11'Font.'
+  +'Height'#2#245#9'Font.Name'#6#13'MS Sans Serif'#8'OnCreate'#7#10'FormCreate'
+  +#10'LCLVersion'#6#6'0.9.29'#0#14'TGLSceneViewer'#14'GLSceneViewer1'#4'Left'#2
+  +#0#6'Height'#3'/'#1#3'Top'#2#0#5'Width'#3'X'#1#6'Camera'#7#9'GLCamera1'#22'B'
+  +'uffer.BackgroundColor'#7#7'clBlack'#11'FieldOfView'#5#0#0#0#0#0#135'x'#143#6
+  +'@'#5'Align'#7#8'alClient'#11'OnMouseDown'#7#23'GLSceneViewer1MouseDown'#11
+  +'OnMouseMove'#7#23'GLSceneViewer1MouseMove'#0#0#8'TGLScene'#8'GLScene1'#14'O'
+  +'bjectsSorting'#7#6'osNone'#4'left'#2#8#3'top'#2#8#0#8'TGLTorus'#6'Torus1'#8
+  +'TagFloat'#5#0#0#0#0#0#0#0#0#0#0'&Material.FrontProperties.Ambient.Color'#10
+  +#16#0#0#0#154#153#25'>'#154#153#25'>'#154#153#25'>'#0#0#128'?0Material.Textu'
+  +'re.MappingTCoordinates.Coordinates'#10#16#0#0#0#0#0#0#0#0#0#128'?'#0#0#0#0#0
+  +#0#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0
+  +#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#11'MajorRadius'#5#0#0#0#0#0#0#0#192#0
+  +'@'#11'MinorRadius'#5#0#0#0#0#0#205#204#204#252'?'#5'Rings'#2'$'#5'Sides'#2#9
+  +#14'BehavioursData'#10'I'#0#0#0#2#1#6#11'TGLBInertia'#2#0#2#0#5#0#0#0#0#0#0#0
+  +#128#255'?'#2#0#8#5#0#0#0#0#0#0#0#0#0#0#5#0#0#0#0#0#0#0#0#0#0#5#0#0#0#0#0#0#0
+  +#240#3'@'#9#2#0#8#2#0#8#0#0#9'TGLSphere'#7'Sphere1'#8'TagFloat'#5#0#0#0#0#0#0
+  +#0#0#0#0'0Material.Texture.MappingTCoordinates.Coordinates'#10#16#0#0#0#0#0#0
+  +#0#0#0#128'?'#0#0#0#0#0#0#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'RollAng'
+  +'le'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#6'Radius'#5#0#0
+  +#0#0#0#154#153#153#253'?'#6'Slices'#2#6#6'Stacks'#2#6#0#14'TGLLightSource'#14
+  +'GLLightSource2'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#13'Ambient.Color'#10#16#0
+  +#0#0#0#0#128'?'#0#0#128'?'#0#0#128'?'#0#0#128'?'#16'ConstAttenuation'#5#0#0#0
+  +#0#0#0#0#128#255'?'#13'Diffuse.Color'#10#16#0#0#0#0#0#128'?'#129#128#0'?'#0#0
+  +#0#0#0#0#128'?'#17'LinearAttenuation'#5#0#0#0#0#0#0#0#0#0#0#20'QuadraticAtte'
+  +'nuation'#5#0#0#0#0#0#0#0#0#0#0#20'Position.Coordinates'#10#16#0#0#0#0#0#0#0
+  +#0#0#0'?'#0#0#0#0#0#0#128'?'#10'SpotCutOff'#5#0#0#0#0#0#0#0#180#6'@'#12'Spot'
+  +'Exponent'#5#0#0#0#0#0#0#0#0#0#0#0#0#0#9'TGLCamera'#9'GLCamera1'#8'TagFloat'
+  +#5#0#0#0#0#0#0#0#0#0#0#11'DepthOfView'#5#0#0#0#0#0#0#0#200#5'@'#11'FocalLeng'
+  +'th'#5#0#0#0#0#0#0#0#200#4'@'#12'TargetObject'#7#7'Sphere1'#20'Position.Coor'
+  +'dinates'#10#16#0#0#0#0#0#0'A'#0#0#0'@'#0#0#160'@'#0#0#128'?'#4'left'#3#152#0
+  +#3'top'#2'h'#0#0#0#11'TGLCadencer'#11'GLCadencer1'#5'Scene'#7#8'GLScene1'#12
+  +'MaxDeltaTime'#5#0#0#0#0#0#0#0#0#0#0#12'MinDeltaTime'#5#0#0#0#0#0#0#0#0#0#0
+  +#14'FixedDeltaTime'#5#0#0#0#0#0#0#0#0#0#0#4'left'#2'('#3'top'#2#8#0#0#16'TGL'
+  +'FireFXManager'#16'GLFireFXManager1'#19'FireDir.Coordinates'#10#16#0#0#0#0#0
+  +#0#0#0#0#128'?'#0#0#0#0#0#0#0#0#22'InitialDir.Coordinates'#10#16#0#0#0#0#0#0
+  +#0#0#0#0#0#0#0#0#0#0#0#0#0#8'Cadencer'#7#11'GLCadencer1'#12'MaxParticles'#2
+  +'`'#12'ParticleSize'#5#0#0#0#0#0'33'#179#254'?'#11'FireDensity'#5#0#0#0#0#0#0
+  +#0#128#254'?'#15'FireEvaporation'#5#0#0#0#0#0#246'('#220#254'?'#9'FireCrown'
+  +#5#0#0#0#0#0#0#0#0#0#0#9'FireBurst'#5#0#0#0#0#0#0#0#128#255'?'#10'FireRadius'
+  +#5#0#0#0#0#0#0#0#128#254'?'#8'Disabled'#8#6'Paused'#8#16'ParticleInterval'#5
+  +#0#0#0#0#0#10#215#163#248'?'#11'UseInterval'#9#9'Reference'#7#7'Sphere1'#4'l'
+  +'eft'#2'H'#3'top'#2#8#0#0#6'TTimer'#6'Timer1'#7'OnTimer'#7#11'Timer1Timer'#4
+  +'left'#2#8#3'top'#2'('#0#0#0
+]);

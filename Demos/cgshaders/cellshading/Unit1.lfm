@@ -1,0 +1,88 @@
+object Form1: TForm1
+  Left = 342
+  Height = 430
+  Top = 145
+  Width = 431
+  HorzScrollBar.Page = 430
+  VertScrollBar.Page = 429
+  Caption = 'Cg Cell Shading Demo'
+  ClientHeight = 430
+  ClientWidth = 431
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  object GLSceneViewer1: TGLSceneViewer
+    Height = 430
+    Width = 431
+    Camera = GLCamera1
+    FieldOfView = 153.816207885742
+    Align = alClient
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+  end
+  object GLScene1: TGLScene
+    left = 8
+    top = 8
+    object GLDummyCube1: TGLDummyCube
+      CubeSize = 1
+      object GLCamera1: TGLCamera
+        DepthOfView = 100
+        FocalLength = 50
+        TargetObject = GLDummyCube1
+        Position.Coordinates = {
+          00000000000000400000A0400000803F
+        }
+        Direction.Coordinates = {
+          00000000000000000000803F00000000
+        }
+        object GLLightSource1: TGLLightSource
+          ConstAttenuation = 1
+          SpotCutOff = 180
+        end
+      end
+    end
+    object GLActor1: TGLActor
+      Material.MaterialLibrary = GLMaterialLibrary1
+      Material.LibMaterialName = 'CgShaderMat'
+      Direction.Coordinates = {
+        000000000000803F2EBD3BB300000000
+      }
+      PitchAngle = 90
+      Up.Coordinates = {
+        000000002EBD3BB3000080BF00000000
+      }
+      Interval = 100
+    end
+  end
+  object CgCellShader: TCgShader
+    VertexProgram.OnApply = CgCellShaderApplyVP
+    FragmentProgram.OnApply = CgCellShaderApplyFP
+    FragmentProgram.OnUnApply = CgCellShaderUnApplyFP
+    OnApplyVP = CgCellShaderApplyVP
+    OnApplyFP = CgCellShaderApplyFP
+    OnUnApplyFP = CgCellShaderUnApplyFP
+    OnInitialize = CgCellShaderInitialize
+    left = 40
+    top = 40
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'CgShaderMat'
+        Material.Texture.Disabled = False
+        Shader = CgCellShader
+      end>
+    left = 40
+    top = 8
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    left = 8
+    top = 40
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    left = 8
+    top = 72
+  end
+end

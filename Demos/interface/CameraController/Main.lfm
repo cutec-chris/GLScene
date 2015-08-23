@@ -1,0 +1,564 @@
+object Form1: TForm1
+  Left = 138
+  Height = 588
+  Top = 176
+  Width = 863
+  Caption = 'CameraController Demo'
+  ClientHeight = 588
+  ClientWidth = 863
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  OnClose = FormClose
+  OnMouseWheel = FormMouseWheel
+  LCLVersion = '0.9.29'
+  object Panel1: TPanel
+    Left = 533
+    Height = 553
+    Top = 0
+    Width = 330
+    Align = alRight
+    ClientHeight = 553
+    ClientWidth = 330
+    TabOrder = 0
+    object Panel2: TPanel
+      Left = 6
+      Height = 201
+      Top = 9
+      Width = 155
+      ClientHeight = 201
+      ClientWidth = 155
+      TabOrder = 0
+      object Label1: TLabel
+        Left = 6
+        Height = 14
+        Top = 57
+        Width = 64
+        Caption = 'Destination X'
+        ParentColor = False
+      end
+      object Label2: TLabel
+        Left = 6
+        Height = 14
+        Top = 105
+        Width = 64
+        Caption = 'Destination Y'
+        ParentColor = False
+      end
+      object Label3: TLabel
+        Left = 6
+        Height = 14
+        Top = 153
+        Width = 64
+        Caption = 'Destination Z'
+        ParentColor = False
+      end
+      object Label5: TLabel
+        Left = 4
+        Height = 47
+        Top = 2
+        Width = 141
+        AutoSize = False
+        Caption = 'Data for MoveToPos, OrbitToPos and SafeOrbitAndZoomToPos'
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        WordWrap = True
+      end
+      object eDestX: TEdit
+        Left = 6
+        Height = 21
+        Top = 72
+        Width = 121
+        TabOrder = 0
+        Text = '0'
+      end
+      object eDestY: TEdit
+        Left = 6
+        Height = 21
+        Top = 122
+        Width = 121
+        TabOrder = 1
+        Text = '5.79'
+      end
+      object eDestZ: TEdit
+        Left = 6
+        Height = 21
+        Top = 168
+        Width = 121
+        TabOrder = 2
+        Text = '-3.34'
+      end
+    end
+    object Panel3: TPanel
+      Left = 166
+      Height = 72
+      Top = 241
+      Width = 155
+      ClientHeight = 72
+      ClientWidth = 155
+      TabOrder = 1
+      object Label6: TLabel
+        Left = 6
+        Height = 14
+        Top = 25
+        Width = 42
+        Caption = 'Distance'
+        ParentColor = False
+      end
+      object Label9: TLabel
+        Left = 4
+        Height = 15
+        Top = 2
+        Width = 129
+        AutoSize = False
+        Caption = 'Data for ZoomToDistance'
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        WordWrap = True
+      end
+      object eDistance: TEdit
+        Left = 6
+        Height = 21
+        Top = 40
+        Width = 121
+        TabOrder = 0
+        Text = '4'
+      end
+    end
+    object Panel4: TPanel
+      Left = 166
+      Height = 224
+      Top = 9
+      Width = 155
+      ClientHeight = 224
+      ClientWidth = 155
+      TabOrder = 2
+      object Label7: TLabel
+        Left = 6
+        Height = 14
+        Top = 41
+        Width = 75
+        Caption = 'soSafeDistance'
+        ParentColor = False
+      end
+      object Label8: TLabel
+        Left = 6
+        Height = 14
+        Top = 137
+        Width = 70
+        Caption = 'soTimeToOrbit'
+        ParentColor = False
+      end
+      object Label10: TLabel
+        Left = 6
+        Height = 14
+        Top = 89
+        Width = 117
+        Caption = 'soTimeToSafePlacement'
+        ParentColor = False
+      end
+      object Label11: TLabel
+        Left = 4
+        Height = 31
+        Top = 2
+        Width = 141
+        AutoSize = False
+        Caption = 'Data for SafeOrbitAndZoomToPos'
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        WordWrap = True
+      end
+      object Label12: TLabel
+        Left = 6
+        Height = 14
+        Top = 177
+        Width = 104
+        Caption = 'soTimeToZoomBackIn'
+        ParentColor = False
+      end
+      object eSafeDistance: TEdit
+        Left = 6
+        Height = 21
+        Top = 56
+        Width = 121
+        TabOrder = 0
+        Text = '9'
+      end
+      object eTimeToSafePlacement: TEdit
+        Left = 6
+        Height = 21
+        Top = 106
+        Width = 121
+        TabOrder = 1
+        Text = '1'
+      end
+      object eTimeToOrbit: TEdit
+        Left = 6
+        Height = 21
+        Top = 152
+        Width = 121
+        TabOrder = 2
+        Text = '2'
+      end
+      object eTimeToZoomBackIn: TEdit
+        Left = 6
+        Height = 21
+        Top = 192
+        Width = 121
+        TabOrder = 3
+        Text = '1'
+      end
+    end
+    object Panel5: TPanel
+      Left = 6
+      Height = 96
+      Top = 217
+      Width = 155
+      ClientHeight = 96
+      ClientWidth = 155
+      TabOrder = 3
+      object Label13: TLabel
+        Left = 6
+        Height = 14
+        Top = 49
+        Width = 23
+        Caption = 'Time'
+        ParentColor = False
+      end
+      object Label14: TLabel
+        Left = 4
+        Height = 47
+        Top = 2
+        Width = 129
+        AutoSize = False
+        Caption = 'Data for MoveToPos, OrbitToPos and ZoomToDistance'
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+        WordWrap = True
+      end
+      object eTime: TEdit
+        Left = 6
+        Height = 21
+        Top = 64
+        Width = 121
+        TabOrder = 0
+        Text = '2'
+      end
+    end
+    object btnMoveToPos: TButton
+      Left = 25
+      Height = 33
+      Top = 336
+      Width = 280
+      Caption = 'MoveToPos (linear interpolation)'
+      OnClick = btnMoveToPosClick
+      TabOrder = 4
+    end
+    object btnZoomToDistance: TButton
+      Left = 25
+      Height = 34
+      Top = 375
+      Width = 280
+      Caption = 'ZoomToDistance'
+      OnClick = btnZoomToDistanceClick
+      TabOrder = 5
+    end
+    object btnOrbitToPos: TButton
+      Left = 25
+      Height = 34
+      Top = 415
+      Width = 280
+      Caption = 'OrbitToPos (will not zoom in to pos)'
+      OnClick = btnOrbitToPosClick
+      TabOrder = 6
+    end
+    object btnSafeOrbitAndZoomToPos: TButton
+      Left = 25
+      Height = 34
+      Top = 455
+      Width = 280
+      Caption = 'SafeOrbitAndZoomToPos'
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      OnClick = btnSafeOrbitAndZoomToPosClick
+      ParentFont = False
+      TabOrder = 7
+    end
+    object btnStopMovement: TButton
+      Left = 25
+      Height = 33
+      Top = 504
+      Width = 280
+      Caption = 'StopMovement'
+      Font.Color = clNavy
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsItalic]
+      OnClick = btnStopMovementClick
+      ParentFont = False
+      TabOrder = 8
+    end
+  end
+  object GLSceneViewer1: TGLSceneViewer
+    Left = 0
+    Height = 553
+    Top = 0
+    Width = 533
+    Camera = GLCamera
+    FieldOfView = 131.517700195312
+    Align = alClient
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+    OnMouseUp = GLSceneViewer1MouseUp
+  end
+  object pImg: TPanel
+    Left = 4
+    Height = 24
+    Top = 4
+    Width = 157
+    BevelOuter = bvNone
+    ClientHeight = 24
+    ClientWidth = 157
+    TabOrder = 2
+    object Image1: TImage
+      Left = 0
+      Height = 24
+      Top = 0
+      Width = 24
+      Picture.Data = {
+        07544269746D6170F6060000424DF60600000000000036000000280000001800
+        0000180000000100180000000000C0060000C30E0000C30E0000000000000000
+        000082C9F77FC8F786CBF78CCEF792D0F898D3F89FD6F8A5D8F9AADBF9B1DDFA
+        B7E0FABCE3FBC2E5FBC7E7FBCDE9FCD2ECFCD7EEFCDCF0FDE1F3FDE6F5FDE9F7
+        FEEDF8FEF2F9FEF5FBFE70C3F5C0C0C0C0C0C0C0C0C0C0C0C08BCDF792D0F898
+        D3F89ED6F9A6D9F9ACDBFAB2DEFAB8E1FBBFE3FBC4E6FBCAE9FCCFEBFCD5EDFC
+        808080808080808080E8F6FEEDF7FEF2F9FE6DC1F60000000000000000000000
+        00C0C0C08CCEF891D0F899D3F89FD6F9A6D9F9ACDCFAB3DEFAB8E1FABFE3FBC4
+        E6FBCAE9FC808080D5EDFCDAF0FDDFF2FD808080E8F6FEEEF8FE67BEF563BDF5
+        000000000000000000000000C0C0C0C0C0C092D0F798D3F89FD6F9A6D9F9ACDC
+        FAB2DEFAB9E1FABFE4FB808080CAE8FCCFEBFCD5EDFCDAF0FDDFF2FD808080EA
+        F7FE60BBF55EBAF464BDF56BC0F571C2F60000000000000000008CCEF792D1F8
+        98D3F89FD6F9A5D9F9ABDCFAB3DEFAB9E1FB808080C4E6FB8080808080808080
+        80DAEFFD808080E6F5FD5BB9F557B7F45EBAF464BDF56AC0F571C3F678C6F600
+        000085CBF78CCEF792D1F799D4F89FD6F9A6D9F9ACDCFAB3DEFA808080BFE3FB
+        C4E6FBCAE9FCD0EAFCD5EDFC808080E2F3FD56B7F451B5F458B8F45EBAF564BD
+        F56BC0F572C3F678C5F67EC8F785CBF78CCEF793D1F899D4F89FD6F9A6D9F9AC
+        DCFAB2DEFA808080BFE4FBC4E6FBCAE9FC808080D6EEFCDDF1FD50B5F44AB2F3
+        51B5F457B7F400000064BDF56BC0F571C3F60000000000000000000000000000
+        00000000000000000000000000000000808080808080808080CAE9FCCFEBFCD8
+        EFFC49B2F344B0F34BB2F352B5F400000000000064BDF5000000000000000000
+        000000000000000000000000000000000000000000000000000000B9E1FBBFE4
+        FBC5E6FBCAE9FCD3ECFC45AFF33FADF346AFF34CB2F300000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        000000B3DFFAB9E1FBBFE4FBC5E6FBCEE9FC3FADF339AAF240ADF346B0F30000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000ACDBFAB3DEFAB9E1FBBFE4FBC8E7FB3AABF234A8F2
+        39ABF23FADF20000000000000000000000000000000000000000000000000000
+        00000000000000000000000000000000000000A6D9F9ADDCFAB3DFFABAE1FBC4
+        E6FB36A8F22EA6F134A8F23AAAF20000000000004CB2F3000000000000000000
+        000000000000000000000000000000000000000000000000000000A0D6F9A7D9
+        F9ADDCFAB4DFFABEE3FB30A7F229A3F12FA6F134A9F200000040ADF346B0F34C
+        B2F3000000000000000000000000000000000000000000000000000000000000
+        93D1F899D4F8A0D7F9A6D9F9ADDCFAB8E1FA2CA6F124A2F029A4F12FA6F134A8
+        F23AABF240AEF245B0F34BB3F300000000000000000066BEF56CC0F500000000
+        000000000086CCF78DCEF894D1F89AD4F8A1D7F9A7DAF9B3DEFA28A3F11F9FF0
+        24A1F129A3F12FA5F134A9F239ABF240ADF20000000000000000000000000000
+        0000000000000000000000000000000086CCF78DCEF894D1F89AD4F9A1D7F9AC
+        DBF924A1F11A9DF01FA0F0FFFFFFFFFFFFFFFFFF34A8F23AABF2000000000000
+        00000000000000000000000000000000000000000000000080C9F786CBF78DCE
+        F893D1F89AD4F8A7D9F920A0F0169BF0FFFFFF1FA0F024A2F12AA3F1FFFFFF34
+        A9F23AABF200000000000000000053B5F459B8F400000000000000000072C3F6
+        7AC6F6C0C0C0C0C0C08DCFF893D1F8A1D7F81C9DF0FFFFFF169CF01A9EF0FFFF
+        FF24A2F129A4F1FFFFFF35A9F23BABF240ADF247B0F34DB3F352B5F459B8F460
+        BBF566BEF56CC0F673C3F6000000000000C0C0C08DCFF89AD4F8189CF0FFFFFF
+        1299EFFFFFFFFFFFFFFFFFFF25A1F1FFFFFF2FA6F134A8F23AABF241AEF347B0
+        F34CB2F352B5F459B8F45FBBF566BEF56DC1F673C3F6000000000000C0C0C094
+        D1F8159BF0FFFFFF0E98EF129AEFFFFFFF1B9EF01FA0F0FFFFFF2AA4F12FA7F1
+        35A9F23BABF240AEF247B0F34DB3F353B6F459B8F460BBF466BEF56CC0F573C3
+        F60000000000008ECFF71299EF0695EFFFFFFF0E99EF1299EF169CF0FFFFFF1F
+        A0F025A1F12AA4F12FA6F134A8F23BABF241AEF347B0F34DB3F353B6F459B8F4
+        5FBBF566BDF56DC1F600000000000088CCF70C97EF0394EE0795EFFFFFFFFFFF
+        FFFFFFFF169CF01B9DF0209FF025A1F12AA4F12FA7F135A9F23AABF240AEF347
+        B0F34CB3F352B6F459B8F460BBF566BEF56DC1F500000080C8F61E9FF01098EF
+        129AEF159BF0189DF01C9EF020A1F024A1F128A3F12DA6F132A7F237A9F23BAB
+        F241AEF346B0F34CB3F452B5F457B7F45DBAF563BCF569BFF66FC2F676C5F683
+        CBF7
+      }
+    end
+    object Label4: TLabel
+      Left = 32
+      Height = 14
+      Top = 6
+      Width = 103
+      Caption = 'TGLCameraController'
+      ParentColor = False
+    end
+  end
+  object Panel6: TPanel
+    Left = 0
+    Height = 35
+    Top = 553
+    Width = 863
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 35
+    ClientWidth = 863
+    TabOrder = 3
+    object Label15: TLabel
+      Left = 4
+      Height = 31
+      Top = 6
+      Width = 853
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'The main method, SafeOrbitAndZoomToPos, resambles the Google Earth "Fly to..." motion. I developed and used it to fly to different views of a car (hood, trunk etc) in 3DCar(TM), which probably was/is the first interactive 3D car configurator, released by Bluemind Software.'
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+  end
+  object GLScene1: TGLScene
+    VisibilityCulling = vcHierarchical
+    left = 16
+    top = 48
+    object GLDummyCube1: TGLDummyCube
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      ShowAxes = True
+      TurnAngle = 0
+      CubeSize = 4
+      object GLSphere1: TGLSphere
+        TagFloat = 0
+        Material.MaterialLibrary = GLMaterialLibrary1
+        Material.LibMaterialName = 'transparent blue'
+        PitchAngle = 0
+        RollAngle = 0
+        TurnAngle = 0
+        Radius = 2
+        Slices = 32
+        Stacks = 32
+      end
+      object GLCylinder1: TGLCylinder
+        TagFloat = 0
+        Material.MaterialLibrary = GLMaterialLibrary1
+        Material.LibMaterialName = 'opaque green'
+        ObjectsSorting = osNone
+        Direction.Coordinates = {
+          00000000FFFFFF3ED7B35D3F00000000
+        }
+        PitchAngle = 30
+        RollAngle = 0
+        TurnAngle = 0
+        Up.Coordinates = {
+          00000000D7B35D3FFFFFFFBE00000000
+        }
+        BottomRadius = 0.20000000298023
+        Height = 4.19999980926513
+        TopRadius = 0.05000000074505
+      end
+      object GLSphere2: TGLSphere
+        TagFloat = 0
+        Material.MaterialLibrary = GLMaterialLibrary1
+        Material.LibMaterialName = 'opaque green'
+        PitchAngle = 0
+        Position.Coordinates = {
+          6666E63F00000000000000000000803F
+        }
+        RollAngle = 0
+        TurnAngle = 0
+        Radius = 0.30000001192092
+      end
+      object GLSphere3: TGLSphere
+        TagFloat = 0
+        Material.MaterialLibrary = GLMaterialLibrary1
+        Material.LibMaterialName = 'opaque red'
+        PitchAngle = 0
+        Position.Coordinates = {
+          000000006666E63F000000000000803F
+        }
+        RollAngle = 0
+        TurnAngle = 0
+        Radius = 0.30000001192092
+      end
+    end
+    object GLCamera: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 120
+      TargetObject = GLDummyCube1
+      Position.Coordinates = {
+        0000204100002041000020410000803F
+      }
+      object GLLightSource1: TGLLightSource
+        TagFloat = 0
+        ConstAttenuation = 1
+        LinearAttenuation = 0
+        QuadraticAttenuation = 0
+        SpotCutOff = 180
+        SpotExponent = 0
+      end
+    end
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'transparent blue'
+        Material.FrontProperties.Diffuse.Color = {
+          FBFAFA3EF7F6F63E0000803F9A99193F
+        }
+        Material.BlendingMode = bmTransparency
+        Tag = 0
+      end    
+      item
+        Name = 'opaque green'
+        Material.FrontProperties.Diffuse.Color = {
+          000000000000803FF3F2F23E0000803F
+        }
+        Tag = 0
+      end    
+      item
+        Name = 'opaque red'
+        Material.FrontProperties.Ambient.Color = {
+          0000803F0000803F0000803F0000803F
+        }
+        Material.FrontProperties.Diffuse.Color = {
+          0000803F00000000000000000000803F
+        }
+        Tag = 0
+      end>
+    left = 48
+    top = 48
+  end
+  object GLCadencer1: TGLCadencer
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    left = 16
+    top = 80
+  end
+  object GLCameraController1: TGLCameraController
+    Camera = GLCamera
+    Cadencer = GLCadencer1
+    soSafeDistance = 10
+    soTimeToSafePlacement = 1
+    soTimeToOrbit = 2
+    soTimeToZoomBackIn = 1
+    left = 48
+    top = 80
+  end
+end

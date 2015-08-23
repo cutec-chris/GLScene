@@ -1,0 +1,20 @@
+LazarusResources.Add('TDataModule1','FORMDATA',[
+  'TPF0'#12'TDataModule1'#11'DataModule1'#8'OnCreate'#7#16'DataModuleCreate'#14
+  +'OldCreateOrder'#8#6'Height'#3','#1#16'HorizontalOffset'#2#0#14'VerticalOffs'
+  +'et'#3#219#0#5'Width'#3#144#1#0#8'TGLScene'#8'GLScene1'#4'left'#2#28#3'top'#2
+  +#13#0#14'TGLLightSource'#14'GLLightSource1'#8'TagFloat'#2#0#16'ConstAttenuat'
+  +'ion'#2#1#17'LinearAttenuation'#2#0#20'QuadraticAttenuation'#2#0#10'SpotCutO'
+  +'ff'#3#180#0#12'SpotExponent'#2#0#0#0#9'TGLTeapot'#9'GLTeapot1'#8'TagFloat'#2
+  +#0#10'PitchAngle'#2#0#9'RollAngle'#2#0#9'TurnAngle'#2#0#0#0#12'TGLDummyCube'
+  +#11'DCBlueLight'#8'TagFloat'#2#0#10'PitchAngle'#2#0#9'RollAngle'#2#0#9'TurnA'
+  +'ngle'#2#0#8'CubeSize'#2#1#0#14'TGLLightSource'#14'GLLightSource2'#8'TagFloa'
+  +'t'#2#0#16'ConstAttenuation'#2#1#17'LinearAttenuation'#2#0#20'QuadraticAtten'
+  +'uation'#2#0#10'SpotCutOff'#3#180#0#12'SpotExponent'#2#0#0#0#0#9'TGLCamera'#9
+  +'GLCamera1'#8'TagFloat'#2#0#11'DepthOfView'#2'd'#11'FocalLength'#2'2'#12'Tar'
+  +'getObject'#7#9'GLTeapot1'#20'Position.Coordinates'#10#16#0#0#0#0#0'@@'#0#0#0
+  +'@'#0#0#0'@'#0#0#128'?'#0#0#0#19'TGLFullScreenViewer'#19'GLFullScreenViewer1'
+  +#6'Camera'#7#9'GLCamera1'#5'Width'#3' '#3#6'Height'#3'X'#2#10'PostRender'#7
+  +#29'GLFullScreenViewer1PostRender'#22'Buffer.BackgroundColor'#7#7'clBlack'#9
+  +'StayOnTop'#9#11'refreshrate'#2'd'#10'OnKeyPress'#7#27'GLFullScreenViewer1Ke'
+  +'yPress'#4'left'#2'j'#3'top'#2#18#0#0#0
+]);

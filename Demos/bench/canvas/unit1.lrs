@@ -1,0 +1,42 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3')'#1#6'Height'#3'I'#1#3'Top'#3#228#0#5'Wi'
+  +'dth'#3#25#2#18'HorzScrollBar.Page'#3#24#2#18'VertScrollBar.Page'#3'H'#1#11
+  +'BorderStyle'#7#8'bsDialog'#7'Caption'#6#15'GLCanvas vs GDI'#12'ClientHeight'
+  +#3'I'#1#11'ClientWidth'#3#25#2#11'Font.Height'#2#245#9'Font.Name'#6#13'MS Sa'
+  +'ns Serif'#8'OnCreate'#7#10'FormCreate'#10'LCLVersion'#6#6'0.9.29'#0#9'TPain'
+  +'tBox'#8'PaintBox'#4'Left'#3#16#1#6'Height'#3#0#1#3'Top'#2'@'#5'Width'#3#0#1
+  +#0#0#6'TLabel'#10'LAGLCanvas'#4'Left'#2#8#6'Height'#2#14#3'Top'#2'0'#5'Width'
+  +#2'M'#7'Caption'#6#13'GLCanvas: N/A'#11'ParentColor'#8#0#0#6'TLabel'#5'LAGDI'
+  +#4'Left'#3#16#1#6'Height'#2#14#3'Top'#2'0'#5'Width'#2'.'#7'Caption'#6#8'GDI:'
+  +' N/A'#11'ParentColor'#8#0#0#6'TBevel'#6'Bevel1'#4'Left'#3#11#1#6'Height'#3
+  +#17#1#3'Top'#2'0'#5'Width'#2#2#0#0#7'TButton'#7'BULines'#4'Left'#2#8#6'Heigh'
+  +'t'#2#25#3'Top'#2#8#5'Width'#2'I'#25'BorderSpacing.InnerBorder'#2#4#7'Captio'
+  +'n'#6#9'20k Lines'#7'OnClick'#7#12'BULinesClick'#8'TabOrder'#2#0#0#0#7'TButt'
+  +'on'#10'BUEllipses'#4'Left'#2'X'#6'Height'#2#25#3'Top'#2#8#5'Width'#2'I'#25
+  +'BorderSpacing.InnerBorder'#2#4#7'Caption'#6#12'20k Ellipses'#7'OnClick'#7#15
+  +'BUEllipsesClick'#8'TabOrder'#2#1#0#0#14'TGLSceneViewer'#13'GLSceneViewer'#4
+  +'Left'#2#8#6'Height'#3#0#1#3'Top'#2'@'#5'Width'#3#0#1#6'Camera'#7#9'GLCamera'
+  +'1'#15'Buffer.Lighting'#8#11'FieldOfView'#5#0#0#0#0#0#135'S'#137#6'@'#0#0#12
+  +'TRadioButton'#11'RBPenWidth1'#4'Left'#3#176#1#6'Height'#2#17#3'Top'#2#8#5'W'
+  +'idth'#2'X'#7'Caption'#6#13'Pen Width = 1'#7'Checked'#9#5'State'#7#9'cbCheck'
+  +'ed'#8'TabOrder'#2#2#0#0#12'TRadioButton'#11'RBPenWidth2'#4'Left'#3#176#1#6
+  +'Height'#2#17#3'Top'#2#24#5'Width'#2'X'#7'Caption'#6#13'Pen Width = 2'#8'Tab'
+  +'Order'#2#3#0#0#7'TButton'#8'BUPoints'#4'Left'#3#248#0#6'Height'#2#25#3'Top'
+  +#2#8#5'Width'#2'I'#25'BorderSpacing.InnerBorder'#2#4#7'Caption'#6#11'200k Po'
+  +'ints'#7'OnClick'#7#13'BUPointsClick'#8'TabOrder'#2#4#0#0#7'TButton'#7'BURec'
+  +'ts'#4'Left'#3#168#0#6'Height'#2#25#3'Top'#2#8#5'Width'#2'I'#25'BorderSpacin'
+  +'g.InnerBorder'#2#4#7'Caption'#6#9'20k Rects'#7'OnClick'#7#12'BURectsClick'#8
+  +'TabOrder'#2#5#0#0#7'TButton'#9'BUTextOut'#4'Left'#3'H'#1#6'Height'#2#25#3'T'
+  +'op'#2#8#5'Width'#2'I'#25'BorderSpacing.InnerBorder'#2#4#7'Caption'#6#11'20k'
+  +' TextOut'#7'OnClick'#7#14'BUTextOutClick'#8'TabOrder'#2#6#0#0#8'TGLScene'#8
+  +'GLScene1'#4'left'#2#16#3'top'#2'H'#0#15'TGLDirectOpenGL'#15'GLDirectOpenGL1'
+  +#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'Ro'
+  +'llAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#12'UseBui'
+  +'ldList'#8#8'OnRender'#7#21'GLDirectOpenGL1Render'#5'Blend'#8#0#0#9'TGLCamer'
+  +'a'#9'GLCamera1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#11'DepthOfView'#5#0#0#0#0
+  +#0#0#0#200#5'@'#11'FocalLength'#5#0#0#0#0#0#0#0#200#4'@'#0#0#0#20'TGLWindows'
+  +'BitmapFont'#17'WindowsBitmapFont'#10'Font.Color'#7#7'clWhite'#11'Font.Heigh'
+  +'t'#2#245#9'Font.Name'#6#5'Arial'#4'left'#2#8#3'top'#3#168#0#0#0#0
+]);

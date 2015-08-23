@@ -1,0 +1,73 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3'N'#1#6'Height'#3'}'#1#3'Top'#3#136#0#5'Wi'
+  +'dth'#3#20#2#18'HorzScrollBar.Page'#3#19#2#18'VertScrollBar.Page'#3'|'#1#7'C'
+  +'aption'#6#5'Form1'#12'ClientHeight'#3'}'#1#11'ClientWidth'#3#20#2#11'Font.H'
+  +'eight'#2#245#9'Font.Name'#6#13'MS Sans Serif'#8'OnCreate'#7#14'CBFormatChan'
+  +'ge'#10'LCLVersion'#6#6'0.9.29'#0#14'TGLSceneViewer'#14'GLSceneViewer1'#4'Le'
+  +'ft'#2#0#6'Height'#3'}'#1#3'Top'#2#0#5'Width'#3'D'#1#6'Camera'#7#9'GLCamera1'
+  +#11'AfterRender'#7#25'GLSceneViewer1AfterRender'#11'FieldOfView'#5#0#0#0#0#0
+  +#236'J'#179#6'@'#5'Align'#7#8'alClient'#0#0#6'TPanel'#6'Panel1'#4'Left'#3'D'
+  +#1#6'Height'#3'}'#1#3'Top'#2#0#5'Width'#3#208#0#5'Align'#7#7'alRight'#10'Bev'
+  +'elOuter'#7#9'bvLowered'#12'ClientHeight'#3'}'#1#11'ClientWidth'#3#208#0#11
+  +'FullRepaint'#8#8'TabOrder'#2#0#0#6'TLabel'#6'Label1'#4'Left'#2#1#6'Height'#2
+  +'@'#3'Top'#2#1#5'Width'#3#206#0#5'Align'#7#5'alTop'#9'Alignment'#7#8'taCente'
+  +'r'#8'AutoSize'#8#7'Caption'#6#17'Procedural Clouds'#12'Font.CharSet'#7#12'A'
+  +'NSI_CHARSET'#11'Font.Height'#2#229#9'Font.Name'#6#5'Arial'#10'Font.Style'#11
+  +#6'fsBold'#0#6'Layout'#7#8'tlCenter'#11'ParentColor'#8#10'ParentFont'#8#8'Wo'
+  +'rdWrap'#9#0#0#6'TLabel'#6'Label2'#4'Left'#2#16#6'Height'#2#14#3'Top'#3#148#0
+  +#5'Width'#2'!'#7'Caption'#6#6'Format'#11'ParentColor'#8#0#0#6'TLabel'#6'Labe'
+  +'l3'#4'Left'#2#16#6'Height'#2#14#3'Top'#3#180#0#5'Width'#2'='#7'Caption'#6#11
+  +'Compression'#11'ParentColor'#8#0#0#6'TLabel'#6'Label5'#4'Left'#2#16#6'Heigh'
+  +'t'#2#14#3'Top'#3#16#1#5'Width'#2';'#7'Caption'#6#11'Render Size'#11'ParentC'
+  +'olor'#8#0#0#6'TLabel'#12'LAUsedMemory'#4'Left'#2#16#6'Height'#2#14#3'Top'#3
+  +#228#0#5'Width'#2'B'#7'Caption'#6#11'Used Memory'#11'ParentColor'#8#0#0#6'TL'
+  +'abel'#7'LARGB32'#4'Left'#2#16#6'Height'#2#14#3'Top'#3#212#0#5'Width'#2'B'#7
+  +'Caption'#6#11'Used Memory'#11'ParentColor'#8#0#0#6'TLabel'#13'LACompression'
+  +#4'Left'#2#16#6'Height'#2#14#3'Top'#3#244#0#5'Width'#2'B'#7'Caption'#6#11'Us'
+  +'ed Memory'#11'ParentColor'#8#0#0#6'TLabel'#6'Label4'#4'Left'#2#16#6'Height'
+  +#2#14#3'Top'#2'`'#5'Width'#2'%'#7'Caption'#6#7'MinCut:'#11'ParentColor'#8#0#0
+  +#6'TLabel'#6'Label6'#4'Left'#2#16#6'Height'#2#14#3'Top'#2'H'#5'Width'#2'6'#7
+  +'Caption'#6#10'Sharpness:'#11'ParentColor'#8#0#0#9'TComboBox'#8'CBFormat'#4
+  +'Left'#2'X'#6'Height'#2#21#3'Top'#3#144#0#5'Width'#2'i'#10'ItemHeight'#2#13
+  +#13'Items.Strings'#1#6#16'RGB    (24 bits)'#6#15'RGBA  (32 bits)'#6#16'RGB  '
+  +'  (16 bits)'#6#15'RGBA  (16 bits)'#0#8'OnChange'#7#14'CBFormatChange'#5'Sty'
+  +'le'#7#14'csDropDownList'#8'TabOrder'#2#0#0#0#9'TComboBox'#13'CBCompression'
+  +#4'Left'#2'X'#6'Height'#2#21#3'Top'#3#176#0#5'Width'#2'i'#10'ItemHeight'#2#13
+  +#13'Items.Strings'#1#6#4'None'#6#8'Standard'#6#6'Nicest'#6#7'Fastest'#0#8'On'
+  +'Change'#7#14'CBFormatChange'#5'Style'#7#14'csDropDownList'#8'TabOrder'#2#1#0
+  +#0#12'TRadioButton'#9'RBDefault'#4'Left'#2'X'#6'Height'#2#17#3'Top'#3#14#1#5
+  +'Width'#2'1'#7'Caption'#6#5'100 %'#7'Checked'#9#7'OnClick'#7#14'CBFormatChan'
+  +'ge'#5'State'#7#9'cbChecked'#8'TabOrder'#2#2#0#0#12'TRadioButton'#8'RBDouble'
+  +#4'Left'#2'W'#6'Height'#2#17#3'Top'#3'&'#1#5'Width'#2'1'#7'Caption'#6#5'200 '
+  +'%'#7'OnClick'#7#14'CBFormatChange'#8'TabOrder'#2#3#0#0#12'TRadioButton'#6'R'
+  +'BQuad'#4'Left'#2'W'#6'Height'#2#17#3'Top'#3'>'#1#5'Width'#2'1'#7'Caption'#6
+  +#5'400 %'#7'OnClick'#7#14'CBFormatChange'#8'TabOrder'#2#4#0#0#9'TCheckBox'#9
+  +'CheckBox1'#4'Left'#2'x'#6'Height'#2#17#3'Top'#2'x'#5'Width'#2'@'#7'Caption'
+  +#6#8'Animated'#8'TabOrder'#2#5#0#0#9'TSpinEdit'#9'SpinEdit1'#4'Left'#2'X'#6
+  +'Height'#2#21#3'Top'#2'`'#5'Width'#2'['#8'MaxValue'#3#255#0#8'MinValue'#2'x'
+  +#8'OnChange'#7#14'CBFormatChange'#8'TabOrder'#2#6#5'Value'#2'x'#0#0#9'TSpinE'
+  +'dit'#9'SpinEdit2'#4'Left'#2'X'#6'Height'#2#21#3'Top'#2'H'#5'Width'#2'['#8'M'
+  +'axValue'#2'Z'#8'OnChange'#7#14'CBFormatChange'#8'TabOrder'#2#7#5'Value'#2'Z'
+  +#0#0#9'TCheckBox'#9'CheckBox2'#4'Left'#2#16#6'Height'#2#17#3'Top'#2'x'#5'Wid'
+  +'th'#2'A'#7'Caption'#6#8'Seamless'#7'Checked'#9#7'OnClick'#7#14'CBFormatChan'
+  +'ge'#5'State'#7#9'cbChecked'#8'TabOrder'#2#8#0#0#0#8'TGLScene'#8'GLScene1'#4
+  +'left'#2#8#3'top'#2#16#0#8'TGLPlane'#8'GLPlane1'#8'TagFloat'#5#0#0#0#0#0#0#0
+  +#0#0#0#31'Material.Texture.ImageClassName'#6#19'TGLProcTextureNoise'#29'Mate'
+  +'rial.Texture.Image.MinCut'#2#0'%Material.Texture.Image.NoiseSharpness'#5#0#0
+  +#0#0#0#164'p'#253#254'?'#31'Material.Texture.Image.Seamless'#8'$Material.Tex'
+  +'ture.Image.NoiseRandSeed'#4#22#131'.G'#25'Material.Texture.Disabled'#8#10'P'
+  +'itchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnA'
+  +'ngle'#5#0#0#0#0#0#0#0#0#0#0#6'Height'#5#0#0#0#0#0#0#0#200#4'@'#5'Width'#5#0
+  +#0#0#0#0#0#0#200#4'@'#7'XOffset'#5#0#0#0#0#0#0#0#0#0#0#6'XTiles'#2#2#7'YOffs'
+  +'et'#5#0#0#0#0#0#0#0#0#0#0#6'YTiles'#2#2#5'Style'#11#13'psTileTexture'#0#8'N'
+  +'oZWrite'#8#0#0#9'TGLCamera'#9'GLCamera1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0
+  +#11'DepthOfView'#5#0#0#0#0#0#0#0#200#5'@'#11'FocalLength'#5#0#0#0#0#0#0#0#128
+  +#255'?'#11'CameraStyle'#7#12'csOrthogonal'#20'Position.Coordinates'#10#16#0#0
+  ,#0#0#0#0#0#0#0#0#0#0#0'pA'#0#0#128'?'#4'left'#3#0#1#3'top'#3#160#0#0#0#0#11
+  +'TGLCadencer'#11'GLCadencer1'#5'Scene'#7#8'GLScene1'#12'MaxDeltaTime'#5#0#0#0
+  +#0#0#0#0#0#0#0#12'MinDeltaTime'#5#0#0#0#0#0#0#0#0#0#0#14'FixedDeltaTime'#5#0
+  +#0#0#0#0#0#0#0#0#0#10'OnProgress'#7#19'GLCadencer1Progress'#4'left'#2'('#3't'
+  +'op'#2#16#0#0#0
+]);

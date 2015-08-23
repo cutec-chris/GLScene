@@ -1,0 +1,433 @@
+object oxBoxStackFrm: ToxBoxStackFrm
+  Caption = 'oxBoxStackFrm'
+  ClientHeight = 596
+  ClientWidth = 735
+  Color = clBlack
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnClose = FormClose
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  Position = poScreenCenter
+  HorzScrollBar.Page = 734
+  VertScrollBar.Page = 595
+  Left = 252
+  Height = 596
+  Top = 126
+  Width = 735
+  object GLSceneViewer1: TGLSceneViewer
+    Camera = GLCam
+    Buffer.BackgroundColor = clBlack
+    Buffer.AmbientColor.Color = {
+      0000803F0000803F77BE3F3F0000803F
+    }
+    Buffer.ContextOptions = [roDoubleBuffer, roStencilBuffer, roRenderToWindow]
+    Buffer.OnChange = nil
+    Buffer.OnStructuralChange = nil
+    FieldOfView = 146.38995361328125
+    Align = alClient
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+    Height = 596
+    Width = 640
+  end
+  object Panel1: TPanel
+    Align = alRight
+    BorderSpacing.OnChange = nil
+    BevelOuter = bvNone
+    ClientHeight = 596
+    ClientWidth = 95
+    FullRepaint = False
+    TabOrder = 0
+    Left = 640
+    Height = 596
+    Width = 95
+    object Label1: TLabel
+      BorderSpacing.OnChange = nil
+      Caption = 'QuickStepNum'
+      Color = clNone
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Left = 1
+      Height = 14
+      Top = 384
+      Width = 70
+    end
+    object Label2: TLabel
+      BorderSpacing.OnChange = nil
+      Caption = 'MaxObjs'
+      Color = clNone
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Left = 1
+      Height = 14
+      Top = 416
+      Width = 42
+    end
+    object Label3: TLabel
+      BorderSpacing.OnChange = nil
+      Caption = 'DisableSteps'
+      Color = clNone
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Left = 1
+      Height = 14
+      Top = 480
+      Width = 63
+    end
+    object Label4: TLabel
+      BorderSpacing.OnChange = nil
+      Caption = 'DisableThreshold'
+      Color = clNone
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Left = 1
+      Height = 14
+      Top = 448
+      Width = 83
+    end
+    object Label5: TLabel
+      BorderSpacing.OnChange = nil
+      Caption = 'FrictionForce'
+      Color = clNone
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Left = 1
+      Height = 14
+      Top = 512
+      Width = 63
+    end
+    object Button2: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'DynBox'
+      OnClick = Button2Click
+      TabOrder = 0
+      Left = 1
+      Height = 17
+      Top = 32
+      Width = 75
+    end
+    object Button4: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'DynCCylinder'
+      OnClick = Button4Click
+      TabOrder = 2
+      Left = 1
+      Height = 17
+      Top = 81
+      Width = 75
+    end
+    object Button3: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'DynCylinder'
+      OnClick = Button3Click
+      TabOrder = 1
+      Left = 1
+      Height = 17
+      Top = 56
+      Width = 75
+    end
+    object Button5: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'Clear'
+      OnClick = Button5Click
+      TabOrder = 3
+      Left = 1
+      Height = 17
+      Top = 272
+      Width = 75
+    end
+    object Edit1: TEdit
+      BorderSpacing.OnChange = nil
+      MaxLength = 3
+      OnChange = Edit1Change
+      OnKeyPress = Edit1KeyPress
+      TabOrder = 4
+      Text = '20'
+      Left = 1
+      Height = 17
+      Top = 400
+      Width = 33
+    end
+    object Edit2: TEdit
+      BorderSpacing.OnChange = nil
+      MaxLength = 3
+      OnKeyPress = Edit2KeyPress
+      TabOrder = 5
+      Text = '200'
+      Left = 1
+      Height = 17
+      Top = 432
+      Width = 33
+    end
+    object CheckBox_DisableStillBodies: TCheckBox
+      Anchors = [akTop, akRight]
+      BorderSpacing.OnChange = nil
+      Caption = 'Disable still'
+      OnClick = CheckBox_DisableStillBodiesClick
+      TabOrder = 6
+      Left = 9
+      Height = 14
+      Top = 361
+      Width = 81
+    end
+    object RadioGroup_Solver: TRadioGroup
+      Anchors = [akTop, akRight]
+      BorderSpacing.OnChange = nil
+      Caption = 'Solver'
+      ItemIndex = 0
+      Items.Strings = (
+        'QuickStep'
+        'StepFast1'
+        'SlowStep'
+      )
+      OnClick = RadioGroup_SolverClick
+      ParentColor = True
+      Left = 1
+      Height = 65
+      Top = 294
+      Width = 89
+    end
+    object Button6: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'DynMesh'
+      OnClick = Button6Click
+      TabOrder = 8
+      Left = 1
+      Height = 17
+      Top = 128
+      Width = 75
+    end
+    object Button7: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'StaMesh'
+      OnClick = Button7Click
+      TabOrder = 9
+      Left = 1
+      Height = 17
+      Top = 200
+      Width = 75
+    end
+    object Button8: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'DynCar'
+      OnClick = Button8Click
+      TabOrder = 10
+      Left = 1
+      Height = 17
+      Top = 176
+      Width = 75
+    end
+    object Button9: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'DynCone'
+      OnClick = Button9Click
+      TabOrder = 11
+      Left = 1
+      Height = 17
+      Top = 104
+      Width = 75
+    end
+    object Edit3: TEdit
+      BorderSpacing.OnChange = nil
+      OnChange = Edit3Change
+      TabOrder = 12
+      Text = '10'
+      Left = 1
+      Height = 17
+      Top = 496
+      Width = 56
+    end
+    object Edit4: TEdit
+      BorderSpacing.OnChange = nil
+      OnChange = Edit4Change
+      TabOrder = 13
+      Text = '0.0001'
+      Left = 1
+      Height = 17
+      Top = 464
+      Width = 56
+    end
+    object Button10: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'StackBox'
+      Enabled = False
+      TabOrder = 14
+      Left = 1
+      Height = 17
+      Top = 152
+      Width = 75
+    end
+    object Edit5: TEdit
+      BorderSpacing.OnChange = nil
+      OnChange = Edit5Change
+      TabOrder = 15
+      Text = '0.035'
+      Left = 1
+      Height = 17
+      Top = 528
+      Width = 56
+    end
+    object Button11: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'Ragdoll'
+      OnClick = Button11Click
+      TabOrder = 16
+      Left = 1
+      Height = 17
+      Top = 224
+      Width = 75
+    end
+    object Button12: TButton
+      BorderSpacing.OnChange = nil
+      Caption = 'FpsMotor'
+      OnClick = Button12Click
+      TabOrder = 17
+      Left = 1
+      Height = 17
+      Top = 248
+      Width = 75
+    end
+    object Button1: TButton
+      Caption = 'DynBall'
+      OnClick = Button1Click
+      TabOrder = 18
+      Left = 1
+      Height = 17
+      Top = 8
+      Width = 75
+    end
+  end
+  object GLScene1: TGLScene
+    VisibilityCulling = vcObjectBased
+    top = 8
+    object Scene: TGLDummyCube
+      CubeSize = 1
+      object oxODE: TGLOXOdeEngine
+        OnCollisionEvent = oxODECollisionEvent
+        OnMultiStepRender = oxODEMultiStepRender
+        OnStepRender = oxODEStepRender
+        CustomObjsContact = True
+        CustomObjsSurface = True
+        Gravity.Coordinates = {
+          0000000000000000C3F51CC10000803F
+        }
+        StepTime = 0.009999999776483
+        MultiplyTime = 8
+        QuickStepNum = 20
+        ContactNum = 8
+        Modes = [mdSoftCFM, mdSoftERP]
+        WorldModes = [mdQuickStep]
+        Mu = 10
+        Soft_erp = 0.5
+        Soft_cfm = 0.001000000047497
+        MaxCorrectingVel = 0.100000001490116
+        SurfaceLayer = 0.001000000047497
+        RemoveTypeHinge = True
+        RemoveTypeHinge2 = True
+        RemoveTypeAMotor = True
+        RemoveTypeAreConnected = True
+        WorldSurfaceMode = mdwNoneSurface
+      end
+    end
+    object GLShadowPlane1: TGLShadowPlane
+      ShadowingObject = Scene
+      ShadowedLight = GLLightSource1
+      ShadowOptions = [spoUseStencil]
+      Height = 10
+      Width = 10
+      XTiles = 8
+      YTiles = 8
+      Style = []
+      Material.Texture.TextureMode = tmModulate
+      Direction.Coordinates = {
+        000080A7000000000000803F00000000
+      }
+      RollAngle = 90
+      Up.Coordinates = {
+        000080BF0200E0B4030080A700000000
+      }
+    end
+    object CamBox: TGLDummyCube
+      CubeSize = 1
+      Position.Coordinates = {
+        9A99C94000000041000080C00000803F
+      }
+      object GLCam: TGLCamera
+        DepthOfView = 1000
+        FocalLength = 90
+        TargetObject = oxODE
+        Position.Coordinates = {
+          0000000000000000000000410000803F
+        }
+        Direction.Coordinates = {
+          000000000000803F0000000000000000
+        }
+        Up.Coordinates = {
+          00000000000000000000803F00000000
+        }
+      end
+    end
+    object GLLightSource1: TGLLightSource
+      ConstAttenuation = 1
+      Position.Coordinates = {
+        0000004000000040000080400000803F
+      }
+      Specular.Color = {
+        0000803F0000803FE2E1613F0000803F
+      }
+      SpotCutOff = 180
+      SpotDirection.Coordinates = {
+        00000000000000000000803F00000000
+      }
+      object GLCone1: TGLCone
+        BottomRadius = 0.300000011920929
+        Height = 0.349999994039536
+        Slices = 6
+        Material.FrontProperties.Ambient.Color = {
+          0000803F0000803FB5B4343E0000803F
+        }
+        Material.FrontProperties.Diffuse.Color = {
+          0000803F0000803FEFEEEE3E0000803F
+        }
+        Material.FrontProperties.Emission.Color = {
+          0000803F0000803FB5B4343E0000803F
+        }
+        Material.FrontProperties.Specular.Color = {
+          0000803F0000803FD7A3303F0000803F
+        }
+        Direction.Coordinates = {
+          3A4D20BE4AE177BFD46A473E00000000
+        }
+        PitchAngle = -45
+        RollAngle = -35
+        Up.Coordinates = {
+          BD4C273EFB202D3EEAD2783F00000000
+        }
+      end
+    end
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    Enabled = False
+    MaxDeltaTime = 0.02
+    Mode = cmApplicationIdle
+    OnProgress = GLCadencer1Progress
+    top = 40
+  end
+  object Timer1: TTimer
+    Enabled = False
+    OnTimer = Timer1Timer
+    top = 72
+  end
+end

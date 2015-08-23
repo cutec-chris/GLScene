@@ -1,0 +1,189 @@
+object Form1: TForm1
+  Align = alClient
+  BorderStyle = bsNone
+  Caption = 'Form1'
+  ClientHeight = 444
+  ClientWidth = 521
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  OnKeyPress = FormKeyPress
+  PixelsPerInch = 96
+  HorzScrollBar.Page = 520
+  VertScrollBar.Page = 443
+  Left = 241
+  Height = 444
+  Top = 104
+  Width = 521
+  object GLSceneViewer1: TGLSceneViewer
+    Camera = GLCamera1
+    BeforeRender = GLSceneViewer1BeforeRender
+    Buffer.FogEnvironment.FogStart = 200
+    Buffer.FogEnvironment.FogEnd = 650
+    Buffer.FogEnvironment.FogDistance = fdEyeRadial
+    Buffer.BackgroundColor = clGray
+    Buffer.FogEnable = True
+    Buffer.OnChange = nil
+    Buffer.OnStructuralChange = nil
+    FieldOfView = 154.61466979980469
+    Align = alClient
+    Height = 444
+    Width = 521
+  end
+  object GLBitmapHDS1: TGLBitmapHDS
+    left = 56
+    top = 16
+  end
+  object GLScene1: TGLScene
+    ObjectsSorting = osNone
+    left = 56
+    top = 56
+    object GLLightSource1: TGLLightSource
+      ConstAttenuation = 1
+      LightStyle = lsParallel
+      SpotCutOff = 180
+      SpotDirection.Coordinates = {
+        00000000F4FD34BFF4FD343F00000000
+      }
+    end
+    object TerrainRenderer1: TGLTerrainRenderer
+      HeightDataSource = GLBitmapHDS1
+      TileSize = 32
+      TilesPerTexture = 1
+      QualityDistance = 150
+      Scale.Coordinates = {
+        00008040000080400000803E00000000
+      }
+    end
+    object ODEObjects: TGLDummyCube
+      CubeSize = 1
+      object ODERenderPoint: TGLRenderPoint
+      end
+    end
+    object HUDText1: TGLHUDText
+      BitmapFont = BitmapFont1
+      Position.Coordinates = {
+        000096420000C841000000000000803F
+      }
+    end
+    object GLLensFlare: TGLLensFlare
+      Size = 100
+      Seed = 978
+      FlareIsNotOccluded = True
+      Position.Coordinates = {
+        9A620252C9B28B51B743BAD10000803F
+      }
+      Visible = False
+      object GLDummyCube1: TGLDummyCube
+        CubeSize = 100
+        VisibleAtRunTime = True
+      end
+    end
+    object GLCamera1: TGLCamera
+      DepthOfView = 650
+      FocalLength = 50
+      Direction.Coordinates = {
+        000000000000803F0000000000000000
+      }
+      Up.Coordinates = {
+        00000000000000000000803F00000000
+      }
+      left = 264
+      top = 160
+      object ODEDrop: TGLDummyCube
+        CubeSize = 1
+        Position.Coordinates = {
+          0000000000000000000020410000803F
+        }
+      end
+    end
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    left = 56
+    top = 96
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0.02
+    OnProgress = GLCadencer1Progress
+    left = 16
+    top = 16
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'ground'
+        Material.FrontProperties.Ambient.Color = {
+          0000000000000000000000000000803F
+        }
+        Material.FrontProperties.Diffuse.Color = {
+          0000000000000000000000000000803F
+        }
+        Material.FrontProperties.Emission.Color = {
+          9A99993E9A99993E9A99993E0000803F
+        }
+        Material.Texture.TextureMode = tmReplace
+        Material.Texture.Compression = tcStandard
+        Material.Texture.MappingTCoordinates.Coordinates = {
+          000000000000803F0000000000000000
+        }
+        Material.Texture.Disabled = False
+        Texture2Name = 'details'
+      end    
+      item
+        Name = 'details'
+        Material.Texture.TextureMode = tmModulate
+        Material.Texture.TextureFormat = tfLuminance
+        Material.Texture.Compression = tcStandard
+        Material.Texture.MappingTCoordinates.Coordinates = {
+          000000000000803F0000000000000000
+        }
+        Material.Texture.Disabled = False
+        TextureScale.Coordinates = {
+          00000043000000430000004300000000
+        }
+      end>
+    left = 16
+    top = 56
+  end
+  object BitmapFont1: TGLBitmapFont
+    GlyphsIntervalX = 1
+    GlyphsIntervalY = 1
+    Ranges = <>
+    CharWidth = 30
+    CharHeight = 30
+    left = 16
+    top = 96
+  end
+  object GLODEManager1: TGLODEManager
+    Gravity.Coordinates = {
+      0000000000000000C3F51CC10000803F
+    }
+    Solver = osmQuickStep
+    Iterations = 3
+    MaxContacts = 8
+    RenderPoint = ODERenderPoint
+    Visible = True
+    VisibleAtRunTime = True
+    left = 96
+    top = 16
+  end
+  object GLNavigator1: TGLNavigator
+    VirtualUp.Coordinates = {
+      00000000000000000000803F0000803F
+    }
+    MovingObject = GLCamera1
+    UseVirtualUp = True
+    AutoUpdateObject = True
+    left = 96
+    top = 56
+  end
+  object GLUserInterface1: TGLUserInterface
+    MouseSpeed = 25
+    GLNavigator = GLNavigator1
+    GLVertNavigator = GLNavigator1
+    left = 96
+    top = 96
+  end
+end

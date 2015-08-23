@@ -1,0 +1,189 @@
+object Form1: TForm1
+  Caption = 'Machine'
+  ClientHeight = 480
+  ClientWidth = 696
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  HorzScrollBar.Page = 695
+  VertScrollBar.Page = 479
+  Left = 272
+  Height = 480
+  Top = 130
+  Width = 696
+  object GLSceneViewer1: TGLSceneViewer
+    Camera = GLCamera1
+    Buffer.OnChange = nil
+    Buffer.OnStructuralChange = nil
+    FieldOfView = 156.46342468261719
+    Align = alClient
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+    Height = 480
+    Width = 696
+  end
+  object GLScene1: TGLScene
+    left = 8
+    top = 8
+    object GLDummyCube1: TGLDummyCube
+      CubeSize = 1
+      Position.Coordinates = {
+        0000803F00000000000000000000803F
+      }
+      object GLCamera1: TGLCamera
+        DepthOfView = 100
+        FocalLength = 50
+        TargetObject = GLDummyCube1
+        Position.Coordinates = {
+          00000040000060400000C0400000803F
+        }
+        object GLLightSource1: TGLLightSource
+          ConstAttenuation = 1
+          SpotCutOff = 180
+        end
+      end
+    end
+    object Machine: TGLDummyCube
+      CubeSize = 1
+      object Wheel: TGLCylinder
+        TopRadius = 2
+        BottomRadius = 2
+        Height = 0.5
+        Slices = 32
+        Material.FrontProperties.Diffuse.Color = {
+          938C0C3E938C0C3E938E0E3F0000803F
+        }
+        Position.Coordinates = {
+          000020C000000000000000000000803F
+        }
+        BehavioursData = {
+          0201060D54474C4F444544796E616D696302000200060002000500000000006F
+          1283F53F08000000000500000000000000FA0840050000000000000000000005
+          0000000000000000000005000000000000000000000500000000000000000000
+          0500000000000000000000050000000000000000000005000000000000000000
+          00050000000000000000000005000000000000000000000201020009
+        }
+        object Axle: TGLCylinder
+          TopRadius = 0.5
+          BottomRadius = 0.5
+          Height = 5
+          Material.FrontProperties.Diffuse.Color = {
+            938C0C3EDCD6D63E938E0E3F0000803F
+          }
+          Position.Coordinates = {
+            00000000000000C0000000000000803F
+          }
+        end
+        object Pin1: TGLCylinder
+          TopRadius = 0.25
+          BottomRadius = 0.25
+          Height = 1
+          Material.FrontProperties.Diffuse.Color = {
+            938C0C3EDCD6D63E938E0E3F0000803F
+          }
+          Position.Coordinates = {
+            000000000000003F0000C0BF0000803F
+          }
+        end
+      end
+      object Arm: TGLCube
+        Material.FrontProperties.Diffuse.Color = {
+          CDCC0C3FEC51B83DEC51B83D0000803F
+        }
+        Direction.Coordinates = {
+          4B413AB4000000000000803F00000000
+        }
+        Position.Coordinates = {
+          0000003F0000403F0000C0BF0000803F
+        }
+        BehavioursData = {
+          0201060D54474C4F444544796E616D696302000200060002000500000000006F
+          1283F53F08000000000500000000000000FA0840050000000000000000000005
+          0000000000000000000005000000000000000000000500000000000000000000
+          0500000000000000000000050000000000000000000005000000000000000000
+          00050000000000000000000005000000000000000000000201020009
+        }
+        CubeSize = {
+          0000F0400000803E0000403F
+        }
+      end
+      object Pin2: TGLCylinder
+        TopRadius = 0.25
+        BottomRadius = 0.25
+        Height = 1
+        Material.FrontProperties.Diffuse.Color = {
+          938C0C3EDCD6D63E938E0E3F0000803F
+        }
+        Position.Coordinates = {
+          000060400000003F0000C0BF0000803F
+        }
+        BehavioursData = {
+          0201060D54474C4F444544796E616D696302000200060002000500000000006F
+          1283F53F08000000000500000000000000FA0840050000000000000000000005
+          0000000000000000000005000000000000000000000500000000000000000000
+          0500000000000000000000050000000000000000000005000000000000000000
+          00050000000000000000000005000000000000000000000201020009
+        }
+      end
+      object Slider: TGLCube
+        Material.FrontProperties.Diffuse.Color = {
+          1F856B3F14AE473F52B81E3F0000803F
+        }
+        Position.Coordinates = {
+          00005040000000000000C0BF0000803F
+        }
+        CubeSize = {
+          000080400000003F0000803F
+        }
+      end
+    end
+    object ODERenderPoint: TGLRenderPoint
+    end
+    object GLHUDText1: TGLHUDText
+      BitmapFont = GLWindowsBitmapFont1
+      ModulateColor.Color = {
+        0000000000000000000000000000803F
+      }
+      Position.Coordinates = {
+        0000204100002041000000000000803F
+      }
+    end
+  end
+  object GLODEManager1: TGLODEManager
+    Solver = osmQuickStep
+    Iterations = 3
+    MaxContacts = 8
+    RenderPoint = ODERenderPoint
+    Visible = True
+    left = 40
+    top = 8
+  end
+  object GLODEJointList1: TGLODEJointList
+    left = 72
+    top = 8
+    ODEJointsData = {
+      0201060E544F44454A6F696E7448696E67650200060548696E67650200060006
+      0006000902000200080200080200050000000000000000000005000000000000
+      0000000005000000000000000000000500000000000000000000050000000000
+      0000000000050000000000000000000005000000000000000000000500000000
+      0000000000000500000000000000000000050000000000000000000005000000
+      00000000000000
+    }
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0.02
+    OnProgress = GLCadencer1Progress
+    left = 8
+    top = 40
+  end
+  object GLWindowsBitmapFont1: TGLWindowsBitmapFont
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    left = 40
+    top = 40
+  end
+end

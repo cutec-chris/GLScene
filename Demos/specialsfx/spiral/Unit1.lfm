@@ -1,0 +1,191 @@
+object Form1: TForm1
+  Left = 268
+  Height = 357
+  Top = 175
+  Width = 437
+  HorzScrollBar.Page = 436
+  VertScrollBar.Page = 356
+  BorderStyle = bsDialog
+  Caption = 'Form1'
+  ClientHeight = 357
+  ClientWidth = 437
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnClose = FormClose
+  OnResize = FormResize
+  LCLVersion = '0.9.29'
+  object GLSceneViewer: TGLSceneViewer
+    Left = 0
+    Height = 332
+    Top = 25
+    Width = 437
+    Camera = GLCamera
+    Buffer.BackgroundColor = clBlack
+    FieldOfView = 146.474899291992
+    Align = alClient
+    OnDblClick = GLSceneViewerDblClick
+    OnMouseMove = GLSceneViewerMouseMove
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 25
+    Top = 0
+    Width = 437
+    Align = alTop
+    BevelOuter = bvNone
+    BorderWidth = 1
+    Caption = 'Spiral / PFX Demo'
+    ClientHeight = 25
+    ClientWidth = 437
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = [fsBold, fsItalic]
+    FullRepaint = False
+    ParentFont = False
+    TabOrder = 0
+    object SpeedButton1: TSpeedButton
+      Left = 363
+      Height = 21
+      Top = 2
+      Width = 73
+      Caption = 'FullScreen'
+      Color = clBtnFace
+      NumGlyphs = 0
+      OnClick = GLSceneViewerDblClick
+    end
+  end
+  object GLScene: TGLScene
+    left = 16
+    top = 16
+    object DCBase: TGLDummyCube
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      CubeSize = 1
+      BehavioursData = {
+        0201060B54474C42496E657274696102000200050000000000000080FF3F0200
+        080500000000000000F005400500000000000000000000050000000000000000
+        000008020008020008
+      }
+      EffectsData = {
+        0201061254474C536F757263655046584566666563740201060750465852696E
+        67050000000000000080FF3F0206020008020009000000000000204000000000
+        0000000002000805000000000000000000000500000000000000000000050000
+        0000000000FA074002000201090500000000000000000000080200
+      }
+      object DCSrc: TGLDummyCube
+        TagFloat = 0
+        PitchAngle = 0
+        Position.Coordinates = {
+          0000803F00000040000000000000803F
+        }
+        RollAngle = 0
+        TurnAngle = 0
+        CubeSize = 1
+        EffectsData = {
+          0201061254474C536F7572636550465845666665637402010609504658537069
+          72616C050000000000000080FF3F020602000900000000CDCC4CBE0000000000
+          000000020008020008050000000000CDCCCCFB3F050000000000000000000005
+          0000000000CDCCCCFA3F02000200090500000000000000000000080200
+        }
+      end
+    end
+    object PFXRenderer: TGLParticleFXRenderer
+      TagFloat = 0
+    end
+    object GLCamera: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 50
+      TargetObject = DCBase
+      Position.Coordinates = {
+        0000C0400000A040000080400000803F
+      }
+    end
+  end
+  object PFXSpiral: TGLPolygonPFXManager
+    Cadencer = GLCadencer
+    Renderer = PFXRenderer
+    OnCreateParticle = PFXSpiralCreateParticle
+    Acceleration.Coordinates = {
+      00000000CDCC4CBE0000000000000000
+    }
+    Friction = 1
+    NbSides = 9
+    ParticleSize = 0.30000001192092
+    LifeColors = <    
+      item
+        ColorInner.Color = {
+          0000803F0000803F000000000000803F
+        }
+        ColorOuter.Color = {
+          00000000000000000000803F00000000
+        }
+        LifeTime = 3
+        SizeScale = 1
+        RotateAngle = 0
+      end    
+      item
+        ColorInner.Color = {
+          0AD7A33E48E1FA3E1F85EB3E0000803F
+        }
+        ColorOuter.Color = {
+          0000803F000000000000000000000000
+        }
+        LifeTime = 6
+        SizeScale = 1
+        RotateAngle = 0
+      end    
+      item
+        LifeTime = 9
+        SizeScale = 1
+        RotateAngle = 0
+      end>
+    left = 88
+    top = 16
+  end
+  object GLCadencer: TGLCadencer
+    Scene = GLScene
+    MaxDeltaTime = 0.1
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    OnProgress = GLCadencerProgress
+    left = 16
+    top = 56
+  end
+  object Timer: TTimer
+    Interval = 2000
+    OnTimer = TimerTimer
+    left = 16
+    top = 96
+  end
+  object PFXRing: TGLPolygonPFXManager
+    Cadencer = GLCadencer
+    Renderer = PFXRenderer
+    OnCreateParticle = PFXRingCreateParticle
+    Friction = 1
+    NbSides = 9
+    ParticleSize = 0.20000000298023
+    ColorInner.Color = {
+      00000000000000001283203F0000803F
+    }
+    LifeColors = <    
+      item
+        ColorInner.Color = {
+          0000803F0000803F0000803F9A99193F
+        }
+        LifeTime = 2.5
+        SizeScale = 1
+        RotateAngle = 0
+      end    
+      item
+        LifeTime = 3.5
+        SizeScale = 1
+        RotateAngle = 0
+      end>
+    left = 88
+    top = 56
+  end
+end

@@ -1,0 +1,55 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3#251#0#6'Height'#3'U'#1#3'Top'#3#204#0#5'W'
+  +'idth'#3#15#2#18'HorzScrollBar.Page'#3#14#2#18'VertScrollBar.Page'#3'T'#1#7
+  +'Caption'#6#5'Form1'#12'ClientHeight'#3'U'#1#11'ClientWidth'#3#15#2#11'Font.'
+  +'Height'#2#245#9'Font.Name'#6#13'MS Sans Serif'#8'OnCreate'#7#10'FormCreate'
+  +#8'OnResize'#7#10'FormResize'#10'LCLVersion'#6#6'0.9.29'#0#14'TGLSceneViewer'
+  +#14'GLSceneViewer1'#4'Left'#2#0#6'Height'#3'U'#1#3'Top'#2#0#5'Width'#3#15#2#6
+  +'Camera'#7#9'GLCamera1'#22'Buffer.BackgroundColor'#7#7'clBlack'#11'FieldOfVi'
+  +'ew'#5#0#0#0#0#0#217'O'#147#6'@'#5'Align'#7#8'alClient'#11'OnMouseDown'#7#23
+  +'GLSceneViewer1MouseDown'#11'OnMouseMove'#7#23'GLSceneViewer1MouseMove'#0#0#7
+  +'TButton'#7'Button1'#4'Left'#2#16#6'Height'#2#25#3'Top'#2#16#5'Width'#2'#'#25
+  +'BorderSpacing.InnerBorder'#2#4#7'Caption'#6#5'Start'#7'OnClick'#7#12'Button'
+  +'1Click'#8'TabOrder'#2#0#0#0#8'TGLScene'#8'GLScene1'#4'left'#2'@'#3'top'#2#8
+  +#0#12'TGLDummyCube'#10'DummyCube1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#10'Pitc'
+  +'hAngle'#5#0#0#0#0#0#0#0#0#0#0#20'Position.Coordinates'#10#16#0#0#0#0#0#0#0#0
+  +#0'pA'#0#0#0#0#0#0#128'?'#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0
+  +#0#0#0#0#0#0#0#0#0#8'CubeSize'#5#0#0#0#0#0#0#0#128#255'?'#0#0#14'TGLLightSou'
+  +'rce'#14'GLLightSource1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#16'ConstAttenuati'
+  +'on'#5#0#0#0#0#0#0#0#128#255'?'#17'LinearAttenuation'#5#0#0#0#0#0#0#0#0#0#0
+  +#20'QuadraticAttenuation'#5#0#0#0#0#0#0#0#0#0#0#20'Position.Coordinates'#10
+  +#16#0#0#0#0#0'HB'#0#0'HB'#0#0'HB'#0#0#128'?'#10'SpotCutOff'#5#0#0#0#0#0#0#0
+  +#180#6'@'#12'SpotExponent'#5#0#0#0#0#0#0#0#0#0#0#0#0#9'TGLSphere'#7'Sphere1'
+  +#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'Ro'
+  +'llAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#6'Radius'
+  +#5#0#0#0#0#0#0#0#128#254'?'#0#0#9'TGLCamera'#9'GLCamera1'#8'TagFloat'#5#0#0#0
+  +#0#0#0#0#0#0#0#11'DepthOfView'#5#0#0#0#0#0#0#0#150#6'@'#11'FocalLength'#5#0#0
+  +#0#0#0#0#0#200#4'@'#12'TargetObject'#7#10'DummyCube1'#20'Position.Coordinate'
+  +'s'#10#16#0#0#0#0#0'HB'#0#0#160'A'#0#0'pA'#0#0#128'?'#4'left'#3#248#0#3'top'
+  +#3#144#0#0#0#0#16'TGLFireFXManager'#6'FireFX'#19'FireDir.Coordinates'#10#16#0
+  +#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#22'InitialDir.Coordinates'#10#16#0#0#0#0
+  +#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#8'Cadencer'#7#11'GLCadencer1'#12'MaxParticles'
+  +#3#0#2#12'ParticleSize'#5#0#0#0#0#0#0#0#128#254'?'#11'FireDensity'#5#0#0#0#0
+  +#0#154#153#153#254'?'#15'FireEvaporation'#5#0#0#0#0#0#246'('#220#254'?'#9'Fi'
+  +'reCrown'#5#0#0#0#0#0#0#0#0#0#0#12'ParticleLife'#2#1#9'FireBurst'#5#0#0#0#0#0
+  +#0#0#0#0#0#10'FireRadius'#5#0#0#0#0#0#0#0#128#254'?'#8'Disabled'#8#6'Paused'
+  +#8#16'ParticleInterval'#5#0#0#0#0#0#10#215#163#248'?'#11'UseInterval'#9#9'Re'
+  +'ference'#7#7'Sphere1'#4'left'#2'@'#3'top'#2'8'#0#0#11'TGLCadencer'#11'GLCad'
+  +'encer1'#5'Scene'#7#8'GLScene1'#7'Enabled'#8#12'MaxDeltaTime'#5#0#0#0#0#0#0#0
+  +#0#0#0#12'MinDeltaTime'#5#0#0#0#0#0#0#0#0#0#0#14'FixedDeltaTime'#5#0#0#0#0#0
+  +#0#0#0#0#0#10'OnProgress'#7#19'GLCadencer1Progress'#4'left'#2'@'#3'top'#3#136
+  +#0#0#0#6'TTimer'#6'Timer1'#7'OnTimer'#7#11'Timer1Timer'#4'left'#2'@'#3'top'#3
+  +#216#0#0#0#16'TGLFireFXManager'#7'SmokeFX'#19'FireDir.Coordinates'#10#16#0#0
+  +#0#0#0#0#0#0#0#128'?'#0#0#0#0#0#0#0#0#22'InitialDir.Coordinates'#10#16#0#0#0
+  +#0#0#0#0#0#0#0'?'#0#0#0#0#0#0#0#0#8'Cadencer'#7#11'GLCadencer1'#12'MaxPartic'
+  +'les'#2'@'#12'ParticleSize'#5#0#0#0#0#0#0#0#128#0'@'#16'InnerColor.Color'#10
+  +#16#0#0#0#0#0#128'>'#0#0#128'>'#0#0#128'>'#0#0#128'?'#16'OuterColor.Color'#10
+  +#16#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#128'?'#11'FireDensity'#5#0#0#0#0#0#154
+  +#153#153#254'?'#15'FireEvaporation'#5#0#0#0#0#0#246'('#220#254'?'#9'FireCrow'
+  +'n'#5#0#0#0#0#0#0#0#0#0#0#9'FireBurst'#5#0#0#0#0#0#0#0#0#0#0#10'FireRadius'#5
+  +#0#0#0#0#0#0#0#128#255'?'#8'Disabled'#9#6'Paused'#8#16'ParticleInterval'#5#0
+  +#0#0#0#0')\'#143#251'?'#11'UseInterval'#9#9'Reference'#7#7'Sphere1'#4'left'#2
+  +'@'#3'top'#2'X'#0#0#0
+]);

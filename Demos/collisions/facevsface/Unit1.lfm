@@ -1,0 +1,395 @@
+object Form1: TForm1
+  Caption = 'Form1'
+  ClientHeight = 527
+  ClientWidth = 696
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  OnShow = FormShow
+  PixelsPerInch = 96
+  HorzScrollBar.Page = 695
+  VertScrollBar.Page = 526
+  Left = 251
+  Height = 527
+  Top = 124
+  Width = 696
+  object Splitter1: TSplitter
+    Align = alRight
+    Height = 375
+    ParentColor = True
+    Width = 4
+    Cursor = crHSplit
+    Left = 482
+    Height = 375
+    Width = 4
+  end
+  object GLSceneViewer1: TGLSceneViewer
+    Camera = GLCamera2
+    Buffer.BackgroundColor = 8404992
+    FieldOfView = 48.574554443359375
+    Align = alClient
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+    Left = 121
+    Height = 375
+    Width = 361
+  end
+  object Panel1: TPanel
+    Align = alLeft
+    BevelOuter = bvLowered
+    ClientHeight = 375
+    ClientWidth = 121
+    FullRepaint = False
+    TabOrder = 0
+    Height = 375
+    Width = 121
+    object Shape1: TShape
+      Shape = stCircle
+      Left = 88
+      Height = 25
+      Top = 10
+      Width = 25
+    end
+    object Label1: TLabel
+      Caption = 'Collision test:'
+      Color = clNone
+      Left = 8
+      Height = 13
+      Top = 8
+      Width = 61
+    end
+    object LATime: TLabel
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'LATime'
+      Color = clNone
+      Left = 8
+      Height = 13
+      Top = 24
+      Width = 73
+    end
+    object Label2: TLabel
+      Caption = 'Teapot collision mode'
+      Color = clNone
+      Left = 8
+      Height = 13
+      Top = 96
+      Width = 103
+    end
+    object cbCollisionMode: TRadioGroup
+      ItemIndex = 4
+      Items.Strings = (
+        'cbmPoint'
+        'cbmSphere'
+        'cbmEllipsoid'
+        'cbmCube'
+        'cbmFaces'
+      )
+      OnClick = cbCollisionModeClick
+      ParentColor = True
+      Left = 8
+      Height = 105
+      Top = 112
+      Width = 105
+    end
+  end
+  object Panel2: TPanel
+    Align = alBottom
+    ClientHeight = 152
+    ClientWidth = 696
+    FullRepaint = False
+    TabOrder = 1
+    Height = 152
+    Top = 375
+    Width = 696
+    object StringGrid1: TStringGrid
+      ColCount = 6
+      DefaultColWidth = 90
+      FixedColor = clBtnFace
+      GridLineWidth = 0
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goSmoothScroll]
+      RowCount = 6
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+      VisibleColCount = 5
+      VisibleRowCount = 5
+      Left = 8
+      Height = 137
+      Top = 8
+      Width = 553
+    end
+  end
+  object Memo1: TMemo
+    Align = alRight
+    TabOrder = 2
+    Left = 486
+    Height = 375
+    Width = 210
+  end
+  object GLScene1: TGLScene
+    left = 184
+    top = 8
+    object GLLightSource1: TGLLightSource
+      ConstAttenuation = 1
+      Position.Coordinates = {
+        0000204100002041000020410000803F
+      }
+      SpotCutOff = 180
+    end
+    object GLLightSource2: TGLLightSource
+      ConstAttenuation = 1
+      Position.Coordinates = {
+        000020C100002041000020C10000803F
+      }
+      SpotCutOff = 180
+    end
+    object DummyCube1: TGLDummyCube
+      CubeSize = 1
+      EdgeColor.Color = {
+        0000003F0000003F0000003F0000803F
+      }
+      ShowAxes = True
+      object GLCamera2: TGLCamera
+        DepthOfView = 1000
+        FocalLength = 400
+        TargetObject = DummyCube1
+        Position.Coordinates = {
+          0000704100002041000070410000803F
+        }
+      end
+      object txtX: TGLSpaceText
+        Extrusion = 0.100000001490116
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Text = 'X'
+        Position.Coordinates = {
+          0000004000000000000000000000803F
+        }
+        Scale.Coordinates = {
+          0000003F0000003F0000003F00000000
+        }
+      end
+      object txtY: TGLSpaceText
+        Extrusion = 0.100000001490116
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Text = 'Y'
+        Position.Coordinates = {
+          0000000000000040000000000000803F
+        }
+        Scale.Coordinates = {
+          0000003F0000003F0000003F00000000
+        }
+      end
+      object txtZ: TGLSpaceText
+        Extrusion = 0.100000001490116
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Text = 'Z'
+        Position.Coordinates = {
+          0000000000000000000000400000803F
+        }
+        Scale.Coordinates = {
+          0000003F0000003F0000003F00000000
+        }
+      end
+      object Teapot1: TGLFreeForm
+        AutoCentering = [macCenterX, macCenterY, macCenterZ]
+        Direction.Coordinates = {
+          613D73BDD128723F4D43A3BE00000000
+        }
+        Position.Coordinates = {
+          00000000000000003333B33E0000803F
+        }
+        Scale.Coordinates = {
+          0AD7233C0AD7233C0AD7233C00000000
+        }
+        Up.Coordinates = {
+          C9B14FBFC3BE0F3ED548113F00000000
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102040200
+        }
+      end
+      object Teapot2: TGLFreeForm
+        AutoCentering = [macCenterX, macCenterY, macCenterZ]
+        Direction.Coordinates = {
+          0DFB4AB20000803F7A829A3200000000
+        }
+        Position.Coordinates = {
+          0000000000000000CDCCCCBE0000803F
+        }
+        Scale.Coordinates = {
+          0AD7233C0AD7233C0AD7233C00000000
+        }
+        Up.Coordinates = {
+          F30435BFD41F8BB3F30435BF00000000
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102040200
+        }
+      end
+      object CubePoint1: TGLCube
+        Position.Coordinates = {
+          000000000000803F000000000000803F
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102000200
+        }
+        CubeSize = {
+          CDCC4C3DCDCC4C3DCDCC4C3D
+        }
+      end
+      object CubePoint2: TGLCube
+        Position.Coordinates = {
+          CDCC4CBE0000803F000000000000803F
+        }
+        Scale.Coordinates = {
+          CDCC4C3DCDCC4C3DCDCC4C3D00000000
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102000200
+        }
+      end
+      object Cube2: TGLCube
+        Material.BackProperties.Ambient.Color = {
+          CDCC4C3ECDCC4C3ECDCC4C3E0000003F
+        }
+        Material.BackProperties.Diffuse.Color = {
+          CDCC4C3FCDCC4C3FCDCC4C3F0000003F
+        }
+        Material.BackProperties.Emission.Color = {
+          0000000000000000000000000000003F
+        }
+        Material.BackProperties.Specular.Color = {
+          0000000000000000000000000000003F
+        }
+        Material.FrontProperties.Ambient.Color = {
+          CDCC4C3ECDCC4C3ECDCC4C3ECDCC4C3E
+        }
+        Material.FrontProperties.Diffuse.Color = {
+          CDCC4C3FCDCC4C3FCDCC4C3F0000003F
+        }
+        Material.FrontProperties.Emission.Color = {
+          0000000000000000000000000000003F
+        }
+        Material.BlendingMode = bmTransparency
+        Position.Coordinates = {
+          0000803F00000000000080BF0000803F
+        }
+        Scale.Coordinates = {
+          0000803F000000400000803F00000000
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102030200
+        }
+        CubeSize = {
+          0000803F0000803F0000003F
+        }
+      end
+      object Bar: TGLCube
+        Material.FrontProperties.Diffuse.Color = {
+          0000803F5839343E5839343E0000803F
+        }
+        Position.Coordinates = {
+          0000803F000000000000803F0000803F
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102030200
+        }
+        CubeSize = {
+          CDCC4C3DCDCC4C3D00000040
+        }
+      end
+      object GLSphere1: TGLSphere
+        Radius = 0.5
+        Position.Coordinates = {
+          000000C000000000000000000000803F
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102010200
+        }
+      end
+      object GLSphere2: TGLSphere
+        Radius = 0.300000011920929
+        Position.Coordinates = {
+          000000C000000000000080BF0000803F
+        }
+        Scale.Coordinates = {
+          CDCC4C3FCDCC4C3FCDCC4C3F00000000
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102010200
+        }
+      end
+      object GLSphereEllipsoid1: TGLSphere
+        Radius = 0.5
+        Position.Coordinates = {
+          000080BF00000000000000C00000803F
+        }
+        Scale.Coordinates = {
+          9A99193F0000803F0000803F00000000
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102020200
+        }
+      end
+      object GLSphereEllipsoid2: TGLSphere
+        Radius = 0.300000011920929
+        Position.Coordinates = {
+          0000000000000000000000C00000803F
+        }
+        Scale.Coordinates = {
+          CDCC4C3FCDCCCC3F3333333F00000000
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102020200
+        }
+      end
+      object GLCube1: TGLCube
+        Position.Coordinates = {
+          0000803F000080BF000000000000803F
+        }
+        Scale.Coordinates = {
+          3333333F3333B33F0000803F00000000
+        }
+        BehavioursData = {
+          0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
+          6E616765723102030200
+        }
+        CubeSize = {
+          0000803F0000803F6666A63F
+        }
+      end
+    end
+    object GLCamera1: TGLCamera
+      DepthOfView = 100
+      FocalLength = 50
+    end
+    object GLCamera3: TGLCamera
+      DepthOfView = 100
+      FocalLength = 50
+    end
+  end
+  object Timer1: TTimer
+    Interval = 100
+    OnTimer = Timer1Timer
+    left = 224
+    top = 8
+  end
+  object CollisionManager1: TCollisionManager
+    OnCollision = CollisionManager1Collision
+    left = 136
+    top = 8
+  end
+end

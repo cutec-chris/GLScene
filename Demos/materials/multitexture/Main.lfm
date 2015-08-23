@@ -1,0 +1,149 @@
+object Form1: TForm1
+  Left = 276
+  Height = 431
+  Top = 149
+  Width = 559
+  HorzScrollBar.Page = 558
+  VertScrollBar.Page = 430
+  BorderStyle = bsSingle
+  Caption = 'Multitexture'
+  ClientHeight = 431
+  ClientWidth = 559
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '0.9.29'
+  object Image1: TImage
+    Left = 416
+    Height = 128
+    Top = 56
+    Width = 128
+    OnClick = Image1Click
+  end
+  object Image2: TImage
+    Left = 416
+    Height = 128
+    Top = 208
+    Width = 128
+    OnClick = Image2Click
+  end
+  object Label1: TLabel
+    Left = 416
+    Height = 14
+    Top = 40
+    Width = 70
+    Caption = 'Texture Map 1'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 416
+    Height = 14
+    Top = 192
+    Width = 70
+    Caption = 'Texture Map 2'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 416
+    Height = 14
+    Top = 368
+    Width = 61
+    Caption = 'Map 2 Scale'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 432
+    Height = 20
+    Top = 8
+    Width = 95
+    Caption = 'MultiTexture'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -16
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object GLSceneViewer1: TGLSceneViewer
+    Left = 8
+    Height = 393
+    Top = 8
+    Width = 393
+    Camera = GLCamera1
+    FieldOfView = 151.447769165039
+    Enabled = False
+  end
+  object TrackBar1: TTrackBar
+    Left = 416
+    Height = 33
+    Top = 384
+    Width = 126
+    Max = 30
+    Min = 5
+    OnChange = TrackBar1Change
+    Position = 10
+    TabOrder = 0
+  end
+  object CBClampTex2: TCheckBox
+    Left = 416
+    Height = 17
+    Top = 344
+    Width = 97
+    Caption = 'Clamp Texture 2'
+    OnClick = CBClampTex2Click
+    TabOrder = 1
+  end
+  object GLScene1: TGLScene
+    left = 48
+    top = 32
+    object Plane1: TGLPlane
+      TagFloat = 0
+      Material.MaterialLibrary = GLMaterialLibrary1
+      Material.LibMaterialName = 'Base'
+      PitchAngle = 0
+      Position.Coordinates = {
+        0000000000000000000080BF0000803F
+      }
+      RollAngle = 0
+      TurnAngle = 0
+      Height = 1
+      Width = 1
+      XOffset = 0
+      YOffset = 0
+      NoZWrite = False
+    end
+    object GLCamera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 50
+      left = 192
+      top = 192
+    end
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'Base'
+        Material.Texture.TextureMode = tmReplace
+        Material.Texture.Disabled = False
+        Tag = 0
+        Texture2Name = 'Second'
+      end    
+      item
+        Name = 'Second'
+        Material.Texture.TextureMode = tmModulate
+        Material.Texture.Disabled = False
+        Tag = 0
+      end>
+    left = 48
+    top = 64
+  end
+  object OpenPictureDialog1: TOpenPictureDialog
+    Title = 'Vorhandene Datei öffnen'
+    Filter = 'Graphic (*.jpeg;*.jpg;*.ico;*.ppm;*.pgm;*.pbm;*.png;*.xpm;*.bmp)|*.jpeg;*.jpg;*.ico;*.ppm;*.pgm;*.pbm;*.png;*.xpm;*.bmp|JPEG Image File (*.jpeg)|*.jpeg|JPEG Image File (*.jpg)|*.jpg|Icon (*.ico)|*.ico|Portable PixMap (*.ppm)|*.ppm|Portable GrayMap (*.pgm)|*.pgm|Portable BitMap (*.pbm)|*.pbm|Portable Network Graphic (*.png)|*.png|Pixmap (*.xpm)|*.xpm|Bitmaps (*.bmp)|*.bmp|Alle Dateien (*.*)|*.*|'
+    FilterIndex = 0
+    left = 480
+    top = 8
+  end
+end

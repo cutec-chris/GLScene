@@ -1,0 +1,39 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TForm1','FORMDATA',[
+  'TPF0'#6'TForm1'#5'Form1'#4'Left'#3#20#1#6'Height'#3#208#0#3'Top'#2'~'#5'Widt'
+  +'h'#3#228#0#18'HorzScrollBar.Page'#3#227#0#18'VertScrollBar.Page'#3#207#0#7
+  +'Caption'#6#5'Form1'#12'ClientHeight'#3#208#0#11'ClientWidth'#3#228#0#11'Fon'
+  +'t.Height'#2#245#9'Font.Name'#6#13'MS Sans Serif'#8'OnCreate'#7#10'FormCreat'
+  +'e'#10'LCLVersion'#6#6'0.9.29'#0#14'TGLSceneViewer'#14'GLSceneViewer1'#4'Lef'
+  +'t'#2#0#6'Height'#3#208#0#3'Top'#2#0#5'Width'#3#228#0#6'Camera'#7#9'GLCamera'
+  +'1'#22'Buffer.BackgroundColor'#7#7'clBlack'#16'Buffer.DepthTest'#8#11'FieldO'
+  +'fView'#5#0#0#0#0#0#133#247#152#6'@'#5'Align'#7#8'alClient'#0#0#8'TGLScene'#8
+  +'GLScene1'#4'left'#2#8#3'top'#2#8#0#12'TGLParticles'#12'GLParticles1'#8'TagF'
+  +'loat'#5#0#0#0#0#0#0#0#0#0#0#14'ObjectsSorting'#7#6'osNone'#10'PitchAngle'#5
+  +#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0#0
+  +#0#0#0#0#0#0#0#8'CubeSize'#5#0#0#0#0#0#0#0#128#255'?'#16'ParticlePoolSize'#2
+  +#10#18'OnActivateParticle'#7#28'GLParticles1ActivateParticle'#0#12'TGLDummyC'
+  +'ube'#10'DummyCube1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#10'PitchAngle'#5#0#0#0
+  +#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0#9'TurnAngle'#5#0#0#0#0#0#0
+  +#0#0#0#0#10'OnProgress'#7#18'DummyCube1Progress'#8'CubeSize'#5#0#0#0#0#0#0#0
+  +#128#255'?'#14'BehavioursData'#10'I'#0#0#0#2#1#6#11'TGLBInertia'#2#0#2#0#5#0
+  +#0#0#0#0#0#0#128#255'?'#2#0#8#5#0#0#0#0#0#0#0#0#0#0#5#0#0#0#0#0#0#0#0#0#0#5#0
+  +#0#0#0#0#0#0#0#0#0#8#2#0#8#2#0#8#0#9'TGLSprite'#7'Sprite1'#8'TagFloat'#5#0#0
+  +#0#0#0#0#0#0#0#0'&Material.FrontProperties.Ambient.Color'#10#16#0#0#0#0#0#0#0
+  +#0#0#0#0#0#0#0#0#0#0#128'?&Material.FrontProperties.Diffuse.Color'#10#16#0#0
+  +#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#128'?''Material.FrontProperties.Emission.Colo'
+  +'r'#10#16#0#0#0#0#0#128'?'#0#0#128'?'#0#0#128'?'#0#0#128'?0Material.Texture.'
+  +'MappingTCoordinates.Coordinates'#10#16#0#0#0#0#0#0#0#0#0#128'?'#0#0#0#0#0#0
+  +#0#0#10'PitchAngle'#5#0#0#0#0#0#0#0#0#0#0#9'RollAngle'#5#0#0#0#0#0#0#0#0#0#0
+  +#9'TurnAngle'#5#0#0#0#0#0#0#0#0#0#0#5'Width'#5#0#0#0#0#0#205#204#204#251'?'#6
+  +'Height'#5#0#0#0#0#0#205#204#204#251'?'#8'Rotation'#5#0#0#0#0#0#0#0#0#0#0#0#0
+  +#0#0#9'TGLCamera'#9'GLCamera1'#8'TagFloat'#5#0#0#0#0#0#0#0#0#0#0#11'DepthOfV'
+  +'iew'#5#0#0#0#0#0#0#0#200#5'@'#11'FocalLength'#5#0#0#0#0#0#0#0#200#3'@'#12'T'
+  +'argetObject'#7#12'GLParticles1'#20'Position.Coordinates'#10#16#0#0#0#0#0' A'
+  +#0#0'@@'#0#0#0#0#0#0#128'?'#0#0#0#11'TGLCadencer'#11'GLCadencer1'#5'Scene'#7
+  +#8'GLScene1'#12'MaxDeltaTime'#5#0#0#0#0#0#0#0#0#0#0#12'MinDeltaTime'#5#0#0#0
+  +#0#0#0#0#0#0#0#14'FixedDeltaTime'#5#0#0#0#0#0#0#0#0#0#0#10'OnProgress'#7#19
+  +'GLCadencer1Progress'#4'left'#2#8#3'top'#2'('#0#0#6'TTimer'#6'Timer1'#8'Inte'
+  +'rval'#3#16''''#7'OnTimer'#7#11'Timer1Timer'#4'left'#2'('#3'top'#2#8#0#0#0
+]);

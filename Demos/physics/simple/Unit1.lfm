@@ -1,0 +1,206 @@
+object Form1: TForm1
+  Caption = 'Simple ODE Demo'
+  ClientHeight = 510
+  ClientWidth = 694
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  Position = poScreenCenter
+  HorzScrollBar.Page = 693
+  VertScrollBar.Page = 509
+  Left = 249
+  Height = 510
+  Top = 115
+  Width = 694
+  object GLSceneViewer1: TGLSceneViewer
+    Camera = GLCamera1
+    Buffer.ContextOptions = [roDoubleBuffer, roStencilBuffer, roRenderToWindow]
+    Buffer.OnChange = nil
+    Buffer.OnStructuralChange = nil
+    FieldOfView = 157.81256103515625
+    Align = alClient
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+    Left = 153
+    Height = 510
+    Width = 541
+  end
+  object Panel1: TPanel
+    Align = alLeft
+    ClientHeight = 510
+    ClientWidth = 153
+    FullRepaint = False
+    TabOrder = 0
+    Height = 510
+    Width = 153
+    object Label1: TLabel
+      Caption = 'Choose an object'
+      Color = clNone
+      ParentColor = False
+      Left = 8
+      Height = 13
+      Top = 64
+      Width = 83
+    end
+    object Label2: TLabel
+      Caption = 'HeightField Contact Resolution'
+      Color = clNone
+      ParentColor = False
+      WordWrap = True
+      Left = 8
+      Height = 26
+      Top = 208
+      Width = 96
+    end
+    object Label3: TLabel
+      Caption = 'Choose surface type'
+      Color = clNone
+      ParentColor = False
+      Left = 8
+      Height = 13
+      Top = 8
+      Width = 97
+    end
+    object ComboBox1: TComboBox
+      AutoCompleteText = [cbactEndOfLineComplete, cbactSearchAscending]
+      ItemHeight = 13
+      ItemIndex = 0
+      Items.Strings = (
+        'Sphere'
+        'Box'
+        'Capsule (CCylinder)'
+        'Cylinder'
+        'Cone'
+      )
+      MaxLength = 0
+      Style = csDropDownList
+      TabOrder = 0
+      Text = 'Sphere'
+      Left = 8
+      Height = 21
+      Top = 80
+      Width = 137
+    end
+    object CheckBox1: TCheckBox
+      Caption = 'Show ODE Elements'
+      OnClick = CheckBox1Click
+      TabOrder = 1
+      Left = 8
+      Height = 17
+      Top = 144
+      Width = 129
+    end
+    object CheckBox2: TCheckBox
+      Caption = 'Show HeightField Contacts'
+      OnClick = CheckBox2Click
+      TabOrder = 2
+      Left = 8
+      Height = 33
+      Top = 168
+      Width = 129
+    end
+    object TrackBar1: TTrackBar
+      OnChange = TrackBar1Change
+      ScalePos = trTop
+      TabOrder = 3
+      TickMarks = tmBoth
+      OnChange = TrackBar1Change
+      ScalePos = trTop
+      TickMarks = tmBoth
+      Left = 8
+      Height = 34
+      Top = 240
+      Width = 137
+    end
+    object ComboBox2: TComboBox
+      AutoCompleteText = [cbactEndOfLineComplete, cbactSearchAscending]
+      ItemHeight = 13
+      ItemIndex = 0
+      Items.Strings = (
+        'Plane'
+        'HeightField'
+      )
+      MaxLength = 0
+      OnChange = ComboBox2Change
+      Style = csDropDownList
+      TabOrder = 4
+      Text = 'Plane'
+      Left = 8
+      Height = 21
+      Top = 24
+      Width = 137
+    end
+    object Spawn1: TButton
+      BorderSpacing.InnerBorder = 2
+      Caption = 'Spawn'
+      OnClick = SpawnClick
+      TabOrder = 5
+      Left = 40
+      Height = 25
+      Top = 112
+      Width = 75
+    end
+  end
+  object GLScene1: TGLScene
+    left = 168
+    top = 8
+    object GLDummyCube1: TGLDummyCube
+      CubeSize = 1
+      Position.Coordinates = {
+        000000000000803F000000000000803F
+      }
+      object GLCamera1: TGLCamera
+        DepthOfView = 100
+        FocalLength = 50
+        TargetObject = GLDummyCube1
+        Position.Coordinates = {
+          0000803F000040400000A0400000803F
+        }
+        object GLLightSource1: TGLLightSource
+          ConstAttenuation = 1
+          LightStyle = lsOmni
+          SpotCutOff = 180
+        end
+      end
+    end
+    object GLHeightField1: TGLHeightField
+      XSamplingScale.Step = 0.100000001490116
+      YSamplingScale.Step = 0.100000001490116
+    end
+    object GLPlane1: TGLPlane
+      Height = 10
+      Width = 10
+      Direction.Coordinates = {
+        000000000000803F0000000000000000
+      }
+      Up.Coordinates = {
+        00000000000000000000803F00000000
+      }
+    end
+    object ODEObjects: TGLDummyCube
+      CubeSize = 1
+    end
+    object GLRenderPoint1: TGLRenderPoint
+    end
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0.02
+    OnProgress = GLCadencer1Progress
+    left = 200
+    top = 8
+  end
+  object GLODEManager1: TGLODEManager
+    Gravity.Coordinates = {
+      00000000C3F51CC1000000000000803F
+    }
+    Solver = osmQuickStep
+    Iterations = 3
+    MaxContacts = 8
+    RenderPoint = GLRenderPoint1
+    VisibleAtRunTime = True
+    left = 168
+    top = 40
+  end
+end

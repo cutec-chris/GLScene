@@ -1,0 +1,551 @@
+object MainFm: TMainFm
+  Left = 250
+  Height = 468
+  Top = 125
+  Width = 561
+  HorzScrollBar.Page = 560
+  VertScrollBar.Page = 467
+  AutoSize = True
+  Caption = 'MainFm'
+  ClientHeight = 468
+  ClientWidth = 561
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.29'
+  object Label1: TLabel
+    Left = 0
+    Height = 13
+    Top = 0
+    Width = 273
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Main View'
+    Color = 16099723
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Transparent = False
+  end
+  object Label2: TLabel
+    Left = 280
+    Height = 13
+    Top = 0
+    Width = 273
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Lightsource Point of view'
+    Color = 16099723
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    Transparent = False
+  end
+  object Panel2: TPanel
+    Left = 280
+    Height = 273
+    Top = 16
+    Width = 273
+    ClientHeight = 273
+    ClientWidth = 273
+    FullRepaint = False
+    TabOrder = 0
+    object Caster: TGLSceneViewer
+      Left = 8
+      Height = 256
+      Top = 8
+      Width = 256
+      Camera = GLCamera2
+      FieldOfView = 137.326278686523
+      OnMouseDown = CasterMouseDown
+      OnMouseMove = CasterMouseMove
+      OnMouseUp = CasterMouseUp
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 273
+    Top = 16
+    Width = 273
+    ClientHeight = 273
+    ClientWidth = 273
+    FullRepaint = False
+    TabOrder = 1
+    object Viewer: TGLSceneViewer
+      Left = 8
+      Height = 256
+      Top = 8
+      Width = 256
+      Camera = GLCamera1
+      FieldOfView = 137.326278686523
+      OnMouseDown = ViewerMouseDown
+      OnMouseMove = ViewerMouseMove
+      OnMouseUp = ViewerMouseUp
+    end
+  end
+  object Panel3: TPanel
+    Left = 0
+    Height = 41
+    Top = 296
+    Width = 273
+    ClientHeight = 41
+    ClientWidth = 273
+    FullRepaint = False
+    TabOrder = 2
+    object Label4: TLabel
+      Left = 25
+      Height = 12
+      Top = 6
+      Width = 73
+      Caption = 'Camera Distance'
+      Font.CharSet = ANSI_CHARSET
+      Font.Height = -9
+      Font.Name = 'Small Fonts'
+      ParentColor = False
+      ParentFont = False
+    end
+    object TimeLbl: TLabel
+      Left = 228
+      Height = 12
+      Top = 27
+      Width = 22
+      Caption = 'Time'
+      Font.CharSet = ANSI_CHARSET
+      Font.Height = -9
+      Font.Name = 'Small Fonts'
+      ParentColor = False
+      ParentFont = False
+    end
+    object DistanceBar: TTrackBar
+      Left = 6
+      Height = 16
+      Hint = 'Moves the main camera closer/further from the teapot'
+      Top = 16
+      Width = 115
+      Max = 30
+      Min = 1
+      OnChange = DistanceBarChange
+      Position = 8
+      TabStop = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object CastBtn1: TButton
+      Left = 208
+      Height = 17
+      Hint = 'Measure the time it takes in s/100 to render the lightsource z-buffer, generate the shadow texture and render the main view. '
+      Top = 8
+      Width = 57
+      Caption = 'Cast'
+      OnClick = CastBtnClick
+      TabOrder = 1
+    end
+  end
+  object Panel4: TPanel
+    Left = 280
+    Height = 41
+    Top = 296
+    Width = 273
+    ClientHeight = 41
+    ClientWidth = 273
+    FullRepaint = False
+    TabOrder = 3
+    object Label3: TLabel
+      Left = 25
+      Height = 12
+      Top = 6
+      Width = 73
+      Caption = 'Camera Distance'
+      Font.CharSet = ANSI_CHARSET
+      Font.Height = -9
+      Font.Name = 'Small Fonts'
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label5: TLabel
+      Left = 193
+      Height = 12
+      Top = 6
+      Width = 28
+      Caption = 'Focus'
+      Font.CharSet = ANSI_CHARSET
+      Font.Height = -9
+      Font.Name = 'Small Fonts'
+      ParentColor = False
+      ParentFont = False
+    end
+    object DistanceBar2: TTrackBar
+      Left = 6
+      Height = 16
+      Hint = 'Moves the light closer/further from the teapot.'
+      Top = 16
+      Width = 115
+      Max = 30
+      Min = 1
+      OnChange = DistanceBar2Change
+      Position = 9
+      TabStop = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object Focal: TTrackBar
+      Left = 150
+      Height = 16
+      Hint = 'Adjust the Focal length of the lightsource camera, to adjust the lightbeam width'
+      Top = 17
+      Width = 115
+      Frequency = 10
+      Max = 300
+      Min = 1
+      OnChange = FocalChange
+      Position = 50
+      TabStop = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+    end
+  end
+  object Panel5: TPanel
+    Left = 0
+    Height = 97
+    Top = 344
+    Width = 121
+    ClientHeight = 97
+    ClientWidth = 121
+    FullRepaint = False
+    TabOrder = 4
+    object FrustBox: TCheckBox
+      Left = 8
+      Height = 17
+      Top = 24
+      Width = 102
+      Caption = 'Frustrum Shadow'
+      Checked = True
+      OnClick = FrustBoxClick
+      State = cbChecked
+      TabOrder = 0
+    end
+    object RotateBox: TCheckBox
+      Left = 8
+      Height = 17
+      Top = 72
+      Width = 100
+      Caption = 'Rotate the Torus'
+      OnClick = RotateBoxClick
+      TabOrder = 1
+    end
+    object ShadowOnBox: TCheckBox
+      Left = 8
+      Height = 17
+      Top = 8
+      Width = 81
+      Caption = 'Shadows On'
+      Checked = True
+      OnClick = ShadowOnBoxClick
+      State = cbChecked
+      TabOrder = 2
+    end
+    object SoftBox: TCheckBox
+      Left = 8
+      Height = 17
+      Hint = 'Tests 4 pixels on the lightsource z-buffer, in stead of 1, to calculate shadow brightness, and give soft edges to shadows.'
+      Top = 56
+      Width = 72
+      Caption = 'Soft Edges'
+      OnClick = SoftBoxClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+    end
+    object SkyShadBox: TCheckBox
+      Left = 8
+      Height = 17
+      Top = 40
+      Width = 80
+      Caption = 'Sky Shadow'
+      OnClick = SkyShadBoxClick
+      TabOrder = 4
+    end
+  end
+  object Panel6: TPanel
+    Left = 432
+    Height = 97
+    Top = 344
+    Width = 121
+    ClientHeight = 97
+    ClientWidth = 121
+    FullRepaint = False
+    TabOrder = 5
+    object Label9: TLabel
+      Left = 28
+      Height = 12
+      Top = 64
+      Width = 60
+      Caption = 'Shadow Alpha'
+      Font.CharSet = ANSI_CHARSET
+      Font.Height = -9
+      Font.Name = 'Small Fonts'
+      ParentColor = False
+      ParentFont = False
+    end
+    object FadeBox: TCheckBox
+      Left = 8
+      Height = 17
+      Top = 8
+      Width = 110
+      Caption = 'Depth of view fade'
+      OnClick = FadeBoxClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object dovBar: TTrackBar
+      Left = 2
+      Height = 16
+      Hint = 'Adjust depth of view'
+      Top = 21
+      Width = 115
+      Frequency = 5
+      Max = 100
+      Min = 1
+      OnChange = dovBarChange
+      Position = 50
+      TabStop = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+    end
+    object AlphaBar: TTrackBar
+      Left = 2
+      Height = 16
+      Hint = 'Adjust the darkness of shadows'
+      Top = 74
+      Width = 115
+      Frequency = 10
+      Max = 256
+      Min = 1
+      OnChange = AlphaBarChange
+      Position = 128
+      TabStop = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+    end
+  end
+  object Memo1: TMemo
+    Left = 128
+    Height = 97
+    Top = 344
+    Width = 297
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -9
+    Font.Name = 'Small Fonts'
+    ParentFont = False
+    TabOrder = 6
+  end
+  object GLScene1: TGLScene
+    left = 16
+    top = 32
+    object Objects: TGLDummyCube
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      CubeSize = 1
+      object HeightField1: TGLHeightField
+        TagFloat = 0
+        Material.MaterialLibrary = GLMaterialLibrary1
+        Material.LibMaterialName = 'Tiles'
+        Direction.Coordinates = {
+          000000000000803F0000000000000000
+        }
+        PitchAngle = 0
+        Position.Coordinates = {
+          00000000000020C0000000000000803F
+        }
+        RollAngle = 0
+        Scale.Coordinates = {
+          00002041000020410000004000000000
+        }
+        TurnAngle = 0
+        Up.Coordinates = {
+          00000000000000000000803F00000000
+        }
+        XSamplingScale.Min = -1
+        XSamplingScale.Max = 1
+        XSamplingScale.Origin = 0
+        XSamplingScale.Step = 0.07000000029802
+        YSamplingScale.Min = -1
+        YSamplingScale.Max = 1
+        YSamplingScale.Origin = 0
+        YSamplingScale.Step = 0.07000000029802
+        Options = [hfoTextureCoordinates]
+      end
+      object Cube1: TGLCube
+        TagFloat = 0
+        Material.MaterialLibrary = GLMaterialLibrary1
+        Material.LibMaterialName = 'PlaneMat'
+        PitchAngle = 0
+        Position.Coordinates = {
+          CDCCCC3F00000000000000000000803F
+        }
+        RollAngle = 0
+        Scale.Coordinates = {
+          CDCCCC3D000020400000404000000000
+        }
+        TurnAngle = 0
+      end
+      object Torus1: TGLTorus
+        TagFloat = 0
+        Material.Texture.TextureMode = tmModulate
+        PitchAngle = 0
+        RollAngle = 0
+        TurnAngle = 0
+        MajorRadius = 1.10000002384185
+        MinorRadius = 0.15000000596046
+        Rings = 28
+        Sides = 16
+        BehavioursData = {
+          0201060B54474C42496E657274696102000200050000000000000080FF3F0200
+          08050000000000000000000005000000000000000000000500000000000000A0
+          034009020008020008
+        }
+      end
+      object Teapot1: TGLTeapot
+        TagFloat = 0
+        Material.MaterialLibrary = GLMaterialLibrary1
+        Material.LibMaterialName = 'BeigeMarble'
+        PitchAngle = 0
+        RollAngle = 0
+        Scale.Coordinates = {
+          9A99D93F9A99D93F9A99D93F00000000
+        }
+        TurnAngle = 0
+        BehavioursData = {
+          0201060B54474C42496E657274696102000200050000000000000080FF3F0200
+          080500000000000000A003400500000000000000000000050000000000000000
+          000008020008020008
+        }
+      end
+    end
+    object Shadows1: TGLZShadows
+      TagFloat = 0
+      Viewer = Viewer
+      Caster = MemView
+      FrustShadow = True
+      SkyShadow = False
+      Optimise = op9in1
+      Width = 256
+      Height = 256
+      Color.Color = {
+        0000000000000000000000000000003F
+      }
+      Soft = False
+      Tolerance = 0.01499999966472
+      DepthFade = False
+    end
+    object GLCamera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 50
+      TargetObject = Objects
+      Position.Coordinates = {
+        00000000000000000000A0400000803F
+      }
+      left = 272
+      top = 200
+    end
+    object GLCamera2: TGLCamera
+      TagFloat = 0
+      DepthOfView = 50
+      FocalLength = 50
+      TargetObject = Objects
+      Position.Coordinates = {
+        000040400000E040000080400000803F
+      }
+      left = 280
+      top = 208
+      object GLLightSource1: TGLLightSource
+        TagFloat = 0
+        Ambient.Color = {
+          9A99993E9A99993E9A99993E0000803F
+        }
+        ConstAttenuation = 1
+        LinearAttenuation = 0
+        QuadraticAttenuation = 0
+        SpotCutOff = 180
+        SpotExponent = 0
+      end
+    end
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'ShadowMat'
+        Material.FrontProperties.Ambient.Color = {
+          0000000000000000000000000000803F
+        }
+        Material.FrontProperties.Diffuse.Color = {
+          0000000000000000000000000000003F
+        }
+        Material.FrontProperties.Emission.Color = {
+          0000803F0000803F0000803F0000803F
+        }
+        Material.BlendingMode = bmTransparency
+        Material.Texture.ImageClassName = 'TGLBlankImage'
+        Tag = 0
+      end    
+      item
+        Name = 'PlaneMat'
+        Material.Texture.ImageClassName = 'TGLBlankImage'
+        Tag = 0
+      end    
+      item
+        Name = 'Tiles'
+        Material.Texture.TextureMode = tmModulate
+        Tag = 0
+      end    
+      item
+        Name = 'BeigeMarble'
+        Material.Texture.TextureMode = tmModulate
+        Tag = 0
+      end    
+      item
+        Name = 'Marble'
+        Material.Texture.TextureMode = tmModulate
+        Tag = 0
+      end>
+    left = 48
+    top = 32
+  end
+  object MemView: TGLMemoryViewer
+    Camera = GLCamera2
+    Buffer.Lighting = False
+    left = 152
+    top = 32
+  end
+  object AsyncTimer1: TAsyncTimer
+    Enabled = True
+    Interval = 700
+    OnTimer = AsyncTimer1Timer
+    ThreadPriority = tpNormal
+    left = 16
+    top = 80
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    Enabled = False
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    OnProgress = GLCadencer1Progress
+    left = 16
+    top = 128
+  end
+end

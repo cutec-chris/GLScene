@@ -1,0 +1,420 @@
+object Form1: TForm1
+  Left = 315
+  Height = 425
+  Top = 119
+  Width = 565
+  HorzScrollBar.Page = 564
+  VertScrollBar.Page = 424
+  Caption = 'Form1'
+  ClientHeight = 425
+  ClientWidth = 565
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.29'
+  object GLSceneViewer1: TGLSceneViewer
+    Left = 0
+    Height = 425
+    Top = 0
+    Width = 357
+    Camera = GLCamera1
+    AfterRender = GLSceneViewer1AfterRender
+    Buffer.BackgroundColor = clInactiveCaptionText
+    FieldOfView = 179.358032226562
+    Align = alClient
+  end
+  object Panel1: TPanel
+    Left = 357
+    Height = 425
+    Top = 0
+    Width = 208
+    Align = alRight
+    BevelOuter = bvLowered
+    ClientHeight = 425
+    ClientWidth = 208
+    FullRepaint = False
+    TabOrder = 0
+    object Label1: TLabel
+      Left = 1
+      Height = 64
+      Top = 1
+      Width = 206
+      Align = alTop
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Procedural Clouds'
+      Font.CharSet = ANSI_CHARSET
+      Font.Height = -27
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+    object Label2: TLabel
+      Left = 16
+      Height = 14
+      Top = 148
+      Width = 33
+      Caption = 'Format'
+      ParentColor = False
+    end
+    object Label3: TLabel
+      Left = 16
+      Height = 14
+      Top = 180
+      Width = 61
+      Caption = 'Compression'
+      ParentColor = False
+    end
+    object Label5: TLabel
+      Left = 16
+      Height = 14
+      Top = 272
+      Width = 59
+      Caption = 'Render Size'
+      ParentColor = False
+    end
+    object LAUsedMemory: TLabel
+      Left = 16
+      Height = 14
+      Top = 228
+      Width = 66
+      Caption = 'Used Memory'
+      ParentColor = False
+    end
+    object LARGB32: TLabel
+      Left = 16
+      Height = 14
+      Top = 212
+      Width = 66
+      Caption = 'Used Memory'
+      ParentColor = False
+    end
+    object LACompression: TLabel
+      Left = 16
+      Height = 14
+      Top = 244
+      Width = 66
+      Caption = 'Used Memory'
+      ParentColor = False
+    end
+    object Label4: TLabel
+      Left = 16
+      Height = 14
+      Top = 96
+      Width = 37
+      Caption = 'MinCut:'
+      ParentColor = False
+    end
+    object Label6: TLabel
+      Left = 16
+      Height = 14
+      Top = 72
+      Width = 54
+      Caption = 'Sharpness:'
+      ParentColor = False
+    end
+    object CloudFileOpenBtn: TSpeedButton
+      Left = 15
+      Height = 21
+      Hint = 'Load Cloud File'
+      Top = 360
+      Width = 25
+      Color = clBtnFace
+      Glyph.Data = {
+        36060000424D3606000000000000360000002800000020000000100000000100
+        1800000000000006000064000000640000000000000000000000675E576B7731
+        7363732F3F0A212121213D4E7377566F6757676721636F773D23312F31393331
+        31232F3F2121213D2F4E6F6B31373F0A2121214E6B6F3137370A21212121214B
+        6F637767676B6F67636F6756636F673D233B5E4E6F6F736F676F77676F676F73
+        676F6746676F735E636F6F6B6B6F6F5E6F63736767776F6B312F6F73232F0A21
+        212121214B6F63776767427B466F676F6F6721636F773D23465E4E4B6F736F67
+        6F776F5E67736367675E466F6F73636F6F6B736B6F735E6377736B775E6F6B77
+        2F7363232F3F21212121213D6373776B6F6773676756636F673D23312F312F33
+        3135232F0A2121213D2F6B6F6B37353F2121213D4E6B6B31373F0A212121213D
+        4B6F6F7767466B6F6F636F21566377673D463B5E4B6F6F6F6F675E63676F6F5E
+        6F63736B333373730D6F6B736F6F736F67736B6B77776F6B312F6F73232F0A21
+        212121214B6F63776767427B466F676F6F6721636F773D23465E4E4B6F736F67
+        6F776F5E67736367675E466F6F73636F6F6B736B6F735E67736B73730D736373
+        67676721463B6773637363636367675E677B73635E67736F5E73636B6767732F
+        730D0A776F6367463B5E73635E63636B676773677B77635E63736F6F776B6F67
+        2F730D0A776373733333213B5E67635E73636B6367735E7B77735E73636B6367
+        735E677773636367736F5E63736F6F73730D6367736F6B6F776F213B5E67635E
+        73636B6367735E7B77735E63676F6F5E67736F6B6F636F2F730D0A6773636B21
+        463B6773637363636367675E677B73635E67736F5E676B636B677773676F6B6F
+        2F73730A7B6F77736B6721465E67735E67635E7B6F5E7B6F77736B672F730D0A
+        7B63776B463B5E73635E636F5E6F6F5E7363772F73730A7B7373676321463B67
+        736367636F6B6F637B737767636F73730D6367736F21465E67736721465E6773
+        5E67635E7B6F5E7B6F63676773730D7B6F6F676367463B5E73635E636F5E6F6F
+        5E6F6F7363672F730D0A6F6F736721465E67735E67635E6B6F5E7B6F73676773
+        730D7B6F6F7773676F6B6F21463B67736367636F7B6F6F7B6F6F736F6321463B
+        67736367636F6B6F6377676F6F637773730D776B776F21465E67735E67635E6B
+        6F5E776B6F6F2F730D0A77677B463B5E73635E636F5E6F635E77677B73730D7B
+        6B776F21465E67735E67635E7B6F5E7B6B6F6F2F730D0A6F6F633B5E67635E67
+        6F5E6763776F775E77737773736F732F73730A77677777776F73213B5E67635E
+        676F5E6763776F775E777377776B6F7373730D77636F636B6F6B676321463B67
+        736367636F6773636F6B7777636F636B6F6B67632F73730A776767675E637367
+        636F6F73730D7767736767637363777321465E67735E67635E6773776F6B5E77
+        677767676F73636F732F730D0A67737767676B77737B463B5E73635E636F5E73
+        63776B775E67737767676B77737B73730D77677373677373772121463B677363
+        67636F6B6F6373736F6B67772F73730A737767636F7B21465E67735E67635E6B
+        6F5E737767636F7B2F730D0A736F636F6B73213B5E67635E676F5E776F333373
+        7B6F6F636B2F73730A77636763636F21465E67735E67635E6B6F73730D736B5F
+        6F6F213B5E67635E676F5E7367676B5E736B7B6F6F73730D73736F6321465E67
+        735E67635E676373736F635E736F676373730D73736F77676721463B67736367
+        636F67635E736F6B675E736F6B7767732F63730D73736F6B6777636F5E635E73
+        675E73676763632F730D0A7373776F7773213B5E67635E676F5E6F775E737377
+        6F77732F730D0A6B67677721465E67735E67635E736B676B77736B676B772F73
+        0D0A6B5F737321465E67735E77776F735E73676F5E736B7363737363732F7373
+        0A73776B77776F73213B5E67635E676F5E6B635E73776B776B6F7373730D7363
+        7B463B5E73635E636F5E6F6F5E637B2F730D0A637B5F776F6F463B5E73635E63
+        6F5E6F6F5E637B5F776F6F73730D736767637763463B5E73635E5A9D73000000
+        636F5E6F63675E7373636F77732F730D0A73676B73737B213B5E67635E676F5E
+        6B635E73676B73737B2F730D0A67736F7767213B5E67635E676F5E6B635E7373
+        6F6F672F730D0A736773637321465E67735E67635E6B6F5E7377
+      }
+      NumGlyphs = 2
+      OnClick = CloudFileOpenBtnClick
+    end
+    object MakeAndSaveCloudNoiseFile: TSpeedButton
+      Left = 161
+      Height = 22
+      Hint = 'Make And Save Cloud'
+      Top = 360
+      Width = 40
+      Color = clBtnFace
+      NumGlyphs = 0
+      OnClick = MakeAndSaveCloudNoiseFileClick
+    end
+    object Label61: TLabel
+      Left = 178
+      Height = 14
+      Top = 336
+      Width = 7
+      Caption = '0'
+      ParentColor = False
+    end
+    object CBFormat: TComboBox
+      Left = 88
+      Height = 21
+      Top = 144
+      Width = 105
+      ItemHeight = 13
+      Items.Strings = (
+        'RGB    (24 bits)'
+        'RGBA  (32 bits)'
+        'RGB    (16 bits)'
+        'RGBA  (16 bits)'
+      )
+      OnChange = CBFormatChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object CBCompression: TComboBox
+      Left = 88
+      Height = 21
+      Top = 176
+      Width = 105
+      ItemHeight = 13
+      Items.Strings = (
+        'None'
+        'Standard'
+        'Nicest'
+        'Fastest'
+      )
+      OnChange = CBFormatChange
+      Style = csDropDownList
+      TabOrder = 1
+    end
+    object RBDefault: TRadioButton
+      Left = 16
+      Height = 17
+      Top = 286
+      Width = 49
+      Caption = '100 %'
+      Checked = True
+      OnClick = CBFormatChange
+      State = cbChecked
+      TabOrder = 2
+    end
+    object RBDouble: TRadioButton
+      Left = 79
+      Height = 17
+      Top = 286
+      Width = 49
+      Caption = '200 %'
+      OnClick = CBFormatChange
+      TabOrder = 3
+    end
+    object RBQuad: TRadioButton
+      Left = 143
+      Height = 17
+      Top = 286
+      Width = 49
+      Caption = '400 %'
+      OnClick = CBFormatChange
+      TabOrder = 4
+    end
+    object CheckBox1: TCheckBox
+      Left = 120
+      Height = 17
+      Top = 120
+      Width = 64
+      Caption = 'Animated'
+      TabOrder = 5
+    end
+    object SpinEdit1: TSpinEdit
+      Left = 88
+      Height = 21
+      Top = 96
+      Width = 107
+      MaxValue = 255
+      OnChange = CBFormatChange
+      TabOrder = 6
+      Value = 98
+    end
+    object SpinEdit2: TSpinEdit
+      Left = 88
+      Height = 21
+      Top = 72
+      Width = 107
+      MaxValue = 99
+      MinValue = 1
+      OnChange = CBFormatChange
+      TabOrder = 7
+      Value = 98
+    end
+    object CheckBox2: TCheckBox
+      Left = 16
+      Height = 17
+      Top = 120
+      Width = 65
+      Caption = 'Seamless'
+      Checked = True
+      OnClick = CBFormatChange
+      State = cbChecked
+      TabOrder = 8
+    end
+    object TrackBar1: TTrackBar
+      Left = 24
+      Height = 33
+      Top = 304
+      Width = 150
+      Min = 1
+      OnChange = TrackBar1Change
+      Position = 2
+      TabOrder = 9
+    end
+    object CloudRandomSeedUsedEdit: TEdit
+      Left = 111
+      Height = 21
+      Hint = 'Cloud Random Seed'
+      Top = 336
+      Width = 49
+      TabOrder = 10
+      Text = '12345'
+    end
+    object CloudImageSizeUsedEdit: TEdit
+      Left = 95
+      Height = 21
+      Hint = 'Cloud Image Size'
+      Top = 264
+      Width = 33
+      TabOrder = 11
+      Text = '128'
+    end
+    object UseCloudFileCB: TCheckBox
+      Left = 15
+      Height = 17
+      Hint = 'Use File'
+      Top = 339
+      Width = 88
+      Caption = 'Use Cloud File'
+      TabOrder = 12
+    end
+    object CloudFileUsedEdit: TEdit
+      Left = 55
+      Height = 21
+      Top = 360
+      Width = 98
+      HelpContext = 50
+      TabOrder = 13
+    end
+  end
+  object GLScene1: TGLScene
+    left = 8
+    top = 16
+    object GLPlane1: TGLPlane
+      TagFloat = 0
+      Material.FrontProperties.Ambient.Color = {
+        00000000000000000000000000000000
+      }
+      Material.FrontProperties.Diffuse.Color = {
+        00000000000000000000000000000000
+      }
+      Material.FrontProperties.Emission.Color = {
+        00000000000000000000000000000000
+      }
+      Material.BlendingMode = bmAlphaTest50
+      Material.Texture.ImageClassName = 'TGLProcTextureNoise'
+      Material.Texture.Image.MinCut = 0
+      Material.Texture.Image.NoiseSharpness = 0.99000000953674
+      Material.Texture.Image.Seamless = True
+      Material.Texture.Image.NoiseRandSeed = 497075363
+      Material.Texture.TextureMode = tmReplace
+      Material.Texture.Disabled = False
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      Height = 50
+      Width = 50
+      XOffset = 0
+      XTiles = 2
+      YOffset = 0
+      YTiles = 2
+      Style = [psTileTexture]
+      NoZWrite = False
+    end
+    object GLCamera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 1
+      CameraStyle = csOrthogonal
+      Position.Coordinates = {
+        0000000000000000000070410000803F
+      }
+      left = 256
+      top = 160
+    end
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    OnProgress = GLCadencer1Progress
+    left = 40
+    top = 16
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    left = 40
+    top = 48
+  end
+  object OpenDialog1: TOpenDialog
+    Title = 'Vorhandene Datei öffnen'
+    FilterIndex = 0
+    left = 420
+    top = 355
+  end
+  object SaveDialog1: TSaveDialog
+    Title = 'Datei sichern als'
+    DefaultExt = '.rnd'
+    Filter = 'Cloud base (*.clb)|*.clb'
+    FilterIndex = 0
+    left = 460
+    top = 357
+  end
+end
