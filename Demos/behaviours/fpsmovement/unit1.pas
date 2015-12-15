@@ -18,8 +18,7 @@ unit Unit1;
 interface
 
 uses
-  glFPSMovement, Windows,
-  LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  glFPSMovement,LCLType, LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, GLVectorFileObjects, GLScene, GLTexture, ExtCtrls,
   GLViewer, StdCtrls, GLObjects, jpeg, GLCollision, GLMaterial,
   GLNavigator, VectorLists, Octree, GLFile3DS, vectorGeometry, OpenGL1X,
@@ -86,7 +85,7 @@ begin
   map2.LoadFromFile('..\..\media\beer.3ds');
   map2.BuildOctree;
 
-  showCursor(false);
+  //showCursor(false);
   setcursorpos(screen.width div 2,screen.Height div 2);
 
   behav:= GetFPSMovement(player);
@@ -123,16 +122,16 @@ begin
     if WireFrame then
     begin
       Map1.UseMeshMaterials:=false;
-      Map1.Material.FrontProperties.PolygonMode:=pmLines;
+      //Map1.Material.FrontProperties.PolygonMode:=pmLines;
       map2.UseMeshMaterials:= false;
-      Map2.Material.FrontProperties.PolygonMode:=pmLines;
+      //Map2.Material.FrontProperties.PolygonMode:=pmLines;
     end
     else
     begin
       Map1.UseMeshMaterials:=true;
-      Map1.Material.FrontProperties.PolygonMode:=pmFill;
+      //Map1.Material.FrontProperties.PolygonMode:=pmFill;
       Map2.UseMeshMaterials:=true;
-      Map2.Material.FrontProperties.PolygonMode:=pmFill;
+      //Map2.Material.FrontProperties.PolygonMode:=pmFill;
     end;
   end;
 end;

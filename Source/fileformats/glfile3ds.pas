@@ -2075,8 +2075,8 @@ begin
         for X := 0 to KeyFramer.Settings.Anim.Length - 1 do
           TMeshMorphTarget.CreateOwned(lights_mesh.MorphTargets);
         lights_mesh.LoadData(Owner, Objects.OmniLight[I]);
-        if KeyFramer.OmniLightMotionCount > 0 then
-          lights_mesh.LoadAnimation(KeyFramer.OmniLightMotion[I]);
+        //if KeyFramer.OmniLightMotionCount > 0 then
+        //  lights_mesh.LoadAnimation(KeyFramer.OmniLightMotion[I]);
       end;
 
       // Lights Spot.

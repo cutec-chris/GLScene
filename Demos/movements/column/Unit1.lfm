@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 362
+  Left = 376
   Height = 369
-  Top = 165
+  Top = 184
   Width = 219
   HorzScrollBar.Page = 218
   VertScrollBar.Page = 368
@@ -11,7 +11,7 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 352
@@ -19,8 +19,9 @@ object Form1: TForm1
     Width = 219
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
-    FieldOfView = 95.1927185058593
+    FieldOfView = 95.1927185058594
     Align = alClient
+    TabOrder = 0
   end
   object StaticText1: TStaticText
     Left = 0

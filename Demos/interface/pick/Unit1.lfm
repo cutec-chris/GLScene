@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 291
+  Left = 345
   Height = 191
-  Top = 115
+  Top = 270
   Width = 280
   HorzScrollBar.Page = 279
   VertScrollBar.Page = 190
@@ -12,7 +12,7 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 5
     Height = 181
@@ -22,6 +22,7 @@ object Form1: TForm1
     FieldOfView = 122.159912109375
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     object DummyCube1: TGLDummyCube
@@ -47,9 +48,6 @@ object Form1: TForm1
     end
     object Sphere: TGLSphere
       TagFloat = 0
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       PitchAngle = 0
       Position.Coordinates = {
         00000040000080BE000000000000803F
@@ -60,9 +58,6 @@ object Form1: TForm1
     end
     object Cylinder: TGLCylinder
       TagFloat = 0
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       PitchAngle = 0
       Position.Coordinates = {
         000000C0000080BE000000000000803F
@@ -75,9 +70,6 @@ object Form1: TForm1
     end
     object Torus: TGLTorus
       TagFloat = 0
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       Direction.Coordinates = {
         F604B5BEF304353F70C41C3F00000000
       }
@@ -90,14 +82,11 @@ object Form1: TForm1
       Up.Coordinates = {
         F604B53EF304353F70C41CBF00000000
       }
-      MajorRadius = 0.69999998807907
-      MinorRadius = 0.20000000298023
+      MajorRadius = 0.699999988079071
+      MinorRadius = 0.200000002980232
     end
     object Cone: TGLCone
       TagFloat = 0
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       Direction.Coordinates = {
         00000000F28384BEEA46773F00000000
       }

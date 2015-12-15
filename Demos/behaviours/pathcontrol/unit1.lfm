@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 252
+  Left = 354
   Height = 414
-  Top = 125
+  Top = 204
   Width = 513
   HorzScrollBar.Page = 512
   VertScrollBar.Page = 413
@@ -13,7 +13,7 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 8
     Height = 370
@@ -23,6 +23,7 @@ object Form1: TForm1
     Buffer.BackgroundColor = clAppWorkspace
     FieldOfView = 149.751983642578
     Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 1
   end
   object MoveBtn: TBitBtn
     Left = 176
@@ -31,9 +32,16 @@ object Form1: TForm1
     Width = 137
     Anchors = [akLeft, akBottom]
     Caption = 'Start Movement'
-    NumGlyphs = 0
     OnClick = MoveBtnClick
     TabOrder = 0
+  end
+  object Label1: TLabel
+    Left = 72
+    Height = 14
+    Top = 392
+    Width = 117
+    Caption = 'Press SPACE to Start'
+    ParentColor = False
   end
   object GLScene1: TGLScene
     left = 16
@@ -52,9 +60,6 @@ object Form1: TForm1
         }
         Material.FrontProperties.Emission.Color = {
           0000000000000000A1A0203F0000803F
-        }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
         }
         PitchAngle = 0
         Position.Coordinates = {
@@ -80,9 +85,6 @@ object Form1: TForm1
     end
     object Sphere1: TGLSphere
       TagFloat = 0
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       PitchAngle = 0
       Position.Coordinates = {
         0000004500002042008009450000803F

@@ -1,6 +1,7 @@
 program synthterr;
 
 uses
+  {$IFDEF UNIX}cthreads,{$ENDIF}
   interfaces,
   Forms,
   Unit1 in 'Unit1.pas' {Form1};

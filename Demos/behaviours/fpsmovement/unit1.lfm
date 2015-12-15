@@ -1,29 +1,29 @@
 object Form1: TForm1
-  Left = 204
-  Height = 475
-  Top = 208
-  Width = 590
+  Left = 367
+  Height = 524
+  Top = 238
+  Width = 652
   HorzScrollBar.Page = 589
   VertScrollBar.Page = 474
   Caption = 'Form1'
-  ClientHeight = 475
-  ClientWidth = 590
+  ClientHeight = 524
+  ClientWidth = 652
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   KeyPreview = True
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   Position = poDesktopCenter
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 475
+    Height = 524
     Top = 0
-    Width = 590
+    Width = 652
     Camera = ThirdPersonCamera
     Buffer.BackgroundColor = clBlack
     Buffer.ShadeModel = smSmooth
-    FieldOfView = 156.222686767578
+    FieldOfView = 158.391220092773
     Align = alClient
     TabOrder = 0
   end
@@ -46,7 +46,7 @@ object Form1: TForm1
         TurnAngle = 0
         CubeSize = 1
         BehavioursData = {
-          0201060F54474C424650534D6F76656D656E740200020002000FF2399D4E0909
+          0201060F54474C424650534D6F76656D656E740200020002000F743A9D4E0909
           060A4D6F764D616E61676572
         }
         object PlayerSphere: TGLSphere
@@ -56,7 +56,7 @@ object Form1: TForm1
           PitchAngle = 0
           RollAngle = 0
           TurnAngle = 0
-          Radius = 0.64999997615814
+          Radius = 0.649999976158142
         end
         object FirstPersonCamera: TGLCamera
           TagFloat = 0
@@ -92,7 +92,7 @@ object Form1: TForm1
           PitchAngle = 0
           RollAngle = 0
           TurnAngle = 0
-          Radius = 0.05000000074505
+          Radius = 0.0500000007450581
         end
       end
       object Bot: TGLDummyCube
@@ -102,7 +102,7 @@ object Form1: TForm1
         TurnAngle = 0
         CubeSize = 1
         BehavioursData = {
-          0201060F54474C424650534D6F76656D656E740200020002000FED399D4E0909
+          0201060F54474C424650534D6F76656D656E740200020002000F743A9D4E0909
           060A4D6F764D616E61676572
         }
         object BotCenter: TGLSphere
@@ -110,7 +110,7 @@ object Form1: TForm1
           PitchAngle = 0
           RollAngle = 0
           TurnAngle = 0
-          Radius = 0.05000000074505
+          Radius = 0.0500000007450581
         end
         object BotSphere: TGLSphere
           TagFloat = 0
@@ -120,7 +120,7 @@ object Form1: TForm1
           PitchAngle = 0
           RollAngle = 0
           TurnAngle = 0
-          Radius = 0.40000000596046
+          Radius = 0.400000005960464
         end
       end
       object GLLight: TGLLightSource

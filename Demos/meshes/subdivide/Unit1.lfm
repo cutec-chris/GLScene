@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 229
+  Left = 336
   Height = 357
-  Top = 120
+  Top = 196
   Width = 511
   HorzScrollBar.Page = 510
   VertScrollBar.Page = 356
@@ -11,7 +11,7 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   ShowHint = True
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object Label1: TLabel
     Left = 394
     Height = 357
@@ -29,10 +29,11 @@ object Form1: TForm1
     Camera = GLCamera1
     Buffer.BackgroundColor = 13619151
     Buffer.FaceCulling = False
-    FieldOfView = 148.70359802246
+    FieldOfView = 148.703598022461
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 1
   end
   object Panel1: TPanel
     Left = 396
@@ -77,29 +78,29 @@ object Form1: TForm1
     end
     object RBWireFrame: TRadioButton
       Left = 16
-      Height = 17
+      Height = 22
       Top = 40
-      Width = 68
+      Width = 84
       Caption = 'Wireframe'
       OnClick = RBWireFrameClick
       TabOrder = 2
     end
     object RBSolid: TRadioButton
       Left = 16
-      Height = 17
+      Height = 22
       Top = 56
-      Width = 43
+      Width = 51
       Caption = 'Solid'
       Checked = True
       OnClick = RBSolidClick
-      State = cbChecked
       TabOrder = 3
+      TabStop = True
     end
     object CBAnimate: TCheckBox
       Left = 16
-      Height = 17
+      Height = 22
       Top = 80
-      Width = 58
+      Width = 71
       Caption = 'Animate'
       OnClick = CBAnimateClick
       TabOrder = 4

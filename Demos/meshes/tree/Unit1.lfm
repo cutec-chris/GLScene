@@ -1,37 +1,38 @@
 object Form1: TForm1
-  Left = 244
+  Left = 295
   Height = 550
-  Top = 112
+  Top = 141
   Width = 736
   HorzScrollBar.Page = 735
   VertScrollBar.Page = 526
   Caption = 'GLTree Editor'
-  ClientHeight = 530
+  ClientHeight = 529
   ClientWidth = 736
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Menu = MainMenu1
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 153
-    Height = 530
+    Height = 529
     Top = 0
     Width = 583
     Camera = GLCamera1
-    FieldOfView = 158.630172729492
+    FieldOfView = 158.590713500977
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 1
   end
   object Panel1: TPanel
     Left = 0
-    Height = 530
+    Height = 529
     Top = 0
     Width = 153
     Align = alLeft
-    ClientHeight = 530
+    ClientHeight = 529
     ClientWidth = 153
     FullRepaint = False
     TabOrder = 0
@@ -39,7 +40,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 112
-      Width = 63
+      Width = 71
       Caption = 'Branch Twist'
       ParentColor = False
     end
@@ -47,7 +48,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 32
-      Width = 30
+      Width = 33
       Caption = 'Depth'
       ParentColor = False
     end
@@ -55,7 +56,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 152
-      Width = 65
+      Width = 76
       Caption = 'Branch Angle'
       ParentColor = False
     end
@@ -63,7 +64,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 192
-      Width = 88
+      Width = 104
       Caption = 'Branch Angle Bias'
       ParentColor = False
     end
@@ -71,7 +72,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 232
-      Width = 58
+      Width = 67
       Caption = 'Branch Size'
       ParentColor = False
     end
@@ -79,7 +80,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 272
-      Width = 71
+      Width = 82
       Caption = 'Branch Radius'
       ParentColor = False
     end
@@ -87,7 +88,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 360
-      Width = 65
+      Width = 75
       Caption = 'Branch Noise'
       ParentColor = False
     end
@@ -95,7 +96,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 440
-      Width = 45
+      Width = 51
       Caption = 'Leaf Size'
       ParentColor = False
     end
@@ -103,7 +104,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 480
-      Width = 72
+      Width = 84
       Caption = 'Leaf Threshold'
       ParentColor = False
     end
@@ -111,7 +112,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 72
-      Width = 70
+      Width = 79
       Caption = 'Branch Facets'
       FocusControl = GLSceneViewer1
       ParentColor = False
@@ -133,7 +134,7 @@ object Form1: TForm1
       Left = 8
       Height = 14
       Top = 312
-      Width = 69
+      Width = 79
       Caption = 'Random Seed'
       ParentColor = False
     end
@@ -247,16 +248,16 @@ object Form1: TForm1
     end
     object Edit1: TEdit
       Left = 8
-      Height = 21
+      Height = 24
       Top = 328
       Width = 105
       TabOrder = 10
     end
     object CheckBox1: TCheckBox
       Left = 8
-      Height = 17
+      Height = 22
       Top = 400
-      Width = 89
+      Width = 108
       Caption = 'Central Leader'
       OnClick = CheckBox1Click
       TabOrder = 11
@@ -338,7 +339,6 @@ object Form1: TForm1
       Width = 10
       XOffset = 0
       YOffset = 0
-      NoZWrite = False
     end
   end
   object GLMaterialLibrary1: TGLMaterialLibrary

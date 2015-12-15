@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 259
+  Left = 349
   Height = 297
-  Top = 125
+  Top = 293
   Width = 498
   HorzScrollBar.Page = 497
   VertScrollBar.Page = 296
@@ -12,12 +12,12 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object Label1: TLabel
     Left = 392
     Height = 14
     Top = 32
-    Width = 76
+    Width = 91
     Caption = 'XY Grid position'
     ParentColor = False
   end
@@ -31,12 +31,13 @@ object Form1: TForm1
     FieldOfView = 99.8219528198242
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 2
   end
   object CBCentered: TCheckBox
     Left = 384
-    Height = 17
+    Height = 22
     Top = 0
-    Width = 88
+    Width = 108
     Caption = 'Centered grids'
     Checked = True
     OnClick = CBCenteredClick
@@ -60,9 +61,6 @@ object Form1: TForm1
     top = 16
     object HeightField1: TGLHeightField
       TagFloat = 0
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       Direction.Coordinates = {
         0044F4970000803F2EBD3BB300000000
       }
@@ -76,11 +74,11 @@ object Form1: TForm1
       XSamplingScale.Min = -1
       XSamplingScale.Max = 1
       XSamplingScale.Origin = 0
-      XSamplingScale.Step = 0.01999999955296
+      XSamplingScale.Step = 0.0199999995529652
       YSamplingScale.Min = -1
       YSamplingScale.Max = 1
       YSamplingScale.Origin = 0
-      YSamplingScale.Step = 0.01999999955296
+      YSamplingScale.Step = 0.0199999995529652
       OnGetHeight = HeightField1GetHeight
       object YZGrid: TGLXYZGrid
         TagFloat = 0
@@ -93,15 +91,15 @@ object Form1: TForm1
         XSamplingScale.Min = -1
         XSamplingScale.Max = 1
         XSamplingScale.Origin = 0
-        XSamplingScale.Step = 0.10000000149011
+        XSamplingScale.Step = 0.100000001490116
         YSamplingScale.Min = -1
         YSamplingScale.Max = 1
         YSamplingScale.Origin = 0
-        YSamplingScale.Step = 0.10000000149011
+        YSamplingScale.Step = 0.100000001490116
         ZSamplingScale.Min = -1
         ZSamplingScale.Max = 1
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 0.10000000149011
+        ZSamplingScale.Step = 0.100000001490116
         Parts = [gpY, gpZ]
       end
       object XZGrid: TGLXYZGrid
@@ -115,15 +113,15 @@ object Form1: TForm1
         XSamplingScale.Min = -1
         XSamplingScale.Max = 1
         XSamplingScale.Origin = 0
-        XSamplingScale.Step = 0.10000000149011
+        XSamplingScale.Step = 0.100000001490116
         YSamplingScale.Min = -1
         YSamplingScale.Max = 1
         YSamplingScale.Origin = 0
-        YSamplingScale.Step = 0.10000000149011
+        YSamplingScale.Step = 0.100000001490116
         ZSamplingScale.Min = -1
         ZSamplingScale.Max = 1
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 0.10000000149011
+        ZSamplingScale.Step = 0.100000001490116
         Parts = [gpX, gpZ]
       end
       object XYGrid: TGLXYZGrid
@@ -137,15 +135,15 @@ object Form1: TForm1
         XSamplingScale.Min = -1
         XSamplingScale.Max = 1
         XSamplingScale.Origin = 0
-        XSamplingScale.Step = 0.10000000149011
+        XSamplingScale.Step = 0.100000001490116
         YSamplingScale.Min = -1
         YSamplingScale.Max = 1
         YSamplingScale.Origin = 0
-        YSamplingScale.Step = 0.10000000149011
+        YSamplingScale.Step = 0.100000001490116
         ZSamplingScale.Min = -1
         ZSamplingScale.Max = 1
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 0.10000000149011
+        ZSamplingScale.Step = 0.100000001490116
       end
     end
     object GLLightSource1: TGLLightSource

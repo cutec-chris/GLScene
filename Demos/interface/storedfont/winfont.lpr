@@ -5,7 +5,6 @@ program winfont;
 uses
   Interfaces,
   Forms,
-  Unit1 in 'Unit1.pas' {Form1},
   Unit2 in 'Unit2.pas' {Form2};
 
 begin

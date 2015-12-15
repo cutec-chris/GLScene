@@ -43,11 +43,11 @@ unit Unit1;
 interface
 
 uses
-  Windows, LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  LCLType,LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLTerrainRenderer, GLObjects, jpeg, GLHeightData, GLMaterial, GLColor,
   ExtCtrls, GLCadencer, StdCtrls, GLTexture, GLHUDObjects, GLBitmapFont,
-  GLSkydome, GLViewer, GLSound, GLSMBASS, VectorGeometry, GLLensFlare,
-  LResources, GLScene, GLSMFMOD, GLParticleFX;
+  GLSkydome, GLViewer, GLSound, VectorGeometry, GLLensFlare,
+  LResources, GLScene, GLSMFMOD, GLParticleFX,GLState;
 
 type
 

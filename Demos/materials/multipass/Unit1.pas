@@ -95,7 +95,7 @@ begin
    glPushAttrib(GL_ENABLE_BIT);
    // disable lighting, this is a solid fill
    glDisable(GL_LIGHTING);
-   rci.GLStates.SetGLPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+   rci.GLStates.SetGLPolygonMode(cmFrontAndBack, pmFill);
    // use background color
    glColor3fv(@BackgroundColor);
    // enable and adjust polygon offset
@@ -111,7 +111,7 @@ begin
          PassCount:=2;
 
          // switch to wireframe and its color
-         rci.GLStates.SetGLPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+         rci.GLStates.SetGLPolygonMode(cmFrontAndBack, pmFill);
          glColor3fv(@LineColor);
          // disable polygon offset
          glDisable(GL_POLYGON_OFFSET_LINE);

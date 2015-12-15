@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 293
+  Left = 462
   Height = 308
-  Top = 125
+  Top = 245
   Width = 356
   HorzScrollBar.Page = 355
   VertScrollBar.Page = 307
@@ -10,14 +10,14 @@ object Form1: TForm1
   ClientWidth = 356
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 308
     Top = 0
     Width = 356
     Camera = GLCamera1
-    FieldOfView = 144.025329589843
+    FieldOfView = 144.025329589844
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
@@ -25,18 +25,18 @@ object Form1: TForm1
   end
   object CBSpline: TCheckBox
     Left = 272
-    Height = 17
+    Height = 22
     Top = 8
-    Width = 54
+    Width = 64
     Caption = 'Splines'
     OnClick = CBSplineClick
     TabOrder = 0
   end
   object CBFat: TCheckBox
     Left = 272
-    Height = 17
+    Height = 22
     Top = 32
-    Width = 59
+    Width = 68
     Caption = 'Fat/Slim'
     TabOrder = 1
   end
@@ -70,7 +70,7 @@ object Form1: TForm1
         item
         end>
       Parts = [ppOutside, ppStartDisk, ppStopDisk]
-      Radius = 0.20000000298023
+      Radius = 0.200000002980232
     end
     object DummyCube1: TGLDummyCube
       TagFloat = 0

@@ -4,8 +4,7 @@ program ActorTwoCam;
 
 uses
   interfaces,
-  Forms,
-  Unit1 in 'Unit1.pas' {Form1};
+  Forms,Unit1;
 
 
 

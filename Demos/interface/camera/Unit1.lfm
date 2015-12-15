@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 265
+  Left = 364
   Height = 308
-  Top = 131
+  Top = 245
   Width = 377
   HorzScrollBar.Page = 376
   VertScrollBar.Page = 307
@@ -11,7 +11,7 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnKeyPress = FormKeyPress
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 308
@@ -23,6 +23,7 @@ object Form1: TForm1
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 8
@@ -42,9 +43,6 @@ object Form1: TForm1
       TagFloat = 0
       Material.FrontProperties.Diffuse.Color = {
         9493133F0000803F9291113F0000803F
-      }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
       }
       Direction.Coordinates = {
         0000803F000000000000000000000000

@@ -12,7 +12,7 @@ interface
 uses
   LCLType, Forms, GLObjects, ComCtrls, ExtCtrls, StdCtrls,
   Classes, Controls, GLBehaviours, Buttons, GLGraph, GLMovement,
-  GLViewer, LResources, GLScene, GLCadencer;
+  GLViewer, LResources, GLScene, GLCadencer,Dialogs;
 
 type
 
@@ -26,6 +26,7 @@ type
     GLLightSource1: TGLLightSource;
     DummyCube1: TGLDummyCube;
     GLCadencer1: TGLCadencer;
+    Label1: TLabel;
     MoveBtn: TBitBtn;
     Timer1: TTimer;
     Sphere1: TGLSphere;
@@ -118,13 +119,13 @@ end;
 procedure TForm1.PathTravelStop(Sender: TObject; Path: TGLMovementPath; var Looped: Boolean);
 begin
    if not Application.Terminated then
-      InformationDlg('Path Travel Stopped');
+      ShowMessage('Path Travel Stopped');
 end;
 
 procedure TForm1.PathAllTravelledOver(Sender: TObject);
 begin
    if not Application.Terminated then
-      InformationDlg('All Path(es) Traveled Over');
+      ShowMessage('All Path(es) Traveled Over');
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);

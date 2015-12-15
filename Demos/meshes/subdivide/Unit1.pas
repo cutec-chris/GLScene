@@ -14,7 +14,7 @@ uses
   SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, GLVectorFileObjects, GLObjects, GLTexture,
   VectorLists, ComCtrls, ExtCtrls, GLMaterial,
-  LResources, GLScene, GLCadencer, Buttons, GLViewer;
+  LResources, GLScene, GLCadencer, Buttons, GLViewer,GLState;
 
 type
 

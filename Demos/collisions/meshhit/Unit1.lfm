@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 250
+  Left = 361
   Height = 302
-  Top = 127
+  Top = 276
   Width = 562
   HorzScrollBar.Page = 561
   VertScrollBar.Page = 301
@@ -11,12 +11,12 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object Label1: TLabel
     Left = 8
     Height = 14
     Top = 8
-    Width = 79
+    Width = 94
     Caption = 'Orthogonal View'
     ParentColor = False
   end
@@ -24,7 +24,7 @@ object Form1: TForm1
     Left = 280
     Height = 14
     Top = 8
-    Width = 83
+    Width = 97
     Caption = 'Perspective View'
     ParentColor = False
   end
@@ -38,6 +38,7 @@ object Form1: TForm1
     FieldOfView = 170.512069702148
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object GLSceneViewer2: TGLSceneViewer
     Left = 280
@@ -46,9 +47,10 @@ object Form1: TForm1
     Width = 265
     Camera = GLCamera2
     Buffer.BackgroundColor = clGray
-    FieldOfView = 134.92918395996
+    FieldOfView = 134.929183959961
     OnMouseDown = GLSceneViewer2MouseDown
     OnMouseMove = GLSceneViewer2MouseMove
+    TabOrder = 1
   end
   object GLScene1: TGLScene
     left = 16
@@ -102,7 +104,7 @@ object Form1: TForm1
       Up.Coordinates = {
         E9DC72BF000000009BE8A13E00000000
       }
-      Radius = 0.30000001192092
+      Radius = 0.300000011920929
       Slices = 6
       Stacks = 6
       object ArrowLine1: TGLArrowLine
@@ -120,13 +122,13 @@ object Form1: TForm1
         }
         RollAngle = 0
         TurnAngle = 0
-        BottomRadius = 0.05000000074505
+        BottomRadius = 0.0500000007450581
         Height = 1
-        TopRadius = 0.10000000149011
+        TopRadius = 0.100000001490116
         TopArrowHeadHeight = 0.5
-        TopArrowHeadRadius = 0.20000000298023
+        TopArrowHeadRadius = 0.200000002980232
         BottomArrowHeadHeight = 0.5
-        BottomArrowHeadRadius = 0.20000000298023
+        BottomArrowHeadRadius = 0.200000002980232
       end
     end
     object GLCamera1: TGLCamera

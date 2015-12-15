@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 249
+  Left = 326
   Height = 362
-  Top = 136
+  Top = 226
   Width = 641
   HorzScrollBar.Page = 640
   VertScrollBar.Page = 361
@@ -11,17 +11,18 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer: TGLSceneViewer
     Left = 0
     Height = 362
     Top = 0
     Width = 511
     Camera = GLCamera1
-    FieldOfView = 149.115112304687
+    FieldOfView = 149.115112304688
     Align = alClient
     OnMouseDown = GLSceneViewerMouseDown
     OnMouseMove = GLSceneViewerMouseMove
+    TabOrder = 1
   end
   object Panel1: TPanel
     Left = 511
@@ -39,9 +40,9 @@ object Form1: TForm1
     TabOrder = 0
     object Label1: TLabel
       Left = 8
-      Height = 19
+      Height = 18
       Top = 8
-      Width = 83
+      Width = 80
       Caption = 'HeightField'
       Font.Height = -15
       Font.Name = 'Arial'
@@ -51,9 +52,9 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 24
-      Height = 19
+      Height = 18
       Top = 32
-      Width = 52
+      Width = 51
       Caption = 'picking'
       Font.Height = -15
       Font.Name = 'Arial'
@@ -74,19 +75,19 @@ object Form1: TForm1
     end
     object RBPaint: TRadioButton
       Left = 16
-      Height = 18
+      Height = 22
       Top = 80
-      Width = 43
+      Width = 48
       Caption = 'Paint'
       Checked = True
-      State = cbChecked
       TabOrder = 0
+      TabStop = True
     end
     object RadioButton2: TRadioButton
       Left = 16
-      Height = 18
+      Height = 22
       Top = 112
-      Width = 51
+      Width = 56
       Caption = 'Rotate'
       TabOrder = 1
     end
@@ -111,11 +112,11 @@ object Form1: TForm1
       XSamplingScale.Min = -5.5
       XSamplingScale.Max = 5.5
       XSamplingScale.Origin = 0
-      XSamplingScale.Step = 0.20000000298023
+      XSamplingScale.Step = 0.200000002980232
       YSamplingScale.Min = -5.5
       YSamplingScale.Max = 5.5
       YSamplingScale.Origin = 0
-      YSamplingScale.Step = 0.20000000298023
+      YSamplingScale.Step = 0.200000002980232
       ColorMode = hfcmAmbientAndDiffuse
       OnGetHeight = HeightFieldGetHeight
     end

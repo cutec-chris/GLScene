@@ -1,18 +1,18 @@
 object Form1: TForm1
-  Left = 0
+  Left = 310
   Height = 696
-  Top = 24
+  Top = 119
   Width = 1024
   HorzScrollBar.Page = 1023
   VertScrollBar.Page = 672
   Caption = 'Form1'
-  ClientHeight = 676
+  ClientHeight = 675
   ClientWidth = 1024
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Menu = MainMenu1
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   WindowState = wsMaximized
   object Bevel1: TBevel
     Left = 0
@@ -24,20 +24,21 @@ object Form1: TForm1
   end
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 653
+    Height = 649
     Top = 3
     Width = 1024
     Camera = GLCamera1
     AfterRender = GLSceneViewer1AfterRender
     Buffer.DepthTest = False
-    FieldOfView = 162.586807250976
+    FieldOfView = 162.481140136719
     Align = alClient
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 20
-    Top = 656
+    Height = 23
+    Top = 652
     Width = 1024
     Panels = <>
     SimplePanel = False
@@ -50,9 +51,6 @@ object Form1: TForm1
       TagFloat = 0
       Material.FrontProperties.Emission.Color = {
         0000803F0000803F0000803F0000803F
-      }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
       }
       Material.Texture.Disabled = False
       PitchAngle = 0
@@ -154,9 +152,6 @@ object Form1: TForm1
         Material.BlendingMode = bmTransparency
         Material.Texture.ImageAlpha = tiaTopLeftPointColorTransparent
         Material.Texture.TextureMode = tmModulate
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         Material.Texture.Disabled = False
         Tag = 0
       end>

@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 138
+  Left = 236
   Height = 588
-  Top = 176
+  Top = 170
   Width = 863
   Caption = 'CameraController Demo'
   ClientHeight = 588
@@ -10,7 +10,7 @@ object Form1: TForm1
   Font.Name = 'Tahoma'
   OnClose = FormClose
   OnMouseWheel = FormMouseWheel
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object Panel1: TPanel
     Left = 533
     Height = 553
@@ -32,7 +32,7 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 57
-        Width = 64
+        Width = 75
         Caption = 'Destination X'
         ParentColor = False
       end
@@ -40,7 +40,7 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 105
-        Width = 64
+        Width = 74
         Caption = 'Destination Y'
         ParentColor = False
       end
@@ -48,7 +48,7 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 153
-        Width = 64
+        Width = 75
         Caption = 'Destination Z'
         ParentColor = False
       end
@@ -68,7 +68,7 @@ object Form1: TForm1
       end
       object eDestX: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 72
         Width = 121
         TabOrder = 0
@@ -76,7 +76,7 @@ object Form1: TForm1
       end
       object eDestY: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 122
         Width = 121
         TabOrder = 1
@@ -84,7 +84,7 @@ object Form1: TForm1
       end
       object eDestZ: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 168
         Width = 121
         TabOrder = 2
@@ -103,7 +103,7 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 25
-        Width = 42
+        Width = 48
         Caption = 'Distance'
         ParentColor = False
       end
@@ -123,7 +123,7 @@ object Form1: TForm1
       end
       object eDistance: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 40
         Width = 121
         TabOrder = 0
@@ -142,7 +142,7 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 41
-        Width = 75
+        Width = 86
         Caption = 'soSafeDistance'
         ParentColor = False
       end
@@ -150,7 +150,7 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 137
-        Width = 70
+        Width = 81
         Caption = 'soTimeToOrbit'
         ParentColor = False
       end
@@ -158,7 +158,7 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 89
-        Width = 117
+        Width = 137
         Caption = 'soTimeToSafePlacement'
         ParentColor = False
       end
@@ -180,13 +180,13 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 177
-        Width = 104
+        Width = 123
         Caption = 'soTimeToZoomBackIn'
         ParentColor = False
       end
       object eSafeDistance: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 56
         Width = 121
         TabOrder = 0
@@ -194,7 +194,7 @@ object Form1: TForm1
       end
       object eTimeToSafePlacement: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 106
         Width = 121
         TabOrder = 1
@@ -202,7 +202,7 @@ object Form1: TForm1
       end
       object eTimeToOrbit: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 152
         Width = 121
         TabOrder = 2
@@ -210,7 +210,7 @@ object Form1: TForm1
       end
       object eTimeToZoomBackIn: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 192
         Width = 121
         TabOrder = 3
@@ -229,7 +229,7 @@ object Form1: TForm1
         Left = 6
         Height = 14
         Top = 49
-        Width = 23
+        Width = 28
         Caption = 'Time'
         ParentColor = False
       end
@@ -249,7 +249,7 @@ object Form1: TForm1
       end
       object eTime: TEdit
         Left = 6
-        Height = 21
+        Height = 24
         Top = 64
         Width = 121
         TabOrder = 0
@@ -317,11 +317,12 @@ object Form1: TForm1
     Top = 0
     Width = 533
     Camera = GLCamera
-    FieldOfView = 131.517700195312
+    FieldOfView = 131.517700195313
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
     OnMouseUp = GLSceneViewer1MouseUp
+    TabOrder = 1
   end
   object pImg: TPanel
     Left = 4
@@ -401,7 +402,7 @@ object Form1: TForm1
       Left = 32
       Height = 14
       Top = 6
-      Width = 103
+      Width = 123
       Caption = 'TGLCameraController'
       ParentColor = False
     end
@@ -467,9 +468,9 @@ object Form1: TForm1
         Up.Coordinates = {
           00000000D7B35D3FFFFFFFBE00000000
         }
-        BottomRadius = 0.20000000298023
-        Height = 4.19999980926513
-        TopRadius = 0.05000000074505
+        BottomRadius = 0.200000002980232
+        Height = 4.19999980926514
+        TopRadius = 0.0500000007450581
       end
       object GLSphere2: TGLSphere
         TagFloat = 0
@@ -481,7 +482,7 @@ object Form1: TForm1
         }
         RollAngle = 0
         TurnAngle = 0
-        Radius = 0.30000001192092
+        Radius = 0.300000011920929
       end
       object GLSphere3: TGLSphere
         TagFloat = 0
@@ -493,7 +494,7 @@ object Form1: TForm1
         }
         RollAngle = 0
         TurnAngle = 0
-        Radius = 0.30000001192092
+        Radius = 0.300000011920929
       end
     end
     object GLCamera: TGLCamera

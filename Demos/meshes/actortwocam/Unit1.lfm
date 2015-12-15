@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 308
+  Left = 375
   Height = 442
-  Top = 117
+  Top = 220
   Width = 665
   HorzScrollBar.Page = 664
   VertScrollBar.Page = 441
@@ -12,7 +12,7 @@ object Form1: TForm1
   Font.Name = 'MS Sans Serif'
   KeyPreview = True
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 401
@@ -20,8 +20,9 @@ object Form1: TForm1
     Width = 665
     Camera = GLCamera2
     Buffer.BackgroundColor = clGreen
-    FieldOfView = 126.984252929687
+    FieldOfView = 126.984252929688
     Align = alClient
+    TabOrder = 1
   end
   object Panel1: TPanel
     Left = 0
@@ -39,17 +40,17 @@ object Form1: TForm1
     TabOrder = 0
     object Label3: TLabel
       Left = 8
-      Height = 15
+      Height = 13
       Top = 20
-      Width = 77
+      Width = 79
       Caption = 'F7 Third Person'
       ParentColor = False
     end
     object Label4: TLabel
       Left = 112
-      Height = 13
+      Height = 15
       Top = 20
-      Width = 68
+      Width = 88
       Caption = 'F8 First Person'
       Font.CharSet = ANSI_CHARSET
       Font.Height = 12
@@ -58,7 +59,7 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 8
-      Height = 15
+      Height = 13
       Top = 6
       Width = 333
       Caption = 'Move with arrow keys, strafe with CTRL, run with SHIFT, ESC to exit'
@@ -66,9 +67,9 @@ object Form1: TForm1
     end
     object CBMouseLook: TCheckBox
       Left = 224
-      Height = 18
+      Height = 22
       Top = 16
-      Width = 78
+      Width = 84
       Caption = '&Mouse Look'
       OnClick = CBMouseLookClick
       TabOrder = 0
@@ -110,9 +111,6 @@ object Form1: TForm1
     object Disk1: TGLDisk
       TagFloat = 0
       Material.Texture.MinFilter = miLinear
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       Material.Texture.Disabled = False
       Direction.Coordinates = {
         000000000000803F0000000000000000
@@ -153,9 +151,6 @@ object Form1: TForm1
         Material.FrontProperties.Diffuse.Color = {
           0AD7633FD7A3F03ECDCC4C3E0000803F
         }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         Direction.Coordinates = {
           000000000000803F0000000000000000
         }
@@ -182,7 +177,7 @@ object Form1: TForm1
       }
       RollAngle = 0
       TurnAngle = 0
-      CubeSize = 0.10000000149011
+      CubeSize = 0.100000001490116
       object GLCamera2: TGLCamera
         TagFloat = 0
         DepthOfView = 500
@@ -202,9 +197,6 @@ object Form1: TForm1
           0000803F0000803F0000803F0000803F
         }
         Material.Texture.MinFilter = miLinear
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         Material.Texture.Disabled = False
         Direction.Coordinates = {
           000000800000803F0000000000000000
@@ -221,9 +213,6 @@ object Form1: TForm1
         object Actor2: TGLActor
           TagFloat = 0
           Material.Texture.MinFilter = miLinear
-          Material.Texture.MappingTCoordinates.Coordinates = {
-            000000000000803F0000000000000000
-          }
           Material.Texture.Disabled = False
           PitchAngle = 0
           RollAngle = 0

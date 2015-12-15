@@ -20,7 +20,7 @@ uses
   SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, GLScene, GLVectorFileObjects, GLObjects,
   ExtCtrls, ComCtrls, StdCtrls, GLTexture, LResources, GLCadencer,
-  GLViewer, GLMaterial;
+  GLViewer, GLMaterial,GLState;
 
 type
 

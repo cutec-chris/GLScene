@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 215
+  Left = 342
   Height = 457
-  Top = 181
+  Top = 205
   Width = 708
   HorzScrollBar.Page = 707
   VertScrollBar.Page = 456
@@ -12,12 +12,12 @@ object Form1: TForm1
   Font.Name = 'MS Sans Serif'
   OnActivate = FormActivate
   Position = poDesktopCenter
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object Label1: TLabel
     Left = 8
     Height = 19
     Top = 8
-    Width = 76
+    Width = 75
     Caption = 'Maze Map'
     Font.CharSet = ANSI_CHARSET
     Font.Height = -16
@@ -30,7 +30,7 @@ object Form1: TForm1
     Left = 304
     Height = 19
     Top = 8
-    Width = 63
+    Width = 60
     Caption = '3D View'
     Font.CharSet = ANSI_CHARSET
     Font.Height = -16
@@ -41,9 +41,9 @@ object Form1: TForm1
   end
   object Label3: TLabel
     Left = 24
-    Height = 43
+    Height = 39
     Top = 312
-    Width = 242
+    Width = 245
     Caption = 'To modify map, edit cells with keyboard :'#13#10'- any non-empty cell is a wall'#13#10'- click ''process'' to commit changes or check ''auto'''
     Font.CharSet = ANSI_CHARSET
     Font.Height = -11
@@ -107,9 +107,9 @@ object Form1: TForm1
   end
   object CBAuto: TCheckBox
     Left = 152
-    Height = 17
+    Height = 22
     Top = 8
-    Width = 42
+    Width = 50
     Caption = 'Auto'
     Checked = True
     OnChange = CBAutoChange
@@ -118,9 +118,9 @@ object Form1: TForm1
   end
   object CBFog: TCheckBox
     Left = 640
-    Height = 17
+    Height = 22
     Top = 8
-    Width = 38
+    Width = 44
     Caption = 'Fog'
     OnClick = CBFogClick
     TabOrder = 7
@@ -130,6 +130,7 @@ object Form1: TForm1
     Height = 400
     Top = 32
     Width = 410
+    Anchors = [akTop, akLeft, akRight, akBottom]
     Caption = 'Panel1'
     ClientHeight = 400
     ClientWidth = 410
@@ -149,6 +150,7 @@ object Form1: TForm1
       Buffer.BackgroundColor = clNavy
       FieldOfView = 151.792068481445
       Align = alClient
+      TabOrder = 0
     end
   end
   object GLMaterialLibrary1: TGLMaterialLibrary
@@ -204,9 +206,6 @@ object Form1: TForm1
     end
     object Portal1: TGLPortal
       TagFloat = 0
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       PitchAngle = 0
       Position.Coordinates = {
         00000000000000BF000000000000803F

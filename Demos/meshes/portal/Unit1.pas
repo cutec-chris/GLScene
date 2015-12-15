@@ -99,8 +99,8 @@ begin
    SGMap.Col:=8;
    SGMap.Row:=12;
    with GLMaterialLibrary1 do begin
-      AddTextureMaterial('gnd', '..\..\media\walkway.jpg');
-      with AddTextureMaterial('wall', '..\..\media\rawwall.jpg') do begin
+      AddTextureMaterial('gnd', '..'+DirectorySeparator+'..'+DirectorySeparator+'media'+DirectorySeparator+'walkway.jpg');
+      with AddTextureMaterial('wall', '..'+DirectorySeparator+'..'+DirectorySeparator+'media'+DirectorySeparator+'rawwall.jpg') do begin
          TextureScale.Y:=3;
       end;
    end;
