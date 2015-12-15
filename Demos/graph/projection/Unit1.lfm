@@ -1,30 +1,31 @@
 object Form1: TForm1
-  Left = 251
-  Height = 386
-  Top = 110
-  Width = 519
+  Left = 366
+  Height = 398
+  Top = 227
+  Width = 531
   HorzScrollBar.Page = 518
   VertScrollBar.Page = 385
   Caption = 'Form1'
-  ClientHeight = 386
-  ClientWidth = 519
+  ClientHeight = 398
+  ClientWidth = 531
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object SceneViewer: TGLSceneViewer
     Left = 0
-    Height = 386
+    Height = 398
     Top = 0
-    Width = 519
+    Width = 531
     Camera = GLCamera
     Buffer.BackgroundColor = clBlack
     Buffer.FaceCulling = False
     Buffer.AntiAliasing = aa4xHQ
-    FieldOfView = 145.461059570312
+    FieldOfView = 146.443099975586
     Align = alClient
     OnMouseDown = SceneViewerMouseDown
     OnMouseMove = SceneViewerMouseMove
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     ObjectsSorting = osNone
@@ -47,13 +48,13 @@ object Form1: TForm1
         Up.Coordinates = {
           0000000000000000000080BF00000000
         }
-        BottomRadius = 0.10000000149011
+        BottomRadius = 0.100000001490116
         Height = 1
-        TopRadius = 0.10000000149011
+        TopRadius = 0.100000001490116
         TopArrowHeadHeight = 0.5
-        TopArrowHeadRadius = 0.20000000298023
+        TopArrowHeadRadius = 0.200000002980232
         BottomArrowHeadHeight = 0.5
-        BottomArrowHeadRadius = 0.20000000298023
+        BottomArrowHeadRadius = 0.200000002980232
       end
       object GLLightSource1: TGLLightSource
         TagFloat = 0
@@ -106,7 +107,6 @@ object Form1: TForm1
       Width = 6
       XOffset = 0
       YOffset = 0
-      NoZWrite = False
       object GLXYZGrid1: TGLXYZGrid
         TagFloat = 0
         PitchAngle = 0
@@ -126,7 +126,7 @@ object Form1: TForm1
         ZSamplingScale.Min = 0
         ZSamplingScale.Max = 0
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 0.10000000149011
+        ZSamplingScale.Step = 0.100000001490116
       end
     end
     object GLCamera: TGLCamera

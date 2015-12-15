@@ -102,7 +102,7 @@ uses VectorGeometry, OpenGL1x;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  SetCurrentDir(ExtractFilePath(Application.ExeName)+'..\..\media');
+  SetCurrentDir(ExtractFilePath(Application.ExeName)+'..'+DirectorySeparator+'..'+DirectorySeparator+'media');
 
   // Load the bunny mesh and scale for viewing
   Bunny.LoadFromFile('bunny.glsm');

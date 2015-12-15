@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 400
+  Left = 405
   Height = 276
-  Top = 130
+  Top = 312
   Width = 563
   HorzScrollBar.Page = 562
   VertScrollBar.Page = 275
@@ -11,28 +11,28 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'Arial'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object Label1: TLabel
     Left = 56
-    Height = 15
+    Height = 13
     Top = 8
-    Width = 69
+    Width = 68
     Caption = 'Centered X, Y'
     ParentColor = False
   end
   object Label2: TLabel
     Left = 232
-    Height = 15
+    Height = 13
     Top = 8
-    Width = 56
+    Width = 55
     Caption = 'Centered Y'
     ParentColor = False
   end
   object Label3: TLabel
     Left = 408
-    Height = 15
+    Height = 13
     Top = 8
-    Width = 82
+    Width = 80
     Caption = 'Centered X, Y, Z'
     ParentColor = False
   end
@@ -43,7 +43,9 @@ object Form1: TForm1
     Width = 513
     Camera = GLCamera1
     Buffer.BackgroundColor = 11447982
-    FieldOfView = 60.2750930786132
+    FieldOfView = 60.2750930786133
+    Anchors = [akTop, akLeft, akBottom]
+    TabOrder = 1
   end
   object TrackBar1: TTrackBar
     Left = 528
@@ -77,9 +79,6 @@ object Form1: TForm1
         Material.FrontProperties.Diffuse.Color = {
           0000803F8180003F8180803E0000803F
         }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         PitchAngle = 0
         RollAngle = 0
         TurnAngle = 0
@@ -97,9 +96,6 @@ object Form1: TForm1
         TagFloat = 0
         Material.FrontProperties.Diffuse.Color = {
           0000803F8180003F8180803E0000803F
-        }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
         }
         PitchAngle = 0
         RollAngle = 0
@@ -121,9 +117,6 @@ object Form1: TForm1
         TagFloat = 0
         Material.FrontProperties.Diffuse.Color = {
           0000803F8180003F8180803E0000803F
-        }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
         }
         PitchAngle = 0
         RollAngle = 0

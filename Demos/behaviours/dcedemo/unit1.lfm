@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 192
+  Left = 313
   Height = 512
-  Top = 114
+  Top = 201
   Width = 678
   HorzScrollBar.Page = 677
   VertScrollBar.Page = 511
@@ -13,7 +13,7 @@ object Form1: TForm1
   KeyPreview = True
   OnKeyDown = FormKeyDown
   OnShow = FormShow
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 512
@@ -24,9 +24,10 @@ object Form1: TForm1
     Buffer.FogEnvironment.FogEnd = 250
     Buffer.BackgroundColor = clBlack
     Buffer.FogEnable = True
-    FieldOfView = 157.897094726562
+    FieldOfView = 157.897094726563
     Align = alClient
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 8
@@ -53,7 +54,7 @@ object Form1: TForm1
       QualityDistance = 0
       BehavioursData = {
         0201060C54474C4443455374617469630200060D474C4443454D616E61676572
-        310203020009090F0040834E0F00000000020008
+        310203020009090F80069D4E0F00000000020008
       }
     end
     object Ground: TGLPlane
@@ -85,10 +86,9 @@ object Form1: TForm1
       YOffset = 0
       YTiles = 50
       Style = []
-      NoZWrite = False
       BehavioursData = {
         0201060C54474C4443455374617469630200060D474C4443454D616E61676572
-        310201020009080F0040834E0F00000000020008
+        310201020009080F80069D4E0F00000000020008
       }
     end
     object Balls: TGLDummyCube
@@ -112,7 +112,7 @@ object Form1: TForm1
       NormalsOrientation = mnoInvert
       BehavioursData = {
         0201060C54474C4443455374617469630200060D474C4443454D616E61676572
-        310202020009090F00007E4E0F00000000020008
+        310202020009090F00FC9C4E0F00000000020008
       }
     end
     object Mushrooms: TGLDummyCube
@@ -144,7 +144,7 @@ object Form1: TForm1
       }
       BehavioursData = {
         0201060C54474C4443455374617469630200060D474C4443454D616E61676572
-        310201020009090F00E0834E0F00000000020008
+        310201020009090FC0079D4E0F00000000020008
       }
     end
     object GLDirectOpenGL1: TGLDirectOpenGL
@@ -168,7 +168,7 @@ object Form1: TForm1
       CubeSize = 1
       BehavioursData = {
         0201060D54474C44434544796E616D69630200060D474C4443454D616E616765
-        723102000909090F00007C4E0F00000000020502000200090000803F0000A03F
+        723102000909090F00F89C4E0F00000000020502000200090000803F0000A03F
         0000803F00000000
       }
       object GLCamera1: TGLCamera

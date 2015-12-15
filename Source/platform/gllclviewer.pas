@@ -106,7 +106,6 @@ type
          procedure DoBeforeRender(Sender : TObject); dynamic;
          procedure DoBufferChange(Sender : TObject); virtual;
          procedure DoBufferStructuralChange(Sender : TObject); dynamic;
-
       public
          { Public Declarations }
          constructor Create(AOwner: TComponent); override;
@@ -486,6 +485,8 @@ begin
    inherited Loaded;
    // initiate window creation
    HandleNeeded;
+   if assigned(FBuffer) then
+     FBuffer.Resize(Width, Height);
 end;
 
 // DoBeforeRender

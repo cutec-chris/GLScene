@@ -1,28 +1,29 @@
 object Form1: TForm1
-  Left = 274
-  Height = 246
-  Top = 143
-  Width = 500
+  Left = 403
+  Height = 266
+  Top = 262
+  Width = 519
   HorzScrollBar.Page = 499
   VertScrollBar.Page = 245
   Caption = 'Form1'
-  ClientHeight = 246
-  ClientWidth = 500
+  ClientHeight = 266
+  ClientWidth = 519
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.5'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 246
+    Height = 266
     Top = 0
-    Width = 500
+    Width = 519
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
     Buffer.ContextOptions = [roDoubleBuffer, roStencilBuffer, roRenderToWindow]
-    FieldOfView = 135.756118774414
+    FieldOfView = 138.793518066406
     Align = alClient
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 8
@@ -61,7 +62,6 @@ object Form1: TForm1
         Width = 15
         XOffset = 0
         YOffset = 0
-        NoZWrite = False
         object Cube1: TGLCube
           TagFloat = 0
           Material.MaterialLibrary = GLMaterialLibrary1
@@ -112,7 +112,7 @@ object Form1: TForm1
         PitchAngle = 0
         RollAngle = 0
         TurnAngle = 0
-        Radius = 0.40000000596046
+        Radius = 0.400000005960464
         Slices = 12
         Stacks = 9
       end
@@ -175,18 +175,12 @@ object Form1: TForm1
         Material.FrontProperties.Diffuse.Color = {
           000000000000803F000000000000803F
         }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         Tag = 0
       end    
       item
         Name = 'Edge'
         Material.FrontProperties.Diffuse.Color = {
           0000803FBDBCBC3EF1F0F03D0000803F
-        }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
         }
         Tag = 0
       end    
@@ -196,18 +190,12 @@ object Form1: TForm1
         Material.FrontProperties.Specular.Color = {
           0000803F0000803F0000803F0000803F
         }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         Tag = 0
       end    
       item
         Name = 'Pad'
         Material.FrontProperties.Diffuse.Color = {
           00000000000000000000803F0000803F
-        }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
         }
         Tag = 0
       end>

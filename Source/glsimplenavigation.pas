@@ -239,7 +239,7 @@ begin
   if FGLSceneViewer <> nil then
     if FGLSceneViewer.Camera <> nil then
       FGLSceneViewer.Camera.AdjustDistanceToTarget(
-                      Power(FZoomSpeed, Sign * WheelDelta div Abs(WheelDelta)));
+                      Power(FZoomSpeed, Integer(Sign * WheelDelta div Abs(WheelDelta))));
 
   if snoMouseWheelHandled in FOptions then
     Handled := True;

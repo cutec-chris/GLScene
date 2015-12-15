@@ -178,6 +178,8 @@ procedure FillSmallInt(p : PSmallInt; count : Integer; v : SmallInt); register;
 // EDX contains count
 // ECX contains v
 asm
+//TODO:fix it
+{
    push edi
    mov edi, p
    mov ax, cx     // expand v to 32 bits
@@ -194,6 +196,7 @@ asm
    rep stosd
 @fill_done:
    pop edi
+   }
 end;
 
 // ------------------
