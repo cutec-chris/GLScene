@@ -147,6 +147,7 @@ object Main: TMain
     OnMouseDown = GLSceneViewerMouseDown
     OnMouseMove = GLSceneViewerMouseMove
     OnMouseUp = GLSceneViewerMouseUp
+    OnMouseWheel = GLSceneViewerMouseWheel
     TabOrder = 2
   end
   object MainMenu: TMainMenu

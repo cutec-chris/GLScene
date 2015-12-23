@@ -205,7 +205,8 @@ begin
          lastfg:=nil;
          for j:=0 to bsp.Leaves[i].NumFaces-1 do begin
             n:=bsp.Leaves[i].FirstFace+j;
-            if n>=bsp.NumOfFaces then Break; // corrupted BSP?
+            if n>=bsp.NumOfFaces then
+              Break; // corrupted BSP?
             facePtr:=@bsp.Faces[n];
             if facePtr.FaceType=FACE_POLYGON then begin
                if lastfg=nil then

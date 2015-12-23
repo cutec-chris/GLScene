@@ -1,13 +1,13 @@
-{ This file was automatically created by Lazarus. do not edit!
+{ This file was automatically created by Lazarus. Do not edit!
   This source is only used to compile and install the package.
  }
 
-unit glscenelazarus; 
+unit glscenelazarus;
 
 interface
 
 uses
-    ApplicationFileIO, ARBProgram, AsyncTimer, BumpMapping, CurvesAndSurfaces, 
+  ApplicationFileIO, ARBProgram, AsyncTimer, BumpMapping, CurvesAndSurfaces, 
   GeometryBB, GLCanvas, GLKeyboard, GLTextureCombiners, HeightTileFile, jpeg, 
   MeshUtils, Octree, OpenGL1x, PerlinNoise, PersistentClasses, 
   PictureRegisteredFormats, Polynomials, SpatialPartitioning, Spline, 
@@ -37,16 +37,16 @@ uses
   GLFileB3D, GLSLBumpShader, GLSLDiffuseSpecularShader, GLSLPostBlurShader, 
   GLSLShader, BaseClasses, GLCoordinates, GLManager, GLNodes, 
   GLRenderContextInfo, GLMaterial, GLObjectManager, GLCameraController, GLFBO, 
-  GLFBORenderer, GLGizmoEx, LazarusPackageIntf;
+  GLFBORenderer, GLGizmoEx, Q3BSP, LazarusPackageIntf;
 
 implementation
 
-procedure Register; 
+procedure Register;
 begin
-  RegisterUnit('GLSceneRegister', @GLSceneRegister.Register); 
-  RegisterUnit('RegisterXCollection', @RegisterXCollection.Register); 
-end; 
+  RegisterUnit('GLSceneRegister', @GLSceneRegister.Register);
+  RegisterUnit('RegisterXCollection', @RegisterXCollection.Register);
+end;
 
 initialization
-  RegisterPackage('glscenelazarus', @Register); 
+  RegisterPackage('glscenelazarus', @Register);
 end.

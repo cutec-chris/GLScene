@@ -14,9 +14,12 @@ uses
   Dialogs, ActnList, Menus, ImgList, ToolWin, ComCtrls, GLMaterial,
   GLScene, GLLCLViewer, GLVectorFileObjects, GLObjects, VectorGeometry,
   GLTexture, OpenGL1x, GLContext, ExtDlgs, VectorLists, GLCadencer,
-  ExtCtrls, GLCoordinates, GLCrossPlatform, BaseClasses;
+  ExtCtrls, GLCoordinates, GLCrossPlatform, BaseClasses, Types;
 
 type
+
+  { TMain }
+
   TMain = class(TForm)
     MainMenu: TMainMenu;
     ActionList: TActionList;
@@ -119,6 +122,8 @@ type
     MSAA16X: TMenuItem;
     CSAA8X: TMenuItem;
     CSAA16X: TMenuItem;
+    procedure GLSceneViewerMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure MIAboutClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ACOpenExecute(Sender: TObject);
@@ -194,7 +199,7 @@ uses GLColor, GLKeyBoard, GLGraphics, Registry, PersistentClasses, MeshUtils,
    GLFileOBJ, GLFileSTL, GLFileLWO, GLFileQ3BSP,  GLFileMS3D,
    GLFileNMF, GLFileMD3, GLFile3DS, GLFileMD2, GLFileSMD, GLFileTIN,
    GLFilePLY, GLFileGTS, GLFileVRML, GLFileMD5, GLMeshOptimizer, GLState,
-   GLRenderContextInfo, GLTextureFormat,GL;
+   GLRenderContextInfo, GLTextureFormat,GL,math;
 
 type
 
@@ -339,6 +344,12 @@ begin
                +'http://glscene.org'#13#10#13#10
                +'GraphicEx: 2D image file formats support'#13#10
                +'http://www.delphi-gems.com/')
+end;
+
+procedure TMain.GLSceneViewerMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  FormMouseWheel(Sender,Shift,WheelDelta,MousePos,Handled);
 end;
 
 procedure TMain.DoResetCamera;
@@ -507,6 +518,7 @@ end;
 procedure TMain.DoOpen(const fileName : String);
 var
    min, max : TAffineVector;
+   aCur: String;
 begin
    if not FileExists(fileName) then Exit;
 
@@ -517,7 +529,12 @@ begin
    FreeForm.MeshObjects.Clear;
    GLMaterialLibrary.Materials.Clear;
 
+   aCur := GetCurrentDir;
+   SetCurrentDir(ExtractFileDir(fileName));
+
    FreeForm.LoadFromFile(fileName);
+
+   SetCurrentDir(aCur);
 
    SetupFreeFormShading;
 
@@ -529,12 +546,15 @@ begin
    lastLoadWithTextures:=ACTexturing.Enabled;
 
    FreeForm.GetExtents(min, max);
-   with CubeExtents do begin
-      CubeWidth:=max[0]-min[0];
-      CubeHeight:=max[1]-min[1];
-      CubeDepth:=max[2]-min[2];
-      Position.AsAffineVector:=VectorLerp(min, max, 0.5);
-   end;
+   if min[0]<>Infinity then
+      begin
+       with CubeExtents do begin
+          CubeWidth:=max[0]-min[0];
+          CubeHeight:=max[1]-min[1];
+          CubeDepth:=max[2]-min[2];
+          Position.AsAffineVector:=VectorLerp(min, max, 0.5);
+          end;
+      end;
 
    DoResetCamera;
 end;
@@ -590,7 +610,7 @@ procedure TMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
    if FreeForm.MeshObjects.Count>0 then begin
-      GLCamera.AdjustDistanceToTarget(Power(1.05, WheelDelta/120));
+      GLCamera.AdjustDistanceToTarget(Power(1.05, -WheelDelta/120));
       GLCamera.DepthOfView:=2*GLCamera.DistanceToTarget+2*FreeForm.BoundingSphereRadius;
    end;
    Handled:=True;
@@ -600,14 +620,14 @@ procedure TMain.ACZoomInExecute(Sender: TObject);
 var
    h : Boolean;
 begin
-   FormMouseWheel(Self, [], -120*4, Point(0, 0), h);
+   FormMouseWheel(Self, [], 120*4, Point(0, 0), h);
 end;
 
 procedure TMain.ACZoomOutExecute(Sender: TObject);
 var
    h : Boolean;
 begin
-   FormMouseWheel(Self, [], 120*4, Point(0, 0), h);
+   FormMouseWheel(Self, [], -120*4, Point(0, 0), h);
 end;
 
 procedure TMain.ACExitExecute(Sender: TObject);

@@ -30,7 +30,7 @@
     <Description Value="GLScene - OpenGL 3D library"/>
     <License Value="LGPL"/>
     <Version Major="1" Build="3"/>
-    <Files Count="181">
+    <Files Count="182">
       <Item1>
         <Filename Value="../Source/base/applicationfileio.pas"/>
         <UnitName Value="ApplicationFileIO"/>
@@ -771,6 +771,10 @@
         <Filename Value="../Source/glgizmoex.pas"/>
         <UnitName Value="GLGizmoEx"/>
       </Item181>
+      <Item182>
+        <Filename Value="../Source/fileformats/q3bsp.pas"/>
+        <UnitName Value="Q3BSP"/>
+      </Item182>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>

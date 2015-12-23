@@ -106,6 +106,13 @@ begin
    tl:=TStringList.Create;
    try
       sl.LoadFromStream(aStream);
+      i := 0;
+      while i<sl.Count-1 do
+        begin
+          if copy(sl[i],0,2)='//' then
+            sl.Delete(i)
+          else inc(i);
+        end;
       if sl[0]<>'version 1' then
          raise Exception.Create('SMD version 1 required');
       if sl[1]<>'nodes' then
@@ -137,20 +144,20 @@ begin
          while sl[i]<>'end' do Inc(i);
       end;
       Inc(i);
-      if sl[i]<>'skeleton' then
+      if trim(sl[i])<>'skeleton' then
          raise Exception.Create('skeleton not found');
       Inc(i);
       // read animation time frames
       nbBones:=Owner.Skeleton.RootBones.BoneCount-1;
       firstFrame:=Owner.Skeleton.Frames.Count;
-      while sl[i]<>'end' do begin
-         if Copy(sl[i], 1, 5)<>'time ' then
-            raise Exception.Create('time not found, got: '+sl[i]);
+      while trim(sl[i])<>'end' do begin
+         if Copy(trim(trim(sl[i])), 1, 5)<>'time ' then
+            raise Exception.Create('time not found, got: '+trim(sl[i]));
          frame:=TSkeletonFrame.CreateOwned(Owner.Skeleton.Frames);
-         frame.Name:=ResourceName+' '+sl[i];
+         frame.Name:=ResourceName+' '+trim(trim(sl[i]));
          Inc(i);
-         while Pos(Copy(sl[i], 1, 1), ' 1234567890')>0 do begin
-            tl.CommaText:=sl[i];
+         while Pos(Copy(trim(trim(sl[i])), 1, 1), ' 1234567890')>0 do begin
+            tl.CommaText:=trim(trim(sl[i]));
             while StrToInt(tl[0])>frame.Position.Count do begin
                frame.Position.Add(NullVector);
                frame.Rotation.Add(NullVector);
@@ -177,24 +184,24 @@ begin
          EndFrame:=Self.Owner.Skeleton.Frames.Count-1;
       end;
       Inc(i);
-      if (i<sl.Count) and (sl[i]='triangles') then begin
+      if (i<sl.Count) and (trim(trim(sl[i]))='triangles') then begin
          // read optional mesh data
          Inc(i);
          if mesh.BonesPerVertex<1 then
             mesh.BonesPerVertex:=1;
          faceGroup:=nil;
 
-         while sl[i]<>'end' do begin
-            if (faceGroup=nil) or (faceGroup.MaterialName<>sl[i]) then begin
+         while trim(sl[i])<>'end' do begin
+            if (faceGroup=nil) or (faceGroup.MaterialName<>trim(trim(sl[i]))) then begin
                faceGroup:=TFGVertexNormalTexIndexList.CreateOwned(mesh.FaceGroups);
                faceGroup.Mode:=fgmmTriangles;
-               faceGroup.MaterialName:=sl[i];
-               AllocateMaterial(sl[i]);
+               faceGroup.MaterialName:=trim(sl[i]);
+               AllocateMaterial(trim(sl[i]));
             end;
             Inc(i);
 
             for k:=1 to 3 do with mesh do begin
-                 tl.CommaText:=sl[i];
+                 tl.CommaText:=trim(sl[i]);
 
                  if tl.Count>9
                  then begin
