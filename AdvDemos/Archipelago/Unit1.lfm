@@ -1,0 +1,294 @@
+object Form1: TForm1
+  Left = 238
+  Height = 672
+  Top = 141
+  Width = 1053
+  Align = alClient
+  Caption = 'Form1'
+  ClientHeight = 672
+  ClientWidth = 1053
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  KeyPreview = True
+  OnCreate = FormCreate
+  OnKeyPress = FormKeyPress
+  LCLVersion = '1.7'
+  object GLSceneViewer: TGLSceneViewer
+    Left = 0
+    Height = 672
+    Top = 0
+    Width = 1053
+    Camera = GLCamera
+    BeforeRender = GLSceneViewerBeforeRender
+    Buffer.FogEnvironment.FogStart = 500
+    Buffer.FogEnvironment.FogEnd = 1000
+    Buffer.FogEnvironment.FogDistance = fdEyeRadial
+    Buffer.BackgroundColor = clGray
+    Buffer.ContextOptions = [roDoubleBuffer, roStencilBuffer, roRenderToWindow]
+    Buffer.FogEnable = True
+    FieldOfView = 154.834075927734
+    Align = alClient
+    TabOrder = 0
+  end
+  object PAProgress: TPanel
+    Left = 393
+    Height = 49
+    Top = 298
+    Width = 248
+    Anchors = []
+    BorderWidth = 6
+    ClientHeight = 49
+    ClientWidth = 248
+    TabOrder = 1
+    Visible = False
+    object Label1: TLabel
+      Left = 7
+      Height = 20
+      Top = 7
+      Width = 234
+      Align = alTop
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Loading && compressing textures'
+      ParentColor = False
+    end
+    object ProgressBar: TProgressBar
+      Left = 7
+      Height = 15
+      Top = 27
+      Width = 234
+      Align = alClient
+      Max = 16
+      TabOrder = 0
+    end
+  end
+  object GLScene1: TGLScene
+    ObjectsSorting = osNone
+    left = 56
+    top = 16
+    object SkyDome: TGLSkyDome
+      TagFloat = 0
+      Direction.Coordinates = {
+        000000000000803F0000000000000000
+      }
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      Up.Coordinates = {
+        0000000000000000000080BF00000000
+      }
+      Bands = <      
+        item
+          StartAngle = 0
+          StartColor.Color = {
+            0000803F0000803F0000803F0000803F
+          }
+          StopAngle = 25
+          Slices = 9
+        end      
+        item
+          StartAngle = 25
+          StopAngle = 90
+          StopColor.Color = {
+            938C0C3E938C0C3E938E0E3F0000803F
+          }
+          Slices = 9
+          Stacks = 4
+        end>
+      Stars = <>
+      Options = [sdoTwinkle]
+    end
+    object DCCamera: TGLDummyCube
+      TagFloat = 0
+      PitchAngle = 0
+      Position.Coordinates = {
+        0000000000000041000000000000803F
+      }
+      RollAngle = 0
+      TurnAngle = 0
+      CubeSize = 1
+      object GLCamera: TGLCamera
+        TagFloat = 0
+        DepthOfView = 1000
+        FocalLength = 75
+        TargetObject = DCCamera
+        Position.Coordinates = {
+          000000000000803F000040400000803F
+        }
+        left = 264
+        top = 160
+      end
+    end
+    object TerrainRenderer: TGLTerrainRenderer
+      TagFloat = 0
+      Direction.Coordinates = {
+        000000000000803F0000000000000000
+      }
+      PitchAngle = 0
+      RollAngle = 0
+      Scale.Coordinates = {
+        00002040000020400000003F00000000
+      }
+      TurnAngle = 0
+      Up.Coordinates = {
+        00000000000000000000803F00000000
+      }
+      HeightDataSource = GLCustomHDS1
+      TileSize = 32
+      TilesPerTexture = 1
+      MaterialLibrary = MaterialLibrary
+      QualityDistance = 0
+      CLODPrecision = 5
+      OnHeightDataPostRender = TerrainRendererHeightDataPostRender
+    end
+    object DOWake: TGLDirectOpenGL
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      OnProgress = DOWakeProgress
+      UseBuildList = False
+      OnRender = DOWakeRender
+      Blend = False
+    end
+    object FFSailBoat: TGLFreeForm
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      Scale.Coordinates = {
+        9A99193E9A99193E9A99193E00000000
+      }
+      TurnAngle = 0
+      MaterialLibrary = MLSailBoat
+    end
+    object LSSun: TGLLightSource
+      TagFloat = 0
+      ConstAttenuation = 1
+      LinearAttenuation = 0
+      QuadraticAttenuation = 0
+      LightStyle = lsParallel
+      SpotCutOff = 180
+      SpotDirection.Coordinates = {
+        0000803F0000803F0000003F00000000
+      }
+      SpotExponent = 0
+    end
+    object HTFPS: TGLHUDText
+      TagFloat = 0
+      PitchAngle = 0
+      Position.Coordinates = {
+        000096420000C841000000000000803F
+      }
+      RollAngle = 0
+      TurnAngle = 0
+      BitmapFont = BFSmall
+      Rotation = 0
+    end
+    object HTHelp: TGLHUDText
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      BitmapFont = BFLarge
+      Rotation = 0
+    end
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    left = 16
+    top = 56
+  end
+  object GLCadencer: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    OnProgress = GLCadencerProgress
+    left = 16
+    top = 16
+  end
+  object MaterialLibrary: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'detail'
+        Material.Texture.ImageClassName = 'TGLPicFileImage'
+        Material.Texture.Image.PictureFileName = 'detail.jpg'
+        Material.Texture.TextureMode = tmModulate
+        Material.Texture.TextureFormat = tfLuminance
+        Material.Texture.Compression = tcStandard
+        Material.Texture.Disabled = False
+        Tag = 0
+        TextureScale.Coordinates = {
+          00008042000080420000804200000000
+        }
+      end    
+      item
+        Name = 'water'
+        Material.BlendingMode = bmTransparency
+        Material.Texture.ImageClassName = 'TGLPicFileImage'
+        Material.Texture.Image.PictureFileName = '035eau.jpg'
+        Material.Texture.TextureMode = tmModulate
+        Material.Texture.MappingSCoordinates.Coordinates = {
+          CDCC4C3D000000000000000000000000
+        }
+        Material.Texture.MappingTCoordinates.Coordinates = {
+          00000000CDCC4C3D0000000000000000
+        }
+        Material.Texture.Disabled = False
+        Tag = 0
+        Texture2Name = 'waterenv'
+      end    
+      item
+        Name = 'wake'
+        Material.Texture.ImageClassName = 'TGLPicFileImage'
+        Material.Texture.Image.PictureFileName = 'wake.bmp'
+        Material.Texture.TextureMode = tmModulate
+        Material.Texture.Disabled = False
+        Tag = 0
+      end>
+    left = 56
+    top = 56
+  end
+  object GLHeightTileFileHDS1: TGLHeightTileFileHDS
+    HTFFileName = 'Islands.htf'
+    InfiniteWrap = False
+    MaxPoolSize = 0
+    DefaultHeight = 0
+    left = 160
+    top = 16
+  end
+  object BFSmall: TGLWindowsBitmapFont
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    left = 120
+    top = 56
+  end
+  object GLCustomHDS1: TGLCustomHDS
+    MaxPoolSize = 0
+    OnStartPreparingData = GLCustomHDS1StartPreparingData
+    OnMarkDirtyEvent = GLCustomHDS1MarkDirtyEvent
+    left = 120
+    top = 16
+  end
+  object GLMemoryViewer1: TGLMemoryViewer
+    Buffer.BackgroundColor = clBlack
+    Buffer.Lighting = False
+    left = 312
+    top = 24
+  end
+  object MLSailBoat: TGLMaterialLibrary
+    TexturePaths = 'sailboat'
+    left = 56
+    top = 96
+  end
+  object BFLarge: TGLWindowsBitmapFont
+    Font.Color = clWhite
+    Font.Height = -21
+    Font.Name = 'Arial'
+    left = 120
+    top = 96
+  end
+end

@@ -109,6 +109,7 @@ begin
    pRegisterFileFormat:=PAnsiChar(@TPicture.RegisterFileFormat);
    if pRegisterFileFormat[0]=#$FF then // in case of BPL redirector
       pRegisterFileFormat:=PAnsiChar(PInteger(PInteger(@pRegisterFileFormat[2])^)^);
+   {$IFNDEF LCL}//TODO:fix this
    pCallGetFileFormat:=@pRegisterFileFormat[16];
    iCall:=PInteger(pCallGetFileFormat)^;
    pGetFileFormats:=@pCallGetFileFormat[iCall+4];
@@ -121,6 +122,7 @@ begin
                                               TObject(fileFormat.GraphicClass));
       end;
    end;
+   {$ENDIF}
 end;
 
 end.
