@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="5">
+      <Unit0>
+        <Filename Value="Christmas.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="FMain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Main"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="98"/>
+        <CursorPos Y="116"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="FMain.lfm"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="41"/>
+        <CursorPos Y="42"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="../../Source/base/applicationfileio.pas"/>
+        <UnitName Value="ApplicationFileIO"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="158"/>
+        <CursorPos X="58" Y="170"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../Source/gltexture.pas"/>
+        <UnitName Value="GLTexture"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="1899"/>
+        <CursorPos Y="1913"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit4>
+    </Units>
+    <JumpHistory Count="19" HistoryIndex="18">
+      <Position1>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="8" Column="8"/>
+      </Position1>
+      <Position2>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="19" Column="39"/>
+      </Position2>
+      <Position3>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="11" Column="13"/>
+      </Position3>
+      <Position4>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="24" Column="30"/>
+      </Position4>
+      <Position5>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="15" Column="51"/>
+      </Position5>
+      <Position6>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="23" Column="25" TopLine="18"/>
+      </Position6>
+      <Position7>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="12" Column="27"/>
+      </Position7>
+      <Position8>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="17" Column="3"/>
+      </Position8>
+      <Position9>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="18" Column="18" TopLine="4"/>
+      </Position9>
+      <Position10>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="19" Column="23" TopLine="5"/>
+      </Position10>
+      <Position11>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="45" TopLine="32"/>
+      </Position11>
+      <Position12>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="84" TopLine="72"/>
+      </Position12>
+      <Position13>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="19" Column="37"/>
+      </Position13>
+      <Position14>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="217" TopLine="203"/>
+      </Position14>
+      <Position15>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="262" TopLine="234"/>
+      </Position15>
+      <Position16>
+        <Filename Value="../../Source/base/applicationfileio.pas"/>
+        <Caret Line="170" Column="58" TopLine="158"/>
+      </Position16>
+      <Position17>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="116" Column="25" TopLine="103"/>
+      </Position17>
+      <Position18>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="115" TopLine="98"/>
+      </Position18>
+      <Position19>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="116" TopLine="98"/>
+      </Position19>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>
