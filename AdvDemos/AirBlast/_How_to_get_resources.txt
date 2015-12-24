@@ -1,0 +1,4 @@
+AirBlast resources are not in the CVS but can be obtained
+by downloading the binary distribution of AirBlast:
+
+http://sourceforge.net/project/shownotes.php?release_id=312848

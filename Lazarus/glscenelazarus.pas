@@ -38,7 +38,8 @@ uses
   GLSLShader, BaseClasses, GLCoordinates, GLManager, GLNodes, 
   GLRenderContextInfo, GLMaterial, GLObjectManager, GLCameraController, GLFBO, 
   GLFBORenderer, GLGizmoEx, Q3BSP, GLFileMP3, GLFileWAV, GLApplicationFileIO, 
-  GLSoundFileObjects, LazarusPackageIntf;
+  GLSoundFileObjects, GLLinGTKContext, GLLCLFullscreenViewer, 
+  LazarusPackageIntf;
 
 implementation
 

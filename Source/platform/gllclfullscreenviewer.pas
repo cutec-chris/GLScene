@@ -326,7 +326,9 @@ begin
       // so we do it via API calls
       //  BorderStyle:=bsNone;
       BorderStyle:=bsSizeable;
+      {$IFDEF WINDOWS}
       SetWindowLong(Handle, GWL_STYLE, GetWindowLong(Handle, GWL_STYLE) and not WS_CAPTION);
+      {$ENDIF}
 
       Cursor:=Self.Cursor;
       PopupMenu:=Self.PopupMenu;
@@ -341,7 +343,9 @@ begin
    end;
 
    // Hides Taskbar
+   {$IFDEF WINDOWS}
    ShowWindow(FindWindow('Shell_TrayWnd', nil), SW_HIDE);
+   {$ENDIF}
 
    // Switch video mode
    if (Screen.Width<>Width) or (Screen.Height<>Height)
@@ -353,7 +357,9 @@ begin
    FForm.Show;
 
    Buffer.Resize(Width, Height);
+   {$IFDEF WINDOWS}
    dc:=GetDC(FForm.Handle);
+   {$ENDIF}
    Buffer.CreateRC(dc, False);
 
    // todo
@@ -379,7 +385,9 @@ begin
    end;
 
    // Restore Taskbar
+   {$IFDEF WINDOWS}
    ShowWindow(FindWindow('Shell_TrayWnd', nil), SW_SHOWNA);
+   {$ENDIF}
 
    FActive:=False;
 end;

@@ -27,7 +27,7 @@
     <Description Value="GLScene - OpenGL 3D library"/>
     <License Value="LGPL"/>
     <Version Major="1" Build="3"/>
-    <Files Count="186">
+    <Files Count="188">
       <Item1>
         <Filename Value="../Source/base/applicationfileio.pas"/>
         <UnitName Value="ApplicationFileIO"/>
@@ -788,6 +788,14 @@
         <Filename Value="../Source/glsoundfileobjects.pas"/>
         <UnitName Value="GLSoundFileObjects"/>
       </Item186>
+      <Item187>
+        <Filename Value="../Source/platform/gllingtkcontext.pas"/>
+        <UnitName Value="GLLinGTKContext"/>
+      </Item187>
+      <Item188>
+        <Filename Value="../Source/platform/gllclfullscreenviewer.pas"/>
+        <UnitName Value="GLLCLFullscreenViewer"/>
+      </Item188>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>
