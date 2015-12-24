@@ -1,0 +1,30 @@
+Hint: * Konvertiere Datei /media/Daten/Source/lkomponenten/glscene/AdvDemos/Archipelago/Splitter/Splitter.dpr *
+Hint: Added defines -dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL in custom options
+Hint: Alle Unit-Dateien gefunden
+Hint: * Berichtigung der verwendeten Units für Datei /media/Daten/Source/lkomponenten/glscene/AdvDemos/Archipelago/Splitter/Splitter.dpr *
+Hint: 
+Hint: *** Converting unit files belonging to project/package ***
+Hint: * Konvertiere Datei /media/Daten/Source/lkomponenten/glscene/AdvDemos/Archipelago/Splitter/FSplitterMain.pas *
+Hint: Aufruf SetCurrentDir(ExtractFilePath(ParamStr(0))); mit SetCurrentDirUTF8(ExtractFilePath(ParamStr(0))); { *Konvertiert von SetCurrentDir* } ersetzt
+Hint: Unit FileUtil zum uses Abschnitt hinzugefügt
+Hint: 
+Hint: *** Repariere Formulardateien ... ***
+Hint: * Repariere Form-Datei /media/Daten/Source/lkomponenten/glscene/AdvDemos/Archipelago/Splitter/FSplitterMain.lfm *
+Hint: Eigenschaft "TextHeight" entfernt.
+Hint: Eigenschaft "PixelsPerInch" entfernt.
+Hint: Eigenschaft "Position" entfernt.
+Hint: Eigenschaft "OldCreateOrder" entfernt.
+Hint: Eigenschaft "Font.Style" entfernt.
+Hint: Eigenschaft "Font.Name" entfernt.
+Hint: Eigenschaft "Font.Height" entfernt.
+Hint: Eigenschaft "Font.Color" entfernt.
+Hint: Eigenschaft "Font.Charset" entfernt.
+Hint: Eigenschaft "Color" entfernt.
+Hint: Eigenschaft "ClientWidth" entfernt.
+Hint: Eigenschaft "ClientHeight" entfernt.
+Hint: Eigenschaft "Caption" entfernt.
+Hint: Eigenschaft "BorderStyle" entfernt.
+Hint: Eigenschaft "Top" entfernt.
+Hint: Eigenschaft "Left" entfernt.
+Hint: Konvertierung benötigte: 00:00:04
+Hint: Konvertierung abgebrochen.

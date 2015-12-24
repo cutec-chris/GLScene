@@ -37,7 +37,8 @@ uses
   GLFileB3D, GLSLBumpShader, GLSLDiffuseSpecularShader, GLSLPostBlurShader, 
   GLSLShader, BaseClasses, GLCoordinates, GLManager, GLNodes, 
   GLRenderContextInfo, GLMaterial, GLObjectManager, GLCameraController, GLFBO, 
-  GLFBORenderer, GLGizmoEx, Q3BSP, LazarusPackageIntf;
+  GLFBORenderer, GLGizmoEx, Q3BSP, GLFileMP3, GLFileWAV, GLApplicationFileIO, 
+  GLSoundFileObjects, LazarusPackageIntf;
 
 implementation
 

@@ -18,9 +18,6 @@
           <UseAnsiStrings Value="False"/>
         </SyntaxOptions>
       </Parsing>
-      <CodeGeneration>
-        <SmartLinkUnit Value="True"/>
-      </CodeGeneration>
       <Other>
         <Verbosity>
           <ShowHints Value="False"/>
@@ -30,7 +27,7 @@
     <Description Value="GLScene - OpenGL 3D library"/>
     <License Value="LGPL"/>
     <Version Major="1" Build="3"/>
-    <Files Count="182">
+    <Files Count="186">
       <Item1>
         <Filename Value="../Source/base/applicationfileio.pas"/>
         <UnitName Value="ApplicationFileIO"/>
@@ -166,7 +163,7 @@
       <Item34>
         <Filename Value="../Source/designtime/glsceneregister.pas"/>
         <HasRegisterProc Value="True"/>
-        <UnitName Value="glsceneregister"/>
+        <UnitName Value="GLSceneRegister"/>
       </Item34>
       <Item35>
         <Filename Value="../Source/designtime/glsceneedit.pas"/>
@@ -275,7 +272,7 @@
       </Item60>
       <Item61>
         <Filename Value="../Source/fileformats/glfilex.pas"/>
-        <UnitName Value="glfilex"/>
+        <UnitName Value="GlFileX"/>
       </Item61>
       <Item62>
         <Filename Value="../Source/fileformats/glvfspak.pas"/>
@@ -753,7 +750,7 @@
       </Item176>
       <Item177>
         <Filename Value="../Source/globjectmanager.pas"/>
-        <UnitName Value="globjectmanager"/>
+        <UnitName Value="GLObjectManager"/>
       </Item177>
       <Item178>
         <Filename Value="../Source/glcameracontroller.pas"/>
@@ -775,6 +772,22 @@
         <Filename Value="../Source/fileformats/q3bsp.pas"/>
         <UnitName Value="Q3BSP"/>
       </Item182>
+      <Item183>
+        <Filename Value="../Source/fileformats/glfilemp3.pas"/>
+        <UnitName Value="GLFileMP3"/>
+      </Item183>
+      <Item184>
+        <Filename Value="../Source/fileformats/glfilewav.pas"/>
+        <UnitName Value="GLFileWAV"/>
+      </Item184>
+      <Item185>
+        <Filename Value="../Source/glapplicationfileio.pas"/>
+        <UnitName Value="GLApplicationFileIO"/>
+      </Item185>
+      <Item186>
+        <Filename Value="../Source/glsoundfileobjects.pas"/>
+        <UnitName Value="GLSoundFileObjects"/>
+      </Item186>
     </Files>
     <RequiredPkgs Count="4">
       <Item1>
