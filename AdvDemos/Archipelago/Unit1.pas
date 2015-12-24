@@ -144,7 +144,10 @@ begin
    WaterPlane:=True;
 
    // load the sailboat
-   //FFSailBoat.LoadFromFile('sailboat.glsm');
+   try
+   FFSailBoat.LoadFromFile('sailboat.glsm');
+   except
+   end;
    MLSailBoat.LoadFromFile('sailboat.glml');
    FFSailBoat.Position.SetPoint(-125*TerrainRenderer.Scale.X, 0, -100*TerrainRenderer.Scale.Z);
    FFSailBoat.TurnAngle:=-30;
