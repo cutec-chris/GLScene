@@ -12,9 +12,9 @@ interface
 uses
   LCLIntf,LCLProc, LMessages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ActnList, Menus, ImgList, ToolWin, ComCtrls, GLMaterial,
-  GLScene, GLLCLViewer, GLVectorFileObjects, GLObjects, VectorGeometry,
-  GLTexture, OpenGL1x, GLContext, ExtDlgs, VectorLists, GLCadencer,
-  ExtCtrls, GLCoordinates, GLCrossPlatform, BaseClasses, Types;
+  GLScene, GLLCLViewer, GLVectorFileObjects, GLObjects, GLVectorGeometry,
+  GLTexture, OpenGL1x, GLContext, ExtDlgs, GLVectorLists, GLCadencer,
+  ExtCtrls, GLCoordinates, GLCrossPlatform, GLBaseClasses, Types;
 
 type
 
@@ -34,7 +34,7 @@ type
     Exit1: TMenuItem;
     ToolButton1: TToolButton;
     StatusBar: TStatusBar;
-    GLSceneViewer: TGLSceneViewerLCL;
+    GLSceneViewer: TGLSceneViewer;
     GLScene: TGLScene;
     MIOptions: TMenuItem;
     MIAntiAlias: TMenuItem;
@@ -195,8 +195,8 @@ implementation
 
 {$R *.dfm}
 
-uses GLColor, GLKeyBoard, GLGraphics, Registry, PersistentClasses, MeshUtils,
-   GLFileOBJ, GLFileSTL, GLFileLWO, GLFileQ3BSP,  GLFileMS3D,
+uses GLColor, GLKeyBoard, GLGraphics, Registry, GLPersistentClasses, GLMeshUtils,
+   GLFileOBJ, GLFileSTL, GLFileLWO,  GLFileMS3D,
    GLFileNMF, GLFileMD3, GLFile3DS, GLFileMD2, GLFileSMD, GLFileTIN,
    GLFilePLY, GLFileGTS, GLFileVRML, GLFileMD5, GLMeshOptimizer, GLState,
    GLRenderContextInfo, GLTextureFormat,GL,math;
@@ -379,23 +379,23 @@ begin
       if ACShadeSmooth.Checked then begin
          GLSceneViewer.Buffer.Lighting:=True;
          GLSceneViewer.Buffer.ShadeModel:=smSmooth;
-         aMaterial.FrontProperties.PolygonMode:=pmFill;
+         aMaterial.PolygonMode:=pmFill;
       end else if ACFlatShading.Checked then begin
          GLSceneViewer.Buffer.Lighting:=True;
          GLSceneViewer.Buffer.ShadeModel:=smFlat;
-         aMaterial.FrontProperties.PolygonMode:=pmFill;
+         aMaterial.PolygonMode:=pmFill;
       end else if ACFlatLined.Checked then begin
          GLSceneViewer.Buffer.Lighting:=True;
          GLSceneViewer.Buffer.ShadeModel:=smFlat;
-         aMaterial.FrontProperties.PolygonMode:=pmLines;
+         aMaterial.PolygonMode:=pmLines;
       end else if ACHiddenLines.Checked then begin
          GLSceneViewer.Buffer.Lighting:=False;
          GLSceneViewer.Buffer.ShadeModel:=smSmooth;
-         aMaterial.FrontProperties.PolygonMode:=pmLines;
+         aMaterial.PolygonMode:=pmLines;
       end else if ACWireframe.Checked then begin
          GLSceneViewer.Buffer.Lighting:=False;
          GLSceneViewer.Buffer.ShadeModel:=smSmooth;
-         aMaterial.FrontProperties.PolygonMode:=pmLines;
+         aMaterial.PolygonMode:=pmLines;
       end;
    end;
 end;
@@ -546,12 +546,12 @@ begin
    lastLoadWithTextures:=ACTexturing.Enabled;
 
    FreeForm.GetExtents(min, max);
-   if min[0]<>Infinity then
+   if min.X<>Infinity then
       begin
        with CubeExtents do begin
-          CubeWidth:=max[0]-min[0];
-          CubeHeight:=max[1]-min[1];
-          CubeDepth:=max[2]-min[2];
+          CubeWidth:=max.X-min.X;
+          CubeHeight:=max.Y-min.Y;
+          CubeDepth:=max.Z-min.Z;
           Position.AsAffineVector:=VectorLerp(min, max, 0.5);
           end;
       end;

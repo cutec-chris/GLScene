@@ -1,5 +1,5 @@
 object Main: TMain
-  Left = 331
+  Left = 371
   Height = 479
   Top = 207
   Width = 588
@@ -142,7 +142,7 @@ object Main: TMain
     Buffer.BackgroundColor = 14540253
     Buffer.ContextOptions = [roDoubleBuffer, roRenderToWindow, roTwoSideLighting]
     Buffer.FaceCulling = False
-    FieldOfView = 152.650268554688
+    FieldOfView = 152.650283813477
     Align = alClient
     OnMouseDown = GLSceneViewerMouseDown
     OnMouseMove = GLSceneViewerMouseMove
@@ -1392,18 +1392,17 @@ object Main: TMain
           0000000000000000000000000000803F
         }
         Material.BackProperties.Diffuse.Color = {
-          0C026B3F0C026B3F0000803F0000803F
+          EBEA6A3FEBEA6A3F0000803F0000803F
         }
-        Material.BackProperties.PolygonMode = pmLines
         Material.FrontProperties.Ambient.Color = {
           0000000000000000000000000000803F
         }
         Material.FrontProperties.Diffuse.Color = {
-          0C026B3F0C026B3F0000803F0000803F
+          EBEA6A3FEBEA6A3F0000803F0000803F
         }
-        Material.FrontProperties.PolygonMode = pmLines
         Material.MaterialOptions = [moNoLighting]
         Material.FaceCulling = fcNoCull
+        Material.PolygonMode = pmLines
         PitchAngle = 0
         RollAngle = 0
         TurnAngle = 0
