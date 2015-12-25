@@ -4,7 +4,7 @@
 {: GLFileVRML<p>
 
    Preliminary VRML vector file support for GLScene.<p>
-
+   <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to records
    <b>History :</b><font size=-1><ul>
       <li>29/03/07 - DaStr - RecursNodes bugfixed (thanks Burkhard Carstens)
       <li>25/01/05 - SG - Improved auto-normal generation using creaseAngle,
@@ -20,8 +20,8 @@ unit GLFileVRML;
 interface
 
 uses
-  Classes, SysUtils, GLVectorFileObjects, GLMaterial, ApplicationFileIO,
-  VectorGeometry, VectorLists, VRMLParser, MeshUtils;
+  Classes, SysUtils, GLVectorFileObjects, GLMaterial, GLApplicationFileIO,
+  GLVectorTypes, GLVectorGeometry, GLVectorLists, VRMLParser, GLMeshUtils;
 
 type
 
@@ -54,9 +54,9 @@ procedure TessellatePolygon(PolyVerts : TAffineVectorList;
     for i:=0 to PolyIndices.Count-1 do begin
       for j:=0 to 2 do
         if (i+j)>=PolyIndices.Count then
-          mat[j]:=PolyVerts[PolyIndices[i+j-PolyIndices.Count]]
+          mat.V[j]:=PolyVerts[PolyIndices[i+j-PolyIndices.Count]]
         else
-          mat[j]:=PolyVerts[PolyIndices[i+j]];
+          mat.V[j]:=PolyVerts[PolyIndices[i+j]];
       det:=det+MatrixDeterminant(mat);
     end;
     Result:=(det<0);
@@ -66,9 +66,9 @@ procedure TessellatePolygon(PolyVerts : TAffineVectorList;
   var
     mat : TAffineMatrix;
   begin
-    mat[0]:=v0;
-    mat[1]:=v1;
-    mat[2]:=v2;
+    mat.V[0]:=v0;
+    mat.V[1]:=v1;
+    mat.V[2]:=v2;
     Result:=(MatrixDeterminant(mat)<0);
   end;
 
@@ -103,24 +103,24 @@ begin
         next:=i+1;
         if prev<0 then prev:=temp.Count-1;
         if next>temp.Count-1 then next:=0;
-        v[0]:=PolyVerts[temp[prev]];
-        v[1]:=PolyVerts[temp[i]];
-        v[2]:=PolyVerts[temp[next]];
-        if IsTriClockWise(v[0], v[1], v[2]) = PolyCW then begin
+        v.V[0]:=PolyVerts[temp[prev]];
+        v.V[1]:=PolyVerts[temp[i]];
+        v.V[2]:=PolyVerts[temp[next]];
+        if IsTriClockWise(v.V[0], v.V[1], v.V[2]) = PolyCW then begin
           NoPointsInTriangle:=True;
           for j:=0 to temp.Count-1 do begin
             if (j<>i) and (j<>prev) and (j<>next) then begin
-              if PointInTriangle(PolyVerts[temp[j]], v[0], v[1], v[2], PolyCW) then begin
+              if PointInTriangle(PolyVerts[temp[j]], v.V[0], v.V[1], v.V[2], PolyCW) then begin
                 NoPointsInTriangle:=False;
                 Break;
               end;
             end;
           end;
 
-          area:=TriangleArea(v[0],v[1],v[2]);
+          area:=TriangleArea(v.V[0],v.V[1],v.V[2]);
 
           if NoPointsInTriangle and (area>0) then begin
-            d:=VectorDistance2(v[0], v[2]);
+            d:=VectorDistance2(v.V[0], v.V[2]);
             if d<min_dist then begin
               min_dist:=d;
               min_prev:=prev;
@@ -200,13 +200,13 @@ var
 
     with Result.Material.FrontProperties do begin
       if VRMLMaterial.HasDiffuse then
-        Diffuse.Color:=VectorMake(VRMLMaterial.DiffuseColor, Diffuse.Color[3]);
+        Diffuse.Color:=VectorMake(VRMLMaterial.DiffuseColor, Diffuse.Color.V[3]);
       if VRMLMaterial.HasAmbient then
-        Ambient.Color:=VectorMake(VRMLMaterial.AmbientColor, Ambient.Color[3]);
+        Ambient.Color:=VectorMake(VRMLMaterial.AmbientColor, Ambient.Color.V[3]);
       if VRMLMaterial.HasSpecular then
-        Specular.Color:=VectorMake(VRMLMaterial.SpecularColor, Specular.Color[3]);
+        Specular.Color:=VectorMake(VRMLMaterial.SpecularColor, Specular.Color.V[3]);
       if VRMLMaterial.HasEmissive then
-        Emission.Color:=VectorMake(VRMLMaterial.EmissiveColor, Emission.Color[3]);
+        Emission.Color:=VectorMake(VRMLMaterial.EmissiveColor, Emission.Color.V[3]);
       if Shininess = 0 then Shininess:=16;
       if VRMLMaterial.HasShininess then
         Shininess:=Floor(128*VRMLMaterial.Shininess);
@@ -234,11 +234,11 @@ var
     newVertices, newNormals, newTexCoords : TAffineVectorList;
     optimized : TIntegerList;
     cosAngle : Single;
-    normal,norm1,norm2 : TAffineVector;
+    normal : TAffineVector;
     s, t : array[0..2] of Integer;
     n : array[0..2] of TIntegerList;
     smooth,
-    hasVertices, hasVertexIndices,
+    hasVertices,
     hasNormals, hasNormalIndices,
     hasTexCoords, hasTexCoordIndices : Boolean;
   begin
@@ -263,7 +263,6 @@ var
     for i:=0 to mesh.FaceGroups.Count-1 do begin
       fg:=TFGVertexNormalTexIndexList(mesh.FaceGroups[i]);
 
-      hasVertexIndices:=fg.VertexIndices.Count>0;
       hasNormalIndices:=fg.NormalIndices.Count>0;
       hasTexCoordIndices:=fg.TexCoordIndices.Count>0;
 
@@ -428,14 +427,14 @@ var
       if node[i] is TVRMLTransform then begin
         if not VectorEquals(TVRMLTransform(node[i]).Rotation, NullHMGVector) then begin
           axis:=AffineVectorMake(TVRMLTransform(node[i]).Rotation);
-          angle:=TVRMLTransform(node[i]).Rotation[3];
+          angle:=TVRMLTransform(node[i]).Rotation.V[3];
           mat:=MatrixMultiply(CreateRotationMatrix(axis, angle),
                               CreateRotationMatrixZ(Pi/2));
         end else
           mat:=IdentityHMGMatrix;
         for j:=0 to 2 do
-          mat[j]:=VectorScale(mat[j], TVRMLTransform(node[i]).ScaleFactor[j]);
-        mat[3]:=PointMake(TVRMLTransform(node[i]).Center);
+          mat.V[j]:=VectorScale(mat.V[j], TVRMLTransform(node[i]).ScaleFactor.V[j]);
+        mat.V[3]:=PointMake(TVRMLTransform(node[i]).Center);
         currentTransform:=MatrixMultiply(mat, currentTransform);
       end else if node[i] is TVRMLMaterial then begin
         currentMaterial:=AddMaterialToLibrary(TVRMLMaterial(node[i]));

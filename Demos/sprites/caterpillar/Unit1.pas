@@ -63,7 +63,7 @@ var
 implementation
 
 
-uses SysUtils, VectorGeometry;
+uses SysUtils, GLVectorGeometry;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var

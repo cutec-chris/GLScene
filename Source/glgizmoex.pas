@@ -13,6 +13,11 @@
    contributed to GLScene. This is how TGLGizmoEx was born.
 
    <b>History : </b><font size=-1><ul>
+      <li>28/01/13 - PW - Added CPP compatibility, moved function
+                          IsPointInPolygon to GLVectorgeometry unit;
+      <li>24/08/10 - Yar - Replaced OpenGL1x to OpenGLTokens
+      <li>31/05/10 - Yar - Fixed warnings
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>17/13/2009 - DaStr - Small bugfixes (by Predator)   
       <li>11/13/2009 - DaStr - Initial version (contributed by Predator)
@@ -48,15 +53,15 @@
 //   Web Site        : http://GLScene.ru
 //   EMail           : Predator_Rust@_#_antispam_#_@mail.ru
 //   Date            : 07/10/2009
-// - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-// - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+// - The code fully new made for convenience to work with objects
+// - So the code less compatible but more functional
+// Knowing bugs
 //  1) GLLines
-//   пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
-//   пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ    lineColor.Alpha
-//   (пїЅпїЅ GLObjects->procedure TGLLineBase.SetupLineStyle)
-//  2) пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ
-//  cпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ GetPickedobj пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+//   to use alpha it's need to activate property lineColor.Alpha
+//   (см GLObjects->procedure TGLLineBase.SetupLineStyle)
+//  2) In raycast mode multiple selections will slow down execution
+//  of scan rays, whereas in GetPickedObj it's possible to define
+//  rectangle framework
 //  3) Does not work in lazarus
 //------------------------------------------------------------------------------
 
@@ -71,10 +76,10 @@ uses
   {$IFDEF MSWINDOWS}Windows,{$ENDIF} Classes, SysUtils,
 
   // GLScene
-  OpenGL1x, GLScene, GLColor, GLObjects, VectorGeometry, GLMaterial, GLStrings,
+  OpenGL1x, GLScene, GLColor, GLObjects, GLVectorGeometry, GLMaterial, GLStrings,
   GLGeomObjects, GLBitmapFont, GLViewer, GLVectorFileObjects, GLCrossPlatform,
-  GLCoordinates, GLRenderContextInfo, GeometryBB, VectorTypes, GLCanvas,
-  PersistentClasses, GLScreen, GLState;
+  GLCoordinates, GLRenderContextInfo, GLGeometryBB, GLVectorTypes, GLCanvas,
+  GLPersistentClasses, GLScreen, GLState, GLSelection;
 
 type
   TGLGizmoExObjectCollection = class;
@@ -179,7 +184,7 @@ type
   TGLGizmoExAxisSelected = procedure(Sender: TObject; var Axis: TGLGizmoExAxis) of object;
   TGLGizmoExPickMode = (pmGetPickedObjects, pmRayCast);
 
-  //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  //Gizmo objects
 
   TGLGizmoExUIFrustrum = class(TGLFrustrum)
   private
@@ -217,7 +222,7 @@ type
     property NoZWrite: Boolean read FNoZWrite write FNoZWrite;
   end;
 
-  TGLGizmoExUIPolyGon = class(TGLPolyGon)
+  TGLGizmoExUIPolygon = class(TGLPolygon)
   private
     FNoZWrite: Boolean;
   public
@@ -352,9 +357,9 @@ type
     moving: Boolean;
     mx, my: Integer;
 
-    fcursorPos: TGLPoint;
-    flastcursorPos: TGLPoint;
-    fchangerate: TAffineVector;   //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    fCursorPos: TGLPoint;
+    fLastCursorPos: TGLPoint;
+    fChangeRate: TAffineVector;   //total rotate angle
     FEnableLoopCursorMoving: Boolean;
 
     lastMousePos: TVector;
@@ -509,8 +514,7 @@ type
       use Visible instead if you want to Hide, if you want to Hide but keep enabled
       see the VisibleGizmo property }
 
-    {: пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-        OperationMode=gomNone}
+    {: Use the property OperationMode=gomNone to unactivate gizmo and make it invisible}
     property Enabled: Boolean read FEnabled write FEnabled default True;
 
     property LabelFont: TGLCustomBitmapFont read FLabelFont write SetLabelFont default nil;
@@ -545,6 +549,9 @@ type
 
 implementation
 
+uses
+  OpenGLTokens, GLContext;
+
 procedure RotateAroundArbitraryAxis(const anObject: TGLBaseSceneObject; const Axis, Origin: TAffineVector; const angle: Single);
 var
   M, M1, M2, M3: TMatrix;
@@ -563,15 +570,14 @@ begin
 end;
 
 //-------------------------------------------------------------------
-//                 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+//                 Mathematical functions for canvas
 //-------------------------------------------------------------------
-
 function Det(const a, b, c, d: real): real;
 begin
   Det := a * d - b * c;
 end;
 
-//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+//Distance between two points
 function Dist(const P1, P2: TPoint): real;
 begin
   Result := Sqrt(Sqr(P1.X - P2.X) + Sqr(P1.Y - P2.Y));
@@ -583,29 +589,27 @@ begin
     (abs(p1.Y - p.Y) + abs(p2.Y - p.Y) = abs(p2.Y - p1.Y));
 end;
 
-//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ false
-function IsLinetoLine(p11, p12, p21, p22: TPoint; var p: Tpoint): Boolean;  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+//Intersection between two lines, return true or false
+//converted from http://doc-for-prog.narod.ru/topics/math/crossing.html
+function IsLineIntLine(p11, p12, p21, p22: TPoint; var p: TPoint): Boolean;  // координаты второго отрезка
 var
   Z, ca, cb, ua, ub: Single;
 begin
-  //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
-  //http://doc-for-prog.narod.ru/topics/math/crossing.html
-
-  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  // demominator
   Z := (p12.Y - p11.Y) * (p21.X - p22.X) - (p21.Y - p22.Y) * (p12.X - p11.X);
-  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1
+  // numerator 1
   Ca := (p12.Y - p11.Y) * (p21.X - p11.X) - (p21.Y - p11.Y) * (p12.X - p11.X);
-  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 2
+  // numerator 2
   Cb := (p21.Y - p11.Y) * (p21.X - p22.X) - (p21.Y - p22.Y) * (p21.X - p11.X);
 
-  // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ = 0, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  // if  numerator and demominator = 0, then coincide lines
   if (Z = 0) and (Ca = 0) and (Cb = 0) then
   begin
     Result := False;
     Exit;
   end
   else
-  // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ = 0, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  // if demominator = 0, then parallel lines
   if Z = 0 then
   begin
     Result := False;
@@ -615,31 +619,30 @@ begin
   Ua := Ca / Z;
   Ub := Cb / Z;
 
-  // пїЅпїЅпїЅпїЅ 0<=Ua<=1 пїЅ 0<=Ub<=1, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  // if 0<=Ua<=1 and 0<=Ub<=1, then the intersection point is inside intervals
   if (0 <= Ua) and (Ua <= 1) and (0 <= Ub) and (Ub <= 1) then
   begin
     p.X := round(p11.X + (p12.X - p11.X) * Ub);
     p.Y := round(p11.Y + (p12.Y - p11.Y) * Ub);
     Result := True;
   end
-  // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  // otherwise the intersection point is outside intervals
   else
     Result := False;
 end;
 
-//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-function IsLinetoCirlce(CR: Single; CC: TPoint; LP1, LP2: TPoint; var PIL1, PIL2: TPoint): Smallint;
+//Intersection of line and circle
+function IsLineIntCirlce(CR: Single; CC: TPoint; LP1, LP2: TPoint; var PIL1, PIL2: TPoint): Smallint;
 var
   d, K, b: Single;
 begin
 
   K := (LP1.Y - LP2.Y) / (LP1.X - LP2.X);
   b := LP1.Y - K * LP1.X;
-  //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  //determine decrement of quadratic equation
 
   d := (power((2 * K * b - 2 * CC.X - 2 * CC.Y * K), 2) - (4 + 4 * K * K) * (b * b - cr * cr + CC.X * CC.X + CC.Y * CC.Y - 2 * CC.Y * b));
-  //пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 0, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-  //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  //if decrement = 0, then no decision and line and circle do not intersect
   if (d < 0) then
   begin
     Result := -1;
@@ -647,12 +650,12 @@ begin
     PIL2 := point(0, 0);
     Exit;
   end;
-  //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  //otherwise find roots of quadratic equation
 
   PIL1.X := round((-(2 * K * b - 2 * CC.X - 2 * CC.Y * K) - sqrt(d)) / (2 + 2 * K * K));
   PIL2.X := round((-(2 * K * b - 2 * CC.X - 2 * CC.Y * K) + sqrt(d)) / (2 + 2 * K * K));
-  //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
-  //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  //if abscissas of points are coinside, then the intersection is only in one point
+  //and line and circle have a point of contact
   if (PIL1.X = PIL2.X) then
   begin
     Result := 0;
@@ -661,36 +664,10 @@ begin
 
     Exit;
   end;
-  //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  //otherwise find ordinates of intersection points
   PIL1.Y := round(K * PIL1.X + b);
   PIL2.Y := round(K * PIL2.X + b);
   Result := 1;
-end;
-
-function IsPointtoPolygon(Polygon: array of Tpoint; p: TPoint): Boolean;
-var
-  A:      array of TPoint;
-  n, I:   Integer;
-  inside: Boolean;
-begin
-  n := High(Polygon) + 1;
-  SetLength(A, n + 2);
-  A[0] := p;
-  for I := 1 to n do
-    A[I] := Polygon[I - 1];
-  A[n + 1] := A[0];
-  inside := True;
-
-  for I := 1 to n do
-  begin
-    if (A[0].Y > A[I].Y) xor (A[0].Y <= A[I + 1].Y) then
-      Continue;
-    if (A[0].X - A[I].X) < ((A[0].Y - A[I].Y) * (A[I + 1].X - A[I].X) / (A[I + 1].Y - A[I].Y)) then
-      inside := not inside;
-  end;
-  inside := not inside;
-
-  Result := Inside;
 end;
 
 constructor TGLGizmoExUIArrowLine.Create(AOwner: TComponent);
@@ -1233,7 +1210,7 @@ begin
   with FUIRotateLineX do
   begin
     Options := [loUseNodeColorForLines];
-    //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    //Для исправления проблем с прозрачностью
     lineColor.Alpha := 0.1;
     Nodecolor.Color := clrred;
     Nodecolor.Alpha := 0.1;
@@ -1316,7 +1293,7 @@ begin
   with FUIRotateLineY do
   begin
     Options := [loUseNodeColorForLines];
-    //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    //Для исправления проблем с прозрачностью
     lineColor.Alpha := 0.1;
     Nodecolor.Color := clrLime;
     Nodecolor.Alpha := 0.1;
@@ -1400,7 +1377,7 @@ begin
   with FUIRotateLineZ do
   begin
     Options := [loUseNodeColorForLines];
-    //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    //to correct transparency problem
     lineColor.Alpha := 0.1;
     Nodecolor.Color := clrBlue;
     Nodecolor.Alpha := 0.1;
@@ -2084,7 +2061,7 @@ begin
     Result := nil
   else
   if FSelectedObjects.Count - 1 >= 0 then
-    Result := FSelectedObjects.Hit[0];
+    Result := TGLBaseSceneObject(FSelectedObjects.Hit[0]);
 end;
 
 procedure TGLGizmoEx.AddObjToSelectionList(Obj: TGLBaseSceneObject);
@@ -2118,7 +2095,7 @@ var
 begin
   for I := 0 to aList.Count - 1 do
     with aList do
-      if WithOutGizmoElements(Hit[I]) then
+      if WithOutGizmoElements(TGLBaseSceneObject(Hit[I])) then
         if not RemoveObj then
         begin
           if (Hit[I] <> nil) and (FSelectedObjects.FindObject(Hit[I]) = -1) then
@@ -2147,18 +2124,17 @@ begin
   if (not Enabled) or (RootGizmo = nil) or (RootObjects = nil) then
     Exit;
 
-  //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-  //пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
-  //пїЅпїЅпїЅпїЅпїЅ GLCanvas пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ...
+  //here takes place rendering of lines and circles on canvas
+  //according to modes, it's a pity that canvas has restrictions
   if FShowMultiSelecting then
   begin
     glc := TGLCanvas.Create(Viewer.Width, Viewer.Height);
     glc.PenColor := FSelectionRegionColor.AsWinColor;
     glc.PenWidth := 1;
-    LastCurPosX := flastcursorPos.X;
-    LastCurPosY := flastcursorPos.Y;
-    CurPosX := fcursorPos.X;
-    CurPosY := fcursorPos.Y;
+    LastCurPosX := fLastCursorPos.X;
+    LastCurPosY := fLastCursorPos.Y;
+    CurPosX := fCursorPos.X;
+    CurPosY := fCursorPos.Y;
     with glc do
       case FSelectionRegion of
         gsrRectangular: FrameRect(LastCurPosX, LastCurPosY, CurPosX, CurPosY);
@@ -2173,14 +2149,10 @@ begin
             else
               cLine(glc, FSelectionRec[I], fcursorPos);
 
-          //glc.PenWidth пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-          //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-          //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ :)
-          //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ! \m/
-          //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-          //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-          //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
-          //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+          //glc.PenWidth thickness of rectangle
+          //it's necessary to show that the begining and the end
+          // of a figure are joining and when cursor is near begining of array
+          // then appears square, that show to user that he picked right object
           if High(FSelectionRec) > 0 then
             with FSelectionRec[Low(FSelectionRec)] do
               if IsInRange(CurPosX, X + 2, X - 2) and IsInRange(CurPosY, Y + 2, Y - 2) then
@@ -2189,9 +2161,8 @@ begin
         end;
         gsrLasso:
         begin
-          //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
-          //пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-          //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+          //here showing arrays of lines
+          //when additional line formed by begining and and of array
           for I := Low(FSelectionRec) to High(FSelectionRec) do
             if I <> High(FSelectionRec) then
               cLine(glc, FSelectionRec[I], FSelectionRec[I + 1])
@@ -2228,22 +2199,21 @@ procedure TGLGizmoEx.InternalRender(Sender: TObject; var rci: TRenderContextInfo
     begin
       for J := 0 to 2 do
       begin
-        AVector := VectorSubtract(BB[ACorners[I][J]], BB[I]);
+        AVector := VectorSubtract(BB.BBox[ACorners[I][J]], BB.BBox[I]);
         AVector := VectorScale(AVector, 0.25);
-        AVector := VectorAdd(AVector, BB[I]);
+        AVector := VectorAdd(AVector, BB.BBox[I]);
 
-        glBegin(GL_LINES);
-        glVertex3f(BB[I][0], BB[I][1], BB[I][2]);
-        glVertex3f(AVector[0], AVector[1], AVector[2]);
-        glEnd;
+        GL.Begin_(GL_LINES);
+        GL.Vertex3f(BB.BBox[I].V[0], BB.BBox[I].V[1], BB.BBox[I].V[2]);
+        GL.Vertex3f(AVector.V[0], AVector.V[1], AVector.V[2]);
+        GL.End_;
       end;
     end;
   end;
 
-  //пїЅпїЅпїЅпїЅ#12 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ 2пїЅ
-  //пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+  //test#12 result is positive, but only for 2d
   //
-  procedure ShowText(Text: string; Position: Tvector; Scale: TVector; Color: Tvector);
+  procedure ShowText(const Text: UnicodeString; Position: Tvector; Scale: TVector; Color: Tvector);
   var
     FLayout: TGLTextLayout;
     FAlignment: TAlignment;
@@ -2256,26 +2226,26 @@ procedure TGLGizmoEx.InternalRender(Sender: TObject; var rci: TRenderContextInfo
     FLayout := GLCrossPlatform.tlCenter;
     FAlignment := taCenter;
 
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix;
-    wm := TGLSceneBuffer(rci.buffer).ModelViewMatrix;
+    GL.MatrixMode(GL_MODELVIEW);
+    GL.PushMatrix;
+    wm := rci.PipelineTransformation.ViewMatrix;
 
     TransposeMatrix(wm);
 
     for I := 0 to 2 do
       for J := 0 to 2 do
         if I = J then
-          wm[I, J] := 1
+          wm.V[I].V[J] := 1
         else
-          wm[I, J] := 0;
-    glLoadMatrixf(@wm);
+          wm.V[I].V[J] := 0;
+    GL.LoadMatrixf(@wm);
 
     rci.GLStates.PolygonMode := pmFill;
-    glScalef(Scale[0], Scale[1], Scale[2]);
-    glTranslatef(Position[0], Position[1], Position[2]);
+    GL.Scalef(Scale.V[0], Scale.V[1], Scale.V[2]);
+    GL.Translatef(Position.V[0], Position.V[1], Position.V[2]);
 
 
-    if Color[3] <> 1 then
+    if Color.V[3] <> 1 then
     begin
       rci.GLStates.Enable(stBlend);
       rci.GLStates.SetBlendFunc(bfSrcAlpha, bfOneMinusSrcAlpha);
@@ -2284,7 +2254,7 @@ procedure TGLGizmoEx.InternalRender(Sender: TObject; var rci: TRenderContextInfo
     rci.GLStates.Disable(stCullFace);
 
     FLabelFont.RenderString(rci, Text, FAlignment, FLayout, Color);
-    glPopMatrix;
+    GL.PopMatrix;
 
   end;
 
@@ -2296,8 +2266,6 @@ begin
 
   if FShowBoundingBox and (FSelectedObjects.Count - 1 >= 0) then
   begin
-    rci.GLStates.PushAttrib([sttEnable, sttCurrent, sttLighting, sttLine,
-                             sttColorBuffer]);
     rci.GLStates.Disable(stLighting);
     if FAntiAliasedLines then
       rci.GLStates.Enable(stLineSmooth);
@@ -2307,17 +2275,16 @@ begin
     else
       rci.GLStates.LineWidth := 1;
 
-    glColorMaterial(GL_FRONT, GL_EMISSION);
+    GL.ColorMaterial(GL_FRONT, GL_EMISSION);
     rci.GLStates.Enable(stColorMaterial);
 
-    glColor4fv(@FBoundingBoxColor.Color);
+    GL.Color4fv(@FBoundingBoxColor.Color);
 
     for I := 0 to FSelectedObjects.Count - 1 do
-      ShowBoundingBox(FSelectedObjects.Hit[I]);
+      ShowBoundingBox(TGLBaseSceneObject(FSelectedObjects.Hit[I]));
 
-    rci.GLStates.PopAttrib;
   end;
-
+  rci.GLStates.Disable(stColorMaterial);
 end;
 
 procedure TGLGizmoEx.SetReferenceCoordSystem(aValue: TGLGizmoExReferenceCoordinateSystem);
@@ -2667,7 +2634,6 @@ end;
 
 procedure TGLGizmoEx.MultiSelMouseDown(X, Y: Integer);
 begin
-  //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
   flastcursorPos := Point(X, Y);
   fcursorPos := point(X, Y);
 
@@ -2680,15 +2646,9 @@ end;
 
 procedure TGLGizmoEx.MultiSelMouseMove(X, Y: Integer);
 begin
-  //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-
-  //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
-  //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
-  //пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 10пїЅ
-  //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
-
+  //calculation starts when the mouse button is down
+  //ans distance from pick pisition is not more then 10
   if Moving and not FShowMultiSelecting and
-    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     (Dist(point(X, Y), flastcursorPos) > 10) then
   begin
     FShowMultiSelecting := True;
@@ -2702,10 +2662,9 @@ begin
   if FShowMultiSelecting then
   begin
     fcursorPos := point(X, Y);
-    //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 20 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    //creating lines when moving mouse
     if (fSelectionRegion = gsrLasso) and
-      //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-      //пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ 3DStudioMaxe
+      //clculate distance between two points to view as in 3D Max
       (Dist(point(X, Y), flastcursorPos) > 20) then
     begin
       flastcursorPos := point(X, Y);
@@ -2763,7 +2722,7 @@ begin
       FSelectedObjects.Clear;
 
     for I := 0 to viewer.Height - 1 do
-      if IsLinetoCirlce(Maxfloat(abs(CurPosX - LastCurPosX),
+      if IsLineIntCirlce(Maxfloat(abs(CurPosX - LastCurPosX),
         abs(CurPosY - LastCurPosY)),
         flastcursorPos, point(0, I), point(viewer.Width, I), p1, p2) >= 0 then
         if (I mod 2 = 0) then
@@ -2779,12 +2738,11 @@ begin
 
   if (fSelectionRegion = gsrFence) and (high(FSelectionRec) > 0) then
     with FSelectionRec[Low(FSelectionRec)] do
-      //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
-      //, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+      //verify if a pick is near point, not to seek a centre
       if IsInRange(CurPosX, X + 2, X - 2) and IsInRange(CurPosY, Y + 2, Y - 2) then
       begin
         FShowMultiSelecting := False;
-        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+        //connect the begining and end
         SetLength(FSelectionRec, Length(FSelectionRec) + 1);
         FSelectionRec[high(FSelectionRec)] := point(X, Y);
 
@@ -2793,16 +2751,16 @@ begin
         for J := 0 to viewer.Height - 1 do
           for I := 0 to viewer.Width - 1 do
           begin
-            if IsPointtoPolygon(FSelectionRec, point(I, J)) then
+            if IsPointInPolygon(FSelectionRec, point(I, J)) then
             begin
-              if not IsPointtoPolygon(FSelectionRec, point(I + 1, J)) then
+              if not IsPointInPolygon(FSelectionRec, point(I + 1, J)) then
               begin
                 SetLength(line, Length(line) + 1);
                 line[high(line)] := point(I, J);
               end;
             end
             else
-            if IsPointtoPolygon(FSelectionRec, point(I + 1, J)) then
+            if IsPointInPolygon(FSelectionRec, point(I + 1, J)) then
             begin
               SetLength(line, Length(line) + 1);
               line[high(line)] := point(I, J);
@@ -2817,7 +2775,7 @@ begin
           end;
         if Assigned(onSelect) then
           onSelect(self, FSelectedObjects);
-        //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        //nulling of array
         SetLength(line, 0);
         SetLength(FSelectionRec, 0);
       end;
@@ -2834,16 +2792,16 @@ begin
     for J := 0 to viewer.Height - 1 do
       for I := 0 to viewer.Width - 1 do
       begin
-        if IsPointtoPolygon(FSelectionRec, point(I, J)) then
+        if IsPointInPolygon(FSelectionRec, point(I, J)) then
         begin
-          if not IsPointtoPolygon(FSelectionRec, point(I + 1, J)) then
+          if not IsPointInPolygon(FSelectionRec, point(I + 1, J)) then
           begin
             SetLength(line, Length(line) + 1);
             line[high(line)] := point(I, J);
           end;
         end
         else
-        if IsPointtoPolygon(FSelectionRec, point(I + 1, J)) then
+        if IsPointInPolygon(FSelectionRec, point(I + 1, J)) then
         begin
           SetLength(line, Length(line) + 1);
           line[high(line)] := point(I, J);
@@ -3056,7 +3014,7 @@ begin
       minY := MinInteger(Y1, Y2);
       for J := minY to maxY do
         for I := minX to maxX do
-          //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ :)
+          //uploading to exclude hanging of application :)
           if (I mod 4 = 0) or (J mod 4 = 0) then
             AddObjectToPicklList(RootObjects, Result, I, J);
       AddObjectToPicklList(RootGizmo, Result, round((x1 + x2) * 0.5), round((y1 + y2) * 0.5));
@@ -3082,6 +3040,7 @@ procedure TGLGizmoEx.UpdateVisibleInfoLabels;
 var
   T: string;
   X, Y, Z: Single;
+  obj: TGLBaseSceneObject;
 begin
   t := '';
   X := 0;
@@ -3091,7 +3050,7 @@ begin
     Exit;
 
   if (FSelectedObjects.Count - 1 = 0) and (vliName in FVisibleVisibleInfoLabels) then
-    t := FSelectedObjects[0].Name;
+    t := TGLBaseSceneObject(FSelectedObjects[0]).Name;
 
   if vliOperation in FVisibleVisibleInfoLabels then
   begin
@@ -3115,24 +3074,25 @@ begin
         T := T + ' - ';
       if FinfoLabelCoordType = ilcChanging then
       begin
+        obj := TGLBaseSceneObject(FSelectedObjects[0]);
         case Operation of
           gopMove:
           begin
-            X := FSelectedObjects[0].Position.X;
-            Y := FSelectedObjects[0].Position.Y;
-            Z := FSelectedObjects[0].Position.Z;
+            X := obj.Position.X;
+            Y := obj.Position.Y;
+            Z := obj.Position.Z;
           end;
           gopRotate:
           begin
-            X := FSelectedObjects[0].Rotation.X;
-            Y := FSelectedObjects[0].Rotation.Y;
-            Z := FSelectedObjects[0].Rotation.Z;
+            X := obj.Rotation.X;
+            Y := obj.Rotation.Y;
+            Z := obj.Rotation.Z;
           end;
           gopScale:
           begin
-            X := FSelectedObjects[0].Scale.X;
-            Y := FSelectedObjects[0].Scale.Y;
-            Z := FSelectedObjects[0].Scale.Z;
+            X := obj.Scale.X;
+            Y := obj.Scale.Y;
+            Z := obj.Scale.Z;
           end;
         end;
         T := T + '[' + Format('%2.2f', [X]);
@@ -3141,9 +3101,9 @@ begin
       end
       else
       begin
-        T := T + '[' + Format('%2.2f', [FChangeRate[0]]);
-        T := T + ' ' + Format('%2.2f', [FChangeRate[1]]);
-        T := T + ' ' + Format('%2.2f', [FChangeRate[2]]) + ']';
+        T := T + '[' + Format('%2.2f', [FChangeRate.V[0]]);
+        T := T + ' ' + Format('%2.2f', [FChangeRate.V[1]]);
+        T := T + ' ' + Format('%2.2f', [FChangeRate.V[2]]) + ']';
       end;
     end;
   end;
@@ -3203,15 +3163,15 @@ begin
   SetVector(v, X, InvertedY, 0);
 
   case selAxis of
-    gaX: Viewer.Buffer.ScreenVectorIntersectWithPlaneXZ(v, FUIRootHelpers.AbsolutePosition[1], Result);
-    gaY: Viewer.Buffer.ScreenVectorIntersectWithPlaneYZ(v, FUIRootHelpers.AbsolutePosition[0], Result);
-    gaZ: Viewer.Buffer.ScreenVectorIntersectWithPlaneYZ(v, FUIRootHelpers.AbsolutePosition[0], Result);
-    gaXY: Viewer.Buffer.ScreenVectorIntersectWithPlaneXY(v, FUIRootHelpers.AbsolutePosition[2], Result);
-    gaYZ: Viewer.Buffer.ScreenVectorIntersectWithPlaneYZ(v, FUIRootHelpers.AbsolutePosition[0], Result);
-    gaXZ: Viewer.Buffer.ScreenVectorIntersectWithPlaneXZ(v, FUIRootHelpers.AbsolutePosition[1], Result);
+    gaX: Viewer.Buffer.ScreenVectorIntersectWithPlaneXZ(v, FUIRootHelpers.AbsolutePosition.V[1], Result);
+    gaY: Viewer.Buffer.ScreenVectorIntersectWithPlaneYZ(v, FUIRootHelpers.AbsolutePosition.V[0], Result);
+    gaZ: Viewer.Buffer.ScreenVectorIntersectWithPlaneYZ(v, FUIRootHelpers.AbsolutePosition.V[0], Result);
+    gaXY: Viewer.Buffer.ScreenVectorIntersectWithPlaneXY(v, FUIRootHelpers.AbsolutePosition.V[2], Result);
+    gaYZ: Viewer.Buffer.ScreenVectorIntersectWithPlaneYZ(v, FUIRootHelpers.AbsolutePosition.V[0], Result);
+    gaXZ: Viewer.Buffer.ScreenVectorIntersectWithPlaneXZ(v, FUIRootHelpers.AbsolutePosition.V[1], Result);
     gaXYZ:
     begin
-      Viewer.Buffer.ScreenVectorIntersectWithPlaneXZ(v, FUIRootHelpers.AbsolutePosition[1], Result);
+      Viewer.Buffer.ScreenVectorIntersectWithPlaneXZ(v, FUIRootHelpers.AbsolutePosition.V[1], Result);
       MakeVector(Result, InvertedY / 25, InvertedY / 25, InvertedY / 25);
     end;
   end;
@@ -3228,7 +3188,7 @@ procedure TGLGizmoEx.ActivatingElements(PickList: TGLPickList);
     for I := 0 to line.Nodes.Count - 1 do
     begin
       v := FUIRotateLineXY.AbsoluteToLocal((line.LocalToAbsolute(line.Nodes[I].AsVector)));
-      if v[2] >= 0 then
+      if v.V[2] >= 0 then
       begin
         TGLLinesNode(line.Nodes[I]).Color.Color := FSelectedColor.Color;
         TGLLinesNode(line.Nodes[I]).Color.Alpha := 1;
@@ -3251,7 +3211,7 @@ procedure TGLGizmoEx.ActivatingElements(PickList: TGLPickList);
     for I := 0 to line.Nodes.Count - 1 do
     begin
       v := FUIRotateLineXY.AbsoluteToLocal((line.LocalToAbsolute(line.Nodes[I].AsVector)));
-      if v[2] >= 0 then
+      if v.V[2] >= 0 then
       begin
         TGLLinesNode(line.Nodes[I]).Color.Color := dark;
         TGLLinesNode(line.Nodes[I]).Color.Alpha := 1;
@@ -3601,25 +3561,25 @@ var
       Exit;
     for I := 0 to 3 do
     begin
-      quantizedMousePos[I] := (Round(mousePos[I] / MoveCoef)) * MoveCoef;
-      quantizedMousePos2[I] := (Round(lastMousePos[I] / MoveCoef)) * MoveCoef;
+      quantizedMousePos.V[I] := (Round(mousePos.V[I] / MoveCoef)) * MoveCoef;
+      quantizedMousePos2.V[I] := (Round(lastMousePos.V[I] / MoveCoef)) * MoveCoef;
     end;
 
     case SelAxis of
       gaX:
       begin
-        MakeVector(vec1, quantizedMousePos[0], 0, 0);
-        makeVector(vec2, quantizedMousePos2[0], 0, 0);
+        MakeVector(vec1, quantizedMousePos.V[0], 0, 0);
+        makeVector(vec2, quantizedMousePos2.V[0], 0, 0);
       end;
       gaY:
       begin
-        MakeVector(vec1, 0, quantizedMousePos[1], 0);
-        makeVector(vec2, 0, quantizedMousePos2[1], 0);
+        MakeVector(vec1, 0, quantizedMousePos.V[1], 0);
+        makeVector(vec2, 0, quantizedMousePos2.V[1], 0);
       end;
       gaZ:
       begin
-        MakeVector(vec1, 0, 0, quantizedMousePos[2]);
-        makeVector(vec2, 0, 0, quantizedMousePos2[2]);
+        MakeVector(vec1, 0, 0, quantizedMousePos.V[2]);
+        makeVector(vec2, 0, 0, quantizedMousePos2.V[2]);
       end;
       else
       begin
@@ -3629,33 +3589,33 @@ var
     end;
     SubtractVector(vec1, vec2);
 
-    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    //Control of object flying to infinity
     if (VectorLength(Vec1) > 5) then
       Exit;// prevents NAN problems
 
     case SelAxis of
-      gaX: fchangerate[0] := fchangerate[0] + vec1[0];
-      gaY: fchangerate[1] := fchangerate[1] + vec1[1];
-      gaZ: fchangerate[2] := fchangerate[2] + vec1[2];
+      gaX: fchangerate.V[0] := fchangerate.V[0] + vec1.V[0];
+      gaY: fchangerate.V[1] := fchangerate.V[1] + vec1.V[1];
+      gaZ: fchangerate.V[2] := fchangerate.V[2] + vec1.V[2];
       gaXY:
       begin
-        fchangerate[0] := fchangerate[0] + vec1[0];
-        fchangerate[1] := fchangerate[1] + vec1[1];
+        fchangerate.V[0] := fchangerate.V[0] + vec1.V[0];
+        fchangerate.V[1] := fchangerate.V[1] + vec1.V[1];
       end;
       gaYZ:
       begin
-        fchangerate[2] := fchangerate[2] + vec1[2];
-        fchangerate[1] := fchangerate[1] + vec1[1];
+        fchangerate.V[2] := fchangerate.V[2] + vec1.V[2];
+        fchangerate.V[1] := fchangerate.V[1] + vec1.V[1];
       end;
       gaXZ:
       begin
-        fchangerate[0] := fchangerate[0] + vec1[0];
-        fchangerate[2] := fchangerate[2] + vec1[2];
+        fchangerate.V[0] := fchangerate.V[0] + vec1.V[0];
+        fchangerate.V[2] := fchangerate.V[2] + vec1.V[2];
       end;
     end;
 
     for I := 0 to FSelectedObjects.Count - 1 do
-      with FSelectedObjects.Hit[I] do
+      with TGLBaseSceneObject(FSelectedObjects.Hit[I]) do
       begin
 
         IncludeCh := True;
@@ -3685,33 +3645,33 @@ var
     v:    TVector;
   begin
 
-    vec1[0] := 0;
-    vec1[1] := 0;
+    vec1.V[0] := 0;
+    vec1.V[1] := 0;
     if abs(X - mx) >= RotationCoef then
     begin
       if RotationCoef > 1 then
-        vec1[0] := RotationCoef * (Round((X - mx) / (RotationCoef)))
+        vec1.V[0] := RotationCoef * (Round((X - mx) / (RotationCoef)))
       else
-        vec1[0] := RotationCoef * (X - mx);
+        vec1.V[0] := RotationCoef * (X - mx);
       mx := X;
     end;
     if abs(Y - my) >= RotationCoef then
     begin
       if RotationCoef > 1 then
-        vec1[1] := RotationCoef * (Round((Y - my) / (RotationCoef)))
+        vec1.V[1] := RotationCoef * (Round((Y - my) / (RotationCoef)))
       else
-        vec1[1] := RotationCoef * (Y - my);
+        vec1.V[1] := RotationCoef * (Y - my);
       my := Y;
     end;
 
 
-    vec1[2] := 0;
-    vec1[3] := 0;
+    vec1.V[2] := 0;
+    vec1.V[3] := 0;
 
     case SelAxis of
-      gaX: fchangerate[1] := fchangerate[1] + vec1[1];
-      gaY: fchangerate[0] := fchangerate[0] + vec1[0];
-      gaZ: fchangerate[1] := fchangerate[1] + vec1[1];
+      gaX: fchangerate.V[1] := fchangerate.V[1] + vec1.V[1];
+      gaY: fchangerate.V[0] := fchangerate.V[0] + vec1.V[0];
+      gaZ: fchangerate.V[1] := fchangerate.V[1] + vec1.V[1];
     end;
 
     for I := 0 to FSelectedObjects.Count - 1 do
@@ -3720,55 +3680,57 @@ var
 
         case Ord(FReferenceCoordSystem) of
           0: v := FUIRootHelpers.AbsolutePosition;
-          1: v := Hit[I].AbsolutePosition;
+          1: v := TGLBaseSceneObject(Hit[I]).AbsolutePosition;
         end;
 
         IncludeCh := True;
 
-        if not CanChangeWithChildren and (Hit[I].parent <> RootObjects) and (FSelectedObjects.Count - 1 > 0) then
-          IncludeCh := FindParent(Hit[I].parent);
+        if not CanChangeWithChildren
+          and (TGLBaseSceneObject(Hit[I]).parent <> RootObjects)
+          and (FSelectedObjects.Count - 1 > 0) then
+          IncludeCh := FindParent(TGLBaseSceneObject(Hit[I]).parent);
 
-        pmat := Hit[I].parent.InvAbsoluteMatrix;
-        SetVector(pmat[3], NullHmgPoint);
+        pmat := TGLBaseSceneObject(Hit[I]).parent.InvAbsoluteMatrix;
+        SetVector(pmat.V[3], NullHmgPoint);
 
         if IncludeCh then
           case SelAxis of
             gaX:
             begin
               rotV := VectorTransform(XVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[1]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[1]);
 
             end;
             gaY:
             begin
               rotV := VectorTransform(YVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[0]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[0]);
             end;
             gaZ:
             begin
               rotV := VectorTransform(ZVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[1]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[1]);
             end;
             gaXY:
             begin
               rotV := VectorTransform(XVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[1]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[1]);
               rotV := VectorTransform(YVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[0]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[0]);
             end;
             gaXZ:
             begin
               rotV := VectorTransform(XVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[1]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[1]);
               rotV := VectorTransform(ZVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[0]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[0]);
             end;
             gaYZ:
             begin
               rotV := VectorTransform(YVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[1]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[1]);
               rotV := VectorTransform(ZVector, pmat);
-              RotateAroundArbitraryAxis(Hit[I], rotV, AffineVectorMake(v), vec1[0]);
+              RotateAroundArbitraryAxis(TGLBaseSceneObject(Hit[I]), rotV, AffineVectorMake(v), vec1.V[0]);
             end;
           end;
       end;
@@ -3785,37 +3747,37 @@ var
 
     for t := 0 to 3 do
     begin
-      quantizedMousePos[t] := (Round(mousePos[t] / ScaleCoef)) * FScaleCoef;
-      quantizedMousePos2[t] := (Round(lastMousePos[t] / FScaleCoef)) * FScaleCoef;
+      quantizedMousePos.V[t] := (Round(mousePos.V[t] / ScaleCoef)) * FScaleCoef;
+      quantizedMousePos2.V[t] := (Round(lastMousePos.V[t] / FScaleCoef)) * FScaleCoef;
     end;
 
     case SelAxis of
       gaX:
       begin
-        MakeVector(vec1, quantizedMousePos[0], 0, 0);
-        makeVector(vec2, quantizedMousePos2[0], 0, 0);
+        MakeVector(vec1, quantizedMousePos.V[0], 0, 0);
+        makeVector(vec2, quantizedMousePos2.V[0], 0, 0);
       end;
       gaY:
       begin
-        MakeVector(vec1, 0, quantizedMousePos[1], 0);
-        makeVector(vec2, 0, quantizedMousePos2[1], 0);
+        MakeVector(vec1, 0, quantizedMousePos.V[1], 0);
+        makeVector(vec2, 0, quantizedMousePos2.V[1], 0);
       end;
       gaZ:
       begin
-        MakeVector(vec1, 0, 0, quantizedMousePos[2]);
-        makeVector(vec2, 0, 0, quantizedMousePos2[2]);
+        MakeVector(vec1, 0, 0, quantizedMousePos.V[2]);
+        makeVector(vec2, 0, 0, quantizedMousePos2.V[2]);
       end;
 
       gaXY:
       begin
-        MakeVector(vec1, quantizedMousePos[0], quantizedMousePos[1], 0);
-        makeVector(vec2, quantizedMousePos2[0], quantizedMousePos2[1], 0);
+        MakeVector(vec1, quantizedMousePos.V[0], quantizedMousePos.V[1], 0);
+        makeVector(vec2, quantizedMousePos2.V[0], quantizedMousePos2.V[1], 0);
       end;
 
       gaXYZ:
       begin
-        MakeVector(vec1, quantizedMousePos[0], quantizedMousePos[1], quantizedMousePos[2]);
-        makeVector(vec2, quantizedMousePos2[0], quantizedMousePos2[1], quantizedMousePos2[2]);
+        MakeVector(vec1, quantizedMousePos.V[0], quantizedMousePos.V[1], quantizedMousePos.V[2]);
+        makeVector(vec2, quantizedMousePos2.V[0], quantizedMousePos2.V[1], quantizedMousePos2.V[2]);
       end
 
       else
@@ -3831,30 +3793,30 @@ var
       Exit;// prevents NAN problems
 
     case SelAxis of
-      gaX: fchangerate[0] := fchangerate[0] + vec1[0];
-      gaY: fchangerate[1] := fchangerate[1] + vec1[1];
-      gaZ: fchangerate[2] := fchangerate[2] + vec1[2];
+      gaX: fchangerate.V[0] := fchangerate.V[0] + vec1.V[0];
+      gaY: fchangerate.V[1] := fchangerate.V[1] + vec1.V[1];
+      gaZ: fchangerate.V[2] := fchangerate.V[2] + vec1.V[2];
       gaXY:
       begin
-        fchangerate[0] := fchangerate[0] + vec1[0];
-        fchangerate[1] := fchangerate[1] + vec1[1];
+        fchangerate.V[0] := fchangerate.V[0] + vec1.V[0];
+        fchangerate.V[1] := fchangerate.V[1] + vec1.V[1];
       end;
       gaYZ:
       begin
-        fchangerate[2] := fchangerate[2] + vec1[2];
-        fchangerate[1] := fchangerate[1] + vec1[1];
+        fchangerate.V[2] := fchangerate.V[2] + vec1.V[2];
+        fchangerate.V[1] := fchangerate.V[1] + vec1.V[1];
       end;
       gaXZ:
       begin
-        fchangerate[0] := fchangerate[0] + vec1[0];
-        fchangerate[2] := fchangerate[2] + vec1[2];
+        fchangerate.V[0] := fchangerate.V[0] + vec1.V[0];
+        fchangerate.V[2] := fchangerate.V[2] + vec1.V[2];
       end;
       gaXYZ:
         fchangerate := VectorAdd(fchangerate, AffineVectorMake(vec1));
     end;
 
     for t := 0 to FSelectedObjects.Count - 1 do
-      with FSelectedObjects.Hit[t] do
+      with TGLBaseSceneObject(FSelectedObjects.Hit[t]) do
       begin
         IncludeCh := True;
 
@@ -3878,13 +3840,15 @@ var
   end;
 
   procedure LoopCursorMoving(isvector: Boolean = False);
+  {$IFDEF MSWINDOWS}
   var
     R, vR: TGLRect;
     cp:    TGLpoint;
+  {$ENDIF}
   begin
   {$IFDEF MSWINDOWS}
-    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
-    //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    //Процедура для перевода курсора из начала в конец
+    //без потерь операций над обьектом
     GetWindowRect(GetDesktopWindow, R);
     GetWindowRect(viewer.Handle, VR);
     GLGetCursorPos(cp);
@@ -3897,7 +3861,7 @@ var
       else
       begin
         lastMousePos := MouseWorldPos(X, r.Top + 3 - vr.Top);
-        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        //введено что бы обьект не дергался
         mousepos := lastMousePos;
       end;
     end;
@@ -3962,10 +3926,10 @@ begin
           LoopCursorMoving;
         OpeRotate(X, Y);
         if (SelAxis = gax) or (SelAxis = gaz) then
-          SetAngleDisk(fchangerate[1])
+          SetAngleDisk(fchangerate.V[1])
         else
         if SelAxis = gaY then
-          SetAngleDisk(fchangerate[0]);
+          SetAngleDisk(fchangerate.V[0]);
 
       end
       else if Operation = gopScale then
@@ -4071,7 +4035,15 @@ begin
     for I := 0 to pick.Count - 1 do
 
       if (pick.Hit[I] <> FInterfaceRender) and
-        (pick.Hit[I] <> FInternalRender) and not (pick.Hit[I] is TGLGizmoExUISphere) and not (pick.Hit[I] is TGLGizmoExUIPolyGon) and not (pick.Hit[I] is TGLGizmoExuITorus) and not (pick.Hit[I] is TGLGizmoExUIFrustrum) and not (pick.Hit[I] is TGLGizmoExUIArrowLine) and not (pick.Hit[I] is TGLGizmoExUILines) and not (pick.Hit[I] is TGLGizmoExUIFlatText) and not (CheckObjectInExcludeList(pick.hit[I])) and not (CheckClassNameInExcludeList(pick.hit[I])) then
+        (pick.Hit[I] <> FInternalRender) and not (pick.Hit[I] is TGLGizmoExUISphere)
+        and not (pick.Hit[I] is TGLGizmoExUIPolyGon)
+        and not (pick.Hit[I] is TGLGizmoExuITorus)
+        and not (pick.Hit[I] is TGLGizmoExUIFrustrum)
+        and not (pick.Hit[I] is TGLGizmoExUIArrowLine)
+        and not (pick.Hit[I] is TGLGizmoExUILines)
+        and not (pick.Hit[I] is TGLGizmoExUIFlatText)
+        and not (CheckObjectInExcludeList(TGLBaseSceneObject(pick.hit[I])))
+        and not (CheckClassNameInExcludeList(TGLBaseSceneObject(pick.hit[I]))) then
       begin
 
         //Clear list
@@ -4084,9 +4056,9 @@ begin
             ClearSelection;
 
         if not FCanRemoveObjFromSelectionList then
-          AddObjToSelectionList(pick.Hit[I])
+          AddObjToSelectionList(TGLBaseSceneObject(pick.Hit[I]))
         else
-          RemoveObjFromSelectionList(pick.Hit[I]);
+          RemoveObjFromSelectionList(TGLBaseSceneObject(pick.Hit[I]));
 
         if Assigned(onSelect) then
           onSelect(self, FSelectedObjects);
@@ -4128,7 +4100,7 @@ begin
   if operation = gopNone then
   begin
     pick := InternalGetPickedObjects(X - 1, Y - 1, X + 1, Y + 1, 8);
-    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    //очистка списка если кликнули в пустоту
     if not FCanAddObjToSelectionList and not FCanRemoveObjFromSelectionList and (pick.Count = 0) then
       ClearSelection;
 
@@ -4170,9 +4142,9 @@ begin
       OnUpdate(self);
 
     v := VectorMake(0, 0, 0);
-    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!
+    //устанавливаем гизмо в нужную позицию!
     for  I := 0 to FSelectedObjects.Count - 1 do
-      VectorAdd(v, FSelectedObjects.Hit[I].AbsolutePosition, v);
+      VectorAdd(v, TGLBaseSceneObject(FSelectedObjects.Hit[I]).AbsolutePosition, v);
 
     if FSelectedObjects.Count = 1 then
       I := 1
@@ -4190,8 +4162,8 @@ begin
 
     1:
     begin
-      FUIRootHelpers.AbsoluteDirection := FSelectedObjects.Hit[0].AbsoluteDirection;
-      FUIRootHelpers.AbsoluteUp := FSelectedObjects.Hit[0].AbsoluteUp;
+      FUIRootHelpers.AbsoluteDirection := TGLBaseSceneObject(FSelectedObjects.Hit[0]).AbsoluteDirection;
+      FUIRootHelpers.AbsoluteUp := TGLBaseSceneObject(FSelectedObjects.Hit[0]).AbsoluteUp;
     end;
   end;
 
@@ -4522,7 +4494,7 @@ end;
 function TGLGizmoExActionHistoryCollection.Add: TGLGizmoExActionHistoryItem;
 begin
   Result := nil;
-  //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+  //Если был использован ундо затираем предедущие записи
   if FItemIndex = Count - 1 then
   begin
     Result := TGLGizmoExActionHistoryItem(inherited Add);
@@ -4535,7 +4507,7 @@ begin
     Result := Items[FItemIndex];
     FItemIndex := FItemIndex + 1;
   end;
-  //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+  //Стираем элементы если количествой записей превышено потолка
   if Count - 1 > MaxCount then
   begin
     Delete(0);
@@ -4593,7 +4565,7 @@ begin
   with Add do
   begin
     for I := 0 to objs.Count - 1 do
-      GizmoObjectCollection.Add.AssignFromObject(objs.Hit[I]);
+      GizmoObjectCollection.Add.AssignFromObject(TGLBaseSceneObject(objs.Hit[I]));
   end;
 
 end;
@@ -4618,7 +4590,7 @@ begin
         with GizmoObjectCollection.Add do
         begin
           GizmoTmpRoot := self.GizmoTmpRoot;
-          AssignFromObject(objs.Hit[I], True);
+          AssignFromObject(TGLBaseSceneObject(objs.Hit[I]), True);
         end;
 
   objs.Clear;

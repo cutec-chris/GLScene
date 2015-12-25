@@ -9,6 +9,11 @@
     this component on the form.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>14/12/10 - DaStr - Fixed compiler hint
+      <li>12/12/10 - Yar   - Adapted to using with TGLSceneForm
+      <li>01/07/10 - Yar   - Fixed zooming for FPC (by Rustam Asmandiarov aka Predator)
+      <li>17/06/10 - YP    - Fixed Zoom in/out inconsistence (mousewheel up/down inverted)
+      <li>11/06/10 - YP    - Fixed wheeldata can be equal to 0 in FormMouseWheel (div by 0 exception)
       <li>21/01/10 - Yar   - Bugfixed zooming in design time (BugtrackerID = 2936266)
       <li>25/12/09 - DaStr - Added OnMouseMove event (thanks YarUnderoaker)
       <li>18/10/09 - DaStr - Added snoShowFPS option (thanks YarUnderoaker)
@@ -25,9 +30,7 @@
                              Added TGLSimpleNavigation.Assign
                              MouseWheel is now handled by default
       <li>06/02/07 - DaStr - Creation (donated to GLScene)
-	</ul></font><p>
-
-
+ </ul></font><p>
 
    Previous version history:
            v1.0   08 May        '2006  Creation
@@ -43,21 +46,30 @@ unit GLSimpleNavigation;
 
 interface
 
-uses
-  // VCL
-  Classes, Forms, Controls, ExtCtrls, SysUtils, TypInfo,
+{$I GLScene.inc}
 
-  // GLSCene
-  VectorGeometry, GLScene, GLViewer, GLStrings, GLCrossPlatform;
+uses
+{$IFDEF GLS_DELPHI_XE2_UP}
+  System.Classes,  System.SysUtils, System.TypInfo,
+  VCL.Forms, VCL.Controls, VCL.ExtCtrls,
+{$ELSE}
+  Classes, SysUtils, TypInfo, Forms, Controls, ExtCtrls,
+{$ENDIF}
+  // GLSñene
+  GLSceneForm, GLVectorGeometry, GLScene,
+  GLViewer, GLStrings, GLCrossPlatform;
 
 type
+
+  TPoint = GLCrossPlatform.TGLPoint; // for Mouse Wheel
+
   TGLSimpleNavigationOption = (
-                               snoInvertMoveAroundX, snoInvertMoveAroundY, // MoveAroundTarget.
-                               snoInvertZoom, snoInvertMouseWheel,         // Zoom.
-                               snoInvertRotateX, snoInvertRotateY,         // RotateTarget.
-                               snoMouseWheelHandled,                       // MouseWheel.
-                               snoShowFPS                                  // Show FPS
-                               );
+    snoInvertMoveAroundX, snoInvertMoveAroundY, // MoveAroundTarget.
+    snoInvertZoom, snoInvertMouseWheel, // Zoom.
+    snoInvertRotateX, snoInvertRotateY, // RotateTarget.
+    snoMouseWheelHandled, // MouseWheel.
+    snoShowFPS // Show FPS
+    );
 
   TGLSimpleNavigationOptions = set of TGLSimpleNavigationOption;
 
@@ -110,10 +122,11 @@ type
     FKeyCombinations: TGLSimpleNavigationKeyCombinations;
     FRotateTargetSpeed: Single;
     FOnMouseMove: TMouseMoveEvent;
+    FSceneForm: Boolean;
     procedure ShowFPS(Sender: TObject);
-    procedure GLSceneViewerMouseMove(Sender: TObject;
+    procedure ViewerMouseMove(Sender: TObject;
       Shift: TShiftState; X, Y: Integer);
-    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
+    procedure ViewerMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TGLPoint; var Handled: Boolean);
 
     procedure SetGLSceneViewer(const Value: TGLSceneViewer);
@@ -123,6 +136,7 @@ type
     function StoreZoomSpeed: Boolean;
     procedure SetKeyCombinations(const Value: TGLSimpleNavigationKeyCombinations);
     function StoreRotateTargetSpeed: Boolean;
+    procedure SetOptions(const Value: TGLSimpleNavigationOptions);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -138,7 +152,7 @@ type
     property RotateTargetSpeed: Single read FRotateTargetSpeed write FRotateTargetSpeed stored StoreRotateTargetSpeed;
 
     property FormCaption: string read FFormCaption write FFormCaption stored StoreFormCaption;
-    property Options: TGLSimpleNavigationOptions read FOptions write FOptions default [snoMouseWheelHandled, snoShowFPS];
+    property Options: TGLSimpleNavigationOptions read FOptions write SetOptions default [snoMouseWheelHandled, snoShowFPS];
     property KeyCombinations: TGLSimpleNavigationKeyCombinations read FKeyCombinations write SetKeyCombinations;
 
     property OnMouseMove: TMouseMoveEvent read FOnMouseMove write FOnMouseMove;
@@ -150,7 +164,7 @@ const
   vFPSString = '%FPS';
   EPS = 0.001;
 
-{ TGLSimpleNavigation }
+  { TGLSimpleNavigation }
 
 procedure TGLSimpleNavigation.Assign(Source: TPersistent);
 begin
@@ -191,9 +205,10 @@ begin
   FTimer := TTimer.Create(nil);
   FTimer.OnTimer := ShowFPS;
 
-  FOnMouseMove:=nil;
+  FOnMouseMove := nil;
   //Detect form
-  if AOwner is TCustomForm then SetForm(TCustomForm(AOwner));
+  if AOwner is TCustomForm then
+    SetForm(TCustomForm(AOwner));
 
   //Detect SceneViewer
   if FForm <> nil then
@@ -222,31 +237,46 @@ begin
   inherited;
 end;
 
-procedure TGLSimpleNavigation.FormMouseWheel(Sender: TObject;
+procedure TGLSimpleNavigation.ViewerMouseWheel(Sender: TObject;
   Shift: TShiftState; WheelDelta: Integer; MousePos: TGLPoint;
   var Handled: Boolean);
 var
   Sign: SmallInt;
+  lCamera: TGLCamera;
 begin
-  if csDesigning in ComponentState then
+  if (csDesigning in ComponentState) or (WheelDelta = 0) then
     Exit;
 
   if snoInvertMouseWheel in FOptions then
-    Sign := -1
+    Sign := 1
   else
-    Sign := 1;
+    Sign := -1;
 
   if FGLSceneViewer <> nil then
-    if FGLSceneViewer.Camera <> nil then
-      FGLSceneViewer.Camera.AdjustDistanceToTarget(
-                      Power(FZoomSpeed, Integer(Sign * WheelDelta div Abs(WheelDelta))));
+    lCamera := FGLSceneViewer.Camera
+  else if FSceneForm then
+    lCamera := TGLSceneForm(FForm).Camera
+  else
+    lCamera := nil;
 
-  if snoMouseWheelHandled in FOptions then
-    Handled := True;
+  if Assigned(lCamera) then
+  begin
+    if lCamera.CameraStyle = csOrthogonal then
+      lCamera.FocalLength := FGLSceneViewer.Camera.FocalLength
+        / Power(FZoomSpeed, Sign * WheelDelta div Abs(WheelDelta))
+    else
+      lCamera.AdjustDistanceToTarget(
+        Power(FZoomSpeed, Sign * WheelDelta div Abs(WheelDelta)));
+  end;
+
+  Handled := snoMouseWheelHandled in FOptions;
 end;
 
-procedure TGLSimpleNavigation.GLSceneViewerMouseMove(Sender: TObject;
+procedure TGLSimpleNavigation.ViewerMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
+
+var
+  lCamera: TGLCamera;
 
   procedure DoZoom;
   var
@@ -256,8 +286,8 @@ procedure TGLSimpleNavigation.GLSceneViewerMouseMove(Sender: TObject;
       Sign := -1
     else
       Sign := 1;
-    FGLSceneViewer.Camera.AdjustDistanceToTarget(
-                                    Power(FZoomSpeed, Sign * (Y - FOldY) / 20));
+    lCamera.AdjustDistanceToTarget(
+      Power(FZoomSpeed, Sign * (Y - FOldY) / 20));
   end;
 
   procedure DoMoveAroundTarget;
@@ -275,8 +305,8 @@ procedure TGLSimpleNavigation.GLSceneViewerMouseMove(Sender: TObject;
     else
       SignY := 1;
 
-    FGLSceneViewer.Camera.MoveAroundTarget(SignX * FMoveAroundTargetSpeed * (FOldY - Y),
-                                           SignY * FMoveAroundTargetSpeed * (FOldX - X));
+    lCamera.MoveAroundTarget(SignX * FMoveAroundTargetSpeed * (FOldY - Y),
+      SignY * FMoveAroundTargetSpeed * (FOldX - X));
   end;
 
   procedure DoRotateTarget;
@@ -294,40 +324,48 @@ procedure TGLSimpleNavigation.GLSceneViewerMouseMove(Sender: TObject;
     else
       SignY := 1;
 
-    FGLSceneViewer.Camera.RotateTarget(SignY * FRotateTargetSpeed * (FOldY - Y),
-                                       SignX * FRotateTargetSpeed * (FOldX - X));
+    lCamera.RotateTarget(SignY * FRotateTargetSpeed * (FOldY - Y),
+      SignX * FRotateTargetSpeed * (FOldX - X));
   end;
 
 var
   I: Integer;
 
 begin
-  if FGLSceneViewer <> nil then
-    if FGLSceneViewer.Camera <> nil then
-    begin
-      if FKeyCombinations.Count <> 0 then
-        for I := 0 to FKeyCombinations.Count - 1 do
-          if FKeyCombinations[I].FShiftState <= Shift then
-          begin
-            case FKeyCombinations[I].FAction of
-              snaNone:; //Ignore.
-              snaMoveAroundTarget: DoMoveAroundTarget;
-              snaZoom: DoZoom;
-              snaRotateTarget: DoRotateTarget;
-              snaCustom: FKeyCombinations[I].DoOnCustomAction(Shift, X, Y);
-            else
-              Assert(False, glsErrorEx + glsUnknownType);
-            end;
+  if csDesigning in ComponentState then
+    exit;
 
-            if FKeyCombinations[I].FExitOnMatch then
-              Break;
+  if FGLSceneViewer <> nil then
+    lCamera := FGLSceneViewer.Camera
+  else if FSceneForm then
+    lCamera := TGLSceneForm(FForm).Camera;
+
+  if Assigned(lCamera) then
+  begin
+    if FKeyCombinations.Count <> 0 then
+      for I := 0 to FKeyCombinations.Count - 1 do
+        if FKeyCombinations[I].FShiftState <= Shift then
+        begin
+          case FKeyCombinations[I].FAction of
+            snaNone: ; //Ignore.
+            snaMoveAroundTarget: DoMoveAroundTarget;
+            snaZoom: DoZoom;
+            snaRotateTarget: DoRotateTarget;
+            snaCustom: FKeyCombinations[I].DoOnCustomAction(Shift, X, Y);
+          else
+            Assert(False, glsErrorEx + glsUnknownType);
           end;
-    end;
+
+          if FKeyCombinations[I].FExitOnMatch then
+            Break;
+        end;
+  end;
 
   FOldX := X;
   FOldY := Y;
 
-  if Assigned(FOnMouseMove) then FOnMouseMove(Self, Shift, X, Y);
+  if Assigned(FOnMouseMove) then
+    FOnMouseMove(Self, Shift, X, Y);
 end;
 
 procedure TGLSimpleNavigation.Notification(AComponent: TComponent;
@@ -350,8 +388,13 @@ procedure TGLSimpleNavigation.SetForm(const Value: TCustomForm);
 begin
   if FForm <> nil then
   begin
-    TForm(FForm).OnMouseWheel := nil;
     FForm.RemoveFreeNotification(Self);
+    TForm(FForm).OnMouseWheel := nil;
+{$IFDEF FPC}
+    if FSceneForm then
+{$ENDIF}
+      TForm(FForm).OnMouseMove := nil;
+    FSceneForm := False;
   end;
 
   FForm := Value;
@@ -360,9 +403,15 @@ begin
   begin
     if FFormCaption = vFPSString then
       FFormCaption := FForm.Caption + ' - ' + vFPSString;
-
-    TForm(FForm).OnMouseWheel := FormMouseWheel;
+    TForm(FForm).OnMouseWheel := ViewerMouseWheel;
     FForm.FreeNotification(Self);
+{$IFDEF GLS_MULTITHREAD}
+    if FForm is TGLSceneForm then
+    begin
+      FSceneForm := True;
+      TForm(FForm).OnMouseMove := ViewerMouseMove;
+    end;
+{$ENDIF}
   end;
 end;
 
@@ -373,13 +422,19 @@ begin
   begin
     FGLSceneViewer.RemoveFreeNotification(Self);
     FGLSceneViewer.OnMouseMove := nil;
+{$IFDEF FPC}
+    FGLSceneViewer.OnMouseWheel := nil;
+{$ENDIF}
   end;
 
   FGLSceneViewer := Value;
 
   if FGLSceneViewer <> nil then
   begin
-    FGLSceneViewer.OnMouseMove := GLSceneViewerMouseMove;
+{$IFDEF FPC}
+    FGLSceneViewer.OnMouseWheel := ViewerMouseWheel;
+{$ENDIF}
+    FGLSceneViewer.OnMouseMove := ViewerMouseMove;
     FGLSceneViewer.FreeNotification(Self);
   end;
 end;
@@ -389,20 +444,31 @@ var
   Index: Integer;
   Temp: string;
 begin
-  if (FGLSceneViewer <> nil) and
-     (FForm <> nil) and
-     not(csDesigning in ComponentState) and
-     (snoShowFPS in FOptions) then
+  if (FForm <> nil) and
+    not (csDesigning in ComponentState) and
+    (snoShowFPS in FOptions) then
   begin
     Temp := FFormCaption;
     Index := Pos(vFPSString, Temp);
-    if Index <> 0 then
+    if FForm is TGLSceneForm then
     begin
-      Delete(Temp, Index, Length(vFPSString));
-      Insert(FGLSceneViewer.FramesPerSecondText, Temp, Index);
+      if Index <> 0 then
+      begin
+        Delete(Temp, Index, Length(vFPSString));
+        Insert(Format('%.*f FPS', [1, TGLSceneForm(FForm).Buffer.FramesPerSecond]), Temp, Index);
+      end;
+      TGLSceneForm(FForm).Buffer.ResetPerformanceMonitor;
+    end
+    else if Assigned(FGLSceneViewer) then
+    begin
+      if Index <> 0 then
+      begin
+        Delete(Temp, Index, Length(vFPSString));
+        Insert(Format('%.*f FPS', [1, FGLSceneViewer.Buffer.FramesPerSecond]), Temp, Index);
+      end;
+      FGLSceneViewer.ResetPerformanceMonitor;
     end;
     FForm.Caption := Temp;
-    FGLSceneViewer.ResetPerformanceMonitor;
   end;
 end;
 
@@ -424,6 +490,16 @@ end;
 function TGLSimpleNavigation.StoreRotateTargetSpeed: Boolean;
 begin
   Result := Abs(FRotateTargetSpeed - 1) > EPS;
+end;
+
+procedure TGLSimpleNavigation.SetOptions(
+  const Value: TGLSimpleNavigationOptions);
+begin
+  if FOptions <> Value then
+  begin
+    FOptions := Value;
+
+  end;
 end;
 
 { TGLSimpleNavigationKeyCombination }
@@ -458,7 +534,7 @@ end;
 function TGLSimpleNavigationKeyCombination.GetDisplayName: string;
 begin
   Result := GetSetProp(Self, 'ShiftState', True) + '  -  ' +
-            GetEnumName(TypeInfo(TGLSimpleNavigationAction), Integer(FAction));
+    GetEnumName(TypeInfo(TGLSimpleNavigationAction), Integer(FAction));
 end;
 
 { TGLSimpleNavigationKeyCombinations }
@@ -494,3 +570,4 @@ begin
 end;
 
 end.
+

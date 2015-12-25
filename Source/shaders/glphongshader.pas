@@ -6,6 +6,8 @@
    An ARBvp1.0 + ARBfp1.0 shader that implements phong shading.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>28/07/09 - DaStr - Small changes and simplifications  
       <li>24/07/09 - DaStr - TGLShader.DoInitialize() now passes rci
@@ -26,8 +28,8 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLTexture, ARBProgram, VectorGeometry, VectorLists, OpenGL1x, GLAsmShader,
-  GLRenderContextInfo, GLCustomShader, GLState;
+  GLTexture, GLVectorGeometry, GLVectorLists, OpenGLTokens, GLContext,
+  GLAsmShader, GLRenderContextInfo, GLCustomShader, GLState;
 
 type
   TGLPhongShader = class(TGLCustomAsmShader)
@@ -65,8 +67,6 @@ begin
 
   GetActiveLightsList(FLightIDs);
   FAmbientPass := False;
-  rci.GLStates.PushAttrib([sttEnable, sttTexture, sttDepthBuffer,
-                           sttColorBuffer]);
 
   if FLightIDs.Count > 0 then
   begin
@@ -108,8 +108,7 @@ begin
     Result := True;
     Exit;
   end;
-
-  rci.GLStates.PopAttrib;
+  rci.GLStates.DepthFunc := cfLEqual;
 end;
 
 // DoInitialize
@@ -211,9 +210,9 @@ function TGLPhongShader.ShaderSupported: Boolean;
 var
   MaxTextures: Integer;
 begin
-  Result := inherited ShaderSupported and GL_ARB_multitexture;
+  Result := inherited ShaderSupported and GL.ARB_multitexture;
 
-  glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, @MaxTextures);
+  GL.GetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, @MaxTextures);
   Result := Result and (maxTextures > 2);
 end;
 
@@ -240,10 +239,10 @@ var
 begin
   rci.GLStates.Disable(stLighting);
 
-  glGetFloatv(GL_LIGHT_MODEL_AMBIENT, @ambient);
-  glGetMaterialfv(GL_FRONT, GL_AMBIENT, @materialAmbient);
+  GL.GetFloatv(GL_LIGHT_MODEL_AMBIENT, @ambient);
+  GL.GetMaterialfv(GL_FRONT, GL_AMBIENT, @materialAmbient);
   ScaleVector(ambient, materialAmbient);
-  glColor3fv(@ambient);
+  GL.Color3fv(@ambient);
 end;
 
 procedure TGLPhongShader.DoLightPass(lightID: Cardinal);
@@ -252,13 +251,16 @@ var
 begin
   Self.ApplyShaderPrograms();
 
-  glGetLightfv(lightID, GL_POSITION, @LightParam);
-  glProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, 0, @LightParam);
-
-  glGetLightfv(lightID, GL_DIFFUSE, @LightParam);
-  glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 0, @LightParam);
-  glGetLightfv(lightID, GL_SPECULAR, @LightParam);
-  glProgramLocalParameter4fvARB(GL_FRAGMENT_PROGRAM_ARB, 1, @LightParam);
+  with CurrentGLContext.GLStates do
+  begin
+    GL.GetLightfv(GL_LIGHT0+lightID, GL_POSITION, @LightParam);
+    LightParam := LightParam;
+    GL.ProgramLocalParameter4fv(GL_VERTEX_PROGRAM_ARB, 0, @LightParam);
+    LightParam := LightDiffuse[lightID];
+    GL.ProgramLocalParameter4fv(GL_FRAGMENT_PROGRAM_ARB, 0, @LightParam);
+    LightParam := LightSpecular[lightID];
+    GL.ProgramLocalParameter4fv(GL_FRAGMENT_PROGRAM_ARB, 1, @LightParam);
+  end;
 end;
 
 initialization

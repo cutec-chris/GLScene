@@ -34,12 +34,15 @@ unit GLNavigator;
 
 interface
 
+{$I GLScene.inc}
+
 uses
   // VCL
   SysUtils, Classes,
 
   // GLScene
-  VectorGeometry, GLScene, GLCrossPlatform, GLCoordinates, GLScreen;
+  GLVectorGeometry, GLScene, GLCrossPlatform, GLCoordinates, GLScreen
+  , GLVectorTypes;
 
 type
 

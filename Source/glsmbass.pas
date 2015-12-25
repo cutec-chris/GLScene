@@ -1,3 +1,6 @@
+//
+// This unit is part of the GLScene Project, http://glscene.org
+//
 {: GLSMBASS<p>
 
 	BASS based sound-manager (http://www.un4seen.com/music/, free for freeware).<p>
@@ -9,6 +12,11 @@
    </ul><p>
 
 	<b>History : </b><font size=-1><ul>
+      <li>14/01/14 - PW - Updated to BASS 2.4 thanks to Ian Luck
+      <li>07/01/10 - DaStr - Fixed a bug with an initial Paused or Muted state of
+                              sound source and with sscSample in aSource.Changes
+      <li>07/11/09 - DaStr - Improved FPC compatibility
+                             (thanks Predator) (BugtrackerID = 2893580)
       <li>21/03/08 - DanB - Updated to BASS Version 2.3
       <li>15/03/08 - DaStr - Added $I GLScene.inc
       <li>09/05/04 - GAK - Updated to BASS Version 2.0, and swapped to Dynamic DLL loading
@@ -25,7 +33,11 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLSound, GLScene, controls;
+uses
+  Classes, SysUtils, Forms, Controls,
+
+  //GLScene
+  GLSound, GLScene, Bass, GLVectorGeometry;
 
 type
 
@@ -81,8 +93,6 @@ implementation
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
 
-uses Forms, SysUtils, Bass, VectorGeometry, Dialogs;
-
 type
    TBASSInfo =  record
       channel : HCHANNEL;
@@ -99,11 +109,9 @@ end;
 //
 procedure VectorToBASSVector(const aVector : TVector; var aBASSVector : BASS_3DVECTOR);
 begin
-   with aBASSVector do begin
-      x:=aVector[0];
-      y:=aVector[1];
-      z:=-aVector[2];
-   end;
+  aBASSVector.x:=aVector.X;
+  aBASSVector.y:=aVector.Y;
+  aBASSVector.z:=-aVector.Z;
 end;
 
 // ------------------
@@ -115,7 +123,7 @@ end;
 constructor TGLSMBASS.Create(AOwner : TComponent);
 begin
 	inherited Create(AOwner);
-  BASS_Load(BASS_DLL);
+  BASS_Load(bassdll);
    MaxChannels:=32;
 end;
 
@@ -134,9 +142,13 @@ const
    c3DAlgo : array [algDefault..algLight] of Integer =
       (BASS_3DALG_DEFAULT, BASS_3DALG_OFF, BASS_3DALG_FULL, BASS_3DALG_LIGHT);
 begin
-   assert(bass_isloaded,'BASS DLL is not present');
-
-   if not BASS_Init(1, OutputFrequency, BASS_DEVICE_3D, TWinControl(Owner).Handle,nil) then begin
+   Assert(bass_isloaded,'BASS DLL is not present');
+   {$IFDEF FPC}
+   if not BASS_Init(1, OutputFrequency, BASS_DEVICE_3D, Pointer(TWinControl(Owner).Handle), nil) then
+   {$ELSE}
+   if not BASS_Init(1, OutputFrequency, BASS_DEVICE_3D, Application.Handle,nil) then
+   {$ENDIF}
+   begin
       Result:=False;
       Exit;
    end;
@@ -181,6 +193,7 @@ end;
 // NotifyEnvironmentChanged
 //
 procedure TGLSMBASS.NotifyEnvironmentChanged;
+{$IFDEF MSWINDOWS}
 const
    cEnvironmentToBASSConstant : array [seDefault..sePsychotic] of Integer = (
       EAX_ENVIRONMENT_GENERIC, EAX_ENVIRONMENT_PADDEDCELL, EAX_ENVIRONMENT_ROOM,
@@ -195,6 +208,10 @@ const
 begin
    if FActivated and EAXSupported then
       BASS_SetEAXParameters(cEnvironmentToBASSConstant[Environment],-1,-1,-1);
+{$ELSE}
+begin
+{$ENDIF}
+
 end;
 
 // KillSource
@@ -221,8 +238,15 @@ var
    p : PBASSInfo;
    objPos, objOri, objVel : TVector;
    position, orientation, velocity : BASS_3DVECTOR;
+   res: Boolean;
 begin
-   if (aSource.Sample=nil) or (aSource.Sample.Data.WAVDataSize=0) then Exit;
+   if (sscSample in aSource.Changes) then
+   begin
+     KillSource(aSource);
+   end;
+
+   if (aSource.Sample=nil) or (aSource.Sample.Data=nil) or
+      (aSource.Sample.Data.WAVDataSize=0) then Exit;
    if aSource.ManagerTag<>0 then begin
       p:=PBASSInfo(aSource.ManagerTag);
       if BASS_ChannelIsActive(p.channel)=0 then begin
@@ -257,7 +281,6 @@ begin
    VectorToBASSVector(objVel, velocity);
    VectorToBASSVector(objOri, orientation);
    if p.channel=0 then begin
-//      p.channel:=BASS_SamplePlay3D(p.sample, position, orientation, velocity);
       p.channel:=BASS_SampleGetChannel(p.sample,false);
       Assert(p.channel<>0);
       BASS_ChannelSet3DPosition(p.channel,position, orientation, velocity);
@@ -266,12 +289,22 @@ begin
                                   Round(aSource.InsideConeAngle),
                                   Round(aSource.OutsideConeAngle),
                                   Round(aSource.ConeOutsideVolume*100));
-      BASS_ChannelPlay(p.channel,true);                                  
+      if not aSource.Pause then
+        BASS_ChannelPlay(p.channel,true);
+
    end else BASS_ChannelSet3DPosition(p.channel, position, orientation, velocity);
-   if p.channel<>0 then begin
-      if not BASS_ChannelSetAttributes(p.channel, aSource.Frequency, Round(aSource.Volume*100), -101) then
-         Assert(False);
+
+   if p.channel<>0 then
+   begin
+      res := BASS_ChannelSetAttribute(p.channel, BASS_ATTRIB_FREQ, 0);
+      Assert(res);
+      if aSource.Mute then
+        res := BASS_ChannelSetAttribute(p.channel, BASS_ATTRIB_VOL, 0)
+      else
+        res := BASS_ChannelSetAttribute(p.channel, BASS_ATTRIB_VOL, aSource.Volume);
+      Assert(res);
    end else aSource.Free;
+   inherited UpdateSource(aSource);
 end;
 
 // MuteSource
@@ -284,8 +317,8 @@ begin
    if aSource.ManagerTag<>0 then begin
       p:=PBASSInfo(aSource.ManagerTag);
       if muted then
-         res:=BASS_ChannelSetAttributes(p.channel, -1, 0, -101)
-      else res:=BASS_ChannelSetAttributes(p.channel, -1, Round(aSource.Volume*100), -101);
+         res:=BASS_ChannelSetAttribute(p.channel,  BASS_ATTRIB_VOL, 0)
+      else res:=BASS_ChannelSetAttribute(p.channel, BASS_ATTRIB_VOL, aSource.Volume);
       Assert(res);
    end;
 end;
@@ -333,11 +366,16 @@ end;
 // EAXSupported
 //
 function TGLSMBASS.EAXSupported : Boolean;
+{$IFDEF MSWINDOWS}
 var
    c : Cardinal;
    s : Single;
 begin
    Result:=BASS_GetEAXParameters(c, s, s, s);
+{$ELSE}
+begin
+   Result:=false;
+{$ENDIF}
 end;
 
 // GetDefaultFrequency

@@ -6,6 +6,11 @@
    This unit contains classes that imitate an atmosphere around a planet.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to records
+      <li>19/03/11 - Yar - Added setters for Low and High atmosphere colors
+      <li>04/11/10 - DaStr - Restored Delphi5 and Delphi6 compatibility
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>06/06/07 - DaStr - Added GLColor to uses (BugtrackerID = 1732211)
       <li>03/04/07 - DaStr - Optimized TGLCustomAtmosphere.DoRender
@@ -67,8 +72,9 @@ uses
   SysUtils, Classes,
 
   // GLScene
-  GLScene, GLObjects, GLCadencer, OpenGL1x, VectorGeometry,
-  GLContext, GLStrings, GLColor, GLRenderContextInfo, GLState;
+  GLScene, GLObjects, GLCadencer, OpenGLTokens, GLVectorGeometry,
+  GLContext, GLStrings, GLColor, GLRenderContextInfo, GLState, GLCrossPlatform,
+  GLVectorTypes;
 
 type
    EGLAtmosphereException = class(Exception);
@@ -100,11 +106,15 @@ type
     procedure SetSun(const Value: TglBaseSceneObject);
     procedure SetAtmosphereRadius(const Value: Single);
     procedure SetPlanetRadius(const Value: Single);
-    procedure EnableGLBlendingMode(var rci: TRenderContextInfo);
+    procedure EnableGLBlendingMode(StateCache: TGLStateCache);
     function StoreAtmosphereRadius: Boolean;
     function StoreOpacity: Boolean;
     function StorePlanetRadius: Boolean;
     procedure SetSlices(const Value: Integer);
+    procedure SetLowAtmColor(const AValue: TGLColor);
+    procedure SetHighAtmColor(const AValue: TGLColor);
+    function StoreLowAtmColor: Boolean;
+    function StoreHighAtmColor: Boolean;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -118,8 +128,8 @@ type
     property PlanetRadius: Single read FPlanetRadius write SetPlanetRadius stored StorePlanetRadius;
 
     //: Use value slightly lower than actual radius, for antialiasing effect.
-    property LowAtmColor: TGLColor read FLowAtmColor;
-    property HighAtmColor: TGLColor read FHighAtmColor;
+    property LowAtmColor: TGLColor read FLowAtmColor write SetLowAtmColor stored StoreLowAtmColor;
+    property HighAtmColor: TGLColor read FHighAtmColor write SetHighAtmColor stored StoreHighAtmColor;
     property BlendingMode: TGLAtmosphereBlendingMode read FBlendingMode
                                write FBlendingMode default abmOneMinusSrcAlpha;
 
@@ -242,19 +252,19 @@ var
         intensity := intensity * contrib;
         alt := (VectorLength(atmPoint) - FPlanetRadius) * invAtmosphereHeight;
         VectorLerp(LowAtmColor.Color, HighAtmColor.Color, alt, altColor);
-        Result[0] := Result[0] * decay + altColor[0] * intensity;
-        Result[1] := Result[1] * decay + altColor[1] * intensity;
-        Result[2] := Result[2] * decay + altColor[2] * intensity;
+        Result.V[0] := Result.V[0] * decay + altColor.V[0] * intensity;
+        Result.V[1] := Result.V[1] * decay + altColor.V[1] * intensity;
+        Result.V[2] := Result.V[2] * decay + altColor.V[2] * intensity;
       end
       else
       begin
         // sample on the dark sid
-        Result[0] := Result[0] * decay;
-        Result[1] := Result[1] * decay;
-        Result[2] := Result[2] * decay;
+        Result.V[0] := Result.V[0] * decay;
+        Result.V[1] := Result.V[1] * decay;
+        Result.V[2] := Result.V[2] * decay;
       end;
     end;
-    Result[3] := n * contrib * Opacity * 0.1;
+    Result.V[3] := n * contrib * Opacity * 0.1;
   end;
 
 
@@ -291,7 +301,7 @@ begin
   if FSun <> nil then
   begin
     Assert(FAtmosphereRadius > FPlanetRadius);
-    
+
     sunPos := VectorSubtract(FSun.AbsolutePosition, AbsolutePosition);
     eyepos := VectorSubtract(rci.CameraPosition, AbsolutePosition);
 
@@ -305,11 +315,10 @@ begin
     invAtmosphereHeight := 1 / (FAtmosphereRadius - FPlanetRadius);
     lightingVector := VectorNormalize(sunPos); // sun at infinity
 
-    rci.GLStates.PushAttrib([sttEnable]);
     rci.GLStates.DepthWriteMask := False;
     rci.GLStates.Disable(stLighting);
     rci.GLStates.Enable(stBlend);
-    EnableGLBlendingMode(rci);
+    EnableGLBlendingMode(rci.GLStates);
     for I := 0 to 13 do
     begin
       if I < 5 then
@@ -334,47 +343,45 @@ begin
       begin
         if I = 13 then
         begin
-          // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-          glBegin(GL_QUAD_STRIP);
+          // GL.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+          GL.Begin_(GL_QUAD_STRIP);
           for J := FSlices downto 0 do
           begin
-            glColor4fv(@pColor[k1 + J]);
-            glVertex3fv(@pVertex[k1 + J]);
-            glColor4fv(@clrTransparent);
-            glVertex3fv(@pVertex[k0 + J]);
+            GL.Color4fv(@pColor[k1 + J]);
+            GL.Vertex3fv(@pVertex[k1 + J]);
+            GL.Color4fv(@clrTransparent);
+            GL.Vertex3fv(@pVertex[k0 + J]);
           end;
-          glEnd;
+          GL.End_;
         end
         else
         begin
-          // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_DST_COLOR);
-          glBegin(GL_QUAD_STRIP);
+          // GL.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_DST_COLOR);
+          GL.Begin_(GL_QUAD_STRIP);
           for J := FSlices downto 0 do
           begin
-            glColor4fv(@pColor[k1 + J]);
-            glVertex3fv(@pVertex[k1 + J]);
-            glColor4fv(@pColor[k0 + J]);
-            glVertex3fv(@pVertex[k0 + J]);
+            GL.Color4fv(@pColor[k1 + J]);
+            GL.Vertex3fv(@pVertex[k1 + J]);
+            GL.Color4fv(@pColor[k0 + J]);
+            GL.Vertex3fv(@pVertex[k0 + J]);
           end;
-          glEnd;
+          GL.End_;
         end;
       end
       else if I = 1 then
       begin
-        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBegin(GL_TRIANGLE_FAN);
-        glColor4fv(@pColor[k1]);
-        glVertex3fv(@pVertex[k1]);
+        //GL.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GL.Begin_(GL_TRIANGLE_FAN);
+        GL.Color4fv(@pColor[k1]);
+        GL.Vertex3fv(@pVertex[k1]);
         for J := k0 + FSlices downto k0 do
         begin
-          glColor4fv(@pColor[J]);
-          glVertex3fv(@pVertex[J]);
+          GL.Color4fv(@pColor[J]);
+          GL.Vertex3fv(@pVertex[J]);
         end;
-        glEnd;
+        GL.End_;
       end;
     end;
-    rci.GLStates.DepthWriteMask := True;
-    rci.GLStates.PopAttrib;
   end;
   inherited;
 end;
@@ -412,10 +419,10 @@ end;
 
 function TGLCustomAtmosphere.AxisAlignedDimensionsUnscaled : TVector;
 begin
-  Result[0] := FAtmosphereRadius;
-  Result[1] := Result[0];
-  Result[2] := Result[0];
-  Result[3] := 0;
+  Result.V[0] := FAtmosphereRadius;
+  Result.V[1] := Result.V[0];
+  Result.V[2] := Result.V[0];
+  Result.V[3] := 0;
 end;
 
 procedure TGLCustomAtmosphere.Notification(AComponent: TComponent;
@@ -441,16 +448,17 @@ begin
     FAtmosphereRadius := FPlanetRadius * 1.01;
 end;
 
-procedure TGLCustomAtmosphere.EnableGLBlendingMode(var rci: TRenderContextInfo);
+procedure TGLCustomAtmosphere.EnableGLBlendingMode(StateCache: TGLStateCache);
 begin
   case FBlendingMode of
     abmOneMinusDstColor:
-      rci.GLStates.SetBlendFunc(bfDstAlpha, bfOneMinusDstColor);
+      StateCache.SetBlendFunc(bfDstAlpha, bfOneMinusDstColor);
     abmOneMinusSrcAlpha:
-      rci.GLStates.SetBlendFunc(bfDstAlpha, bfOneMinusSrcAlpha);
+      StateCache.SetBlendFunc(bfDstAlpha, bfOneMinusSrcAlpha);
   else
     Assert(False, glsErrorEx + glsUnknownType);
   end;
+  StateCache.Enable(stAlphaTest);
 end;
 
 function TGLCustomAtmosphere.StoreAtmosphereRadius: Boolean;
@@ -482,6 +490,26 @@ begin
   end
   else
     raise EGLAtmosphereException.Create('Slices must be more than0!');
+end;
+
+procedure TGLCustomAtmosphere.SetHighAtmColor(const AValue: TGLColor);
+begin
+  FHighAtmColor.Assign(AValue);
+end;
+
+procedure TGLCustomAtmosphere.SetLowAtmColor(const AValue: TGLColor);
+begin
+  FLowAtmColor.Assign(AValue);
+end;
+
+function TGLCustomAtmosphere.StoreHighAtmColor: Boolean;
+begin
+  Result := not VectorEquals(FHighAtmColor.Color, VectorMake(0, 0, 1, 1));
+end;
+
+function TGLCustomAtmosphere.StoreLowAtmColor: Boolean;
+begin
+  Result := not VectorEquals(FLowAtmColor.Color, VectorMake(1, 1, 1, 1));
 end;
 
 initialization

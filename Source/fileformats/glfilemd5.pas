@@ -6,6 +6,7 @@
    Doom3 MD5 mesh and animation vector file format implementation.<p>
 
    <b>History :</b><font size=-1><ul>
+      <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to records
       <li>24/03/07 - DaStr - Added explicit pointer dereferencing
                              (thanks Burkhard Carstens) (Bugtracker ID = 1678644)
       <li>02/12/04 - SG - Updated to support MD5 version 10,
@@ -18,8 +19,8 @@ unit GLFileMD5;
 interface
 
 uses
-  Classes, SysUtils, GLVectorFileObjects, GLUtils, ApplicationFileIO,
-  VectorGeometry, VectorLists;
+  Classes, SysUtils, GLVectorFileObjects, GLUtils, GLApplicationFileIO,
+  GLVectorTypes, GLVectorGeometry, GLVectorLists;
 
 type
 
@@ -124,9 +125,9 @@ procedure TGLMD5VectorFile.LoadFromStream(aStream : TStream);
     rr : Single;
   begin
     with Result do begin
-      ImagPart[0]:=ix;
-      ImagPart[1]:=iy;
-      ImagPart[2]:=iz;
+      ImagPart.V[0]:=ix;
+      ImagPart.V[1]:=iy;
+      ImagPart.V[2]:=iz;
       rr:=1-(ix*ix)-(iy*iy)-(iz*iz);
       if rr<0 then RealPart:=0
       else RealPart:=sqrt(rr);
@@ -147,9 +148,9 @@ procedure TGLMD5VectorFile.LoadFromStream(aStream : TStream);
     bonename:=FTempString[0];
     ParentBoneID:=StrToInt(FTempString[1]);
 
-    pos[0]:=GLUtils.StrToFloatDef(FTempString[2]);
-    pos[1]:=GLUtils.StrToFloatDef(FTempString[4]);
-    pos[2]:=GLUtils.StrToFloatDef(FTempString[3]);
+    pos.V[0]:=GLUtils.StrToFloatDef(FTempString[2]);
+    pos.V[1]:=GLUtils.StrToFloatDef(FTempString[4]);
+    pos.V[2]:=GLUtils.StrToFloatDef(FTempString[3]);
 
     quat:=QuaternionMakeFromImag(GLUtils.StrToFloatDef(FTempString[5]),
                                  GLUtils.StrToFloatDef(FTempString[7]),
@@ -167,13 +168,13 @@ procedure TGLMD5VectorFile.LoadFromStream(aStream : TStream);
         bone:=TSkeletonBone.CreateOwned(parentBone);
 
         mat:=QuaternionToMatrix(quat);
-        mat[3]:=PointMake(pos);
+        mat.V[3]:=PointMake(pos);
         rmat:=QuaternionToMatrix(FFrameQuaternions[ParentBoneID]);
-        rmat[3]:=PointMake(FFramePositions[ParentBoneID]);
+        rmat.V[3]:=PointMake(FFramePositions[ParentBoneID]);
         InvertMatrix(rmat);
         mat:=MatrixMultiply(mat, rmat);
 
-        pos:=AffineVectorMake(mat[3]);
+        pos:=AffineVectorMake(mat.V[3]);
         quat:=QuaternionFromMatrix(mat);
       end;
       with bone do begin
@@ -383,32 +384,32 @@ procedure TGLMD5VectorFile.LoadFromStream(aStream : TStream);
         j:=0;
 
         if FJointFlags[i] and 1 > 0 then begin
-          pos[0]:=GLUtils.StrToFloatDef(FTempString[j]);
+          pos.V[0]:=GLUtils.StrToFloatDef(FTempString[j]);
           Inc(j);
         end;
         if FJointFlags[i] and 2 > 0 then begin
-          pos[1]:=GLUtils.StrToFloatDef(FTempString[j]);
+          pos.V[1]:=GLUtils.StrToFloatDef(FTempString[j]);
           Inc(j);
         end;
         if FJointFlags[i] and 4 > 0 then begin
-          pos[2]:=GLUtils.StrToFloatDef(FTempString[j]);
+          pos.V[2]:=GLUtils.StrToFloatDef(FTempString[j]);
           Inc(j);
         end;
 
         if FJointFlags[i] and 8 > 0 then begin
-          quat.ImagPart[0]:=GLUtils.StrToFloatDef(FTempString[j]);
+          quat.ImagPart.V[0]:=GLUtils.StrToFloatDef(FTempString[j]);
           Inc(j);
         end;
         if FJointFlags[i] and 16 > 0 then begin
-          quat.ImagPart[1]:=GLUtils.StrToFloatDef(FTempString[j]);
+          quat.ImagPart.V[1]:=GLUtils.StrToFloatDef(FTempString[j]);
           Inc(j);
         end;
         if FJointFlags[i] and 32 > 0 then
-          quat.ImagPart[2]:=GLUtils.StrToFloatDef(FTempString[j]);
+          quat.ImagPart.V[2]:=GLUtils.StrToFloatDef(FTempString[j]);
       end;
 
-      pos:=AffineVectorMake(pos[0], pos[2], pos[1]);
-      quat:=QuaternionMakeFromImag(quat.ImagPart[0], quat.ImagPart[2], quat.ImagPart[1]);
+      pos:=AffineVectorMake(pos.V[0], pos.V[2], pos.V[1]);
+      quat:=QuaternionMakeFromImag(quat.ImagPart.V[0], quat.ImagPart.V[2], quat.ImagPart.V[1]);
 
       frame.Position[i]:=pos;
       frame.Quaternion[i]:=quat;

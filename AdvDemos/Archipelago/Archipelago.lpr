@@ -7,7 +7,7 @@ uses
   Forms, Interfaces,
   Unit1 in 'Unit1.pas' {Form1};
 
-{$R *.res}
+{.$R *.res}
 
 begin
   Application.Initialize;

@@ -14,7 +14,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, VectorTypes, VectorGeometry;
+  Classes, GLVectorTypes, GLVectorGeometry;
 
 procedure float2rgbe(var rgbe: TVector4b; const red, green, blue: Single);
 procedure rgbe2float(var red, green, blue: Single; const rgbe: TVector4b);
@@ -109,18 +109,18 @@ begin
   if (green > v) then v := green;
   if (blue > v) then v := blue;
   if (v < 1e-32) then begin
-    rgbe[0] := 0;
-    rgbe[1] := 0;
-    rgbe[2] := 0;
-    rgbe[3] := 0;
+    rgbe.X := 0;
+    rgbe.Y := 0;
+    rgbe.Z := 0;
+    rgbe.W := 0;
   end
   else begin
     FrExp(v, m, e);
     m := m * 256/v;
-    rgbe[0] := Floor(red * v);
-    rgbe[1] := Floor(green * v);
-    rgbe[2] := Floor(blue * v);
-    rgbe[3] := Floor(e + 128);
+    rgbe.X := Floor(red * v);
+    rgbe.Y := Floor(green * v);
+    rgbe.Z := Floor(blue * v);
+    rgbe.W := Floor(e + 128);
   end;
 end;
 
@@ -131,12 +131,12 @@ procedure rgbe2float(var red, green, blue: Single; const rgbe: TVector4b);
 var
   f: single;
 begin
-  if rgbe[3]<>0 then   //nonzero pixel
+  if rgbe.W<>0 then   //nonzero pixel
   begin
-    f := ldexp(1.0, rgbe[3]-(128+8));
-    red := rgbe[0] * f;
-    green := rgbe[1] * f;
-    blue := rgbe[2] * f;
+    f := ldexp(1.0, rgbe.W-(128+8));
+    red := rgbe.X * f;
+    green := rgbe.Y * f;
+    blue := rgbe.Z * f;
   end
   else begin
     red := 0;
@@ -165,9 +165,9 @@ begin
   while num_scanlines > 0 do
   begin
     stream.Read(rgbeTemp, SizeOf( TVector4b ));
-    if (rgbeTemp[0] <> 2)
-    or (rgbeTemp[1] <> 2)
-    or (rgbeTemp[2] and $80 <> 0) then
+    if (rgbeTemp.X <> 2)
+    or (rgbeTemp.Y <> 2)
+    or (rgbeTemp.Z and $80 <> 0) then
     begin
       // this file is not run length encoded
       rgbe2float( rf, gf, bf, rgbeTemp);
@@ -178,7 +178,7 @@ begin
       LoadRGBEpixels(stream, dst, scanline_width*num_scanlines-1);
       Exit;
     end;
-    if ((Integer(rgbeTemp[2]) shl 8) or rgbeTemp[3]) <> scanline_width then begin
+    if ((Integer(rgbeTemp.Z) shl 8) or rgbeTemp.W) <> scanline_width then begin
       if Assigned(scanline_buffer) then FreeMem( scanline_buffer );
       raise ERGBEexception.Create('Wrong scanline width.');
     end;
@@ -193,9 +193,9 @@ begin
       while Integer(ptr) < Integer(ptr_end) do
       begin
         stream.Read(buf, SizeOf( TVector2b ));
-        if buf[0] > 128 then
+        if buf.X > 128 then
         begin //a run of the same value
-          count := buf[0]-128;
+          count := buf.X-128;
           if (count = 0) or (count > Integer(ptr_end) - Integer(ptr)) then
           begin
             FreeMem( scanline_buffer );
@@ -203,19 +203,19 @@ begin
           end;
           while count > 0 do
           begin
-            ptr^ := buf[1];
+            ptr^ := buf.Y;
             Dec( count );
             Inc( ptr );
           end;
         end
         else begin //a non-run
-          count := buf[0];
+          count := buf.X;
           if (count = 0) or (count > Integer(ptr_end) - Integer(ptr)) then
           begin
             FreeMem( scanline_buffer );
             raise ERGBEexception.Create('Bad HDR scanline data.');
           end;
-          ptr^ := buf[1];
+          ptr^ := buf.Y;
           Dec( count );
           Inc( ptr );
           if count>0 then stream.Read(ptr^, Count);
@@ -227,10 +227,10 @@ begin
     // now convert data from buffer into floats
     for i := 0 to scanline_width-1 do
     begin
-      rgbeTemp[0] := scanline_buffer[i];
-      rgbeTemp[1] := scanline_buffer[i+scanline_width];
-      rgbeTemp[2] := scanline_buffer[i+2*scanline_width];
-      rgbeTemp[3] := scanline_buffer[i+3*scanline_width];
+      rgbeTemp.X := scanline_buffer[i];
+      rgbeTemp.Y := scanline_buffer[i+scanline_width];
+      rgbeTemp.Z := scanline_buffer[i+2*scanline_width];
+      rgbeTemp.W := scanline_buffer[i+3*scanline_width];
       rgbe2float( rf, gf, bf, rgbeTemp);
       dst^ := rf; Inc(dst);
       dst^ := gf; Inc(dst);

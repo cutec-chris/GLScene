@@ -6,6 +6,7 @@
 	Quake2 MD2 vector file format implementation.<p>
 
 	<b>History :</b><font size=-1><ul>
+      <li>28/08/10 - Yar - Bugfix for FPC 2.5.1 (Thanks Predator)
       <li>31/03/07 - DaStr - Added $I GLScene.inc
       <li>05/06/03 - SG - Separated from GLVectorFileObjects.pas
 	</ul></font>
@@ -17,7 +18,8 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, SysUtils, GLVectorFileObjects, ApplicationFileIO, FileMD2, TypesMD2;
+  Classes, SysUtils,
+  GLVectorFileObjects, GLApplicationFileIO, FileMD2, TypesMD2;
 
 type
    // TGLMD2VectorFile
@@ -76,7 +78,7 @@ begin
             VertexIndices.Capacity:=iTriangles*3;
             TexCoords.Capacity:=iTriangles*3;
             // copy the face list
-            for i:=0 to iTriangles-1 do with IndexList(m_index_list)[i] do begin
+            for i:=0 to iTriangles-1 do with IndexList[i] do begin
                Add(a, a_s, -a_t);
                Add(b, b_s, -b_t);
                Add(c, c_s, -c_t);
@@ -89,7 +91,7 @@ begin
                Name:='Frame'+IntToStr(i);
                Vertices.Capacity:=iVertices;
                for j:=0 to iVertices-1 do
-                  Vertices.Add(VertexList(frameList(m_frame_list)[i])[j]);
+                  Vertices.Add(VertexList[i][j]);
                BuildNormals(faceGroup.VertexIndices, momTriangles);
             end;
          end;

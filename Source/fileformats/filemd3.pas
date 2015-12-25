@@ -6,7 +6,7 @@
 
   History :
     16/10/08 - UweR - Compatibility fix for Delphi 2009
-    19/12/04 - PhP - Replaced array definitions with predefined VectorTypes
+    19/12/04 - PhP - Replaced array definitions with predefined GLVectorTypes
     09/03/04 - SG - Small structure fixes (Osman Turan)
     28/02/03 - SG - Creation
 }
@@ -14,7 +14,8 @@ unit FileMD3;
 
 interface
 
-uses Classes, VectorTypes;
+uses
+  Classes, GLVectorTypes;
 
 type
   // Quake3 MD3 structure types
@@ -139,7 +140,8 @@ begin
 
   // Read in the Tags
   SetLength(Tags,ModelHeader.numFrames*ModelHeader.numTags);
-  aStream.Read(Tags[0],sizeof(TMD3Tag)*ModelHeader.numFrames*ModelHeader.numTags);
+  if ModelHeader.numTags > 0 then 
+     aStream.Read(Tags[0],sizeof(TMD3Tag)*ModelHeader.numFrames*ModelHeader.numTags);
 
   // Read in the Mesh data
   meshOffset:=aStream.Position;

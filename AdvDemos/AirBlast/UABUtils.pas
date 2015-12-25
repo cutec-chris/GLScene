@@ -85,8 +85,8 @@ begin
       sl.Add(buf);
       for p:=0 to sl.Count-1 do begin
          buf:=sl[p];
-         if Copy(buf, 1, Length(buf))<>'\' then
-            buf:=Buf+'\';
+         if Copy(buf, 1, Length(buf))<>DirectorySeparator then
+            buf:=Buf+DirectorySeparator;
          buf:=buf+fileName;
          if FileExistsUTF8(buf) { *Konvertiert von FileExists* } then begin
             Result:=buf;

@@ -42,6 +42,22 @@ object Main: TMain
     Visible = False
     TabOrder = 0
   end
+  object RadioGroup1: TRadioGroup
+    Left = 130
+    Height = 105
+    Top = 31
+    Width = 185
+    AutoFill = True
+    Caption = 'RadioGroup1'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    TabOrder = 1
+  end
   object GLScene: TGLScene
     left = 40
     top = 16
@@ -327,6 +343,7 @@ object Main: TMain
         Material.Texture.Disabled = False
         Tag = 0
       end>
+    OnTextureNeeded = MaterialLibraryTextureNeeded
     left = 200
     top = 128
   end

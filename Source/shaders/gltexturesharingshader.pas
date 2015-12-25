@@ -13,6 +13,9 @@
     </p>
 
   <b>History : </b><font size=-1><ul>
+      <li>16/03/11 - Yar - Fixes after emergence of GLMaterialEx
+      <li>23/08/10 - Yar - Fixed light state changes
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>10/04/08 - DaStr - Added a Delpi 5 interface bug work-around
                               (BugTracker ID = 1938988).
@@ -35,8 +38,8 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLScene, VectorGeometry, GlColor, GLMaterial, GLStrings,
-  GLVectorFileObjects, XOpenGL, GLState, PersistentClasses,
+  GLScene, GLVectorGeometry, GlColor, GLMaterial, GLStrings,
+  GLVectorFileObjects, XOpenGL, GLState, GLPersistentClasses,
   {Needed for Delphi 5} GlCrossPlatform, GLCoordinates, GLRenderContextInfo;
 
 type
@@ -82,7 +85,7 @@ type
     function GetTextureSharingShader: TGLTextureSharingShader;
 
     // Implementing IGLMaterialLibrarySupported.
-    function GetMaterialLibrary: TGLMaterialLibrary; virtual;
+    function GetMaterialLibrary: TGLAbstractMaterialLibrary; virtual;
 
   public
     procedure Apply(var rci: TRenderContextInfo);
@@ -147,7 +150,7 @@ procedure TGLTextureSharingShaderMaterial.Apply(var rci: TRenderContextInfo);
 begin
   if not Assigned(FLibMaterial) then
     Exit;
-  xglBeginUpdate;
+  xgl.BeginUpdate;
   if Assigned(FLibMaterial.Shader) then
   begin
     case FLibMaterial.Shader.ShaderStyle of
@@ -168,18 +171,13 @@ begin
   end;
 
   if moNoLighting in FLibMaterial.Material.MaterialOptions then
-  begin
-    if stLighting in rci.GLStates.States then
-    begin
-      rci.GLStates.Disable(stLighting);
-      Inc(rci.lightingDisabledCounter);
-    end;
-  end;
+    rci.GLStates.Disable(stLighting);
+
   if stLighting in rci.GLStates.States then
   begin
     rci.GLStates.SetGLMaterialColors(cmFront,
       Emission.Color, Ambient.Color, Diffuse.Color, Specular.Color, Shininess);
-    rci.GLStates.PolygonMode :=FLibMaterial.Material.FrontProperties.PolygonMode;
+    rci.GLStates.PolygonMode :=FLibMaterial.Material.PolygonMode;
   end
   else
     FLibMaterial.Material.FrontProperties.ApplyNoLighting(rci, cmFront);
@@ -290,7 +288,7 @@ begin
       ssLowLevel: FLibMaterial.Shader.Apply(rci, FLibMaterial);
     end;
   end;
-  xglEndUpdate;
+  xgl.EndUpdate;
 end;
 
 procedure TGLTextureSharingShaderMaterial.coordNotifychange(Sender: TObject);
@@ -342,7 +340,7 @@ begin
   Result := '[' + st + '.' + Self.LibMaterialName + ']';
 end;
 
-function TGLTextureSharingShaderMaterial.GetMaterialLibrary: TGLMaterialLibrary;
+function TGLTextureSharingShaderMaterial.GetMaterialLibrary: TGLAbstractMaterialLibrary;
 begin
   Result := FMaterialLibrary;
 end;

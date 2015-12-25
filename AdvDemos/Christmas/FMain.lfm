@@ -1,7 +1,7 @@
 object Main: TMain
-  Left = 416
+  Left = 367
   Height = 552
-  Top = 152
+  Top = 141
   Width = 703
   Align = alCustom
   BorderStyle = bsNone
@@ -2771,6 +2771,7 @@ object Main: TMain
     Materials = <    
       item
         Name = 'Shiny'
+        Tag = 0
         Material.FrontProperties.Ambient.Color = {
           3333B33E3333B33E3333B33E0000803F
         }
@@ -2790,10 +2791,10 @@ object Main: TMain
         Material.Texture.TextureFormat = tfRGB
         Material.Texture.Compression = tcNone
         Material.Texture.Disabled = False
-        Tag = 0
       end    
       item
         Name = 'Gold'
+        Tag = 0
         Material.FrontProperties.Ambient.Color = {
           C5C4C43EF5F4743EB9B8B83D0000803F
         }
@@ -2974,7 +2975,6 @@ object Main: TMain
         Material.Texture.ImageAlpha = tiaLuminance
         Material.Texture.MinFilter = miLinear
         Material.Texture.MappingMode = tmmSphere
-        Tag = 0
       end>
     left = 96
     top = 16

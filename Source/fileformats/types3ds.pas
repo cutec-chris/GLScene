@@ -38,32 +38,33 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
 
      PChar3DS = PAnsiChar;
      String3DS = AnsiString;
+     String64 = string[64];
 
      PWordList = ^TWordList;
-     TWordList = array[0..MaxInt shr 2] of Word;
+     TWordList = array[0..MaxInt div (2*SizeOf(Word))] of Word;
 
      PIntegerArray = ^TIntegerArray;
-     TIntegerArray = array[0..MaxInt shr 3] of Integer;
+     TIntegerArray = array[0..MaxInt div (2*SizeOf(Integer))] of Integer;
 
      PCardinalArray = ^TCardinalArray;
-     TCardinalArray = array[0..MaxInt shr 3] of Cardinal;
+     TCardinalArray = array[0..MaxInt div (2*SizeOf(Cardinal))] of Cardinal;
 
      PSingleList = ^TSingleList;
-     TSingleList = array[0..MaxInt shr 3] of Single;
+     TSingleList = array[0..MaxInt div (2*SizeOf(Single))] of Single;
 
      PPoint3DS = ^TPoint3DS;                     // 3D point structure
      TPoint3DS = record
        X, Y, Z : Single;
      end;
      PPointList = ^TPointList;
-     TPointList = array[0..MaxInt shr 4] of TPoint3DS;
+     TPointList = array[0..MaxInt div (2*SizeOf(TPoint3DS))] of TPoint3DS;
 
      PFColor3DS = ^TFColor3DS;                   // RGB Color components
      TFColor3DS = record
        R, G, B: Single;
      end;
      PFColorList = ^TFColorList;
-     TFColorList = array[0..MaxInt shr 4] of TFColor3DS;
+     TFColorList = array[0..MaxInt div (2*SizeOf(TFColor3DS))] of TFColor3DS;
 
      PFace3DS = ^TFace3DS;                       // Face List element
      TFace3DS = packed record
@@ -72,14 +73,14 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
        False: (FaceRec: array[0..3] of Word);
      end;
      PFaceList = ^TFaceList;
-     TFaceList = array[0..MaxInt shr 8] of TFace3DS;
+     TFaceList = array[0..MaxInt div (2*SizeOf(TFace3DS))] of TFace3DS;
 
      PTexVert3DS = ^TTexVert3DS;                 // Texture assignment coordinate
      TTexVert3DS = record
        U, V: Single;
      end;
      PTexVertList = ^TTexVertList;
-     TTexVertList = array[0..MaxInt shr 4] of TTexVert3DS;
+     TTexVertList = array[0..MaxInt div (2*SizeOf(TTexVert3DS))] of TTexVert3DS;
 
      PTrackHeader3DS = ^TTrackHeader3DS;         // Global track settings
      TTrackHeader3DS = record
@@ -99,7 +100,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
        EaseFrom: Single;                         // Flagged with $10
      end;
      PKeyHeaderList = ^TKeyHeaderList;
-     TKeyHeaderList = array[0..MaxInt shr 8] of TKeyHeader3DS;
+     TKeyHeaderList = array[0..MaxInt div (2*SizeOf(TKeyHeader3DS))] of TKeyHeader3DS;
 
      PKFRotKey3DS = ^TKFRotKey3DS;               // Rotation key
      TKFRotKey3DS = record
@@ -107,13 +108,13 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
        X, Y, Z: Single;                          // Rotation axis vector
      end;
      PKFRotKeyList = ^TKFRotKeyList;
-     TKFRotKeyList = array[0..MaxInt shr 8] of TKFRotKey3DS;
+     TKFRotKeyList = array[0..MaxInt div (2*SizeOf(TKFRotKey3DS))] of TKFRotKey3DS;
 
      PKFMorphKey3DS = ^TKFMorphKey3DS;           // Object Morph key
      TKFMorphKey3DS = String;                    // Name of Target Morph object
 
      PKFMorphKeyList = ^TKFMorphKeyList;
-     TKFMorphKeyList = array[0..MaxInt shr 4] of TKFMorphKey3DS;
+     TKFMorphKeyList = array[0..MaxInt div (2*SizeOf(TKFMorphKey3DS))] of TKFMorphKey3DS;
 
      PChunk3DS = ^TChunk3DS;                     // internal database representation of file information
 
@@ -123,7 +124,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
        Chunk: PChunk3DS;                         // corresponding pos
      end;
      PChunkList = ^TChunkList;
-     TChunkList = array[0..MaxInt shr 4] of TChunkListEntry3DS;
+     TChunkList = array[0..MaxInt div (2*SizeOf(TChunkListEntry3DS))] of TChunkListEntry3DS;
 
      PChunkList3DS = ^TChunkList3DS;             // list of cross references
      TChunkList3DS = record
@@ -287,7 +288,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
                            btUseBitmapBgnd);
 
      PBitmapBgnd3DS = ^TBitmapBgnd3DS;
-     TBitmapBgnd3DS = String;                    // Name of background Bitmap
+     TBitmapBgnd3DS = AnsiString;                    // Name of background Bitmap
 
      TSolidBgnd3DS = TFColor3DS;                 // Color of Solid background
 
@@ -340,7 +341,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
      // Cubic reflection Map defintion
      PBitmap3DS = ^TBitmap3DS;
      TBitmap3DS = record
-       NameStr: String;                             // Bitmap file name
+       NameStr: AnsiString;                             // Bitmap file name
        Percent: Single;                          // Strength percentage
        Tiling: TTileType3DS;                     // Tile/Decal/Both
        IgnoreAlpha: Boolean;
@@ -382,7 +383,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
 
      PMaterial3DS = ^TMaterial3DS;
      TMaterial3DS = record
-       NameStr: String;                             // Name
+       NameStr: AnsiString;                      // Name
        Ambient: TFColor3DS;                      // Ambient Light Color
        Diffuse: TFColor3DS;                      // Diffuse Light Color
        Specular: TFColor3DS;                     // Specular Light Color
@@ -438,18 +439,18 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
      // Material assignments by face
      PObjMat3DS = ^TObjMat3DS;
      TObjMat3DS = record
-       NameStr: String;                             // material name
+       NameStr: AnsiString;                      // material name
        NFaces: Word;                             // number of faces using material
        FaceIndex: PWordList;                     // list of faces using material
      end;
 
      PObjMatList = ^TObjMatList;
-     TObjMatList = array[0..MaxInt shr 4] of TObjMat3DS;
+     TObjMatList = array[0..MaxInt div (2*SizeOf(TObjMat3DS))] of TObjMat3DS;
 
      // Mesh object definition
      PMesh3DS = ^TMesh3DS;
      TMesh3DS = record
-       NameStr: String;                             // object name
+       NameStr: AnsiString;                      // object name
        IsHidden: Boolean;                        // hidden object flag
        IsvisLofter: Boolean;                     // lofter visibility flag
        IsMatte: Boolean;                         // matte object flag
@@ -535,7 +536,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
      // omni and spotlight settings
      PLight3DS = ^TLight3DS;
      TLight3DS = record
-       NameStr: String;                             // light name
+       NameStr: AnsiString;                      // light name
        Pos: TPoint3DS;                           // light position
        Color: TFColor3DS;                        // light color
        Multiplier: Single;                       // light intensity multiplier
@@ -554,7 +555,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
 
      PCamera3DS = ^TCamera3DS;
      TCamera3DS = record
-       NameStr: String;
+       NameStr: AnsiString;
        Position: TPoint3DS;
        Target: TPoint3DS;
        Roll: Single;
@@ -584,8 +585,8 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
 
      PKFCamera3DS = ^TKFCamera3DS;
      TKFCamera3DS = record
-       NameStr: String;                             // Name of Camera object
-       ParentStr: String;                           // Name of Parent object
+       NameStr: AnsiString;                      // Name of Camera object
+       ParentStr: AnsiString;                    // Name of Parent object
        Flags1: Word;                             // Flags field from node header -fixup later
        Flags2: Word;                             // Flags2 field from node header -fixup later
        NPKeys: Integer;                          // Number of Camera Position keys
@@ -623,12 +624,12 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
      // used by ObjectMotion3DS
      PKFMesh3DS = ^TKFMesh3DS;
      TKFMesh3DS = record
-       NameStr: String;                             // Name of mesh
-       ParentStr: String;                           // Name of Parent object
+       NameStr: AnsiString;                      // Name of mesh
+       ParentStr: AnsiString;                    // Name of Parent object
        Flags1: Word;                             // Flags field from node header
        Flags2: Word;                             // Flags2 field from node header
        Pivot: TPoint3DS;                         // Object Pivot point
-       InstanceStr: String;                         // Object Instance Name
+       InstanceStr: AnsiString;                  // Object Instance Name
        BoundMin: TPoint3DS;                      // Minimum bounding box point for dummy objects
        BoundMax: TPoint3DS;                      // Maximum bounding box point for dummy objects
        NPKeys: Integer;                          // Number of Position keys
@@ -656,8 +657,8 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
      // used by OmnilightMotion3DS
      PKFOmni3DS = ^TKFOmni3DS;
      TKFOmni3DS = record
-       Name: String;                             // Name of the Light object node
-       Parent: String;                           // Name of the Parent object
+       Name: AnsiString;                         // Name of the Light object node
+       Parent: AnsiString;                       // Name of the Parent object
        Flags1: Word;                             // Flags field from node header -fixup later
        Flags2: Word;                             // Flags2 field from node header -fixup later
        NPKeys: Integer;                          // Number of Position keys
@@ -672,8 +673,8 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
 
      PKFSpot3DS = ^TKFSpot3DS;
      TKFSpot3DS = record
-       Name: String;                             // Name of Camera object
-       Parent: String;                           // Parent Name
+       Name: AnsiString;                         // Name of Camera object
+       Parent: AnsiString;                       // Parent Name
        Flags1: Word;                             // Flags field from node header -fixup later
        Flags2: Word;                             // Flags2 field from node header -fixup later
 
@@ -701,7 +702,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
        NRFlag: Word;                             // Loop control Flag for Light Roll keys
        RKeys: PKeyHeaderList;                    // Spline values for Light Roll keys
        Roll: PSingleList;                        // Light Roll keys
-       TParent: String;                          // Name of Target's Parent object
+       TParent: AnsiString;                      // Name of Target's Parent object
        NTKeys: Integer;                          // Number of Target Position keys
        NTFlag: Word;                             // Loop control Flag for Target Position keys
        TKeys: PKeyHeaderList;                    // Spline values for Target Position keys
@@ -909,13 +910,13 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
 
      PMshMatGroup = ^TMshMatGroup;
      TMshMatGroup = record
-       MatNameStr: String;
+       MatNameStr: AnsiString;
        Faces: Word;
        FaceList: PWordList;
      end;
 
      PMshBoxmap = ^TMshBoxmap;
-     TMshBoxmap = array[0..5] of String;
+     TMshBoxmap = array[0..5] of AnsiString;
 
      PSmoothGroup = ^TSmoothGroup;
      TSmoothGroup = record
@@ -1053,7 +1054,7 @@ type TDumpLevel = (dlTerseDump, dlMediumDump, dlMaximumDump);
        Center: TPoint3DS;
        HorizAng: Single;
        VertAng: Single;
-       CamNameStr: String;
+       CamNameStr: AnsiString;
      end;
 
      PViewportData3 = ^TViewportData3;

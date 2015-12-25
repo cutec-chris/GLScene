@@ -19,7 +19,7 @@ interface
 {$R-}
 
 uses
-  Classes, TypesB3D, VectorGeometry, VectorTypes, VectorLists;
+  Classes, TypesB3D, GLVectorGeometry, GLVectorTypes, GLVectorLists;
 
 type
   TB3DMaterial = class
@@ -435,9 +435,9 @@ begin
   Node^.level := level;
   Count := 0;
   Inc(Count, ReadString(aStream, Node^.name, 255));
-  Inc(Count, aStream.Read(Node^.position[0], sizeof(TAffineVector)));
-  Inc(Count, aStream.Read(Node^.scale[0], sizeof(TAffineVector)));
-  Inc(Count, aStream.Read(Node^.rotation[0], sizeof(TVector)));
+  Inc(Count, aStream.Read(Node^.position.V[0], sizeof(TAffineVector)));
+  Inc(Count, aStream.Read(Node^.scale.V[0], sizeof(TAffineVector)));
+  Inc(Count, aStream.Read(Node^.rotation.V[0], sizeof(TVector)));
   while Count<aChunk.length do
   begin
     Inc(Count, aStream.Read(C, sizeof(TB3DChunk)));

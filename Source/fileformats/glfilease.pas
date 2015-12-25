@@ -6,6 +6,7 @@
 	 ASE (ASCI Scene Export) file format support for GLScene<p>
 
 	<b>History :</b><font size=-1><ul>
+      <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to arrays of records
       <li>21/06/08 - DaStr - Bugfixed GetFaceGroup() (Thanks Beon)
       <li>29/05/08 - DaStr - Made compatible with Delphi 5
       <li>27/12/07 - DaStr - Added skipping unknown file sections
@@ -32,7 +33,8 @@ interface
 
 uses
   Classes, SysUtils,
-  GLVectorFileObjects, ApplicationFileIO, VectorGeometry, VectorLists,
+  GLVectorFileObjects, GLApplicationFileIO,
+  GLVectorTypes, GLVectorGeometry, GLVectorLists,
   GLCrossPlatform, GLTexture, GLMaterial;
 
 const
@@ -859,9 +861,9 @@ begin
           lmt[0] := aASEMesh.TextChannel[1][aseFace.TextChannels.ChanelTexture[1].Idx0];
           lmt[1] := aASEMesh.TextChannel[1][aseFace.TextChannels.ChanelTexture[1].Idx1];
           lmt[2] := aASEMesh.TextChannel[1][aseFace.TextChannels.ChanelTexture[1].Idx2];
-          aMesh.LightMapTexCoords.Add(lmt[0][0], lmt[0][1]);
-          aMesh.LightMapTexCoords.Add(lmt[1][0], lmt[1][1]);
-          aMesh.LightMapTexCoords.Add(lmt[2][0], lmt[2][1]);
+          aMesh.LightMapTexCoords.Add(lmt[0].V[0], lmt[0].V[1]);
+          aMesh.LightMapTexCoords.Add(lmt[1].V[0], lmt[1].V[1]);
+          aMesh.LightMapTexCoords.Add(lmt[2].V[0], lmt[2].V[1]);
         end;
       end;
 
@@ -1157,17 +1159,17 @@ begin
   Start := GetEndOfFirstValue(Data);
   Data := Copy(Data, Start, Length(Data) - Start + 1);
   Value := GetFirstValue(Data);
-  Result[0] := StringToFloatRegular(Value);
+  Result.V[0] := StringToFloatRegular(Value);
 
   Start := GetEndOfFirstValue(Data) + 1;
   Data := Copy(Data, Start, Length(Data) - Start + 1);
   Value := GetFirstValue(Data);
-  Result[1] := StringToFloatRegular(Value);
+  Result.V[1] := StringToFloatRegular(Value);
 
   Start := GetEndOfFirstValue(Data) + 1;
   Data := Copy(Data, Start, Length(Data) - Start + 1);
   Value := GetFirstValue(Data);
-  Result[2] := StringToFloatRegular(Value);
+  Result.V[2] := StringToFloatRegular(Value);
 end;
 
 function TGLASEVectorFile.GetValue4D(const aData: string; var Value0: Integer): TAffineVector;
@@ -1179,24 +1181,24 @@ begin
   Data := aData;
 
   Value0 := Round(GetDoubleValue(aData));
-  
+
   Start := GetEndOfFirstValue(Data) + 1;
   Data := Copy(Data, Start, Length(Data) - Start + 1);
 
   Start := GetEndOfFirstValue(Data) + 1;
   Data := Copy(Data, Start, Length(Data) - Start + 1);
   Value := GetFirstValue(Data);
-  Result[0] := StringToFloatRegular(Value);
-  
-  Start := GetEndOfFirstValue(Data) + 1;
-  Data := Copy(Data, Start, Length(Data) - Start + 1);
-  Value := GetFirstValue(Data);
-  Result[1] := StringToFloatRegular(Value);
+  Result.V[0] := StringToFloatRegular(Value);
 
   Start := GetEndOfFirstValue(Data) + 1;
   Data := Copy(Data, Start, Length(Data) - Start + 1);
   Value := GetFirstValue(Data);
-  Result[2] := StringToFloatRegular(Value);
+  Result.V[1] := StringToFloatRegular(Value);
+
+  Start := GetEndOfFirstValue(Data) + 1;
+  Data := Copy(Data, Start, Length(Data) - Start + 1);
+  Value := GetFirstValue(Data);
+  Result.V[2] := StringToFloatRegular(Value);
 end;
 
 function TGLASEVectorFile.IsEndOfSection(const aData: string): Boolean;
@@ -1472,9 +1474,9 @@ begin
     face := aMesh.Faces[faceIndex];
 
     chanelIdx := face.FTextChannels.Count;
-    face.FTextChannels.ChanelTexture[chanelIdx].Idx0 := Round(v3D[0]);
-    face.FTextChannels.ChanelTexture[chanelIdx].Idx1 := Round(v3D[1]);
-    face.FTextChannels.ChanelTexture[chanelIdx].Idx2 := Round(v3D[2]);
+    face.FTextChannels.ChanelTexture[chanelIdx].Idx0 := Round(v3D.V[0]);
+    face.FTextChannels.ChanelTexture[chanelIdx].Idx1 := Round(v3D.V[1]);
+    face.FTextChannels.ChanelTexture[chanelIdx].Idx2 := Round(v3D.V[2]);
     Inc(face.FTextChannels.Count);
 
     CheckUnknownData(aLineIndex);
@@ -1608,10 +1610,10 @@ begin
       ASCII_INHERIT_POS_I:  aMesh.FInheritedPosition := GetValue3D(Data);
       ASCII_INHERIT_ROT_I:  aMesh.FInheritedRotation := GetValue3D(Data);
       ASCII_INHERIT_SCL_I:  aMesh.FInheritedScale := GetValue3D(Data);
-      ASCII_ROW_I:          aMesh.FMatrix[0] := VectorMake(GetValue3D(Data));
-      ASCII_ROW1_I:         aMesh.FMatrix[1] := VectorMake(GetValue3D(Data));
-      ASCII_ROW2_I:         aMesh.FMatrix[2] := VectorMake(GetValue3D(Data));
-      ASCII_ROW3_I:         aMesh.FMatrix[3] := PointMake(GetValue3D(Data));
+      ASCII_ROW_I:          aMesh.FMatrix.V[0] := VectorMake(GetValue3D(Data));
+      ASCII_ROW1_I:         aMesh.FMatrix.V[1] := VectorMake(GetValue3D(Data));
+      ASCII_ROW2_I:         aMesh.FMatrix.V[2] := VectorMake(GetValue3D(Data));
+      ASCII_ROW3_I:         aMesh.FMatrix.V[3] := PointMake(GetValue3D(Data));
       ASCII_POS_I:          aMesh.FPosition := PointMake(GetValue3D(Data));
       ASCII_ROTAXIS_I:      aMesh.FRotationAxis := GetValue3D(Data);
       ASCII_ROTANGLE_I:     aMesh.FRotationAngle := GetDoubleValue(Data);

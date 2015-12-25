@@ -2,11 +2,15 @@
 // This unit is part of the GLScene Project, http://glscene.org
 //
 {: HDRImage<p>
-    Good for preview picture in OpenDialog, 
+    Good for preview picture in OpenDialog,
     so you may include both HDRImage (preview) and GLFileHDR (loading)
 
+      <li>23/10/10 - Yar - Removed PBuffer    
+      <li>23/08/10 - Yar - Changes after PBuffer upgrade
+      <li>21/03/10 - Yar - Added Linux support
+                           (thanks to Rustam Asmandiarov aka Predator)
       <li>24/01/10 - Yar - Improved FPC compatibility
-      <li>21/01/10 - Yar - Creation 
+      <li>21/01/10 - Yar - Creation
    </ul></font>
 }
 
@@ -14,26 +18,33 @@ unit HDRImage;
 
 interface
 
-{$i GLScene.inc}
+{$I GLScene.inc}
 
 uses
-  Windows, Classes, SysUtils, GLCrossPlatform, VectorGeometry, GLGraphics,
-  OpenGL1x, GLPBuffer;
+{$IFDEF MSWINDOWS}Windows,
+{$ENDIF}Classes,
+  SysUtils,
+  GLCrossPlatform,
+  GLVectorGeometry,
+  GLGraphics,
+  OpenGLTokens;
 
 type
 
-  THDRImage = class (TGLBitmap)
+  THDRImage = class(TGLBitmap)
   public
-   { Public Declarations }
-   procedure LoadFromStream(stream : TStream); override;
-   procedure SaveToStream(stream : TStream); override;
-	end;
+    { Public Declarations }
+    procedure LoadFromStream(stream: TStream); override;
+    procedure SaveToStream(stream: TStream); override;
+  end;
 
 implementation
 
 uses
-  {$IFDEF FPC} graphtype, {$ENDIF}
-  GLFileHDR, GLTextureFormat;
+{$IFDEF FPC}graphtype,
+{$ENDIF}
+  GLFileHDR,
+  GLTextureFormat;
 
 // ------------------
 // ------------------ THDRImage ------------------
@@ -41,125 +52,81 @@ uses
 
 // LoadFromStream
 //
-procedure THDRImage.LoadFromStream(stream : TStream);
+
+procedure THDRImage.LoadFromStream(stream: TStream);
 var
-  FullHDR : TGLHDRImage;
-  PBuf : TGLPixelBuffer;
-  tempBuff: PGLubyte;
-  tempTex : GLuint;
-  DC : HDC;
-  RC : HGLRC;
-  {$IFNDEF FPC}
+  FullHDR: TGLHDRImage;
+{$IFNDEF FPC}
   src, dst: PGLubyte;
   y: integer;
-  {$ELSE}
+{$ELSE}
   RIMG: TRawImage;
-  {$ENDIF}
+{$ENDIF}
 begin
   FullHDR := TGLHDRImage.Create;
   try
-    FullHDR.LoadFromStream( stream );
+    FullHDR.LoadFromStream(stream);
   except
     FullHDR.Free;
     raise;
   end;
-  // Copy surface as posible to TBitmap
-  DC := wglGetCurrentDC;
-  RC := wglGetCurrentContext;
 
-  // Create minimal pixel buffer
-  if (DC=0) or (RC=0) then
-  begin
-    PBuf := TGLPixelBuffer.Create;
-    try
-      PBuf.Initialize(1, 1);
-    except
-      FullHDR.Free;
-      raise;
-    end;
-    tempTex := PBuf.TextureID;
-  end
-  else begin
-    Pbuf := nil;
-    glPushAttrib(GL_TEXTURE_BIT);
-    glGenTextures(1, @tempTex);
-  end;
-  // Setup texture
-  glEnable       ( GL_TEXTURE_2D );
-  glBindTexture  ( GL_TEXTURE_2D, tempTex);
-  // copy texture to video memory
-  glTexImage2D( GL_TEXTURE_2D, 0,
-    InternalFormatToOpenGLFormat(FullHDR.InternalFormat), FullHDR.Width,
-    FullHDR.Height, 0, FullHDR.ColorFormat, FullHDR.DataType,
-    FullHDR.GetLevelData(0));
+  FullHDR.Narrow;
 
-  CheckOpenGLError;
-
-  GetMem( tempBuff, FullHDR.Width*FullHDR.Height*3 );
-  // get texture from video memory in simple format
-  glGetTexImage( GL_TEXTURE_2D, 0, GL_BGR, GL_UNSIGNED_BYTE, tempBuff);
-
-  Width       := FullHDR.Width;
-  Height      := FullHDR.Height;
+  Width := FullHDR.LevelWidth[0];
+  Height := FullHDR.LevelHeight[0];
   Transparent := false;
-  PixelFormat := glpf24bit;
+  PixelFormat := glpf32bit;
 
 {$IFNDEF FPC}
-  src := tempBuff;
+  src := PGLubyte(FullHDR.Data);
   for y := 0 to Height - 1 do
   begin
     dst := ScanLine[Height - 1 - y];
-    Move(src^, dst^, Width*3);
-    Inc(src, Width*3);
+    Move(src^, dst^, Width * 4);
+    Inc(src, Width * 4);
   end;
 {$ELSE}
   RIMG.Init;
-  rimg.Description.Init_BPP24_B8G8R8_BIO_TTB(Width, Height);
+  rimg.Description.Init_BPP32_B8G8R8A8_BIO_TTB(Width, Height);
   rimg.Description.RedShift := 16;
   rimg.Description.BlueShift := 0;
   rimg.Description.LineOrder := riloBottomToTop;
-  RIMG.DataSize := Width*Height*3;
-  rimg.Data := PByte(tempBuff);
+  RIMG.DataSize := Width * Height * 4;
+  rimg.Data := PByte(FullHDR.Data);
   LoadFromRawImage(rimg, false);
 {$ENDIF}
   FullHDR.Free;
-  FreeMem( tempBuff );
-
-  CheckOpenGLError;
-  if Assigned( pBuf ) then
-    pBuf.Destroy
-  else begin
-    glDeleteTextures(1, @tempTex);
-    glPopAttrib;
-  end;
 end;
 
 // SaveToStream
 //
-procedure THDRImage.SaveToStream(stream : TStream);
-begin
 
+procedure THDRImage.SaveToStream(stream: TStream);
+begin
+  Assert(False, 'Not supported');
 end;
 
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 initialization
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
 
-   TGLPicture.RegisterFileFormat(
-     'HDR', 'High Dynamic Range Image', THDRImage);
+  TGLPicture.RegisterFileFormat(
+    'HDR', 'High Dynamic Range Image', THDRImage);
 
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
 finalization
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
 
-   TGLPicture.UnregisterGraphicClass(THDRImage);
+  TGLPicture.UnregisterGraphicClass(THDRImage);
 
 end.
+

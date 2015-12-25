@@ -7,6 +7,7 @@
   texture data.<p>
 
 	<b>History : </b><font size=-1><ul>
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
       <li>20/02/10 - DanB - Fix for TGLDynamicTextureImage.GetTexSize
       <li>23/01/10 - Yar - Replaced TextureFormat to TextureFormatEx
                            simplify GetBitsPerPixel and GetDataFormat
@@ -28,7 +29,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, SysUtils, OpenGL1x, GLContext, GLTexture, GLTextureFormat,
+  Classes, SysUtils, OpenGLTOkens, GLContext, GLTexture, GLTextureFormat,
   GLGraphics, GLCrossPlatform;
 
 type
@@ -42,7 +43,6 @@ type
     FBuffer: pointer;
     FPBO: TGLBufferObjectHandle;
     FData: pointer;
-    TTarget: TGLuint;
     FDirtyRect: TGLRect;
     FUseBGR: boolean;
     FUsePBO: boolean;
@@ -67,11 +67,6 @@ type
     class function FriendlyDescription : String; override;
 
     procedure NotifyChange(Sender: TObject); override;
-
-    {: Caches the target to indicate which target to update.<p>
-      Do not call this method with a different target than
-      intended for the Texture owner. }
-    function GetBitmap32(target : TGLUInt) : TGLBitmap32; override;
 
     {: Must be called before using the Data pointer.<p>
       Rendering context must be active! }
@@ -103,11 +98,13 @@ type
 implementation
 
 uses
-  VectorGeometry;
+  GLVectorGeometry;
 
 { TGLDynamicTextureImage }
 
 procedure TGLDynamicTextureImage.BeginUpdate;
+var
+  LTarget: TGLTextureTarget;
 begin
   Assert(FUpdating >= 0, 'Unbalanced begin/end update');
 
@@ -138,12 +135,26 @@ begin
 
     // Force creation of texture
     // This is a bit of a hack, should be a better way...
-    glBindTexture(TTarget, OwnerTexture.Handle);
-    glTexImage2D(TTarget, 0, OwnerTexture.OpenGLTextureFormat, Width, Height, 0, TextureFormat, GL_UNSIGNED_BYTE, nil);
-    glBindTexture(TTarget, 0);
+    LTarget := TGLTexture(OwnerTexture).TextureHandle.Target;
+    CurrentGLContext.GLStates.TextureBinding[0, LTarget] := TGLTexture(OwnerTexture).Handle;
+    case LTarget of
+      ttNoShape: ;
+      ttTexture1D: ;
+      ttTexture2D:
+        GL.TexImage2D(GL_TEXTURE_2D, 0, TGLTexture(OwnerTexture).OpenGLTextureFormat, Width, Height, 0, TextureFormat, GL_UNSIGNED_BYTE, nil);
+      ttTexture3D: ;
+      ttTexture1DArray: ;
+      ttTexture2DArray: ;
+      ttTextureRect: ;
+      ttTextureBuffer: ;
+      ttTextureCube: ;
+      ttTexture2DMultisample: ;
+      ttTexture2DMultisampleArray: ;
+      ttTextureCubeArray: ;
+    end;
   end;
 
-  CheckOpenGLError;
+  GL.CheckError;
   
   if assigned(FPBO) then
   begin
@@ -156,7 +167,7 @@ begin
     FData:= FBuffer;
   end;
 
-  CheckOpenGLError;
+  GL.CheckError;
 
   FDirtyRect:= GLRect(0, 0, Width, Height);
 end;
@@ -172,6 +183,7 @@ end;
 procedure TGLDynamicTextureImage.EndUpdate;
 var
   d: pointer;
+  LTarget: TGLTextureTarget;
 begin
   Assert(FUpdating > 0, 'Unbalanced begin/end update');
 
@@ -191,30 +203,37 @@ begin
     d:= FBuffer;
   end;
 
-  if TTarget <> 0 then
-  begin
-    // only change data if it's already been uploaded
-    glBindTexture(TTarget, OwnerTexture.Handle);
-    glTexSubImage2D(TTarget, 0,
-      FDirtyRect.Left, FDirtyRect.Top,
-      FDirtyRect.Right-FDirtyRect.Left,
-      FDirtyRect.Bottom-FDirtyRect.Top,
-      TextureFormat, DataFormat, d);
+  LTarget := TGLTexture(OwnerTexture).TextureHandle.Target;
+  CurrentGLContext.GLStates.TextureBinding[0, LTarget] := TGLTexture(OwnerTexture).Handle;
 
-    if assigned(FPBO) then
-    begin
-      FPBO.UnBind;
-    end
-    else
-    begin
-    end;
-
-    glBindTexture(TTarget, 0);
+  case LTarget of
+    ttNoShape: ;
+    ttTexture1D: ;
+    ttTexture2D:
+      begin
+        GL.TexSubImage2D(GL_TEXTURE_2D, 0,
+          FDirtyRect.Left, FDirtyRect.Top,
+          FDirtyRect.Right-FDirtyRect.Left,
+          FDirtyRect.Bottom-FDirtyRect.Top,
+          TextureFormat, DataFormat, d);
+      end;
+    ttTexture3D: ;
+    ttTexture1DArray: ;
+    ttTexture2DArray: ;
+    ttTextureRect: ;
+    ttTextureBuffer: ;
+    ttTextureCube: ;
+    ttTexture2DMultisample: ;
+    ttTexture2DMultisampleArray: ;
+    ttTextureCubeArray: ;
   end;
+
+  if assigned(FPBO) then
+    FPBO.UnBind;
 
   FData:= nil;
 
-  CheckOpenGLError;
+  GL.CheckError;
 end;
 
 procedure TGLDynamicTextureImage.FreeBuffer;
@@ -249,23 +268,16 @@ begin
    Result:='Dynamic Texture - optimised for changes at runtime';
 end;
 
-function TGLDynamicTextureImage.GetBitmap32(target: TGLUInt): TGLBitmap32;
-begin
-  result:= inherited GetBitmap32(target);
-  // Cache the target, so we know what to bind to (in case of cube faces)
-  TTarget:= target;
-end;
-
 function TGLDynamicTextureImage.GetBitsPerPixel: integer;
 begin
-  Result := 8 * GetTextureElementSize( OwnerTexture.TextureFormatEx );
+  Result := 8 * GetTextureElementSize( TGLTexture(OwnerTexture).TextureFormatEx );
 end;
 
 function TGLDynamicTextureImage.GetDataFormat: integer;
 var
   data, color: TGLEnum;
 begin
-  FindCompatibleDataFormat(OwnerTexture.TextureFormatEx, color, data);
+  FindCompatibleDataFormat(TGLTexture(OwnerTexture).TextureFormatEx, color, data);
   Result := data;
 end;
 
@@ -278,7 +290,7 @@ function TGLDynamicTextureImage.GetTextureFormat: integer;
 var
   data, color: TGLEnum;
 begin
-  FindCompatibleDataFormat(OwnerTexture.TextureFormatEx, color, data);
+  FindCompatibleDataFormat(TGLTexture(OwnerTexture).TextureFormatEx, color, data);
   if FUseBGR then
     case color of
       GL_RGB: color := GL_BGR;

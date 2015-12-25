@@ -22,6 +22,7 @@ program Christmas;
 {$MODE Delphi}
 
 uses
+  {$IFDEF UNIX}cthreads,{$ENDIF}
   Forms, Interfaces,
   GLSound,
   FMain in 'FMain.pas' {Main};

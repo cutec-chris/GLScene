@@ -6,6 +6,9 @@
    Platform independant viewer.<p>
 
     History:
+      <li>13/06/12 - Yar - Bugfix synchronization control for Mac OS (thanks to pchev)	
+      <li>23/08/10 - Yar - Replaced OpenGL1x to OpenGLTokens
+      <li>30/04/10 - Yar - Added vertical synchronization cntrol for Linux (by Rustam Asmandiarov aka Predato) 
       <li>17/09/07 - DaStr - Replaced $IFNDEF KYLIX to $IFDEF MSWINDOWS in 
                               SetupVSync() because wgl* functions are Windows-specific
       <li>12/09/07 - DaStr - Fixed SetupVSync() function (Bugtracker ID = 1786279)
@@ -27,72 +30,70 @@ interface
 {$I GLScene.inc}
 
 uses
-  classes,
-  forms,
-  controls,
-  OpenGL1x,
+  GLContext,
   {$IFDEF GLS_DELPHI_OR_CPPB} GLWin32Viewer; {$ENDIF}
   {$IFDEF FPC}                GLLCLViewer;   {$ENDIF}
-
 type
-{$IFDEF FPC}  //For FPC, always use LCLViewer
-  TGLSceneViewer = class(TGLSceneViewerLCL)
-  end;
-  TVSyncMode = GLLCLViewer.TVSyncMode;
-{$ENDIF FPC}
-
-{$IFDEF GLS_DELPHI_OR_CPPB}
-  TGLSceneViewer = class(TGLSceneViewerWin32)
-  end;
-  TVSyncMode = GLWin32Viewer.TVSyncMode;
-{$ENDIF GLS_DELPHI_OR_CPPB}
-
-const
 {$IFDEF FPC}
-  // TVSyncMode.
-  vsmSync = GLLCLViewer.vsmSync;
-  vsmNoSync = GLLCLViewer.vsmNoSync;
+  TGLSceneViewer = GLLCLViewer.TGLSceneViewer;
+{$ELSE}
+  TGLSceneViewer = GLWin32Viewer.TGLSceneViewer;
 {$ENDIF FPC}
-
-{$IFDEF GLS_DELPHI_OR_CPPB}
-  // TVSyncMode.
-  vsmSync = GLWin32Viewer.vsmSync;
-  vsmNoSync = GLWin32Viewer.vsmNoSync;
-{$ENDIF GLS_DELPHI_OR_CPPB}
-
 
 procedure SetupVSync(const AVSyncMode : TVSyncMode);
 
 implementation
+
+uses
+  OpenGLTokens, OpenGLAdapter;
 
 procedure SetupVSync(const AVSyncMode : TVSyncMode);
 {$IFDEF MSWINDOWS}
 var
   I: Integer;
 begin
-  if WGL_EXT_swap_control then
+  if GL.W_EXT_swap_control then
   begin
-    I := wglGetSwapIntervalEXT;
+    I := GL.WGetSwapIntervalEXT;
     case AVSyncMode of
-      vsmSync  : if I <> 1 then wglSwapIntervalEXT(1);
-      vsmNoSync: if I <> 0 then wglSwapIntervalEXT(0);
+      vsmSync  : if I <> 1 then GL.WSwapIntervalEXT(1);
+      vsmNoSync: if I <> 0 then GL.WSwapIntervalEXT(0);
     else
        Assert(False);
     end;
   end;
 end;
-{$ELSE}
+{$ENDIF}
+{$IFDEF Linux}
 begin
-   Assert(False, 'SetupVSync only implemented for Windows!')
+  if GL.X_SGI_swap_control then
+  begin
+    case AVSyncMode of
+      vsmSync  : GL.XSwapIntervalSGI(GL_True);
+      vsmNoSync: GL.XSwapIntervalSGI(GL_False);
+    else
+       Assert(False);
+    end;
+  end;
 end;
 {$ENDIF}
-
-
-initialization
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-
-   RegisterClass(TGLSceneViewer);
+{$IFDEF DARWIN}
+var ctx: TAGLContext;
+const ISync: Integer = 0;
+      INoSync: Integer = 1;
+begin
+  if Assigned(GL) then
+  begin
+    ctx := GL.aGetCurrentContext();
+    if Assigned(ctx) then
+      case AVSyncMode of
+        vsmSync  : GL.aSetInteger(ctx, AGL_SWAP_INTERVAL, @ISync); 
+        vsmNoSync: GL.aSetInteger(ctx, AGL_SWAP_INTERVAL, @INoSync);
+      else
+         Assert(False);
+      end;
+  end;
+end;
+{$ENDIF}
 
 end.

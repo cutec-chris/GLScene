@@ -1,30 +1,30 @@
 //
 // This unit is part of the GLScene Project, http://glscene.org
 //
-{: File3DS<p>
+{ : File3DS<p>
 
   Implementation of an universal 3DS file reader (and writer). This is the main file of the
   3DS import library. Currently only loading of 3DS files (Mesh files  * .3ds, Project files  * .prj
   and Material files  * .mli) is supported.
 
   Note: Be careful when using LoadFromStream, because chunk data (in opposition to the
-        chunk structure) will be loaded on demand, i.e. when it is needed. Therefore the
-        passed stream must be available during load.
-        LoadFromStream does not make a copy of the passed stream, but keeps a reference
-        which must stay valid either during the entire lifetime of TFile3DS or at least
-        'til all chunks have been read (by accessing them all once).
+  chunk structure) will be loaded on demand, i.e. when it is needed. Therefore the
+  passed stream must be available during load.
+  LoadFromStream does not make a copy of the passed stream, but keeps a reference
+  which must stay valid either during the entire lifetime of TFile3DS or at least
+  'til all chunks have been read (by accessing them all once).
 
-	<b>History :</b><font size=-1><ul>
-      <li>01/11/07 - DaStr - Fixed memory leaks when using the TKeyFramer class
-                              (BugTracker ID = 1823781)
-                             Added a standard GLScene header
-      <li>30/03/07 - DaStr - Added $I GLScene.inc
-      <li>08/06/00 -  Egg  - LoadFromStream no longer free the stream it was passed,
-	</ul></font>                further fixing of the streaming mechanism is needed
+  <b>History :</b><font size=-1><ul>
+  <li>01/11/07 - DaStr - Fixed memory leaks when using the TKeyFramer class
+  (BugTracker ID = 1823781)
+  Added a standard GLScene header
+  <li>30/03/07 - DaStr - Added $I GLScene.inc
+  <li>08/06/00 -  Egg  - LoadFromStream no longer free the stream it was passed,
+  </ul></font>                further fixing of the streaming mechanism is needed
 
   (c) Copyright 1999, 2000
-    Dipl. Ing. Mike Lischke (public@lischke-online.de)
-    Igor T. (GWin), (georgwin@chat.ru)
+  Dipl. Ing. Mike Lischke (public@lischke-online.de)
+  Igor T. (GWin), (georgwin@chat.ru)
 }
 unit File3DS;
 
@@ -35,238 +35,237 @@ interface
 {$MINENUMSIZE 4}
 {$RANGECHECKS OFF}
 
-uses Classes, Types3DS;
+uses Classes, Types3DS, GLCrossPlatform;
 
-type TFile3DS = class;
+type
+  TFile3DS = class;
 
-     // gw:
-     TLoadProgress = procedure (StreamPos, StreamMax : Longint) of object;
-     //Progress : TProgressBar;
-     //
-     //This allows to use something like that:
-     //
-     //procedure TSomeForm.CreateForm(Sender: TObject);
-     //begin
-     //....
-     //   3DSReader.OnProgress := LoadProgress;
-     //....
-     //end;
+  // gw:
+  TLoadProgress = procedure(StreamPos, StreamMax: Longint) of object;
+  // Progress : TProgressBar;
+  //
+  // This allows to use something like that:
+  //
+  // procedure TSomeForm.CreateForm(Sender: TObject);
+  // begin
+  // ....
+  // 3DSReader.OnProgress := LoadProgress;
+  // ....
+  // end;
 
-     //procedure TSomeForm.LoadProgress(StreamPos, StreamMax : Longint);
-     //begin
-     //   if StreamMax <> 0 then
-     //   Progress.MaxValue := StreamMax;
-     //   Progress.Position := StreamPos;
-     //end;
+  // procedure TSomeForm.LoadProgress(StreamPos, StreamMax : Longint);
+  // begin
+  // if StreamMax <> 0 then
+  // Progress.MaxValue := StreamMax;
+  // Progress.Position := StreamPos;
+  // end;
 
-     // ----- support classes -----
-     // All structure data of a 3DS file is actually held in TFile3DS.FDatabase as a
-     // tree with lots of links across the various chunks.
-     // For convinience and speed the data of the chunks is collected into some
-     // special structures (FMaterialList etc.) and presented to the user
-     // by the following helper classes:
+  // ----- support classes -----
+  // All structure data of a 3DS file is actually held in TFile3DS.FDatabase as a
+  // tree with lots of links across the various chunks.
+  // For convinience and speed the data of the chunks is collected into some
+  // special structures (FMaterialList etc.) and presented to the user
+  // by the following helper classes:
 
+  TMaterialList = class
+  private
+    FOwner: TFile3DS;
+    FLocalList: TList;
+    function GetCount: Integer;
+    function GetMaterial(Index: Integer): PMaterial3DS;
+    function GetMaterialByName(const Name: String): PMaterial3DS;
+  public
+    constructor Create(AOwner: TFile3DS); virtual;
+    destructor Destroy; override;
+    procedure ClearList;
 
-     TMaterialList = class
-     private
-       FOwner   : TFile3DS;
-       FLocalList : TList;
-       function GetCount: Integer;
-       function GetMaterial(Index: Integer): PMaterial3DS;
-       function GetMaterialByName(const Name: String): PMaterial3DS;
-     public
-       constructor Create(AOwner: TFile3DS); virtual;
-       destructor Destroy; override;
-       procedure ClearList;
+    property Count: Integer read GetCount;
+    property Material[Index: Integer]: PMaterial3DS read GetMaterial; default;
+    property MaterialByName[const Name: String]: PMaterial3DS
+      read GetMaterialByName;
+  end;
 
-       property Count : Integer read GetCount;
-       property Material[Index: Integer]: PMaterial3DS read GetMaterial; default;
-       property MaterialByName[const Name: String]: PMaterial3DS read GetMaterialByName; 
-     end;
+  TObjectList = class
+  private
+    FOwner: TFile3DS;
+    FMeshList, FOmniList, FSpotList, FCameraList: TList;
+    function GetCamera(Index: Integer): PCamera3DS;
+    function GetCamCount: Integer;
+    function GetMeshObjectCount: Integer;
+    function GetMesh(Index: Integer): PMesh3DS;
+    function GetOmniCount: Integer;
+    function GetOmniLight(Index: Integer): PLight3DS;
+    function GetSpotCount: Integer;
+    function GetSpotLight(Index: Integer): PLight3DS;
+  public
+    constructor Create(AOwner: TFile3DS); virtual;
+    destructor Destroy; override;
 
-     TObjectList = class
-     private
-       FOwner: TFile3DS;
-       FMeshList, 
-       FOmniList, 
-       FSpotList, 
-       FCameraList: TList;
-       function GetCamera(Index: Integer): PCamera3DS;
-       function GetCamCount: Integer;
-       function GetMeshObjectCount: Integer;
-       function GetMesh(Index: Integer): PMesh3DS;
-       function GetOmniCount: Integer;
-       function GetOmniLight(Index: Integer): PLight3DS;
-       function GetSpotCount: Integer;
-       function GetSpotLight(Index: Integer): PLight3DS;
-     public
-       constructor Create(AOwner: TFile3DS); virtual;
-       destructor Destroy; override;
+    procedure ClearLists;
 
-       procedure ClearLists;
+    property CameraCount: Integer read GetCamCount;
+    property MeshCount: Integer read GetMeshObjectCount;
+    property OmniLightCount: Integer read GetOmniCount;
+    property SpotLightCount: Integer read GetSpotCount;
+    property Mesh[Index: Integer]: PMesh3DS read GetMesh;
+    property Camera[Index: Integer]: PCamera3DS read GetCamera;
+    property OmniLight[Index: Integer]: PLight3DS read GetOmniLight;
+    property SpotLight[Index: Integer]: PLight3DS read GetSpotLight;
+  end;
 
-       property CameraCount : Integer read GetCamCount;
-       property MeshCount : Integer read GetMeshObjectCount;
-       property OmniLightCount : Integer read GetOmniCount;
-       property SpotLightCount : Integer read GetSpotCount;
-       property Mesh[Index: Integer]: PMesh3DS read GetMesh; 
-       property Camera[Index: Integer]: PCamera3DS read GetCamera;
-       property OmniLight[Index: Integer]: PLight3DS read GetOmniLight;
-       property SpotLight[Index: Integer]: PLight3DS read GetSpotLight;
-     end;
+  TKeyFramer = class
+  private
+    FOwner: TFile3DS;
+    FMeshMotionList, FOmniMotionList, FSpotMotionList, FCameraMotionList: TList;
+    FAmbientMotion: PKFAmbient3DS;
+    function GetAmbientMotion: PKFAmbient3DS;
+    function GetCameraMotion(Index: Integer): PKFCamera3DS;
+    function GetCamMotionCount: Integer;
+    function GetKFSets: TKFSets3DS;
+    function GetMeshMotionCount: Integer;
+    function GetMeshMotion(Index: Integer): PKFMesh3DS;
+    function GetOmniMotionCount: Integer;
+    function GetOmniLightMotion(Index: Integer): PKFOmni3DS;
+    function GetSpotMotionCount: Integer;
+    function GetSpotLightMotion(Index: Integer): PKFSpot3DS;
+  public
+    constructor Create(AOwner: TFile3DS); virtual;
+    destructor Destroy; override;
 
-     TKeyFramer = class
-     private
-       FOwner: TFile3DS;
-       FMeshMotionList,
-       FOmniMotionList,
-       FSpotMotionList,
-       FCameraMotionList : TList;
-       FAmbientMotion: PKFAmbient3DS;
-       function GetAmbientMotion: PKFAmbient3DS;
-       function GetCameraMotion(Index: Integer): PKFCamera3DS;
-       function GetCamMotionCount: Integer;
-       function GetKFSets: TKFSets3DS;
-       function GetMeshMotionCount: Integer;
-       function GetMeshMotion(Index: Integer): PKFMesh3DS;
-       function GetOmniMotionCount: Integer;
-       function GetOmniLightMotion(Index: Integer): PKFOmni3DS;
-       function GetSpotMotionCount: Integer;
-       function GetSpotLightMotion(Index: Integer): PKFSpot3DS;
-     public
-       constructor Create(AOwner: TFile3DS); virtual;
-       destructor Destroy; override;
+    procedure ClearLists;
 
-       procedure ClearLists;
+    property AmbientLightMotion: PKFAmbient3DS read GetAmbientMotion;
+    property CameraMotionCount: Integer read GetCamMotionCount;
+    property MeshMotionCount: Integer read GetMeshMotionCount;
+    property OmniLightMotionCount: Integer read GetOmniMotionCount;
+    property SpotLightMotionCount: Integer read GetSpotMotionCount;
+    property MeshMotion[Index: Integer]: PKFMesh3DS read GetMeshMotion; default;
+    property CameraMotion[Index: Integer]: PKFCamera3DS read GetCameraMotion;
+    property OmniLightMotion[Index: Integer]: PKFOmni3DS
+      read GetOmniLightMotion;
+    property Settings: TKFSets3DS read GetKFSets;
+    property SpotLightMotion[Index: Integer]: PKFSpot3DS
+      read GetSpotLightMotion;
+  end;
 
-       property AmbientLightMotion: PKFAmbient3DS read GetAmbientMotion;
-       property CameraMotionCount: Integer read GetCamMotionCount;
-       property MeshMotionCount: Integer read GetMeshMotionCount;
-       property OmniLightMotionCount: Integer read GetOmniMotionCount;
-       property SpotLightMotionCount: Integer read GetSpotMotionCount;
-       property MeshMotion[Index: Integer]: PKFMesh3DS read GetMeshMotion; default;
-       property CameraMotion[Index: Integer]: PKFCamera3DS read GetCameraMotion;
-       property OmniLightMotion[Index: Integer]: PKFOmni3DS read GetOmniLightMotion;
-       property Settings: TKFSets3DS read GetKFSets;
-       property SpotLightMotion[Index: Integer]: PKFSpot3DS read GetSpotLightMotion;
-     end;
+  // TFile3DS is the  main class and supplies the user with all available data
+  // from a specific 3DS file. The data is currently read only, but the class might be
+  // finished sometime later...
+  TFile3DS = class
+  private
+    FNodeList: PNodeList;
+    FDatabase: TDatabase3DS;
+    FStream: TStream;
+    FOwnStream: Boolean;
+    FMaterialList: TMaterialList;
+    FObjectList: TObjectList;
+    FKeyFramer: TKeyFramer;
+    FFileName: String;
+    FOnLoadProgress: TLoadProgress;
+    function GetAtmosphereData: TAtmosphere3DS;
+    function GetBackgroundData: TBackground3DS;
+    function GetDatabaseType: TDBType3DS;
+    function GetMeshSettings: TMeshSet3DS;
+    function GetViewportData: TViewport3DS;
+    function GetDatabaseRelease: TReleaseLevel;
+    function GetMeshRelease: TReleaseLevel;
+  protected
+    procedure AddToNodeList(Chunk: PChunk3DS);
+    procedure AssignParentNames;
+    procedure CheckListNodeIDs;
+    procedure CreateDatabase;
+    function FindNodeByID(ID: SmallInt): PNodeList;
+    function GetChunkNodeID(Chunk: PChunk3DS): SmallInt;
+    procedure InitDatabase;
+    function IsNode(Tag: Word): Boolean;
+    procedure KFAddParentName(Chunk: PChunk3DS; Name: String3DS);
+    procedure MakeNode(var Node: PNodeList);
+    procedure ParseDatabase;
+    procedure ReadChildren(Parent: PChunk3DS);
+    procedure ReadXDataEntryChildren(Parent: PChunk3DS);
+    procedure ReleaseDatabase;
+    procedure ReleaseNodeList;
+    procedure ReleaseStream;
+  public
+    constructor Create; virtual;
+    constructor CreateFromFile(const FileName: String); virtual;
+    destructor Destroy; override;
+    procedure ClearLists;
 
-     // TFile3DS is the  main class and supplies the user with all available data
-     // from a specific 3DS file. The data is currently read only, but the class might be
-     // finished sometime later...
-     TFile3DS = class
-     private
-       FNodeList: PNodeList;
-       FDatabase: TDatabase3DS;
-       FStream: TStream;
-       FOwnStream : Boolean;
-       FMaterialList: TMaterialList;
-       FObjectList: TObjectList;
-       FKeyFramer: TKeyFramer;
-       FFileName: String;
-       FOnLoadProgress : TLoadProgress;
-       function GetAtmosphereData: TAtmosphere3DS;
-       function GetBackgroundData: TBackground3DS;
-       function GetDatabaseType: TDBType3DS;
-       function GetMeshSettings: TMeshSet3DS;
-       function GetViewportData: TViewport3DS;
-       function GetDatabaseRelease: TReleaseLevel;
-       function GetMeshRelease: TReleaseLevel;
-     protected
-       procedure AddToNodeList(Chunk: PChunk3DS);
-       procedure AssignParentNames;
-       procedure CheckListNodeIDs;
-       procedure CreateDatabase;
-       function  FindNodeByID(ID: SmallInt): PNodeList;
-       function  GetChunkNodeID(Chunk: PChunk3DS): SmallInt;
-       procedure InitDatabase;
-       function  IsNode(Tag: Word): Boolean;
-       procedure KFAddParentName(Chunk: PChunk3DS; Name: String3DS);
-       procedure MakeNode(var Node: PNodeList);
-       procedure ParseDatabase;
-       procedure ReadChildren(Parent: PChunk3DS);
-       procedure ReadXDataEntryChildren(Parent: PChunk3DS);
-       procedure ReleaseDatabase;
-       procedure ReleaseNodeList;
-       procedure ReleaseStream;
-     public
-       constructor Create; virtual;
-       constructor CreateFromFile(const FileName: String); virtual;
-       destructor Destroy; override;
-       procedure ClearLists;
+    // database methods
+    procedure DumpDataBase(Strings: TStrings; DumpLevel: TDumpLevel);
+    procedure LoadFromFile(const FileName: String);
+    procedure LoadFromStream(const aStream: TStream);
 
-       // database methods
-       procedure DumpDataBase(Strings: TStrings; DumpLevel: TDumpLevel);
-       procedure LoadFromFile(const fileName : String);
-       procedure LoadFromStream(const aStream : TStream);
+    // basic access methods
+    function ReadByte: Byte;
+    function ReadCardinal: Cardinal;
+    procedure ReadChunkData(Chunk: PChunk3DS);
+    procedure ReadData(Size: Integer; Data: Pointer);
+    function ReadDouble: Double;
+    function ReadFace: TFace3DS;
+    procedure ReadHeader(var ChunkType: Word; var ChunkSize: Cardinal);
+    function ReadInteger: Integer;
+    function ReadKeyHeader: TKeyHeader3DS;
+    function ReadPoint: TPoint3DS;
+    function ReadShort: SmallInt;
+    function ReadSingle: Single;
+    function ReadString: PChar3DS;
+    function ReadTexVert: TTexVert3DS;
+    function ReadTrackHeader: TTrackHeader3DS;
+    function ReadWord: Word;
 
-       // basic access methods
-       function  ReadByte: Byte;
-       function  ReadCardinal: Cardinal;
-       procedure ReadChunkData(Chunk: PChunk3DS);
-       procedure ReadData(Size: Integer; Data: Pointer);
-       function  ReadDouble: Double;
-       function  ReadFace: TFace3DS;
-       procedure ReadHeader(var ChunkType: Word; var ChunkSize: Cardinal);
-       function  ReadInteger: Integer;
-       function  ReadKeyHeader: TKeyHeader3DS;
-       function  ReadPoint: TPoint3DS;
-       function  ReadShort: SmallInt;
-       function  ReadSingle: Single;
-       function  ReadString: PChar3DS;
-       function  ReadTexVert: TTexVert3DS;
-       function  ReadTrackHeader: TTrackHeader3DS;
-       function  ReadWord: Word;
+    procedure FinishHeader(StartPos, EndPos: Cardinal);
+    function InitChunkData(Chunk: PChunk3DS): Pointer;
+    procedure SeekChild(Chunk: PChunk3DS);
+    procedure Skip(AValue: Integer);
 
-       procedure FinishHeader(StartPos, EndPos: Cardinal);
-       function  InitChunkData(Chunk: PChunk3DS): Pointer;
-       procedure SeekChild(Chunk: PChunk3DS);
-       procedure Skip(AValue: Integer);
+    procedure WriteByte(AValue: Byte);
+    procedure WriteCardinal(AValue: Cardinal);
+    procedure WriteData(Size: Integer; Data: Pointer);
+    procedure WriteDouble(AValue: Double);
+    procedure WriteFace(F: TFace3DS);
+    procedure WriteFixedString(const AValue: String3DS; Len: Integer);
+    procedure WriteHeader(ChunkType: Word; ChunkSize: Cardinal);
+    procedure WriteInteger(AValue: Integer);
+    procedure WriteKeyHeader(K: TKeyHeader3DS);
+    procedure WritePoint(P: TPoint3DS);
+    procedure WriteShort(AValue: SmallInt);
+    procedure WriteSingle(AValue: Single);
+    procedure WriteString(const AValue: String3DS);
+    procedure WriteTexVertex(T: TTexVert3DS);
+    procedure WriteTrackHeader(T: TTrackHeader3DS);
+    procedure WriteWord(AValue: Word);
 
-       procedure WriteByte(AValue: Byte);
-       procedure WriteCardinal(AValue: Cardinal);
-       procedure WriteData(Size: Integer; Data: Pointer);
-       procedure WriteDouble(AValue: Double);
-       procedure WriteFace(F: TFace3DS);
-       procedure WriteFixedString(const AValue: String3DS; Len: Integer);
-       procedure WriteHeader(ChunkType: Word; ChunkSize: Cardinal);
-       procedure WriteInteger(AValue: Integer);
-       procedure WriteKeyHeader(K: TKeyHeader3DS);
-       procedure WritePoint(P: TPoint3DS);
-       procedure WriteShort(AValue: SmallInt);
-       procedure WriteSingle(AValue: Single);
-       procedure WriteString(const AValue: String3DS);
-       procedure WriteTexVertex(T: TTexVert3DS);
-       procedure WriteTrackHeader(T: TTrackHeader3DS);
-       procedure WriteWord(AValue: Word);
+    property Atmosphere: TAtmosphere3DS read GetAtmosphereData;
+    property Background: TBackground3DS read GetBackgroundData;
+    property DatabaseRelease: TReleaseLevel read GetDatabaseRelease;
+    property DatabaseType: TDBType3DS read GetDatabaseType;
+    property FileName: String read FFileName;
+    // this is only valid if loaded from a file
+    property KeyFramer: TKeyFramer read FKeyFramer;
+    property Materials: TMaterialList read FMaterialList;
+    property MeshRelease: TReleaseLevel read GetMeshRelease;
+    property MeshSettings: TMeshSet3DS read GetMeshSettings;
+    property Objects: TObjectList read FObjectList;
+    property Viewport: TViewport3DS read GetViewportData;
+    property OnLoadProgress: TLoadProgress read FOnLoadProgress
+      write FOnLoadProgress;
+  end;
 
-       property Atmosphere: TAtmosphere3DS read GetAtmosphereData;
-       property Background: TBackground3DS read GetBackgroundData;
-       property DatabaseRelease: TReleaseLevel read GetDatabaseRelease;
-       property DatabaseType: TDBType3DS read GetDatabaseType;
-       property FileName: String read FFileName; // this is only valid if loaded from a file
-       property KeyFramer: TKeyFramer read FKeyFramer;
-       property Materials: TMaterialList read FMaterialList;
-       property MeshRelease: TReleaseLevel read GetMeshRelease;
-       property MeshSettings: TMeshSet3DS read GetMeshSettings;
-       property Objects: TObjectList read FObjectList;
-       property Viewport: TViewport3DS read GetViewportData;
-       property OnLoadProgress : TLoadProgress read FOnLoadProgress write FOnLoadProgress;
-     end;
-
-//---------------------------------------------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------------------------------------------
 
 implementation
 
-uses Const3DS, Utils3DS, SysUtils, ApplicationFileIO;
+uses Const3DS, Utils3DS, SysUtils, GLApplicationFileIO;
 
-function StrPasFree(p : PChar3DS) : String;
+function StrPasFree(P: PChar3DS): String;
 begin
-   Result:=StrPas(p);
-   FreeMem(p);
+  Result := string(StrPas(P));
+  FreeMem(P);
 end;
 
-//----------------- TMaterialList -------------------------------------------------------------------------------------
+// ----------------- TMaterialList -------------------------------------------------------------------------------------
 
 constructor TMaterialList.Create(AOwner: TFile3DS);
 
@@ -275,7 +274,7 @@ begin
   FLocalList := TList.Create;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 destructor TMaterialList.Destroy;
 
@@ -285,12 +284,13 @@ begin
   inherited Destroy;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TMaterialList.ClearList;
 
-var I : Integer;
-    Mat : PMaterial3DS;
+var
+  I: Integer;
+  Mat: PMaterial3DS;
 
 begin
   for I := 0 to FLocalList.Count - 1 do
@@ -300,28 +300,30 @@ begin
       // free structure data
       ReleaseMaterial(Mat);
     end;
-  FLocalList.Count := 0;  
+  FLocalList.Count := 0;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TMaterialList.GetCount: Integer;
 
 begin
-  if (FLocalList.Count = 0)          and
-     (FOwner.FDatabase.MatListDirty) then FLocalList.Count := GetMaterialCount(FOwner, FOwner.FDatabase);;
+  if (FLocalList.Count = 0) and (FOwner.FDatabase.MatListDirty) then
+    FLocalList.Count := GetMaterialCount(FOwner, FOwner.FDatabase);;
   Result := FLocalList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TMaterialList.GetMaterial(Index: Integer): PMaterial3DS;
 
-var NewEntry: PMaterial3DS;
+var
+  NewEntry: PMaterial3DS;
 
 begin
   Result := nil;
-  if Count = 0 then Exit; // force reading the list if it was modified
+  if Count = 0 then
+    Exit; // force reading the list if it was modified
 
   if FLocalList[Index] = nil then
   begin
@@ -333,27 +335,30 @@ begin
   Result := FLocalList[Index];
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TMaterialList.GetMaterialByName(const Name: String): PMaterial3DS;
 
-var Entry: PMaterial3DS;
-    Index: Integer;
+var
+  Entry: PMaterial3DS;
+  Index: Integer;
 
 begin
   Result := nil;
   for Index := 0 to Count - 1 do
   begin
     Entry := GetMaterial(Index);
-    if Entry = nil then Continue;
-    if CompareText(Entry.NameStr, Name) = 0 then begin
+    if Entry = nil then
+      Continue;
+    if CompareText(string(Entry.NameStr), Name) = 0 then
+    begin
       Result := Entry;
       Break;
     end;
   end;
 end;
 
-//----------------- TObjectList ---------------------------------------------------------------------------------------
+// ----------------- TObjectList ---------------------------------------------------------------------------------------
 
 constructor TObjectList.Create(AOwner: TFile3DS);
 
@@ -365,7 +370,7 @@ begin
   FCameraList := TList.Create;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 destructor TObjectList.Destroy;
 
@@ -378,35 +383,42 @@ begin
   inherited Destroy;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TObjectList.ClearLists;
 
-var I : Integer;
+var
+  I: Integer;
 
 begin
-  for I := 0 to FMeshList.Count - 1 do ReleaseMeshObj(FMeshList[I]);
+  for I := 0 to FMeshList.Count - 1 do
+    ReleaseMeshObj(FMeshList[I]);
   FMeshList.Clear;
 
-  for I := 0 to FOmniList.Count - 1 do ReleaseLight(FOmniList[I]);
+  for I := 0 to FOmniList.Count - 1 do
+    ReleaseLight(FOmniList[I]);
   FOmniList.Clear;
 
-  for I := 0 to FSpotList.Count - 1 do ReleaseLight(FSpotList[I]);
+  for I := 0 to FSpotList.Count - 1 do
+    ReleaseLight(FSpotList[I]);
   FSpotList.Clear;
 
-  for I := 0 to FCameraList.Count - 1 do ReleaseCamera(FCameraList[I]);
+  for I := 0 to FCameraList.Count - 1 do
+    ReleaseCamera(FCameraList[I]);
   FCameraList.Clear;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TObjectList.GetCamera(Index: Integer): PCamera3DS;
 
-var NewEntry : PCamera3DS;
+var
+  NewEntry: PCamera3DS;
 
 begin
   Result := nil;
-  if CameraCount = 0 then Exit; // force reading the list if it was modified
+  if CameraCount = 0 then
+    Exit; // force reading the list if it was modified
 
   if FCameraList[Index] = nil then
   begin
@@ -418,33 +430,37 @@ begin
   Result := FCameraList[Index];
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TObjectList.GetCamCount: Integer;
 
 begin
-  if FCameraList.Count = 0 then FCameraList.Count := GetCameraCount(FOwner, FOwner.FDatabase);
+  if FCameraList.Count = 0 then
+    FCameraList.Count := GetCameraCount(FOwner, FOwner.FDatabase);
   Result := FCameraList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TObjectList.GetMeshObjectCount: Integer;
 
 begin
-  if FMeshList.Count = 0 then FMeshList.Count := GetMeshCount(FOwner, FOwner.FDatabase);
+  if FMeshList.Count = 0 then
+    FMeshList.Count := GetMeshCount(FOwner, FOwner.FDatabase);
   Result := FMeshList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TObjectList.GetMesh(Index: Integer): PMesh3DS;
 
-var NewEntry : PMesh3DS;
+var
+  NewEntry: PMesh3DS;
 
 begin
   Result := nil;
-  if MeshCount = 0 then Exit; // force reading the list if it was modified
+  if MeshCount = 0 then
+    Exit; // force reading the list if it was modified
 
   if FMeshList[Index] = nil then
   begin
@@ -456,24 +472,27 @@ begin
   Result := FMeshList[Index];
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TObjectList.GetOmniCount: Integer;
 
 begin
-  if FOmniList.Count = 0 then FOmniList.Count := GetOmniLightCount(FOwner, FOwner.FDatabase);
+  if FOmniList.Count = 0 then
+    FOmniList.Count := GetOmniLightCount(FOwner, FOwner.FDatabase);
   Result := FOmniList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TObjectList.GetOmniLight(Index: Integer): PLight3DS;
 
-var NewEntry: PLight3DS;
+var
+  NewEntry: PLight3DS;
 
 begin
   Result := nil;
-  if OmniLightCount = 0 then Exit; // force reading the list if it was modified
+  if OmniLightCount = 0 then
+    Exit; // force reading the list if it was modified
 
   if FOmniList[Index] = nil then
   begin
@@ -485,24 +504,27 @@ begin
   Result := FOmniList[Index];
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TObjectList.GetSpotCount: Integer;
 
 begin
-  if FSpotList.Count = 0 then FSpotList.Count := GetSpotLightCount(FOwner, FOwner.FDatabase);
+  if FSpotList.Count = 0 then
+    FSpotList.Count := GetSpotLightCount(FOwner, FOwner.FDatabase);
   Result := FSpotList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TObjectList.GetSpotLight(Index: Integer): PLight3DS;
 
-var NewEntry : PLight3DS;
+var
+  NewEntry: PLight3DS;
 
 begin
   Result := nil;
-  if SpotLightCount = 0 then Exit; // force reading the list if it was modified
+  if SpotLightCount = 0 then
+    Exit; // force reading the list if it was modified
 
   if FSpotList[Index] = nil then
   begin
@@ -514,7 +536,7 @@ begin
   Result := FSpotList[Index];
 end;
 
-//----------------- TKeyFramer ----------------------------------------------------------------------------------------
+// ----------------- TKeyFramer ----------------------------------------------------------------------------------------
 
 constructor TKeyFramer.Create(AOwner: TFile3DS);
 
@@ -526,7 +548,7 @@ begin
   FCameraMotionList := TList.Create;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 destructor TKeyFramer.Destroy;
 
@@ -539,7 +561,7 @@ begin
   inherited;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetAmbientMotion: PKFAmbient3DS;
 
@@ -553,15 +575,17 @@ begin
   Result := FAmbientMotion;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetCameraMotion(Index: Integer): PKFCamera3DS;
 
-var NewEntry: PKFCamera3DS;
+var
+  NewEntry: PKFCamera3DS;
 
 begin
   Result := nil;
-  if CameraMotionCount = 0 then Exit; // force reading the list if it was modified
+  if CameraMotionCount = 0 then
+    Exit; // force reading the list if it was modified
 
   if FCameraMotionList[Index] = nil then
   begin
@@ -573,16 +597,17 @@ begin
   Result := FCameraMotionList[Index];
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetCamMotionCount: Integer;
 
 begin
-  if FCameraMotionList.Count = 0 then FCameraMotionList.Count := GetCameraNodeCount(FOwner, FOwner.FDatabase);
+  if FCameraMotionList.Count = 0 then
+    FCameraMotionList.Count := GetCameraNodeCount(FOwner, FOwner.FDatabase);
   Result := FCameraMotionList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetKFSets: TKFSets3DS;
 
@@ -590,24 +615,27 @@ begin
   Result := GetKFSettings(FOwner, FOwner.FDatabase);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetMeshMotionCount: Integer;
 
 begin
-  if FMeshMotionList.Count = 0 then FMeshMotionList.Count := GetObjectNodeCount(FOwner, FOwner.FDatabase);
+  if FMeshMotionList.Count = 0 then
+    FMeshMotionList.Count := GetObjectNodeCount(FOwner, FOwner.FDatabase);
   Result := FMeshMotionList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetMeshMotion(Index: Integer): PKFMesh3DS;
 
-var NewEntry: PKFMesh3DS;
+var
+  NewEntry: PKFMesh3DS;
 
 begin
   Result := nil;
-  if MeshMotionCount = 0 then Exit; // force reading the list if it was modified
+  if MeshMotionCount = 0 then
+    Exit; // force reading the list if it was modified
 
   if FMeshMotionList[Index] = nil then
   begin
@@ -619,24 +647,27 @@ begin
   Result := FMeshMotionList[Index];
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetOmniMotionCount: Integer;
 
 begin
-  if FOmniMotionList.Count = 0 then FOmniMotionList.Count := GetOmniLightNodeCount(FOwner, FOwner.FDatabase);
+  if FOmniMotionList.Count = 0 then
+    FOmniMotionList.Count := GetOmniLightNodeCount(FOwner, FOwner.FDatabase);
   Result := FOmniMotionList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetOmniLightMotion(Index: Integer): PKFOmni3DS;
 
-var NewEntry: PKFOmni3DS;
+var
+  NewEntry: PKFOmni3DS;
 
 begin
   Result := nil;
-  if OmniLightMotionCount = 0 then Exit; // force reading the list if it was modified
+  if OmniLightMotionCount = 0 then
+    Exit; // force reading the list if it was modified
 
   if FOmniMotionList[Index] = nil then
   begin
@@ -648,24 +679,27 @@ begin
   Result := FOmniMotionList[Index];
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetSpotMotionCount: Integer;
 
 begin
-  if FSpotMotionList.Count = 0 then FSpotMotionList.Count := GetSpotLightNodeCount(FOwner, FOwner.FDatabase);
+  if FSpotMotionList.Count = 0 then
+    FSpotMotionList.Count := GetSpotLightNodeCount(FOwner, FOwner.FDatabase);
   Result := FSpotMotionList.Count;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TKeyFramer.GetSpotLightMotion(Index: Integer): PKFSpot3DS;
 
-var NewEntry : PKFSpot3DS;
+var
+  NewEntry: PKFSpot3DS;
 
 begin
   Result := nil;
-  if SpotLightMotionCount = 0 then Exit; // force reading the list if it was modified
+  if SpotLightMotionCount = 0 then
+    Exit; // force reading the list if it was modified
 
   if FSpotMotionList[Index] = nil then
   begin
@@ -677,30 +711,36 @@ begin
   Result := FSpotMotionList[Index];
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TKeyFramer.ClearLists;
 
-var I: Integer;
+var
+  I: Integer;
 
 begin
-  for I := 0 to FMeshMotionList.Count - 1 do ReleaseObjectMotion(FMeshMotionList[I]);
+  for I := 0 to FMeshMotionList.Count - 1 do
+    ReleaseObjectMotion(FMeshMotionList[I]);
   FMeshMotionList.Clear;
 
-  for I := 0 to FOmniMotionList.Count - 1 do ReleaseOmnilightMotion(FOmniMotionList[I]);
+  for I := 0 to FOmniMotionList.Count - 1 do
+    ReleaseOmnilightMotion(FOmniMotionList[I]);
   FOmniMotionList.Clear;
 
-  for I := 0 to FSpotMotionList.Count - 1 do ReleaseSpotlightMotion(FSpotMotionList[I]);
+  for I := 0 to FSpotMotionList.Count - 1 do
+    ReleaseSpotlightMotion(FSpotMotionList[I]);
   FSpotMotionList.Clear;
 
-  for I := 0 to FCameraMotionList.Count - 1 do ReleaseCameraMotion(FCameraMotionList[I]);
+  for I := 0 to FCameraMotionList.Count - 1 do
+    ReleaseCameraMotion(FCameraMotionList[I]);
   FCameraMotionList.Clear;
 
-  if assigned(FAmbientMotion) then ReleaseAmbientLightMotion(FAmbientMotion);
+  if assigned(FAmbientMotion) then
+    ReleaseAmbientLightMotion(FAmbientMotion);
   FAmbientMotion := nil;
 end;
 
-//----------------- TFile3DS ------------------------------------------------------------------------------------------
+// ----------------- TFile3DS ------------------------------------------------------------------------------------------
 
 constructor TFile3DS.Create;
 
@@ -714,44 +754,47 @@ end;
 //
 constructor TFile3DS.CreateFromFile(const FileName: String);
 begin
-   Create;
-   FFileName:=FileName;
-   FStream:=CreateFileStream(FileName, fmOpenRead or fmShareDenyWrite);
-   InitDatabase;
-   CreateDatabase;
+  Create;
+  FFileName := FileName;
+  FStream := CreateFileStream(FileName, fmOpenRead or fmShareDenyWrite);
+  InitDatabase;
+  CreateDatabase;
 end;
 
 // Destroy
 //
 destructor TFile3DS.Destroy;
 begin
-   FKeyFramer.Free;
-   FObjectList.Free;
-   FMaterialList.Free;
-   ReleaseDatabase;
-   ReleaseStream;
-   inherited Destroy;
+  FKeyFramer.Free;
+  FObjectList.Free;
+  FMaterialList.Free;
+  ReleaseDatabase;
+  ReleaseStream;
+  inherited Destroy;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.AddToNodeList(Chunk: PChunk3DS);
 
 // create a node, put node in list and fill-in structure
 
-var NewNode: PNodeList;
-    HdrChunk,
-    InstChunk: PChunk3DS;
+var
+  NewNode: PNodeList;
+  HdrChunk, InstChunk: PChunk3DS;
 
 begin
   MakeNode(NewNode);
-  if NewNode = nil then Exit;
+  if NewNode = nil then
+    Exit;
 
   HdrChunk := FindChunk(Chunk, NODE_HDR);
-  if HdrChunk = nil then Exit;
+  if HdrChunk = nil then
+    Exit;
 
   ReadChunkData(HdrChunk);
-  if HdrChunk = nil then Exit;
+  if HdrChunk = nil then
+    Exit;
 
   // fill in node Data
   NewNode.Name := HdrChunk.Data.NodeHdr.ObjNameStr;
@@ -768,34 +811,31 @@ begin
     if assigned(InstChunk) then
     begin
       ReadChunkData(InstChunk);
-      NewNode.InstStr := StrPas(InstChunk.Data.InstanceName);
+      NewNode.InstStr := string(StrPas(InstChunk.Data.InstanceName));
       FreeChunkData(InstChunk);
     end;
   end;
-  HdrChunk.Data.NodeHdr.ObjNameStr:='';
+  HdrChunk.Data.NodeHdr.ObjNameStr := '';
   FreeChunkData(HdrChunk);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.AssignParentNames;
 
 // traverse keyframe data and assign parent names to its own chunk PARENT_NAME
 // which is a child of NODE_HDR
 
-var Chunk, 
-    KfDataChunk, 
-    HdrChunk, 
-    NameChunk, 
-    IdChunk: PChunk3DS;
-    I: Integer;
-    IDNode,
-    IDParentNode: PNodeList;
-    Name, Inst: String3DS;
+var
+  Chunk, KfDataChunk, HdrChunk, NameChunk, IdChunk: PChunk3DS;
+  I: Integer;
+  IDNode, IDParentNode: PNodeList;
+  Name, Inst: String3DS;
 
 begin
   KfDataChunk := FindChunk(FDatabase.TopChunk, KFDATA);
-  if KfDataChunk = nil then Exit;
+  if KfDataChunk = nil then
+    Exit;
 
   // Find chunks in KFRAMER
   for I := 1 to NodeTagCount do
@@ -806,41 +846,45 @@ begin
       HdrChunk := FindChunk(Chunk, NODE_HDR);
       if assigned(HdrChunk) then
       begin
-        IDChunk := FindChunk(Chunk, NODE_ID);
-        if assigned(IDChunk) then
+        IdChunk := FindChunk(Chunk, NODE_ID);
+        if assigned(IdChunk) then
         begin
-          ReadChunkData(IDChunk);
-          if assigned(IDChunk.Data.KFID) then
+          ReadChunkData(IdChunk);
+          if assigned(IdChunk.Data.KFID) then
           begin
             // Find table entry for node of interest
-            IDNode := FindNodeByID(IDChunk.Data.KfID^);
+            IDNode := FindNodeByID(IdChunk.Data.KFID^);
             // no ID (bad) or no parent (ok)
-            if assigned(IDNode) and (IDNode.ParentID <> - 1) then
+            if assigned(IDNode) and (IDNode.ParentID <> -1) then
             begin
               // find table entry for parent
               IDParentNode := FindNodeByID(IDNode.ParentID);
               if assigned(IDParentNode) then
               begin
-                Name := IDParentNode.Name;
-                Inst := IDParentNode.InstStr;
+                Name := AnsiString(IDParentNode.Name);
+                Inst := AnsiString(IDParentNode.InstStr);
               end;
 
               if Length(Name) > 0 then
               begin
                 // concatenate names if there is an inst name
-                if Length(Inst) > 0 then Name := Name + '.' + Inst;
+                if Length(Inst) > 0 then
+                  Name := Name + '.' + Inst;
 
                 // if PARENT chunk exists, copy into it
                 NameChunk := FindChunk(HdrChunk, PARENT_NAME);
                 if assigned(NameChunk) then
                 begin
                   ReadChunkData(NameChunk);
-                  if assigned(NameChunk.Data.InstanceName) then begin
-                     NameChunk.Data.InstanceName := AllocMem(Length(Name)+1);
-                     Move(Name[1], NameChunk.Data.InstanceName^, Length(Name)+1);
+                  if assigned(NameChunk.Data.InstanceName) then
+                  begin
+                    NameChunk.Data.InstanceName := AllocMem(Length(Name) + 1);
+                    Move(Name[1], NameChunk.Data.InstanceName^,
+                      Length(Name) + 1);
                   end;
                 end
-                else KFAddParentName(HdrChunk, Name); // create PARENT_NAME chunk
+                else
+                  KFAddParentName(HdrChunk, Name); // create PARENT_NAME chunk
               end;
             end;
           end;
@@ -851,7 +895,7 @@ begin
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.CheckListNodeIDs;
 
@@ -859,8 +903,9 @@ procedure TFile3DS.CheckListNodeIDs;
 // in which they came along, if so put in NODE IDs. Assuming that if one node
 // has no ID the whole list get renumbered.
 
-var ID: PNodeList;
-    Index: SmallInt;
+var
+  ID: PNodeList;
+  Index: SmallInt;
 
 begin
   ID := FNodeList;
@@ -877,13 +922,13 @@ begin
         Inc(Index);
         ID := ID.Next;
       end;
-      break;
+      Break;
     end;
     ID := ID.Next;
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.FindNodeByID(ID: SmallInt): PNodeList;
 
@@ -891,51 +936,58 @@ begin
   Result := FNodeList;
   while assigned(Result) do
   begin
-    if Result.ID = ID then Break;
+    if Result.ID = ID then
+      Break;
     Result := Result.Next;
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
-procedure TFile3DS.DumpDatabase(Strings: TStrings; DumpLevel: TDumpLevel);
+procedure TFile3DS.DumpDataBase(Strings: TStrings; DumpLevel: TDumpLevel);
 
 // dumps entire database into the given string class
 
-var OldSeparator: Char;
+var
+  OldSeparator: Char;
 
 begin
-  OldSeparator := DecimalSeparator;
-  DecimalSeparator := '.';
+
+  OldSeparator := GetDecimalSeparator;
+  SetDecimalSeparator('.');
   try
-    if assigned(FDatabase.TopChunk) then DumpChunk(Self, Strings, FDatabase.TopChunk, 0, DumpLevel);
+    if assigned(FDatabase.TopChunk) then
+      DumpChunk(Self, Strings, FDatabase.TopChunk, 0, DumpLevel);
   finally
-    DecimalSeparator := OldSeparator;
-  end;  
-end;
-
-//---------------------------------------------------------------------------------------------------------------------
-
-function TFile3DS.GetChunkNodeID(Chunk: PChunk3DS): SmallInt;
-
-var IDChunk : PChunk3DS;
-
-begin
-  Result := KNoID;
-  IDChunk := FindChunk(Chunk, NODE_ID);
-  if assigned(IDChunk) then
-  begin
-    ReadChunkData(IDChunk);
-    if assigned(IDChunk.Data.KFID) then Result := IDChunk.Data.KFID^;
-    FreeChunkData(IDChunk);
+  	SetDecimalSeparator(OldSeparator);
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
+
+function TFile3DS.GetChunkNodeID(Chunk: PChunk3DS): SmallInt;
+
+var
+  IdChunk: PChunk3DS;
+
+begin
+  Result := KNoID;
+  IdChunk := FindChunk(Chunk, NODE_ID);
+  if assigned(IdChunk) then
+  begin
+    ReadChunkData(IdChunk);
+    if assigned(IdChunk.Data.KFID) then
+      Result := IdChunk.Data.KFID^;
+    FreeChunkData(IdChunk);
+  end;
+end;
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.IsNode(Tag: Word): Boolean;
 
-var I : Integer;
+var
+  I: Integer;
 
 begin
   Result := False;
@@ -947,26 +999,27 @@ begin
     end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.KFAddParentName(Chunk: PChunk3DS; Name: String3DS);
 var
-   Temp : PChunk3DS;
+  Temp: PChunk3DS;
 begin
   InitChunk(Temp);
   Temp.Tag := PARENT_NAME;
-  Temp.Data.Dummy:=AllocMem(Length(Name)+1);
-  Move(Name[1], Temp.Data.Dummy^, Length(Name)+1);
+  Temp.Data.Dummy := AllocMem(Length(Name) + 1);
+  Move(Name[1], Temp.Data.Dummy^, Length(Name) + 1);
   AddChildOrdered(Chunk, Temp);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.MakeNode(var Node: PNodeList);
 
 // add node to linked list (uninitialized)
 
-var ID : PNodeList;
+var
+  ID: PNodeList;
 
 begin
   ID := FNodeList;
@@ -974,20 +1027,23 @@ begin
   if assigned(Node) then
   begin
     // first node ?
-    if ID = nil then FNodeList := Node
-                else // add to list
+    if ID = nil then
+      FNodeList := Node
+    else // add to list
     begin
-      while assigned(ID.Next) do ID := ID.Next;
+      while assigned(ID.Next) do
+        ID := ID.Next;
       ID.Next := Node;
     end;
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.ParseDatabase;
 
-var Chunk, KfDataChunk : PChunk3DS;
+var
+  Chunk, KfDataChunk: PChunk3DS;
 
 begin
   KfDataChunk := FindChunk(FDatabase.TopChunk, KFDATA);
@@ -996,25 +1052,27 @@ begin
     Chunk := KfDataChunk.Children;
     while assigned(Chunk) do
     begin
-      if IsNode(Chunk.Tag) then AddToNodeList(Chunk);
+      if IsNode(Chunk.Tag) then
+        AddToNodeList(Chunk);
       Chunk := Chunk.Sibling;
     end;
     CheckListNodeIDs;
-  end;  
+  end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.ReadXDataEntryChildren(Parent: PChunk3DS);
 
-var ParentBody: Cardinal;
-    Child: PChunk3DS;
+var
+  ParentBody: Cardinal;
+  Child: PChunk3DS;
 
 begin
   SeekChild(Parent);
   ParentBody := Parent.Position + Parent.Size;
 
-  // satisfy the D4 compiler by castï¿½ng the (longint) position to a cardinal
+  // satisfy the D4 compiler by castíng the (longint) position to a cardinal
   while Cardinal(FStream.Position) < ParentBody do
   begin
     Child := nil;
@@ -1024,29 +1082,19 @@ begin
     // Validate the child chunk...
     // First, is it a valid header?
     case Child.Tag of
-      XDATA_APPNAME, 
-      XDATA_STRING, 
-      XDATA_FLOAT, 
-      XDATA_DOUBLE, 
-      XDATA_SHORT, 
-      XDATA_LONG, 
-      XDATA_VOID, 
-      XDATA_GROUP, 
-      XDATA_RFU6, 
-      XDATA_RFU5, 
-      XDATA_RFU4, 
-      XDATA_RFU3, 
-      XDATA_RFU2, 
-      XDATA_RFU1:
+      XDATA_APPNAME, XDATA_STRING, XDATA_FLOAT, XDATA_DOUBLE, XDATA_SHORT,
+        XDATA_LONG, XDATA_VOID, XDATA_GROUP, XDATA_RFU6, XDATA_RFU5, XDATA_RFU4,
+        XDATA_RFU3, XDATA_RFU2, XDATA_RFU1:
         begin
           // second, does the size fit inside the XDATA_ENTRY chunk?
           if (Child.Position + Child.Size) <= ParentBody then
           begin
-             // chances are its a good subchunk, so add it in
-             AddChild(Parent, Child);
-             ReadXDataEntryChildren(Child);
+            // chances are its a good subchunk, so add it in
+            AddChild(Parent, Child);
+            ReadXDataEntryChildren(Child);
           end
-          else ReleaseChunk(Child);
+          else
+            ReleaseChunk(Child);
         end
     else // must not be a valid chunk, seek to the end of the parent then
       begin
@@ -1057,11 +1105,12 @@ begin
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.ReleaseNodeList;
 
-var Next: PNodeList;
+var
+  Next: PNodeList;
 
 begin
   while assigned(FNodeList) do
@@ -1076,14 +1125,15 @@ end;
 //
 procedure TFile3DS.ReleaseStream;
 begin
-   if FOwnStream then
-      FreeAndNil(FStream)
-   else FStream:=nil;
-   FOwnStream:=False;
+  if FOwnStream then
+    FreeAndNil(FStream)
+  else
+    FStream := nil;
+  FOwnStream := False;
 end;
 
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.CreateDatabase;
 
@@ -1095,13 +1145,12 @@ begin
     ReadHeader(TopChunk.Tag, TopChunk.Size);
 
     // test header to determine whether it is a top level chunk type
-    if (TopChunk.Tag = M3DMAGIC)  or
-       (TopChunk.Tag = CMAGIC)    or
-       (TopChunk.Tag = MLIBMAGIC) then
+    if (TopChunk.Tag = M3DMAGIC) or (TopChunk.Tag = CMAGIC) or
+      (TopChunk.Tag = MLIBMAGIC) then
     begin
       // gw: set needed max value for ProgressBar
-      if Assigned(FOnLoadProgress) then
-      FOnLoadProgress(0, FStream.Size);
+      if assigned(FOnLoadProgress) then
+        FOnLoadProgress(0, FStream.Size);
       // read database structure
       ReadChildren(TopChunk);
       ParseDatabase;
@@ -1111,7 +1160,7 @@ begin
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.InitDatabase;
 
@@ -1128,43 +1177,43 @@ begin
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.ClearLists;
 
 begin
   FMaterialList.ClearList;
   FObjectList.ClearLists;
-  FKeyframer.ClearLists;
+  FKeyFramer.ClearLists;
   ReleaseDatabase;
 end;
 
 // LoadFromFile
 //
-procedure TFile3DS.LoadFromFile(const fileName : String);
+procedure TFile3DS.LoadFromFile(const FileName: String);
 begin
-   ClearLists;
-   ReleaseStream;
-   FFileName:=FileName;
-   FStream:=CreateFileStream(FileName, fmOpenRead or fmShareDenyWrite);
-   FOwnStream:=True;
-   InitDatabase;
-   CreateDatabase;
+  ClearLists;
+  ReleaseStream;
+  FFileName := FileName;
+  FStream := CreateFileStream(FileName, fmOpenRead or fmShareDenyWrite);
+  FOwnStream := True;
+  InitDatabase;
+  CreateDatabase;
 end;
 
 // LoadFromStream
 //
-procedure TFile3DS.LoadFromStream(const aStream : TStream);
+procedure TFile3DS.LoadFromStream(const aStream: TStream);
 begin
-   ReleaseStream;
-   ClearLists;
-   FFileName:='';
-   FStream:=aStream;
-   InitDatabase;
-   CreateDatabase;
+  ReleaseStream;
+  ClearLists;
+  FFileName := '';
+  FStream := aStream;
+  InitDatabase;
+  CreateDatabase;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.GetAtmosphereData: TAtmosphere3DS;
 
@@ -1172,7 +1221,7 @@ begin
   Result := GetAtmosphere(Self, FDatabase);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.GetBackgroundData: TBackground3DS;
 
@@ -1180,24 +1229,24 @@ begin
   Result := GetBackground(Self, FDatabase);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.GetDatabaseType: TDBType3DS;
 
 begin
-   case FDatabase.TopChunk.Tag of
-     M3DMAGIC:
-       Result := dbMeshFile;
-     CMAGIC:
-       Result := dbProjectFile;
-     MLIBMAGIC:
-       Result := dbMaterialFile;
-   else
-     Result := dbUnknown;
-   end;
+  case FDatabase.TopChunk.Tag of
+    M3DMAGIC:
+      Result := dbMeshFile;
+    CMAGIC:
+      Result := dbProjectFile;
+    MLIBMAGIC:
+      Result := dbMaterialFile;
+  else
+    Result := dbUnknown;
+  end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.GetMeshSettings: TMeshSet3DS;
 
@@ -1205,7 +1254,7 @@ begin
   Result := GetMeshSet(Self, FDatabase);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.GetViewportData: TViewport3DS;
 
@@ -1213,12 +1262,13 @@ begin
   Result := GetViewport(Self, FDatabase);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.ReadChildren(Parent: PChunk3DS);
 
-var ParentBody: Integer;
-    Child: PChunk3DS;
+var
+  ParentBody: Integer;
+  Child: PChunk3DS;
 
 begin
   SeekChild(Parent);
@@ -1228,32 +1278,38 @@ begin
     Child := nil;
     InitChunk(Child);
     // gw: set ProgressBar current position
-    if Assigned(FOnLoadProgress) then
-    FOnLoadProgress(FStream.Position, 0);
+    if assigned(FOnLoadProgress) then
+      FOnLoadProgress(FStream.Position, 0);
 
     Child.Position := FStream.Position;
     ReadHeader(Child.Tag, Child.Size);
     AddChild(Parent, Child);
-    if Child.Tag = XDATA_ENTRY then ReadXDataEntryChildren(Child)
-                               else ReadChildren(Child);
+    if Child.Tag = XDATA_ENTRY then
+      ReadXDataEntryChildren(Child)
+    else
+      ReadChildren(Child);
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.ReleaseDatabase;
 
 begin
   with FDatabase do
   begin
-    if assigned(TopChunk) then ReleaseChunk(TopChunk);
-    if assigned(ObjList) then ReleaseChunkList(ObjList);
-    if assigned(MatList) then ReleaseChunkList(MatList);
-    if assigned(NodeList) then ReleaseChunkList(NodeList);
+    if assigned(TopChunk) then
+      ReleaseChunk(TopChunk);
+    if assigned(ObjList) then
+      ReleaseChunkList(ObjList);
+    if assigned(MatList) then
+      ReleaseChunkList(MatList);
+    if assigned(NodeList) then
+      ReleaseChunkList(NodeList);
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.InitChunkData(Chunk: PChunk3DS): Pointer;
 
@@ -1272,7 +1328,7 @@ begin
     FLOAT_PERCENTAGE:
       Chunk.Data.FloatPercentage := AllocMem(SizeOf(TFloatPercentage));
     MAT_MAPNAME:
-      Chunk.Data.MatMapname := nil;//AllocMem(SizeOf(TMatMapname));
+      Chunk.Data.MatMapname := nil; // AllocMem(SizeOf(TMatMapname));
     M3D_VERSION:
       Chunk.Data.M3dVersion := AllocMem(SizeOf(TM3dVersion));
     MESH_VERSION:
@@ -1296,48 +1352,32 @@ begin
     O_CONSTS:
       Chunk.Data.OConsts := AllocMem(SizeOf(TOConsts));
     BIT_MAP:
-      Chunk.Data.BitMapName := nil;//AllocMem(SizeOf(TBitMapName));
+      Chunk.Data.BitMapName := nil; // AllocMem(SizeOf(TBitMapName));
     V_GRADIENT:
       Chunk.Data.VGradient := AllocMem(SizeOf(TVGradient));
     FOG:
-      Chunk.Data.Fog := AllocMem(SizeOf(TFog));
+      Chunk.Data.FOG := AllocMem(SizeOf(TFog));
     LAYER_FOG:
       Chunk.Data.LayerFog := AllocMem(SizeOf(TLayerFog));
     DISTANCE_CUE:
       Chunk.Data.DistanceCue := AllocMem(SizeOf(TDistanceCue));
-    VIEW_TOP,
-    VIEW_BOTTOM,
-    VIEW_LEFT,
-    VIEW_RIGHT,
-    VIEW_FRONT,
-    VIEW_BACK:
+    VIEW_TOP, VIEW_BOTTOM, VIEW_LEFT, VIEW_RIGHT, VIEW_FRONT, VIEW_BACK:
       Chunk.Data.ViewStandard := AllocMem(SizeOf(TViewStandard));
     VIEW_USER:
       Chunk.Data.ViewUser := AllocMem(SizeOf(TViewUser));
     VIEW_CAMERA:
-      Chunk.Data.ViewCamera := nil;//AllocMem(SizeOf(TViewCamera));
+      Chunk.Data.ViewCamera := nil; // AllocMem(SizeOf(TViewCamera));
     MAT_NAME:
-      Chunk.Data.MatName := nil;//AllocMem(SizeOf(TMatName));
+      Chunk.Data.MatName := nil; // AllocMem(SizeOf(TMatName));
     MAT_SHADING:
       Chunk.Data.MatShading := AllocMem(SizeOf(TMatShading));
     MAT_ACUBIC:
       Chunk.Data.MatAcubic := AllocMem(SizeOf(TMatAcubic));
-    MAT_SXP_TEXT_DATA,
-    MAT_SXP_TEXT2_DATA,
-    MAT_SXP_OPAC_DATA,
-    MAT_SXP_BUMP_DATA,
-    MAT_SXP_SPEC_DATA,
-    MAT_SXP_SHIN_DATA,
-    MAT_SXP_SELFI_DATA,
-    MAT_SXP_TEXT_MASKDATA,
-    MAT_SXP_TEXT2_MASKDATA,
-    MAT_SXP_OPAC_MASKDATA,
-    MAT_SXP_BUMP_MASKDATA,
-    MAT_SXP_SPEC_MASKDATA,
-    MAT_SXP_SHIN_MASKDATA,
-    MAT_SXP_SELFI_MASKDATA,
-    MAT_SXP_REFL_MASKDATA,
-    PROC_DATA:
+    MAT_SXP_TEXT_DATA, MAT_SXP_TEXT2_DATA, MAT_SXP_OPAC_DATA, MAT_SXP_BUMP_DATA,
+      MAT_SXP_SPEC_DATA, MAT_SXP_SHIN_DATA, MAT_SXP_SELFI_DATA,
+      MAT_SXP_TEXT_MASKDATA, MAT_SXP_TEXT2_MASKDATA, MAT_SXP_OPAC_MASKDATA,
+      MAT_SXP_BUMP_MASKDATA, MAT_SXP_SPEC_MASKDATA, MAT_SXP_SHIN_MASKDATA,
+      MAT_SXP_SELFI_MASKDATA, MAT_SXP_REFL_MASKDATA, PROC_DATA:
       Chunk.Data.IpasData := AllocMem(SizeOf(TIpasData));
     MAT_WIRESIZE:
       Chunk.Data.MatWireSize := AllocMem(SizeOf(TMatWireSize));
@@ -1368,10 +1408,10 @@ begin
     MAT_BUMP_PERCENT:
       Chunk.Data.MatBumpPercent := AllocMem(SizeOf(TMatBumpPercent));
     NAMED_OBJECT:
-      Chunk.Data.NamedObject := nil;//AllocMem(SizeOf(TNamedObject));
+      Chunk.Data.NamedObject := nil; // AllocMem(SizeOf(TNamedObject));
     POINT_ARRAY:
       Chunk.Data.PointArray := AllocMem(SizeOf(TPointArray));
-    POINT_FLAG_ARRAY       :
+    POINT_FLAG_ARRAY:
       Chunk.Data.PointFlagArray := AllocMem(SizeOf(TPointFlagArray));
     FACE_ARRAY:
       Chunk.Data.FaceArray := AllocMem(SizeOf(TFaceArray));
@@ -1390,11 +1430,11 @@ begin
     MESH_TEXTURE_INFO:
       Chunk.Data.MeshTextureInfo := AllocMem(SizeOf(TMeshTextureInfo));
     PROC_NAME:
-      Chunk.Data.ProcName := nil;//AllocMem(SizeOf(TProcName));
+      Chunk.Data.ProcName := nil; // AllocMem(SizeOf(TProcName));
     N_DIRECT_LIGHT:
       Chunk.Data.NDirectLight := AllocMem(SizeOf(TNDirectLight));
     DL_EXCLUDE:
-      Chunk.Data.DlExclude := nil;//AllocMem(SizeOf(TDlExclude));
+      Chunk.Data.DlExclude := nil; // AllocMem(SizeOf(TDlExclude));
     DL_INNER_RANGE:
       Chunk.Data.DlInnerRange := AllocMem(SizeOf(TDlInnerRange));
     DL_OUTER_RANGE:
@@ -1410,7 +1450,7 @@ begin
     DL_SPOT_ASPECT:
       Chunk.Data.DlSpotAspect := AllocMem(SizeOf(TDlSpotAspect));
     DL_SPOT_PROJECTOR:
-      Chunk.Data.DlSpotProjector := nil;//AllocMem(SizeOf(TDlSpotProjector));
+      Chunk.Data.DlSpotProjector := nil; // AllocMem(SizeOf(TDlSpotProjector));
     DL_RAY_BIAS:
       Chunk.Data.DlRayBias := AllocMem(SizeOf(TDlRayBias));
     N_CAMERA:
@@ -1421,34 +1461,32 @@ begin
       Chunk.Data.ViewportLayout := AllocMem(SizeOf(TViewportLayout));
     VIEWPORT_SIZE:
       Chunk.Data.ViewportSize := AllocMem(SizeOf(TViewportSize));
-    VIEWPORT_DATA_3,
-    VIEWPORT_DATA:
+    VIEWPORT_DATA_3, VIEWPORT_DATA:
       Chunk.Data.ViewportData := AllocMem(SizeOf(TViewportData));
     XDATA_ENTRY:
       Chunk.Data.XDataEntry := AllocMem(SizeOf(TXDataEntry));
     XDATA_APPNAME:
-      Chunk.Data.XDataAppName := nil;//AllocMem(SizeOf(TXDataAppName));
+      Chunk.Data.XDataAppName := nil; // AllocMem(SizeOf(TXDataAppName));
     XDATA_STRING:
-      Chunk.Data.XDataString := nil;//AllocMem(SizeOf(TXDataString));
+      Chunk.Data.XDataString := nil; // AllocMem(SizeOf(TXDataString));
     KFHDR:
-      Chunk.Data.KFHdr := AllocMem(SizeOf(TKFHdr));
+      Chunk.Data.KFHDR := AllocMem(SizeOf(TKFHdr));
     KFSEG:
-      Chunk.Data.KFSeg := AllocMem(SizeOf(TKFSeg));
+      Chunk.Data.KFSEG := AllocMem(SizeOf(TKFSeg));
     KFCURTIME:
-      Chunk.Data.KFCurtime := AllocMem(SizeOf(TKFCurtime));
+      Chunk.Data.KFCURTIME := AllocMem(SizeOf(TKFCurtime));
     NODE_ID:
-      Chunk.Data.KFId := AllocMem(SizeOf(TKFId));
+      Chunk.Data.KFID := AllocMem(SizeOf(TKFId));
     NODE_HDR:
       Chunk.Data.NodeHdr := AllocMem(SizeOf(TNodeHdr));
     PIVOT:
-      Chunk.Data.Pivot := AllocMem(SizeOf(TPivot));
-    INSTANCE_NAME,
-    PARENT_NAME:
-      Chunk.Data.InstanceName := nil;//AllocMem(SizeOf(TInstanceName));
+      Chunk.Data.PIVOT := AllocMem(SizeOf(TPivot));
+    INSTANCE_NAME, PARENT_NAME:
+      Chunk.Data.InstanceName := nil; // AllocMem(SizeOf(TInstanceName));
     MORPH_SMOOTH:
       Chunk.Data.MorphSmooth := AllocMem(SizeOf(TMorphSmooth));
     BOUNDBOX:
-      Chunk.Data.BoundBox := AllocMem(SizeOf(TBoundBox));
+      Chunk.Data.BOUNDBOX := AllocMem(SizeOf(TBoundBox));
     POS_TRACK_TAG:
       Chunk.Data.PosTrackTag := AllocMem(SizeOf(TPosTrackTag));
     COL_TRACK_TAG:
@@ -1469,61 +1507,28 @@ begin
       Chunk.Data.FallTrackTag := AllocMem(SizeOf(TFallTrackTag));
     HIDE_TRACK_TAG:
       Chunk.Data.HideTrackTag := AllocMem(SizeOf(THideTrackTag));
-    M3DMAGIC,                // Chunks who consist entirely of children
-    MLIBMAGIC,
-    MDATA,
-    AMBIENT_LIGHT,
-    SOLID_BGND,
-    DEFAULT_VIEW, 
-    MAT_ENTRY, 
-    MAT_AMBIENT, 
-    MAT_DIFFUSE, 
-    MAT_SPECULAR, 
-    MAT_SHININESS, 
-    MAT_SHIN2PCT, 
-    MAT_SHIN3PCT, 
-    MAT_TRANSPARENCY, 
-    MAT_XPFALL, 
-    MAT_REFBLUR, 
-    MAT_SELF_ILPCT,  
-    MAT_TEXMAP, 
-    MAT_TEXMASK, 
-    MAT_TEX2MAP, 
-    MAT_TEX2MASK,
-    MAT_OPACMAP, 
-    MAT_OPACMASK,
-    MAT_REFLMAP, 
-    MAT_REFLMASK, 
-    MAT_BUMPMAP, 
-    MAT_BUMPMASK, 
-    MAT_SPECMAP, 
-    MAT_SPECMASK, 
-    MAT_SHINMAP, 
-    MAT_SHINMASK, 
-    MAT_SELFIMAP, 
-    MAT_SELFIMASK, 
-    N_TRI_OBJECT, 
-    KFDATA,
-    AMBIENT_NODE_TAG,
-    OBJECT_NODE_TAG,
-    CAMERA_NODE_TAG,
-    TARGET_NODE_TAG,
-    LIGHT_NODE_TAG,
-    SPOTLIGHT_NODE_TAG,
-    L_TARGET_NODE_TAG,
-    CMAGIC,
-    XDATA_SECTION,
-    XDATA_GROUP:
+    M3DMAGIC, // Chunks who consist entirely of children
+    MLIBMAGIC, MDATA, AMBIENT_LIGHT, SOLID_BGND, DEFAULT_VIEW, MAT_ENTRY,
+      MAT_AMBIENT, MAT_DIFFUSE, MAT_SPECULAR, MAT_SHININESS, MAT_SHIN2PCT,
+      MAT_SHIN3PCT, MAT_TRANSPARENCY, MAT_XPFALL, MAT_REFBLUR, MAT_SELF_ILPCT,
+      MAT_TEXMAP, MAT_TEXMASK, MAT_TEX2MAP, MAT_TEX2MASK, MAT_OPACMAP,
+      MAT_OPACMASK, MAT_REFLMAP, MAT_REFLMASK, MAT_BUMPMAP, MAT_BUMPMASK,
+      MAT_SPECMAP, MAT_SPECMASK, MAT_SHINMAP, MAT_SHINMASK, MAT_SELFIMAP,
+      MAT_SELFIMASK, N_TRI_OBJECT, KFDATA, AMBIENT_NODE_TAG, OBJECT_NODE_TAG,
+      CAMERA_NODE_TAG, TARGET_NODE_TAG, LIGHT_NODE_TAG, SPOTLIGHT_NODE_TAG,
+      L_TARGET_NODE_TAG, CMAGIC, XDATA_SECTION, XDATA_GROUP:
       Chunk.Data.Dummy := nil;
   else // A truely hideous thing to do but it helps with unknown chunks
-      // Don't mess with dataless chunks
-    if Chunk.Size > 6 then Chunk.Data.Dummy := AllocMem(Chunk.Size - 6)
-                      else Chunk.Data.Dummy := nil;
+    // Don't mess with dataless chunks
+    if Chunk.Size > 6 then
+      Chunk.Data.Dummy := AllocMem(Chunk.Size - 6)
+    else
+      Chunk.Data.Dummy := nil;
   end; // end of case
   Result := Chunk.Data.Dummy; // returns the pointer should someone want it
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteByte(AValue: Byte);
 
@@ -1531,7 +1536,7 @@ begin
   FStream.WriteBuffer(AValue, 1);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadByte: Byte;
 
@@ -1539,7 +1544,7 @@ begin
   FStream.ReadBuffer(Result, 1);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteShort(AValue: SmallInt);
 
@@ -1547,7 +1552,7 @@ begin
   FStream.WriteBuffer(AValue, SizeOf(AValue));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadShort: SmallInt;
 
@@ -1555,7 +1560,7 @@ begin
   FStream.ReadBuffer(Result, SizeOf(Result));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadCardinal: Cardinal;
 
@@ -1563,7 +1568,7 @@ begin
   FStream.ReadBuffer(Result, SizeOf(Result));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadDouble: Double;
 
@@ -1571,7 +1576,7 @@ begin
   FStream.ReadBuffer(Result, SizeOf(Result));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadInteger: Integer;
 
@@ -1579,7 +1584,7 @@ begin
   FStream.ReadBuffer(Result, SizeOf(Result));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadSingle: Single;
 
@@ -1587,7 +1592,7 @@ begin
   FStream.ReadBuffer(Result, SizeOf(Result));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadWord: Word;
 
@@ -1595,7 +1600,7 @@ begin
   FStream.ReadBuffer(Result, SizeOf(Result));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteCardinal(AValue: Cardinal);
 
@@ -1603,7 +1608,7 @@ begin
   FStream.WriteBuffer(AValue, SizeOf(AValue));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteDouble(AValue: Double);
 
@@ -1611,7 +1616,7 @@ begin
   FStream.WriteBuffer(AValue, SizeOf(AValue));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteInteger(AValue: Integer);
 
@@ -1619,7 +1624,7 @@ begin
   FStream.WriteBuffer(AValue, SizeOf(AValue));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteSingle(AValue: Single);
 
@@ -1627,7 +1632,7 @@ begin
   FStream.WriteBuffer(AValue, SizeOf(AValue));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteWord(AValue: Word);
 
@@ -1639,18 +1644,18 @@ end;
 //
 procedure TFile3DS.WriteData(Size: Integer; Data: Pointer);
 begin
-   if Assigned(Data) then
-      FStream.WriteBuffer(Data^, Size);
+  if assigned(Data) then
+    FStream.WriteBuffer(Data^, Size);
 end;
 
 // ReadData
 //
 procedure TFile3DS.ReadData(Size: Integer; Data: Pointer);
 begin
-   FStream.ReadBuffer(Data^, Size);
+  FStream.ReadBuffer(Data^, Size);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.Skip(AValue: Integer);
 
@@ -1658,7 +1663,7 @@ begin
   FStream.Seek(soFromCurrent, AValue);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteString(const AValue: String3DS);
 
@@ -1667,40 +1672,43 @@ begin
   WriteByte(0); // Write a null on the end of the string
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteFixedString(const AValue: String3DS; Len: Integer);
 
-var I: Integer;
+var
+  I: Integer;
 
 begin
   // len is the length of the target string space including null
   WriteString(AValue); // 1 null byte will also be written
-  for I := 1 to Len - Length(AValue) - 1 do WriteByte(0); // fill the remaining space with nulls
+  for I := 1 to Len - Length(AValue) - 1 do
+    WriteByte(0); // fill the remaining space with nulls
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadString: PChar3DS;
 var
-   Len, LB: Integer;
-   Buffer: String3DS;
+  Len, LB: Integer;
+  Buffer: String3DS;
 begin
-   Len := 0;
-   LB := 0;
-   repeat
-      if Len>=LB then begin
-         Inc(LB, 50);
-         SetLength(Buffer, LB);
-      end;
-      Inc(Len);
-      FStream.Read(Buffer[Len], 1);
-   until Buffer[Len] = #0;
-   Result:=AllocMem(Len);
-   Move(Buffer[1], Result^, Len);
+  Len := 0;
+  LB := 0;
+  repeat
+    if Len >= LB then
+    begin
+      Inc(LB, 50);
+      SetLength(Buffer, LB);
+    end;
+    Inc(Len);
+    FStream.Read(Buffer[Len], 1);
+  until Buffer[Len] = #0;
+  Result := AllocMem(Len);
+  Move(Buffer[1], Result^, Len);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteHeader(ChunkType: Word; ChunkSize: Cardinal);
 
@@ -1709,7 +1717,7 @@ begin
   WriteCardinal(ChunkSize);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.ReadHeader(var ChunkType: Word; var ChunkSize: Cardinal);
 
@@ -1718,7 +1726,7 @@ begin
   ChunkSize := ReadCardinal;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.FinishHeader(StartPos, EndPos: Cardinal);
 
@@ -1728,7 +1736,7 @@ begin
   FStream.Position := EndPos;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WritePoint(P: TPoint3DS);
 
@@ -1738,7 +1746,7 @@ begin
   WriteSingle(P.Z);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadPoint: TPoint3DS;
 
@@ -1747,7 +1755,7 @@ begin
   FStream.ReadBuffer(Result, SizeOf(Result));
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteTexVertex(T: TTexVert3DS);
 
@@ -1756,7 +1764,7 @@ begin
   WriteSingle(T.V);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadTexVert: TTexVert3DS;
 
@@ -1766,7 +1774,7 @@ begin
   Result.V := ReadSingle;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteFace(F: TFace3DS);
 
@@ -1777,7 +1785,7 @@ begin
   WriteWord(F.flag);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadFace: TFace3DS;
 
@@ -1789,7 +1797,7 @@ begin
   Result.flag := ReadWord;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteTrackHeader(T: TTrackHeader3DS);
 
@@ -1800,7 +1808,7 @@ begin
   WriteCardinal(T.KeyCount);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadTrackHeader: TTrackHeader3DS;
 
@@ -1812,21 +1820,26 @@ begin
   Result.KeyCount := ReadCardinal;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.WriteKeyHeader(K: TKeyHeader3DS);
 
 begin
   WriteCardinal(K.time);
   WriteWord(K.rflags);
-  if (K.rflags and KeyUsesTension3DS) > 0 then WriteSingle(K.tension);
-  if (K.rflags and KeyUsesCont3DS) > 0 then WriteSingle(K.continuity);
-  if (K.rflags and KeyUsesBias3DS) > 0 then WriteSingle(K.bias);
-  if (K.rflags and KeyUsesEaseTo3DS) > 0 then WriteSingle(K.easeto);
-  if (K.rflags and KeyUsesEaseFrom3DS) > 0 then WriteSingle(K.easefrom);
+  if (K.rflags and KeyUsesTension3DS) > 0 then
+    WriteSingle(K.tension);
+  if (K.rflags and KeyUsesCont3DS) > 0 then
+    WriteSingle(K.continuity);
+  if (K.rflags and KeyUsesBias3DS) > 0 then
+    WriteSingle(K.bias);
+  if (K.rflags and KeyUsesEaseTo3DS) > 0 then
+    WriteSingle(K.easeto);
+  if (K.rflags and KeyUsesEaseFrom3DS) > 0 then
+    WriteSingle(K.easefrom);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.ReadKeyHeader: TKeyHeader3DS;
 
@@ -1834,14 +1847,19 @@ begin
   Result := DefKeyHeader3DS;
   Result.time := ReadCardinal;
   Result.rflags := ReadWord;
-  if (Result.rflags and KeyUsesTension3DS) > 0 then Result.tension := ReadSingle;
-  if (Result.rflags and KeyUsesCont3DS) > 0 then Result.continuity := ReadSingle;
-  if (Result.rflags and KeyUsesBias3DS) > 0 then Result.bias := ReadSingle;
-  if (Result.rflags and KeyUsesEaseTo3DS) > 0 then Result.easeto := ReadSingle;
-  if (Result.rflags and KeyUsesEaseFrom3DS) > 0 then Result.easefrom := ReadSingle;
+  if (Result.rflags and KeyUsesTension3DS) > 0 then
+    Result.tension := ReadSingle;
+  if (Result.rflags and KeyUsesCont3DS) > 0 then
+    Result.continuity := ReadSingle;
+  if (Result.rflags and KeyUsesBias3DS) > 0 then
+    Result.bias := ReadSingle;
+  if (Result.rflags and KeyUsesEaseTo3DS) > 0 then
+    Result.easeto := ReadSingle;
+  if (Result.rflags and KeyUsesEaseFrom3DS) > 0 then
+    Result.easefrom := ReadSingle;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.ReadChunkData(Chunk: PChunk3DS);
 
@@ -1852,17 +1870,19 @@ var
   I: Integer;
 
 begin
-  if Chunk.Data.Dummy = nil then  // don't try to read the data if its already been read
+  if Chunk.Data.Dummy = nil then
+  // don't try to read the data if its already been read
   begin
     // seek to the beginning of the Chunk's data (harmless if the Chunk has no data)
     FStream.Position := Chunk.Position + 6;
     case Chunk.Tag of
       COLOR_F:
         begin
-          Chunk.Data.ColorF := AllocMem(SizeOf(TColorF)); // allocate the memory to hold the data
+          Chunk.Data.ColorF := AllocMem(SizeOf(TColorF));
+          // allocate the memory to hold the data
           with Chunk.Data.ColorF^ do
           begin
-            Red := ReadSingle;                // Read the data out of the file
+            Red := ReadSingle; // Read the data out of the file
             Green := ReadSingle;
             Blue := ReadSingle;
           end;
@@ -1909,7 +1929,7 @@ begin
         end;
       MAT_MAPNAME:
         begin
-//          Chunk.Data.MatMapname := AllocMem(SizeOf(TMatMapname));
+          // Chunk.Data.MatMapname := AllocMem(SizeOf(TMatMapname));
           Chunk.Data.MatMapname := ReadString;
         end;
       M3D_VERSION:
@@ -1969,7 +1989,7 @@ begin
         end;
       BIT_MAP:
         begin
-//          Chunk.Data.BitMapName := AllocMem(SizeOf(TBitMapName));
+          // Chunk.Data.BitMapName := AllocMem(SizeOf(TBitMapName));
           Chunk.Data.BitMapName := ReadString;
         end;
       V_GRADIENT:
@@ -1979,8 +1999,8 @@ begin
         end;
       FOG:
         begin
-          Chunk.Data.Fog := AllocMem(SizeOf(TFog));
-          with Chunk.Data.Fog^ do
+          Chunk.Data.FOG := AllocMem(SizeOf(TFog));
+          with Chunk.Data.FOG^ do
           begin
             NearPlaneDist := ReadSingle;
             NearPlaneDensity := ReadSingle;
@@ -2010,12 +2030,7 @@ begin
             FarPlaneDimming := ReadSingle;
           end;
         end;
-      VIEW_TOP,
-      VIEW_BOTTOM, 
-      VIEW_LEFT, 
-      VIEW_RIGHT, 
-      VIEW_FRONT, 
-      VIEW_BACK:
+      VIEW_TOP, VIEW_BOTTOM, VIEW_LEFT, VIEW_RIGHT, VIEW_FRONT, VIEW_BACK:
         begin
           Chunk.Data.ViewStandard := AllocMem(SizeOf(TViewStandard));
           with Chunk.Data.ViewStandard^ do
@@ -2038,12 +2053,12 @@ begin
         end;
       VIEW_CAMERA:
         begin
-//          Chunk.Data.ViewCamera := AllocMem(SizeOf(TViewCamera));
+          // Chunk.Data.ViewCamera := AllocMem(SizeOf(TViewCamera));
           Chunk.Data.ViewCamera := ReadString;
         end;
       MAT_NAME:
         begin
-//          Chunk.Data.MatName := AllocMem(SizeOf(TMatName));
+          // Chunk.Data.MatName := AllocMem(SizeOf(TMatName));
           Chunk.Data.MatName := ReadString;
         end;
       MAT_SHADING:
@@ -2064,22 +2079,12 @@ begin
             FrameInterval := ReadCardinal;
           end;
         end;
-      MAT_SXP_TEXT_DATA,
-      MAT_SXP_TEXT2_DATA, 
-      MAT_SXP_OPAC_DATA, 
-      MAT_SXP_BUMP_DATA, 
-      MAT_SXP_SPEC_DATA, 
-      MAT_SXP_SHIN_DATA, 
-      MAT_SXP_SELFI_DATA,
-      MAT_SXP_TEXT_MASKDATA, 
-      MAT_SXP_TEXT2_MASKDATA, 
-      MAT_SXP_OPAC_MASKDATA, 
-      MAT_SXP_BUMP_MASKDATA, 
-      MAT_SXP_SPEC_MASKDATA, 
-      MAT_SXP_SHIN_MASKDATA, 
-      MAT_SXP_SELFI_MASKDATA, 
-      MAT_SXP_REFL_MASKDATA, 
-      PROC_DATA:
+      MAT_SXP_TEXT_DATA, MAT_SXP_TEXT2_DATA, MAT_SXP_OPAC_DATA,
+        MAT_SXP_BUMP_DATA, MAT_SXP_SPEC_DATA, MAT_SXP_SHIN_DATA,
+        MAT_SXP_SELFI_DATA, MAT_SXP_TEXT_MASKDATA, MAT_SXP_TEXT2_MASKDATA,
+        MAT_SXP_OPAC_MASKDATA, MAT_SXP_BUMP_MASKDATA, MAT_SXP_SPEC_MASKDATA,
+        MAT_SXP_SHIN_MASKDATA, MAT_SXP_SELFI_MASKDATA, MAT_SXP_REFL_MASKDATA,
+        PROC_DATA:
         begin
           Chunk.Data.IpasData := AllocMem(SizeOf(TIpasData));
           with Chunk.Data.IpasData^ do
@@ -2186,7 +2191,7 @@ begin
         end;
       NAMED_OBJECT:
         begin
-//          Chunk.Data.NamedObject := AllocMem(SizeOf(TNamedObject));
+          // Chunk.Data.NamedObject := AllocMem(SizeOf(TNamedObject));
           Chunk.Data.NamedObject := ReadString;
         end;
       POINT_ARRAY:
@@ -2196,21 +2201,21 @@ begin
           begin
             Vertices := ReadWord;
             PointList := AllocMem(Vertices * SizeOf(TPoint3DS));
-            //for I := 0 to Vertices - 1 do PointList[I] := ReadPoint;
+            // for I := 0 to Vertices - 1 do PointList[I] := ReadPoint;
             ReadData(Vertices * SizeOf(TPoint3DS), PointList);
           end;
         end;
       POINT_FLAG_ARRAY:
-      begin
-        Chunk.Data.PointFlagArray := AllocMem(SizeOf(TPointFlagArray));
-        with Chunk.Data.PointFlagArray^ do
         begin
-          Flags := ReadWord;
-          FlagList := AllocMem(Flags * SizeOf(SmallInt));
-          //for I := 0 to Flags - 1 do FlagList[I] := ReadShort;
-          ReadData(Flags * SizeOf(SmallInt), FlagList);
+          Chunk.Data.PointFlagArray := AllocMem(SizeOf(TPointFlagArray));
+          with Chunk.Data.PointFlagArray^ do
+          begin
+            Flags := ReadWord;
+            FlagList := AllocMem(Flags * SizeOf(SmallInt));
+            // for I := 0 to Flags - 1 do FlagList[I] := ReadShort;
+            ReadData(Flags * SizeOf(SmallInt), FlagList);
+          end;
         end;
-      end;
       FACE_ARRAY:
         begin
           Chunk.Data.FaceArray := AllocMem(SizeOf(TFaceArray));
@@ -2218,7 +2223,7 @@ begin
           begin
             Faces := ReadWord;
             FaceList := AllocMem(Faces * SizeOf(TFace3DS));
-            //for I := 0 to Faces - 1 do FaceList[I] := ReadFace;
+            // for I := 0 to Faces - 1 do FaceList[I] := ReadFace;
             ReadData(Faces * SizeOf(TFace3DS), FaceList);
           end;
         end;
@@ -2227,21 +2232,23 @@ begin
           Chunk.Data.MshMatGroup := AllocMem(SizeOf(TMshMatGroup));
           with Chunk.Data.MshMatGroup^ do
           begin
-            MatNameStr := StrPasFree(ReadString);
+            MatNameStr := AnsiString(StrPasFree(ReadString));
             Faces := ReadWord;
             if Faces > 0 then
             begin
               FaceList := AllocMem(Faces * SizeOf(Word));
-              //for I := 0 to Faces - 1 do FaceList[I] := ReadWord;
+              // for I := 0 to Faces - 1 do FaceList[I] := ReadWord;
               ReadData(Faces * SizeOf(Word), FaceList);
             end
-            else FaceList := nil;
+            else
+              FaceList := nil;
           end;
         end;
       MSH_BOXMAP:
         begin
           Chunk.Data.MshBoxmap := AllocMem(SizeOf(TMshBoxmap));
-          for I := 0 to 5 do Chunk.Data.MshBoxmap[I] := ReadString;
+          for I := 0 to 5 do
+            Chunk.Data.MshBoxmap[I] := ReadString;
         end;
       SMOOTH_GROUP:
         begin
@@ -2250,7 +2257,7 @@ begin
           begin
             Groups := (Chunk.Size - 6) div 4;
             GroupList := AllocMem(Groups * SizeOf(Cardinal));
-            //for I := 0 to Groups - 1 do GroupList[I] := ReadCardinal;
+            // for I := 0 to Groups - 1 do GroupList[I] := ReadCardinal;
             ReadData(Groups * SizeOf(Cardinal), GroupList);
           end;
         end;
@@ -2261,14 +2268,15 @@ begin
           begin
             NumCoords := ReadWord;
             TextVertList := AllocMem(NumCoords * SizeOf(TTexVert3DS));
-            //for I := 0 to NumCoords - 1 do TextVertList[I] := ReadTexVert;
+            // for I := 0 to NumCoords - 1 do TextVertList[I] := ReadTexVert;
             ReadData(NumCoords * SizeOf(TTexVert3DS), TextVertList);
           end;
         end;
       MESH_MATRIX:
         begin
           Chunk.Data.MeshMatrix := AllocMem(SizeOf(TMeshMatrix));
-          for I := 0 to 11 do Chunk.Data.MeshMatrix[I] := ReadSingle;
+          for I := 0 to 11 do
+            Chunk.Data.MeshMatrix[I] := ReadSingle;
         end;
       MESH_COLOR:
         begin
@@ -2285,7 +2293,8 @@ begin
             YTiling := ReadSingle;
             IconPos := ReadPoint();
             IconScaling := ReadSingle;
-            for I := 0 to 11 do XMatrix[I] := ReadSingle;
+            for I := 0 to 11 do
+              XMatrix[I] := ReadSingle;
             IconWidth := ReadSingle;
             IconHeight := ReadSingle;
             CylIconHeight := ReadSingle;
@@ -2293,7 +2302,7 @@ begin
         end;
       PROC_NAME:
         begin
-//          Chunk.Data.ProcName := AllocMem(SizeOf(TProcName));
+          // Chunk.Data.ProcName := AllocMem(SizeOf(TProcName));
           Chunk.Data.ProcName := ReadString;
         end;
       N_DIRECT_LIGHT:
@@ -2303,7 +2312,7 @@ begin
         end;
       DL_EXCLUDE:
         begin
-//          Chunk.Data.DlExclude := AllocMem(SizeOf(TDlExclude));
+          // Chunk.Data.DlExclude := AllocMem(SizeOf(TDlExclude));
           Chunk.Data.DlExclude := ReadString;
         end;
       DL_INNER_RANGE:
@@ -2353,7 +2362,7 @@ begin
         end;
       DL_SPOT_PROJECTOR:
         begin
-//          Chunk.Data.DlSpotProjector := AllocMem(SizeOf(TDlSpotProjector));
+          // Chunk.Data.DlSpotProjector := AllocMem(SizeOf(TDlSpotProjector));
           Chunk.Data.DlSpotProjector := ReadString;
         end;
       DL_RAY_BIAS:
@@ -2406,8 +2415,7 @@ begin
             Height := ReadWord;
           end;
         end;
-      VIEWPORT_DATA_3,
-      VIEWPORT_DATA:
+      VIEWPORT_DATA_3, VIEWPORT_DATA:
         begin
           Chunk.Data.ViewportData := AllocMem(SizeOf(TViewportData));
           with Chunk.Data.ViewportData^ do
@@ -2423,7 +2431,7 @@ begin
             Center := ReadPoint;
             HorizAng := ReadSingle;
             VertAng := ReadSingle;
-            CamNameStr := StrPasFree(ReadString);
+            CamNameStr := AnsiString(StrPasFree(ReadString));
           end;
         end;
       XDATA_ENTRY:
@@ -2446,8 +2454,8 @@ begin
         end;
       KFHDR:
         begin
-          Chunk.Data.KFHdr := AllocMem(SizeOf(TKFHdr));
-          with Chunk.Data.KFHdr^ do
+          Chunk.Data.KFHDR := AllocMem(SizeOf(TKFHdr));
+          with Chunk.Data.KFHDR^ do
           begin
             Revision := ReadShort;
             FileName := StrPasFree(ReadString);
@@ -2456,8 +2464,8 @@ begin
         end;
       KFSEG:
         begin
-          Chunk.Data.KFSeg := AllocMem(SizeOf(TKFSeg));
-          with Chunk.Data.KFSeg^ do
+          Chunk.Data.KFSEG := AllocMem(SizeOf(TKFSeg));
+          with Chunk.Data.KFSEG^ do
           begin
             First := ReadInteger;
             Last := ReadInteger;
@@ -2465,13 +2473,13 @@ begin
         end;
       KFCURTIME:
         begin
-          Chunk.Data.KFCurtime := AllocMem(SizeOf(TKFCurtime));
-          Chunk.Data.KFCurtime^ := ReadInteger;
+          Chunk.Data.KFCURTIME := AllocMem(SizeOf(TKFCurtime));
+          Chunk.Data.KFCURTIME^ := ReadInteger;
         end;
       NODE_ID:
         begin
-          Chunk.Data.KFId := AllocMem(SizeOf(TKFId));
-          Chunk.Data.KFId^ := ReadShort;
+          Chunk.Data.KFID := AllocMem(SizeOf(TKFId));
+          Chunk.Data.KFID^ := ReadShort;
         end;
       NODE_HDR:
         begin
@@ -2486,8 +2494,8 @@ begin
         end;
       PIVOT:
         begin
-          Chunk.Data.Pivot := AllocMem(SizeOf(TPivot));
-          Chunk.Data.Pivot^ := ReadPoint;
+          Chunk.Data.PIVOT := AllocMem(SizeOf(TPivot));
+          Chunk.Data.PIVOT^ := ReadPoint;
         end;
       INSTANCE_NAME:
         begin
@@ -2502,8 +2510,8 @@ begin
         end;
       BOUNDBOX:
         begin
-          Chunk.Data.BoundBox := AllocMem(SizeOf(TBoundBox));
-          with Chunk.Data.BoundBox^ do
+          Chunk.Data.BOUNDBOX := AllocMem(SizeOf(TBoundBox));
+          with Chunk.Data.BOUNDBOX^ do
           begin
             Min := ReadPoint;
             Max := ReadPoint;
@@ -2658,56 +2666,22 @@ begin
           begin
             TrackHdr := ReadTrackHeader;
             KeyHdrList := AllocMem(TrackHdr.KeyCount * SizeOf(TKeyHeader3DS));
-            for I := 0 to TrackHdr.KeyCount - 1 do KeyHdrList[I] := ReadKeyHeader;
+            for I := 0 to TrackHdr.KeyCount - 1 do
+              KeyHdrList[I] := ReadKeyHeader;
           end;
         end;
-      M3DMAGIC,     // Chunks that do not contain data, or only contain children
-      MLIBMAGIC, 
-      MDATA, 
-      AMBIENT_LIGHT, 
-      SOLID_BGND, 
-      DEFAULT_VIEW, 
-      MAT_ENTRY, 
-      MAT_AMBIENT, 
-      MAT_DIFFUSE,
-      MAT_SPECULAR, 
-      MAT_SHININESS, 
-      MAT_SHIN2PCT, 
-      MAT_SHIN3PCT, 
-      MAT_TRANSPARENCY,
-      MAT_XPFALL, 
-      MAT_REFBLUR, 
-      MAT_SELF_ILPCT,  
-      MAT_TEXMAP, 
-      MAT_TEXMASK, 
-      MAT_TEX2MAP, 
-      MAT_TEX2MASK,  
-      MAT_OPACMAP, 
-      MAT_OPACMASK,
-      MAT_REFLMAP, 
-      MAT_REFLMASK, 
-      MAT_BUMPMAP, 
-      MAT_BUMPMASK, 
-      MAT_SPECMAP, 
-      MAT_SPECMASK, 
-      MAT_SHINMAP, 
-      MAT_SHINMASK, 
-      MAT_SELFIMAP, 
-      MAT_SELFIMASK, 
-      N_TRI_OBJECT, 
-      KFDATA, 
-      AMBIENT_NODE_TAG, 
-      OBJECT_NODE_TAG, 
-      CAMERA_NODE_TAG, 
-      TARGET_NODE_TAG, 
-      LIGHT_NODE_TAG, 
-      SPOTLIGHT_NODE_TAG,
-      L_TARGET_NODE_TAG,
-      CMAGIC,
-      XDATA_SECTION,
-      XDATA_GROUP:
+      M3DMAGIC, // Chunks that do not contain data, or only contain children
+      MLIBMAGIC, MDATA, AMBIENT_LIGHT, SOLID_BGND, DEFAULT_VIEW, MAT_ENTRY,
+        MAT_AMBIENT, MAT_DIFFUSE, MAT_SPECULAR, MAT_SHININESS, MAT_SHIN2PCT,
+        MAT_SHIN3PCT, MAT_TRANSPARENCY, MAT_XPFALL, MAT_REFBLUR, MAT_SELF_ILPCT,
+        MAT_TEXMAP, MAT_TEXMASK, MAT_TEX2MAP, MAT_TEX2MASK, MAT_OPACMAP,
+        MAT_OPACMASK, MAT_REFLMAP, MAT_REFLMASK, MAT_BUMPMAP, MAT_BUMPMASK,
+        MAT_SPECMAP, MAT_SPECMASK, MAT_SHINMAP, MAT_SHINMASK, MAT_SELFIMAP,
+        MAT_SELFIMASK, N_TRI_OBJECT, KFDATA, AMBIENT_NODE_TAG, OBJECT_NODE_TAG,
+        CAMERA_NODE_TAG, TARGET_NODE_TAG, LIGHT_NODE_TAG, SPOTLIGHT_NODE_TAG,
+        L_TARGET_NODE_TAG, CMAGIC, XDATA_SECTION, XDATA_GROUP:
         ; // do nothing
-    else             // a truely hideous thing to do, but it helps with unknown chunks
+    else // a truely hideous thing to do, but it helps with unknown chunks
       if Chunk.Size > 6 then // don't mess with dataless chunks
       begin
         Chunk.Data.Dummy := AllocMem(Chunk.Size - 6);
@@ -2717,65 +2691,27 @@ begin
   end;
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 procedure TFile3DS.SeekChild(Chunk: PChunk3DS);
 
 // Function skips to next Chunk on disk by seeking the next file position
 
 var
-   Offset : Integer;
+  Offset: Integer;
 begin
   Offset := 0;
   case Chunk.Tag of
-    M3DMAGIC, 
-    SMAGIC, 
-    LMAGIC, 
-    MATMAGIC, 
-    MLIBMAGIC, 
-    MDATA, 
-    AMBIENT_LIGHT, 
-    SOLID_BGND, 
-    DEFAULT_VIEW, 
-    MAT_ENTRY, 
-    MAT_AMBIENT, 
-    MAT_DIFFUSE, 
-    MAT_SPECULAR, 
-    MAT_SHININESS, 
-    MAT_SHIN2PCT, 
-    MAT_SHIN3PCT, 
-    MAT_TRANSPARENCY, 
-    MAT_XPFALL, 
-    MAT_REFBLUR, 
-    MAT_SELF_ILPCT, 
-    MAT_TEXMAP, 
-    MAT_TEXMASK, 
-    MAT_TEX2MAP, 
-    MAT_TEX2MASK, 
-    MAT_OPACMAP, 
-    MAT_OPACMASK, 
-    MAT_REFLMAP, 
-    MAT_REFLMASK, 
-    MAT_BUMPMAP, 
-    MAT_BUMPMASK, 
-    MAT_SPECMAP, 
-    MAT_SPECMASK, 
-    MAT_SHINMAP, 
-    MAT_SHINMASK, 
-    MAT_SELFIMAP, 
-    MAT_SELFIMASK, 
-    N_TRI_OBJECT, 
-    XDATA_SECTION, 
-    XDATA_ENTRY, 
-    KFDATA, 
-    OBJECT_NODE_TAG, 
-    CAMERA_NODE_TAG, 
-    TARGET_NODE_TAG, 
-    LIGHT_NODE_TAG, 
-    SPOTLIGHT_NODE_TAG, 
-    L_TARGET_NODE_TAG, 
-    AMBIENT_NODE_TAG, 
-    CMAGIC :
+    M3DMAGIC, SMAGIC, LMAGIC, MATMAGIC, MLIBMAGIC, MDATA, AMBIENT_LIGHT,
+      SOLID_BGND, DEFAULT_VIEW, MAT_ENTRY, MAT_AMBIENT, MAT_DIFFUSE,
+      MAT_SPECULAR, MAT_SHININESS, MAT_SHIN2PCT, MAT_SHIN3PCT, MAT_TRANSPARENCY,
+      MAT_XPFALL, MAT_REFBLUR, MAT_SELF_ILPCT, MAT_TEXMAP, MAT_TEXMASK,
+      MAT_TEX2MAP, MAT_TEX2MASK, MAT_OPACMAP, MAT_OPACMASK, MAT_REFLMAP,
+      MAT_REFLMASK, MAT_BUMPMAP, MAT_BUMPMASK, MAT_SPECMAP, MAT_SPECMASK,
+      MAT_SHINMAP, MAT_SHINMASK, MAT_SELFIMAP, MAT_SELFIMASK, N_TRI_OBJECT,
+      XDATA_SECTION, XDATA_ENTRY, KFDATA, OBJECT_NODE_TAG, CAMERA_NODE_TAG,
+      TARGET_NODE_TAG, LIGHT_NODE_TAG, SPOTLIGHT_NODE_TAG, L_TARGET_NODE_TAG,
+      AMBIENT_NODE_TAG, CMAGIC:
       ; // do nothing
     M3D_VERSION:
       Offset := SizeOf(Integer);
@@ -2811,7 +2747,7 @@ begin
       FreeMem(ReadString);
     FOG:
       Offset := 4 * SizeOf(Single);
-    LAYER_FOG         :
+    LAYER_FOG:
       Offset := 3 * SizeOf(Single) + SizeOf(Integer);
     DISTANCE_CUE:
       Offset := 4 * SizeOf(Single);
@@ -2823,12 +2759,7 @@ begin
       Offset := 24 + 2 * SizeOf(Single);
     VIEWPORT_LAYOUT:
       Offset := 7 * SizeOf(SmallInt);
-    VIEW_TOP,
-    VIEW_BOTTOM,
-    VIEW_LEFT,
-    VIEW_RIGHT,
-    VIEW_FRONT,
-    VIEW_BACK:
+    VIEW_TOP, VIEW_BOTTOM, VIEW_LEFT, VIEW_RIGHT, VIEW_FRONT, VIEW_BACK:
       Offset := 12 + SizeOf(Single);
     VIEW_USER:
       Offset := 12 + 4 * SizeOf(Single);
@@ -2838,8 +2769,7 @@ begin
       FreeMem(ReadString);
     MAT_ACUBIC:
       Offset := 2 * SizeOf(Byte) + 2 * SizeOf(Integer) + SizeOf(SmallInt);
-    POINT_ARRAY,
-    POINT_FLAG_ARRAY:
+    POINT_ARRAY, POINT_FLAG_ARRAY:
       Offset := Chunk.Size - 6;
     FACE_ARRAY:
       Offset := ReadWord * SizeOf(SmallInt) * 4;
@@ -2890,7 +2820,7 @@ begin
   FStream.Seek(Offset, soFromCurrent);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.GetDatabaseRelease: TReleaseLevel;
 
@@ -2898,7 +2828,7 @@ begin
   Result := Utils3DS.GetDatabaseRelease(Self, FDatabase);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 function TFile3DS.GetMeshRelease: TReleaseLevel;
 
@@ -2906,7 +2836,6 @@ begin
   Result := Utils3DS.GetMeshRelease(Self, FDatabase);
 end;
 
-//---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 
 end.
-

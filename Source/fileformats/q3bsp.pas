@@ -15,7 +15,7 @@ unit Q3BSP;
 
 interface
 
-uses Classes, VectorTypes;
+uses Classes, GLVectorTypes;
 
 const FACE_POLYGON = 1;
 const MAX_TEXTURES = 1000;
@@ -207,8 +207,7 @@ begin
    bspStream.Position:=lumps[kVisData].offset;
    bspStream.Read(VisData.numOfClusters, SizeOf(Integer));
    bspStream.Read(VisData.bytesPerCluster, SizeOf(Integer));
-   if (VisData.numOfClusters>0) then
-   if (VisData.numOfClusters*VisData.bytesPerCluster>0) then begin
+   if VisData.numOfClusters*VisData.bytesPerCluster>0 then begin
       SetLength(VisData.bitSets, VisData.numOfClusters*VisData.bytesPerCluster);
       bspStream.Read(VisData.bitSets[0], VisData.numOfClusters*VisData.bytesPerCluster);
    end;

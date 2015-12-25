@@ -12,16 +12,16 @@ uses
 
   //GLScene
   GLScene, GLVectorFileObjects, GLObjects, GLLCLViewer,
-  GLTexture, GLCadencer, GLSkydome, GLParticleFX, VectorGeometry,
+  GLTexture, GLCadencer, GLSkydome, GLParticleFX, GLVectorGeometry,
   GLLensFlare, GLBitmapFont, GLWindowsFont, GLHUDObjects,
   GLShadowPlane, GLFile3DS, GLGeomObjects, GLMaterial,
-  GLCoordinates, BaseClasses, GLCrossPlatform, GLViewer, GLColor,
+  GLCoordinates, GLBaseClasses, GLCrossPlatform, GLViewer, GLColor,
   GLSound, GLFileWAV, Menus,FileUtil;
 
 type
   TMain = class(TForm)
     Scene: TGLScene;
-    Viewer: TGLSceneViewerLCL;
+    Viewer: TGLSceneViewer;
     Camera: TGLCamera;
     DCFirTree: TGLDummyCube;
     FFFirTree: TGLFreeForm;

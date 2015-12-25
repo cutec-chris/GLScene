@@ -5,7 +5,13 @@
 
   OpenGL windows management classes and structures<p>
 
-	<b>History : </b><font size=-1><ul>
+ <b>History : </b><font size=-1><ul>
+      <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to records,
+                          renamed lowercase sender and accept to uppercase Sender and Accept
+      <li>16/03/11 - Yar - Fixes after emergence of GLMaterialEx
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
+      <li>11/06/10 - YP - Link GUI elements to their parent
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>17/10/08 - DanB - reversed order of vertices in TGLCustomControl.InternalRender,
                             which fixes the GUIPaint demo
@@ -36,7 +42,7 @@
                           TGLButton, TGLForm - AlphaChannel behaviour text.
                           Added events OnMouseEnter/OnMouseLeave for all controls
       <li>05/02/05 - AX - TGLLabel correct layout depending on Aligment and TextLayout.
-	</ul></font>
+ </ul></font>
 }
 
 unit GLWindows;
@@ -46,320 +52,372 @@ interface
 {$I GLScene.inc}
 
 uses
-   SysUtils, Classes, GLScene, GLHUDObjects,
-   GLMaterial, OpenGL1x, GLBitmapFont, GLWindowsFont, VectorGeometry,
-   GLGui, GLCrossPlatform, GLColor, GLRenderContextInfo, BaseClasses;
+  {$IFDEF GLS_DELPHI_XE2_UP}
+    System.Classes, System.SysUtils,
+  {$ELSE}
+    Classes, SysUtils,
+  {$ENDIF}
+
+  GLScene, GLHUDObjects, GLMaterial, OpenGLTokens, GLContext,
+  GLBitmapFont, GLWindowsFont, GLVectorGeometry, GLGui,
+  GLCrossPlatform, GLColor, GLRenderContextInfo, GLBaseClasses;
 
 type
 
   TGLBaseComponent = class(TGLBaseGuiObject)
   private
-    FGUIRedraw : Boolean;
-    FGuiLayout     : TGLGuiLayout;
-    FGuiLayoutName : TGLGuiComponentName;
-    FGuiComponent  : TGLGuiComponent;
-    FReBuildGui    : Boolean;
-    FRedrawAtOnce : Boolean;
-    MoveX, MoveY : TGLFloat;
-    FRenderStatus  : TGUIDrawResult;
+    FGUIRedraw: Boolean;
+    FGuiLayout: TGLGuiLayout;
+    FGuiLayoutName: TGLGuiComponentName;
+    FGuiComponent: TGLGuiComponent;
+    FReBuildGui: Boolean;
+    FRedrawAtOnce: Boolean;
+    MoveX, MoveY: TGLFloat;
+    FRenderStatus: TGUIDrawResult;
 
-    FAlphaChannel : Single;
-    FRotation : TGLFloat;
-    FNoZWrite : Boolean;
+    FAlphaChannel: Single;
+    FRotation: TGLFloat;
+    FNoZWrite: Boolean;
 
-    BlockRendering : Boolean;
-    RenderingCount : Integer;
-    BlockedCount   : Integer;
-    GuiDestroying : Boolean;
+    BlockRendering: Boolean;
+    RenderingCount: Integer;
+    BlockedCount: Integer;
+    GuiDestroying: Boolean;
     FDoChangesOnProgress: Boolean;
+    FAutosize: Boolean;
 
-    procedure SetGUIRedraw(value : Boolean);
-	procedure SetDoChangesOnProgress(const Value: Boolean);
+    procedure SetGUIRedraw(value: Boolean);
+    procedure SetDoChangesOnProgress(const Value: Boolean);
+    procedure SetAutosize(const Value: Boolean);
   protected
-    Procedure RenderHeader(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
-    Procedure RenderFooter(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+    procedure RenderHeader(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean);
+    procedure RenderFooter(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean);
 
-    procedure SetGuiLayout(NewGui : TGLGuiLayout); Virtual;
-    procedure SetGuiLayoutName(NewName : TGLGuiComponentName);
+    procedure SetGuiLayout(NewGui: TGLGuiLayout); virtual;
+    procedure SetGuiLayoutName(NewName: TGLGuiComponentName);
 
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation);
+      override;
 
-    procedure SetRotation(const val : TGLFloat);
-    procedure SetAlphaChannel(const val : Single);
-    function StoreAlphaChannel : Boolean;
-    procedure SetNoZWrite(const val : Boolean);
+    procedure SetRotation(const val: TGLFloat);
+    procedure SetAlphaChannel(const val: Single);
+    function StoreAlphaChannel: Boolean;
+    procedure SetNoZWrite(const val: Boolean);
 
   public
-    Procedure BlockRender;
-    Procedure UnBlockRender;
+    procedure BlockRender;
+    procedure UnBlockRender;
 
-    Constructor Create(AOwner : TComponent); override;
-    Destructor  Destroy; override;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
-    procedure NotifyChange(Sender : TObject); override;
-    Procedure DoChanges; virtual;
-    Procedure MoveGUI(XRel, YRel : Single);
-    Procedure PlaceGUI(XPos, YPos : Single);
+    procedure NotifyChange(Sender: TObject); override;
+    procedure DoChanges; virtual;
+    procedure MoveGUI(XRel, YRel: Single);
+    procedure PlaceGUI(XPos, YPos: Single);
 
-    procedure DoProgress(const progressTime : TProgressTimes); override;
+    procedure DoProgress(const progressTime: TProgressTimes); override;
 
-    procedure DoRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
-    Procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); Virtual;
-    property  GUIRedraw     : Boolean read FGUIRedraw write SetGUIRedraw;
-    property  ReBuildGui    : Boolean read FReBuildGui write FReBuildGui;
+    procedure DoRender(var rci: TRenderContextInfo; renderSelf, renderChildren:
+      Boolean); override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); virtual;
+    property GUIRedraw: Boolean read FGUIRedraw write SetGUIRedraw;
+    property ReBuildGui: Boolean read FReBuildGui write FReBuildGui;
   published
-    property  RedrawAtOnce  : Boolean                read FRedrawAtOnce  write FRedrawAtOnce;
-    property  GuiLayout     : TGLGuiLayout           read FGuiLayout     write SetGuiLayout;
-    property  GuiLayoutName : TGLGuiComponentName    read FGuiLayoutName write SetGuiLayoutName;
+    property Autosize: Boolean read FAutosize write SetAutosize;
+    property RedrawAtOnce: Boolean read FRedrawAtOnce write FRedrawAtOnce;
+    property GuiLayout: TGLGuiLayout read FGuiLayout write SetGuiLayout;
+    property GuiLayoutName: TGLGuiComponentName read FGuiLayoutName write
+      SetGuiLayoutName;
 
     {: This the ON-SCREEN rotation of the GuiComponent.<p>
        Rotatation=0 is handled faster. }
-    property Rotation : TGLFloat read FRotation write SetRotation;
+    property Rotation: TGLFloat read FRotation write SetRotation;
     {: If different from 1, this value will replace that of Diffuse.Alpha }
-    property AlphaChannel : Single read FAlphaChannel write SetAlphaChannel stored StoreAlphaChannel;
+    property AlphaChannel: Single read FAlphaChannel write SetAlphaChannel stored
+      StoreAlphaChannel;
     {: If True, GuiComponent will not write to Z-Buffer.<p>
        GuiComponent will STILL be maskable by ZBuffer test. }
-    property NoZWrite : Boolean read FNoZWrite write SetNoZWrite;
+    property NoZWrite: Boolean read FNoZWrite write SetNoZWrite;
 
-    property DoChangesOnProgress : Boolean read FDoChangesOnProgress write SetDoChangesOnProgress;
+    property DoChangesOnProgress: Boolean read FDoChangesOnProgress write
+      SetDoChangesOnProgress;
     property Visible;
     property Width;
     property Height;
     property Left;
     property Top;
     property Position;
-
-  End;
+  end;
 
   TGLFocusControl = class;
   TGLBaseControl = class;
 
-  TGLMouseAction = (ma_mouseup,ma_mousedown,ma_mousemove);
+  TGLMouseAction = (ma_mouseup, ma_mousedown, ma_mousemove);
 
-  TGLAcceptMouseQuery = procedure (Sender : TGLBaseControl; Shift: TShiftState; Action : TGLMouseAction; Button: TGLMouseButton; X, Y: Integer; var accept: boolean) of Object;
+  TGLAcceptMouseQuery = procedure(Sender: TGLBaseControl; Shift: TShiftState;
+    Action: TGLMouseAction; Button: TGLMouseButton; X, Y: Integer; var Accept:
+    boolean) of object;
   TGLBaseControl = class(TGLBaseComponent)
   private
     FOnMouseDown: TGLMouseEvent;
     FOnMouseMove: TGLMouseMoveEvent;
-    FOnMouseUp  : TGLMouseEvent;
-    FKeepMouseEvents  : Boolean;
-    FActiveControl    : TGLBaseControl;
-    FFocusedControl   : TGLFocusControl;
-    FOnAcceptMouseQuery : TGLAcceptMouseQuery;
+    FOnMouseUp: TGLMouseEvent;
+    FKeepMouseEvents: Boolean;
+    FActiveControl: TGLBaseControl;
+    FFocusedControl: TGLFocusControl;
+    FOnAcceptMouseQuery: TGLAcceptMouseQuery;
     FOnMouseLeave: TNotifyEvent;
     FOnMouseEnter: TNotifyEvent;
     FEnteredControl: TGLBaseControl;
   protected
-    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); Virtual;
-    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); Virtual;
-    procedure InternalMouseMove(Shift: TShiftState; X, Y: Integer); Virtual;
-    Procedure SetActiveControl(NewControl : TGLBaseControl);
-    Procedure SetFocusedControl(NewControl : TGLFocusControl);
-    Function  FindFirstGui : TGLBaseControl;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X,
+      Y: Integer); virtual;
+    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y:
+      Integer); virtual;
+    procedure InternalMouseMove(Shift: TShiftState; X, Y: Integer); virtual;
+    procedure SetActiveControl(NewControl: TGLBaseControl);
+    procedure SetFocusedControl(NewControl: TGLFocusControl);
+    function FindFirstGui: TGLBaseControl;
+    procedure Notification(AComponent: TComponent; Operation: TOperation);
+      override;
 
     procedure DoMouseEnter;
     procedure DoMouseLeave;
   public
-    Function  MouseDown(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean; virtual;
-    Function  MouseUp(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean; virtual;
-    Function  MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer) : Boolean; virtual;
-    Procedure KeyPress(Sender: TObject; var Key: Char); virtual;
-    Procedure KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
-    Procedure KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
-    property  ActiveControl : TGLBaseControl  read FActiveControl write SetActiveControl;
-    property  KeepMouseEvents : Boolean         read FKeepMouseEvents write FKeepMouseEvents default false;
+    function MouseDown(Sender: TObject; Button: TGLMouseButton; Shift:
+      TShiftState; X, Y: Integer): Boolean; virtual;
+    function MouseUp(Sender: TObject; Button: TGLMouseButton; Shift:
+      TShiftState; X, Y: Integer): Boolean; virtual;
+    function MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer):
+      Boolean; virtual;
+    procedure KeyPress(Sender: TObject; var Key: Char); virtual;
+    procedure KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+      virtual;
+    procedure KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+      virtual;
+    property ActiveControl: TGLBaseControl read FActiveControl write
+      SetActiveControl;
+    property KeepMouseEvents: Boolean read FKeepMouseEvents write
+      FKeepMouseEvents default false;
   published
-    property  FocusedControl  : TGLFocusControl read FFocusedControl  write SetFocusedControl;
-    property  OnMouseDown     : TGLMouseEvent     read FOnMouseDown     write FOnMouseDown;
-    property  OnMouseMove     : TGLMouseMoveEvent read FOnMouseMove     write FOnMouseMove;
-    property  OnMouseUp       : TGLMouseEvent     read FOnMouseUp       write FOnMouseUp;
-    property  OnMouseEnter    : TNotifyEvent      read FOnMouseEnter    write FOnMouseEnter;
-    property  OnMouseLeave    : TNotifyEvent      read FOnMouseLeave    write FOnMouseLeave;
-    property  OnAcceptMouseQuery : TGLAcceptMouseQuery read FOnAcceptMouseQuery write FOnAcceptMouseQuery;
-  End;
+    property FocusedControl: TGLFocusControl read FFocusedControl write
+      SetFocusedControl;
+    property OnMouseDown: TGLMouseEvent read FOnMouseDown write FOnMouseDown;
+    property OnMouseMove: TGLMouseMoveEvent read FOnMouseMove write
+      FOnMouseMove;
+    property OnMouseUp: TGLMouseEvent read FOnMouseUp write FOnMouseUp;
+    property OnMouseEnter: TNotifyEvent read FOnMouseEnter write FOnMouseEnter;
+    property OnMouseLeave: TNotifyEvent read FOnMouseLeave write FOnMouseLeave;
+    property OnAcceptMouseQuery: TGLAcceptMouseQuery read FOnAcceptMouseQuery
+      write FOnAcceptMouseQuery;
+  end;
 
   TGLBaseFontControl = class(TGLBaseControl)
   private
     FBitmapFont: TGLCustomBitmapFont;
-    FDefaultColor    : TColorVector;
+    FDefaultColor: TColorVector;
   protected
-    Function  GetDefaultColor : TDelphiColor;
-    procedure SetDefaultColor(value : TDelphiColor);
-    Procedure SetBitmapFont(NewFont : TGLCustomBitmapFont);
-    Function  GetBitmapFont : TGLCustomBitmapFont;
-    Procedure WriteTextAt(var rci : TRenderContextInfo; Const X,Y : TGLFloat; Const Data : String; const Color : TColorVector); overload;
-    Procedure WriteTextAt(var rci : TRenderContextInfo; Const X1,Y1,X2,Y2 : TGLFloat; Const Data : String; const Color : TColorVector); overload;
-    Function  GetFontHeight : Integer;
+    function GetDefaultColor: TDelphiColor;
+    procedure SetDefaultColor(value: TDelphiColor);
+    procedure SetBitmapFont(NewFont: TGLCustomBitmapFont);
+    function GetBitmapFont: TGLCustomBitmapFont;
+    procedure WriteTextAt(var rci: TRenderContextInfo; const X, Y: TGLFloat;
+      const Data: UnicodeString; const Color: TColorVector); overload;
+    procedure WriteTextAt(var rci: TRenderContextInfo; const X1, Y1, X2, Y2:
+      TGLFloat; const Data: UnicodeString; const Color: TColorVector); overload;
+    function GetFontHeight: Integer;
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor  Destroy; override;
-    procedure   Notification(AComponent: TComponent; Operation: TOperation); override;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation);
+      override;
   published
-    property BitmapFont : TGLCustomBitmapFont read GetBitmapFont write SetBitmapFont;
-    property DefaultColor : TDelphiColor read GetDefaultColor write SetDefaultColor;
+    property BitmapFont: TGLCustomBitmapFont read GetBitmapFont write
+      SetBitmapFont;
+    property DefaultColor: TDelphiColor read GetDefaultColor write
+      SetDefaultColor;
   end;
 
   TGLBaseTextControl = class(TGLBaseFontControl)
   private
-    FCaption  : String;
+    FCaption: UnicodeString;
   protected
-    Procedure SetCaption(NewCaption : String);
+    procedure SetCaption(const NewCaption: UnicodeString);
   public
   published
-    property  Caption : String read FCaption write SetCaption;
+    property Caption: UnicodeString read FCaption write SetCaption;
   end;
 
   TGLFocusControl = class(TGLBaseTextControl)
   private
-    FRootControl      : TGLBaseControl;
-    FFocused          : Boolean;
-    FOnKeyDown        : TGLKeyEvent;
-    FOnKeyUp          : TGLKeyEvent;
-    FOnKeyPress       : TGLKeyPressEvent;
-    FShiftState       : TShiftState;
-    FFocusedColor     : TColorVector;
+    FRootControl: TGLBaseControl;
+    FFocused: Boolean;
+    FOnKeyDown: TGLKeyEvent;
+    FOnKeyUp: TGLKeyEvent;
+    FOnKeyPress: TGLKeyPressEvent;
+    FShiftState: TShiftState;
+    FFocusedColor: TColorVector;
   protected
-    Procedure InternalKeyPress(var Key: Char); virtual;
-    Procedure InternalKeyDown(var Key: Word; Shift: TShiftState); virtual;
-    Procedure InternalKeyUp(var Key: Word; Shift: TShiftState); virtual;
-    Procedure SetFocused(Value :Boolean); virtual;
-    Function  GetRootControl : TGLBaseControl;
-    Function  GetFocusedColor : TDelphiColor;
-    Procedure SetFocusedColor(const Val : TDelphiColor);
+    procedure InternalKeyPress(var Key: Char); virtual;
+    procedure InternalKeyDown(var Key: Word; Shift: TShiftState); virtual;
+    procedure InternalKeyUp(var Key: Word; Shift: TShiftState); virtual;
+    procedure SetFocused(Value: Boolean); virtual;
+    function GetRootControl: TGLBaseControl;
+    function GetFocusedColor: TDelphiColor;
+    procedure SetFocusedColor(const Val: TDelphiColor);
   public
-    Destructor Destroy; override;
+    destructor Destroy; override;
     procedure NotifyHide; override;
-    procedure MoveTo(newParent : TGLBaseSceneObject); override;
+    procedure MoveTo(newParent: TGLBaseSceneObject); override;
     procedure ReGetRootControl;
-    Procedure SetFocus;
-    Procedure PrevControl;
-    Procedure NextControl;
-    Procedure KeyPress(Sender: TObject; var Key: Char); override;
-    Procedure KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); override;
-    Procedure KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); override;
+    procedure SetFocus;
+    procedure PrevControl;
+    procedure NextControl;
+    procedure KeyPress(Sender: TObject; var Key: Char); override;
+    procedure KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+      override;
+    procedure KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+      override;
   published
-    property  RootControl    : TGLBaseControl   read GetRootControl;
-    property  Focused        : Boolean          read FFocused    write SetFocused;
-    property  FocusedColor   : TDelphiColor           read GetFocusedColor write SetFocusedColor;
-    property  OnKeyDown      : TGLKeyEvent        read FOnKeyDown  write FOnKeyDown;
-    property  OnKeyUp        : TGLKeyEvent        read FOnKeyUp    write FOnKeyUp;
-    property  OnKeyPress     : TGLKeyPressEvent   read FOnKeyPress write FOnKeyPress;
-  End;
+    property RootControl: TGLBaseControl read GetRootControl;
+    property Focused: Boolean read FFocused write SetFocused;
+    property FocusedColor: TDelphiColor read GetFocusedColor write
+      SetFocusedColor;
+    property OnKeyDown: TGLKeyEvent read FOnKeyDown write FOnKeyDown;
+    property OnKeyUp: TGLKeyEvent read FOnKeyUp write FOnKeyUp;
+    property OnKeyPress: TGLKeyPressEvent read FOnKeyPress write FOnKeyPress;
+  end;
 
-  TGLCustomControl = Class;
-  TGLCustomRenderEvent = procedure (sender : TGLCustomControl; Bitmap : TGLBitmap) of Object;
-  TGLCustomControl = Class(TGLFocusControl)
+  TGLCustomControl = class;
+  TGLCustomRenderEvent = procedure(Sender: TGLCustomControl; Bitmap: TGLBitmap)
+    of object;
+  TGLCustomControl = class(TGLFocusControl)
   private
-    FCustomData   : Pointer;
-    FCustomObject : TObject;
-    FOnRender     : TGLCustomRenderEvent;
-    FMaterial     : TGLMaterial;
-    FBitmap       : TGLBitmap;
-    FInternalBitmap : TGLBitmap;
-    FBitmapChanged : Boolean;
-    FXTexCoord     : Single;
-    FYTexCoord     : Single;
-    FInvalidRenderCount : Integer;
-    FMaxInvalidRenderCount : Integer;
+    FCustomData: Pointer;
+    FCustomObject: TObject;
+    FOnRender: TGLCustomRenderEvent;
+    FMaterial: TGLMaterial;
+    FBitmap: TGLBitmap;
+    FInternalBitmap: TGLBitmap;
+    FBitmapChanged: Boolean;
+    FXTexCoord: Single;
+    FYTexCoord: Single;
+    FInvalidRenderCount: Integer;
+    FMaxInvalidRenderCount: Integer;
     FCentered: Boolean;
     procedure SetCentered(const Value: Boolean);
   protected
-    Procedure   OnBitmapChanged(Sender : TObject);
-    Procedure   SetBitmap(ABitmap : TGLBitmap);
+    procedure OnBitmapChanged(Sender: TObject);
+    procedure SetBitmap(ABitmap: TGLBitmap);
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor  Destroy; override;
-    procedure   InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
-    procedure   SetMaterial(AMaterial : TGLMaterial);
-    property    CustomData   : Pointer            read FCustomData write FCustomData;
-    property    CustomObject : TObject            read FCustomObject write FCustomObject;
-  Published
-    property    OnRender     : TGLCustomRenderEvent read FOnRender write FOnRender;
-    property    Centered     : Boolean read FCentered write SetCentered;
-    property    Material     : TGLMaterial read FMaterial write SetMaterial;
-    property    Bitmap       : TGLBitmap read FBitmap write SetBitmap;
-    property    MaxInvalidRenderCount : Integer read FMaxInvalidRenderCount write FMaxInvalidRenderCount;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
+    procedure SetMaterial(AMaterial: TGLMaterial);
+    property CustomData: Pointer read FCustomData write FCustomData;
+    property CustomObject: TObject read FCustomObject write FCustomObject;
+  published
+    property OnRender: TGLCustomRenderEvent read FOnRender write FOnRender;
+    property Centered: Boolean read FCentered write SetCentered;
+    property Material: TGLMaterial read FMaterial write SetMaterial;
+    property Bitmap: TGLBitmap read FBitmap write SetBitmap;
+    property MaxInvalidRenderCount: Integer read FMaxInvalidRenderCount write
+      FMaxInvalidRenderCount;
   end;
 
-
-
   TGLPopupMenu = class;
-  TGLPopupMenuClick = procedure (Sender: TGLPopupMenu; index : Integer; const MenuItemText : String) of Object;
+  TGLPopupMenuClick = procedure(Sender: TGLPopupMenu; index: Integer; const
+    MenuItemText: string) of object;
 
   TGLPopupMenu = class(TGLFocusControl)
   private
-    FOnClick : TGLPopupMenuClick;
-    FMenuItems : TStrings;
-    FSelIndex  : Integer;
-    FMarginSize : Single;
-    NewHeight   : Single;
+    FOnClick: TGLPopupMenuClick;
+    FMenuItems: TStrings;
+    FSelIndex: Integer;
+    FMarginSize: Single;
+    NewHeight: Single;
   protected
-    Procedure SetFocused(Value :Boolean); override;
-    Procedure SetMenuItems(Value :TStrings);
-    Procedure SetMarginSize(const val : Single);
-    Procedure SetSelIndex(const val : Integer);
-    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
+    procedure SetFocused(Value: Boolean); override;
+    procedure SetMenuItems(Value: TStrings);
+    procedure SetMarginSize(const val: Single);
+    procedure SetSelIndex(const val: Integer);
+    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X,
+      Y: Integer); override;
     procedure InternalMouseMove(Shift: TShiftState; X, Y: Integer); override;
-    Procedure OnStringListChange(Sender : TObject);
+    procedure OnStringListChange(Sender: TObject);
   public
-    Constructor Create(AOwner : TComponent); override;
-    Destructor  Destroy; override;
-    Procedure   PopUp(Px,Py : Integer);
-    procedure   InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
-    procedure   DoRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
-    Function    MouseDown(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean; override;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure PopUp(Px, Py: Integer);
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
+    procedure DoRender(var rci: TRenderContextInfo; renderSelf, renderChildren:
+      Boolean); override;
+    function MouseDown(Sender: TObject; Button: TGLMouseButton; Shift:
+      TShiftState; X, Y: Integer): Boolean; override;
   published
-    property MenuItems : TStrings read FMenuItems write SetMenuItems;
-    property OnClick : TGLPopupMenuClick read FOnClick write FOnClick;
-    property MarginSize : Single read FMarginSize write SetMarginSize;
-    property SelIndex : Integer read FSelIndex write SetSelIndex;
-  End;
+    property MenuItems: TStrings read FMenuItems write SetMenuItems;
+    property OnClick: TGLPopupMenuClick read FOnClick write FOnClick;
+    property MarginSize: Single read FMarginSize write SetMarginSize;
+    property SelIndex: Integer read FSelIndex write SetSelIndex;
+  end;
   TGLForm = class;
 
-  TGLFormCanRequest   = procedure (Sender: TGLForm; var Can: Boolean) of Object;
+  TGLFormCanRequest = procedure(Sender: TGLForm; var Can: Boolean) of object;
   TGLFormCloseOptions = (co_Hide, co_Ignore, co_Destroy);
-  TGLFormCanClose     = procedure (Sender: TGLForm; var CanClose: TGLFormCloseOptions) of Object;
-  TGLFormNotify       = procedure (Sender: TGLForm) of Object;
-  TGLFormMove         = procedure (Sender: TGLForm; Var Left, Top : Single) of Object;
+  TGLFormCanClose = procedure(Sender: TGLForm; var CanClose: TGLFormCloseOptions)
+    of object;
+  TGLFormNotify = procedure(Sender: TGLForm) of object;
+  TGLFormMove = procedure(Sender: TGLForm; var Left, Top: Single) of object;
 
   TGLForm = class(TGLBaseTextControl)
   private
-    FOnCanMove     : TGLFormCanRequest;
-    FOnCanResize   : TGLFormCanRequest;
-    FOnCanClose    : TGLFormCanClose;
-    FOnShow        : TGLFormNotify;
-    FOnHide        : TGLFormNotify;
-    FOnMoving      : TGLFormMove;
-    Moving         : Boolean;
-    OldX           : Integer;
-    OldY           : Integer;
-    FTitleColor    : TColorVector;
-    FTitleOffset   : Single;
+    FOnCanMove: TGLFormCanRequest;
+    FOnCanResize: TGLFormCanRequest;
+    FOnCanClose: TGLFormCanClose;
+    FOnShow: TGLFormNotify;
+    FOnHide: TGLFormNotify;
+    FOnMoving: TGLFormMove;
+    Moving: Boolean;
+    OldX: Integer;
+    OldY: Integer;
+    FTitleColor: TColorVector;
+    FTitleOffset: Single;
   protected
-    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
-    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
+    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X,
+      Y: Integer); override;
+    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y:
+      Integer); override;
     procedure InternalMouseMove(Shift: TShiftState; X, Y: Integer); override;
-    Function  GetTitleColor : TDelphiColor;
-    procedure SetTitleColor(value : TDelphiColor);
+    function GetTitleColor: TDelphiColor;
+    procedure SetTitleColor(value: TDelphiColor);
   public
-    Constructor Create(AOwner : TComponent); override;
-    Procedure   Close;
+    constructor Create(AOwner: TComponent); override;
+    procedure Close;
 
     procedure NotifyShow; override;
     procedure NotifyHide; override;
-    Function  MouseUp(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean; override;
-    Function  MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer) : Boolean; override;
-    procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
+    function MouseUp(Sender: TObject; Button: TGLMouseButton; Shift:
+      TShiftState; X, Y: Integer): Boolean; override;
+    function MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer):
+      Boolean; override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
   published
-    property  TitleColor    : TDelphiColor                 read GetTitleColor  write SetTitleColor;
-    property  OnCanMove     : TGLFormCanRequest      read FOnCanMove     write FOnCanMove;
-    property  OnCanResize   : TGLFormCanRequest      read FOnCanResize   write FOnCanResize;
-    property  OnCanClose    : TGLFormCanClose        read FOnCanClose    write FOnCanClose;
-    property  OnShow        : TGLFormNotify          read FOnShow        write FOnShow;
-    property  OnHide        : TGLFormNotify          read FOnHide        write FOnHide;
-    property  OnMoving      : TGLFormMove            read FOnMoving      write FOnMoving;
-    property  TitleOffset   : Single                 read FTitleOffset   write FTitleOffset;
+    property TitleColor: TDelphiColor read GetTitleColor write SetTitleColor;
+    property OnCanMove: TGLFormCanRequest read FOnCanMove write FOnCanMove;
+    property OnCanResize: TGLFormCanRequest read FOnCanResize write
+      FOnCanResize;
+    property OnCanClose: TGLFormCanClose read FOnCanClose write FOnCanClose;
+    property OnShow: TGLFormNotify read FOnShow write FOnShow;
+    property OnHide: TGLFormNotify read FOnHide write FOnHide;
+    property OnMoving: TGLFormMove read FOnMoving write FOnMoving;
+    property TitleOffset: Single read FTitleOffset write FTitleOffset;
   end;
 
   TGLPanel = class(TGLBaseControl)
@@ -367,97 +425,108 @@ type
 
   TGLCheckBox = class(TGLBaseControl)
   private
-    FChecked : Boolean;
-    FOnChange : TNotifyEvent;
-    FGuiLayoutNameChecked : TGLGuiComponentName;
-    FGuiCheckedComponent  : TGLGuiComponent;
-    FGroup                : Integer;
+    FChecked: Boolean;
+    FOnChange: TNotifyEvent;
+    FGuiLayoutNameChecked: TGLGuiComponentName;
+    FGuiCheckedComponent: TGLGuiComponent;
+    FGroup: Integer;
   protected
-    Procedure SetChecked(NewChecked : Boolean);
-    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
-    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
-    procedure SetGuiLayoutNameChecked(newName : TGLGuiComponentName);
-    procedure SetGuiLayout(NewGui : TGLGuiLayout); Override;
-    Procedure SetGroup(const val : Integer);
+    procedure SetChecked(NewChecked: Boolean);
+    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X,
+      Y: Integer); override;
+    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y:
+      Integer); override;
+    procedure SetGuiLayoutNameChecked(newName: TGLGuiComponentName);
+    procedure SetGuiLayout(NewGui: TGLGuiLayout); override;
+    procedure SetGroup(const val: Integer);
   public
     constructor Create(AOwner: TComponent); override;
-    procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
-    procedure NotifyChange(Sender : TObject); override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
+    procedure NotifyChange(Sender: TObject); override;
   published
-    property  Group : Integer read FGroup write SetGroup;
-    property  Checked : Boolean read FChecked write SetChecked;
-    property  OnChange : TNotifyEvent read FOnChange write FOnChange;
-    property  GuiLayoutNameChecked : TGLGuiComponentName read FGuiLayoutNameChecked Write SetGuiLayoutNameChecked;
+    property Group: Integer read FGroup write SetGroup;
+    property Checked: Boolean read FChecked write SetChecked;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property GuiLayoutNameChecked: TGLGuiComponentName read FGuiLayoutNameChecked
+      write SetGuiLayoutNameChecked;
   end;
 
   TGLButton = class(TGLFocusControl)
   private
-    FPressed              : Boolean;
-    FOnButtonClick        : TNotifyEvent;
-    FGuiLayoutNamePressed : TGLGuiComponentName;
-    FGuiPressedComponent  : TGLGuiComponent;
-    FBitBtn               : TGLMaterial;
-    FGroup                : Integer;
-    FLogicWidth           : Single;
-    FLogicHeight          : Single;
-    FXOffSet              : Single;
-    FYOffSet              : Single;
-    FAllowUp              : Boolean;
+    FPressed: Boolean;
+    FOnButtonClick: TNotifyEvent;
+    FGuiLayoutNamePressed: TGLGuiComponentName;
+    FGuiPressedComponent: TGLGuiComponent;
+    FBitBtn: TGLMaterial;
+    FGroup: Integer;
+    FLogicWidth: Single;
+    FLogicHeight: Single;
+    FXOffSet: Single;
+    FYOffSet: Single;
+    FAllowUp: Boolean;
   protected
-    Procedure SetPressed(NewPressed : Boolean);
-    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
-    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
-    Procedure InternalKeyDown(var Key: Word; Shift: TShiftState); override;
-    Procedure InternalKeyUp(var Key: Word; Shift: TShiftState); override;
-    Procedure SetFocused(Value :Boolean); override;
-    procedure SetGuiLayoutNamePressed(newName : TGLGuiComponentName);
-    procedure SetGuiLayout(NewGui : TGLGuiLayout); Override;
+    procedure SetPressed(NewPressed: Boolean);
+    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X,
+      Y: Integer); override;
+    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y:
+      Integer); override;
+    procedure InternalKeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure InternalKeyUp(var Key: Word; Shift: TShiftState); override;
+    procedure SetFocused(Value: Boolean); override;
+    procedure SetGuiLayoutNamePressed(newName: TGLGuiComponentName);
+    procedure SetGuiLayout(NewGui: TGLGuiLayout); override;
     procedure SetBitBtn(AValue: TGLMaterial);
     procedure DestroyHandle; override;
-    Procedure SetGroup(const val : Integer);
-    Procedure SetLogicWidth(const val : single);
-    Procedure SetLogicHeight(const val : single);
-    Procedure SetXOffset(const val : single);
-    Procedure SetYOffset(const val : single);
+    procedure SetGroup(const val: Integer);
+    procedure SetLogicWidth(const val: single);
+    procedure SetLogicHeight(const val: single);
+    procedure SetXOffset(const val: single);
+    procedure SetYOffset(const val: single);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
   published
-    property Group : Integer read FGroup write SetGroup;
-    property BitBtn : TGLMaterial read FBitBtn write SetBitBtn;
-    property Pressed : Boolean read FPressed write SetPressed;
-    property OnButtonClick : TNotifyEvent read FOnButtonClick write FOnButtonClick;
-    property GuiLayoutNamePressed : TGLGuiComponentName read FGuiLayoutNamePressed Write SetGuiLayoutNamePressed;
-    property LogicWidth           : Single read FLogicWidth write SetLogicWidth;
-    property LogicHeight          : Single read FLogicHeight write SetLogicHeight;
-    property XOffset              : Single read FXOffset write SetXOffset;
-    property YOffset              : Single read FYOffset write SetYOffset;
-    property AllowUp              : Boolean read FAllowUp write FAllowUp;
+    property Group: Integer read FGroup write SetGroup;
+    property BitBtn: TGLMaterial read FBitBtn write SetBitBtn;
+    property Pressed: Boolean read FPressed write SetPressed;
+    property OnButtonClick: TNotifyEvent read FOnButtonClick write
+      FOnButtonClick;
+    property GuiLayoutNamePressed: TGLGuiComponentName read FGuiLayoutNamePressed
+      write SetGuiLayoutNamePressed;
+    property LogicWidth: Single read FLogicWidth write SetLogicWidth;
+    property LogicHeight: Single read FLogicHeight write SetLogicHeight;
+    property XOffset: Single read FXOffset write SetXOffset;
+    property YOffset: Single read FYOffset write SetYOffset;
+    property AllowUp: Boolean read FAllowUp write FAllowUp;
   end;
 
   TGLEdit = class(TGLFocusControl)
   private
-    FOnChange  : TNotifyEvent;
-    FSelStart  : Integer;
-    FReadOnly  : Boolean;
-    FEditChar  : String;
+    FOnChange: TNotifyEvent;
+    FSelStart: Integer;
+    FReadOnly: Boolean;
+    FEditChar: string;
   protected
-    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
-    Procedure InternalKeyPress(var Key: Char); override;
-    Procedure InternalKeyDown(var Key: Word; Shift: TShiftState); override;
-    Procedure InternalKeyUp(var Key: Word; Shift: TShiftState); override;
-    Procedure SetFocused(Value :Boolean); override;
-    Procedure SetSelStart(const Value : Integer);
-    Procedure SetEditChar(const Value : String);
+    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X,
+      Y: Integer); override;
+    procedure InternalKeyPress(var Key: Char); override;
+    procedure InternalKeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure InternalKeyUp(var Key: Word; Shift: TShiftState); override;
+    procedure SetFocused(Value: Boolean); override;
+    procedure SetSelStart(const Value: Integer);
+    procedure SetEditChar(const Value: string);
   public
-    Constructor Create(AOwner : TComponent); override;
-    procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
+    constructor Create(AOwner: TComponent); override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
   published
-    property  EditChar : String read FEditChar write SetEditChar;
-    property  ReadOnly : Boolean read FReadOnly write FReadOnly default False;
-    property  OnChange : TNotifyEvent read FOnChange write FOnChange;
-    property  SelStart : Integer read FSelStart write SetSelStart;
+    property EditChar: string read FEditChar write SetEditChar;
+    property ReadOnly: Boolean read FReadOnly write FReadOnly default False;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property SelStart: Integer read FSelStart write SetSelStart;
   end;
 
   TGLLabel = class(TGLBaseTextControl)
@@ -468,10 +537,11 @@ type
     procedure SetTextLayout(const Value: TGLTextLayout);
   protected
   public
-    Constructor Create(AOwner : TComponent); override;
-    procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
+    constructor Create(AOwner: TComponent); override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
   published
-    property Alignment : TAlignment read FAlignment write SetAlignment;
+    property Alignment: TAlignment read FAlignment write SetAlignment;
     property TextLayout: TGLTextLayout read FTextLayout write SetTextLayout;
   end;
 
@@ -479,678 +549,814 @@ type
   private
   protected
   public
-    procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
   published
   end;
 
   TGLScrollbar = class(TGLFocusControl)
   private
-    FMin      : Single;
-    FMax      : Single;
-    FStep     : Single;
-    FPos      : Single;
-    FPageSize : Single;
-    FOnChange : TNotifyEvent;
-    FGuiLayoutKnobName : TGLGuiComponentName;
-    FGuiKnobComponent  : TGLGuiComponent;
-    FKnobRenderStatus      : TGUIDrawResult;
-    FScrollOffs  : Single;
-    FScrolling   : Boolean;
-    FHorizontal : Boolean;
-    FLocked:Boolean;
+    FMin: Single;
+    FMax: Single;
+    FStep: Single;
+    FPos: Single;
+    FPageSize: Single;
+    FOnChange: TNotifyEvent;
+    FGuiLayoutKnobName: TGLGuiComponentName;
+    FGuiKnobComponent: TGLGuiComponent;
+    FKnobRenderStatus: TGUIDrawResult;
+    FScrollOffs: Single;
+    FScrolling: Boolean;
+    FHorizontal: Boolean;
+    FLocked: Boolean;
   protected
-    Procedure SetMin(const val      : Single);
-    Procedure SetMax(const val      : Single);
-    Procedure SetPos(const val : Single);
-    Procedure SetPageSize(const val : Single);
-    Procedure SetHorizontal(const val : Boolean);
-    procedure SetGuiLayoutKnobName(newName : TGLGuiComponentName);
-    procedure SetGuiLayout(NewGui : TGLGuiLayout); Override;
+    procedure SetMin(const val: Single);
+    procedure SetMax(const val: Single);
+    procedure SetPos(const val: Single);
+    procedure SetPageSize(const val: Single);
+    procedure SetHorizontal(const val: Boolean);
+    procedure SetGuiLayoutKnobName(newName: TGLGuiComponentName);
+    procedure SetGuiLayout(NewGui: TGLGuiLayout); override;
 
-    Function  GetScrollPosY(ScrollPos : Single) : Single;
-    Function  GetYScrollPos(Y : Single) : Single;
+    function GetScrollPosY(ScrollPos: Single): Single;
+    function GetYScrollPos(Y: Single): Single;
 
-    Function  GetScrollPosX(ScrollPos : Single) : Single;
-    Function  GetXScrollPos(X : Single) : Single;
+    function GetScrollPosX(ScrollPos: Single): Single;
+    function GetXScrollPos(X: Single): Single;
 
-    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
-    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
+    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X,
+      Y: Integer); override;
+    procedure InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y:
+      Integer); override;
     procedure InternalMouseMove(Shift: TShiftState; X, Y: Integer); override;
   public
-    constructor Create(AOwner : TComponent); override;
+    constructor Create(AOwner: TComponent); override;
 
-    Procedure StepUp;
-    Procedure StepDown;
-    Procedure PageUp;
-    Procedure PageDown;
-    Function  MouseUp(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean; override;
-    Function  MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer) : Boolean; override;
-    procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
+    procedure StepUp;
+    procedure StepDown;
+    procedure PageUp;
+    procedure PageDown;
+    function MouseUp(Sender: TObject; Button: TGLMouseButton; Shift:
+      TShiftState; X, Y: Integer): Boolean; override;
+    function MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer):
+      Boolean; override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
   published
-    property Horizontal : Boolean read FHorizontal write SetHorizontal;
-    property Pos      : Single read FPos write SetPos;
-    property Min      : Single read FMin write SetMin;
-    property Max      : Single read FMax write SetMax;
-    property Step     : Single read FStep write FStep;
-    property PageSize : Single read FPageSize write SetPageSize;
-    property OnChange : TNotifyEvent read FOnChange write FOnChange;
-    property GuiLayoutKnobName : TGLGuiComponentName read FGuiLayoutKnobName Write SetGuiLayoutKnobName;
-    property Locked : Boolean read FLocked write FLocked default False;
-  End;
-
+    property Horizontal: Boolean read FHorizontal write SetHorizontal;
+    property Pos: Single read FPos write SetPos;
+    property Min: Single read FMin write SetMin;
+    property Max: Single read FMax write SetMax;
+    property Step: Single read FStep write FStep;
+    property PageSize: Single read FPageSize write SetPageSize;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property GuiLayoutKnobName: TGLGuiComponentName read FGuiLayoutKnobName write
+      SetGuiLayoutKnobName;
+    property Locked: Boolean read FLocked write FLocked default False;
+  end;
 
   TGLStringGrid = class(TGLFocusControl)
   private
-    FSelCol, FSelRow : Integer;
+    FSelCol, FSelRow: Integer;
     FRowSelect: Boolean;
     FColSelect: Boolean;
-    FColumns : TStrings;
-    FRows    : TList;
-    FHeaderColor : TColorVector;
-    FMarginSize : Integer;
-    FColumnSize : Integer;
-    FRowHeight  : Integer;
-    FScrollbar  : TGLScrollbar;
-    FDrawHeader : Boolean;
+    FColumns: TStrings;
+    FRows: TList;
+    FHeaderColor: TColorVector;
+    FMarginSize: Integer;
+    FColumnSize: Integer;
+    FRowHeight: Integer;
+    FScrollbar: TGLScrollbar;
+    FDrawHeader: Boolean;
   protected
-    Function  GetCell(X,Y : Integer; out oCol,oRow : Integer) : Boolean;
-    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer); override;
-    Procedure SetColumns(const val : TStrings);
-    Procedure SetColSelect(const val : Boolean);
-    Function  GetRow (index : Integer) : TStringList;
-    Procedure SetRow(index : Integer; const val : TStringList);
-    Function  GetRowCount : Integer;
-    Procedure SetRowCount(const val : Integer);
-    Procedure SetSelCol(const val : Integer);
-    Procedure SetSelRow(const val : Integer);
-    Procedure SetRowSelect(const val : Boolean);
-    Procedure SetDrawHeader(const val : Boolean);
-    Function  GetHeaderColor : TDelphiColor;
-    Procedure SetHeaderColor(const val : TDelphiColor);
-    Procedure SetMarginSize(const val : Integer);
-    Procedure SetColumnSize(const val : Integer);
-    Procedure SetRowHeight(const val : Integer);
-    Procedure SetScrollbar(const val : TGLScrollbar);
-    procedure SetGuiLayout(NewGui : TGLGuiLayout); Override;
+    function GetCell(X, Y: Integer; out oCol, oRow: Integer): Boolean;
+    procedure InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X,
+      Y: Integer); override;
+    procedure SetColumns(const val: TStrings);
+    procedure SetColSelect(const val: Boolean);
+    function GetRow(index: Integer): TStringList;
+    procedure SetRow(index: Integer; const val: TStringList);
+    function GetRowCount: Integer;
+    procedure SetRowCount(const val: Integer);
+    procedure SetSelCol(const val: Integer);
+    procedure SetSelRow(const val: Integer);
+    procedure SetRowSelect(const val: Boolean);
+    procedure SetDrawHeader(const val: Boolean);
+    function GetHeaderColor: TDelphiColor;
+    procedure SetHeaderColor(const val: TDelphiColor);
+    procedure SetMarginSize(const val: Integer);
+    procedure SetColumnSize(const val: Integer);
+    procedure SetRowHeight(const val: Integer);
+    procedure SetScrollbar(const val: TGLScrollbar);
+    procedure SetGuiLayout(NewGui: TGLGuiLayout); override;
   public
-    constructor Create(AOwner : TComponent); override;
-    Destructor  Destroy; override;
-    Procedure Clear;
-    Function  Add(Data : Array of String) : Integer; overload;
-    Function  Add(const Data : String) : Integer; overload;
-    procedure SetText(Data : String);
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    procedure NotifyChange(Sender : TObject); override;
-    procedure InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean); override;
-    Procedure OnStringListChange(Sender : TObject);
-    property  Row[index : Integer] : TStringList read GetRow write SetRow;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Clear;
+    function Add(Data: array of string): Integer; overload;
+    function Add(const Data: string): Integer; overload;
+    procedure SetText(Data: string);
+    procedure Notification(AComponent: TComponent; Operation: TOperation);
+      override;
+    procedure NotifyChange(Sender: TObject); override;
+    procedure InternalRender(var rci: TRenderContextInfo; renderSelf,
+      renderChildren: Boolean); override;
+    procedure OnStringListChange(Sender: TObject);
+    property Row[index: Integer]: TStringList read GetRow write SetRow;
   published
-    property HeaderColor : TDelphiColor read GetHeaderColor write SetHeaderColor;
-    property Columns : TStrings read FColumns write SetColumns;
-    property MarginSize : Integer read FMarginSize write SetMarginSize;
-    property ColumnSize : Integer read FColumnSize write SetColumnSize;
-    property RowHeight : Integer read FRowHeight write SetRowHeight;
-    property RowCount : Integer read GetRowCount write SetRowCount;
-    property SelCol : Integer read FSelCol write SetSelCol;
-    property SelRow : Integer read FSelRow write SetSelRow;
-    property RowSelect : Boolean read FRowSelect write SetRowSelect;
-    property ColSelect : Boolean read FColSelect write SetColSelect;
-    property DrawHeader : Boolean read FDrawHeader write SetDrawHeader;
-    property Scrollbar : TGLScrollbar read FScrollbar write SetScrollbar;
+    property HeaderColor: TDelphiColor read GetHeaderColor write SetHeaderColor;
+    property Columns: TStrings read FColumns write SetColumns;
+    property MarginSize: Integer read FMarginSize write SetMarginSize;
+    property ColumnSize: Integer read FColumnSize write SetColumnSize;
+    property RowHeight: Integer read FRowHeight write SetRowHeight;
+    property RowCount: Integer read GetRowCount write SetRowCount;
+    property SelCol: Integer read FSelCol write SetSelCol;
+    property SelRow: Integer read FSelRow write SetSelRow;
+    property RowSelect: Boolean read FRowSelect write SetRowSelect;
+    property ColSelect: Boolean read FColSelect write SetColSelect;
+    property DrawHeader: Boolean read FDrawHeader write SetDrawHeader;
+    property Scrollbar: TGLScrollbar read FScrollbar write SetScrollbar;
   end;
 
-Function  UnpressGroup(CurrentObject : TGLBaseSceneObject; AGroupID : Integer) : Boolean;
+function UnpressGroup(CurrentObject: TGLBaseSceneObject; AGroupID: Integer):
+  Boolean;
 
 implementation
 
-uses GLObjects, GLState, GLUtils;
+uses GLObjects, GLState, GLUtils, Math;
 
-Function  UnpressGroup(CurrentObject : TGLBaseSceneObject; AGroupID : Integer) : Boolean;
+function UnpressGroup(CurrentObject: TGLBaseSceneObject; AGroupID: Integer):
+  Boolean;
 
-Var
-  XC : Integer;
+var
+  XC: Integer;
 
-Begin
+begin
   Result := False;
-  If CurrentObject is TGLButton then
-  With CurrentObject as TGLButton do
-  Begin
-    if Group = AGroupID then
-    If Pressed then
-    Begin
-      Pressed := False;
-      Result := True;
-      Exit;
-    End;
-  End;
+  if CurrentObject is TGLButton then
+    with CurrentObject as TGLButton do
+    begin
+      if Group = AGroupID then
+        if Pressed then
+        begin
+          Pressed := False;
+          Result := True;
+          Exit;
+        end;
+    end;
 
-  If CurrentObject is TGLCheckBox then
-  With CurrentObject as TGLCheckBox do
-  Begin
-    if Group = AGroupID then
-    If Checked then
-    Begin
-      Checked := False;
-      Result := True;
-      Exit;
-    End;
-  End;
+  if CurrentObject is TGLCheckBox then
+    with CurrentObject as TGLCheckBox do
+    begin
+      if Group = AGroupID then
+        if Checked then
+        begin
+          Checked := False;
+          Result := True;
+          Exit;
+        end;
+    end;
 
-  For XC := 0 to CurrentObject.Count-1 do
-  Begin
-    if UnpressGroup(CurrentObject.Children[XC],AGroupID) then
+  for XC := 0 to CurrentObject.Count - 1 do
+  begin
+    if UnpressGroup(CurrentObject.Children[XC], AGroupID) then
     begin
       Result := True;
       Exit;
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
-procedure TGLBaseComponent.SetGUIRedraw(value : Boolean);
+procedure TGLBaseComponent.SetGUIRedraw(value: Boolean);
 
-Begin
+begin
   FGUIRedraw := Value;
-  If Value then
-  Begin
-    If csDestroying in ComponentState then Exit;
+  if Value then
+  begin
+    if csDestroying in ComponentState then
+      Exit;
     if (FRedrawAtOnce) or (csDesigning in ComponentState) then
-    Begin
+    begin
       FGUIRedraw := False;
       StructureChanged;
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
-Procedure TGLBaseComponent.BlockRender;
+procedure TGLBaseComponent.BlockRender;
 
-Begin
-  While BlockedCount <> 0 do Sleep(1);
+begin
+  while BlockedCount <> 0 do
+    Sleep(1);
   BlockRendering := True;
-  While RenderingCount <> BlockedCount do Sleep(1);
-End;
+  while RenderingCount <> BlockedCount do
+    Sleep(1);
+end;
 
-Procedure TGLBaseComponent.UnBlockRender;
+procedure TGLBaseComponent.UnBlockRender;
 
-Begin
+begin
   BlockRendering := False;
-End;
+end;
 
-Procedure TGLBaseComponent.RenderHeader(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLBaseComponent.RenderHeader(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 
-Var
-  f : Single;
-Begin
-   FGuiLayout.Material.Apply(rci);
-   if AlphaChannel<>1 then
-      rci.GLStates.SetGLMaterialAlphaChannel(GL_FRONT, AlphaChannel);
-   // Prepare matrices
-   glMatrixMode(GL_MODELVIEW);
-   glPushMatrix;
-   glLoadMatrixf(@TGLSceneBuffer(rci.buffer).BaseProjectionMatrix);
-   if rci.renderDPI=96 then
-      f:=1
-   else f:=rci.renderDPI/96;
-   glScalef(f*2/rci.viewPortSize.cx, f*2/rci.viewPortSize.cy, 1);
-   glTranslatef(f*Position.X-rci.viewPortSize.cx*0.5,
-                rci.viewPortSize.cy*0.5-f*Position.Y, 0);
-   if Rotation<>0 then
-      glRotatef(Rotation, 0, 0, 1);
-   glMatrixMode(GL_PROJECTION);
-   glPushMatrix;
-   glLoadIdentity;
-   rci.GLStates.PushAttrib([sttEnable]);
-   rci.GLStates.Disable(stDepthTest);
-   rci.GLStates.DepthWriteMask := False;
-End;
+var
+  f: Single;
+begin
+  FGuiLayout.Material.Apply(rci);
+  if AlphaChannel <> 1 then
+    rci.GLStates.SetGLMaterialAlphaChannel(GL_FRONT, AlphaChannel);
+  // Prepare matrices
+  GL.MatrixMode(GL_MODELVIEW);
+  GL.PushMatrix;
+  GL.LoadMatrixf(@TGLSceneBuffer(rci.buffer).BaseProjectionMatrix);
+  if rci.renderDPI = 96 then
+    f := 1
+  else
+    f := rci.renderDPI / 96;
+  GL.Scalef(f * 2 / rci.viewPortSize.cx, f * 2 / rci.viewPortSize.cy, 1);
+  GL.Translatef(f * Position.X - rci.viewPortSize.cx * 0.5,
+    rci.viewPortSize.cy * 0.5 - f * Position.Y, 0);
+  if Rotation <> 0 then
+    GL.Rotatef(Rotation, 0, 0, 1);
+  GL.MatrixMode(GL_PROJECTION);
+  GL.PushMatrix;
+  GL.LoadIdentity;
+  rci.GLStates.Disable(stDepthTest);
+  rci.GLStates.DepthWriteMask := False;
+end;
 
-Procedure TGLBaseComponent.RenderFooter(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLBaseComponent.RenderFooter(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 
-Begin
-   rci.GLStates.DepthWriteMask := True;
-   rci.GLStates.PopAttrib;
-   glPopMatrix;
-   glMatrixMode(GL_MODELVIEW);
-   glPopMatrix;
-   FGuiLayout.Material.UnApply(rci);
-End;
+begin
+  GL.PopMatrix;
+  GL.MatrixMode(GL_MODELVIEW);
+  GL.PopMatrix;
+  FGuiLayout.Material.UnApply(rci);
+end;
 
-procedure TGLBaseComponent.SetGuiLayout(NewGui : TGLGuiLayout);
+procedure TGLBaseComponent.SetGuiLayout(NewGui: TGLGuiLayout);
 
-Begin
-  If FGuiLayout <> NewGui then
-  Begin
-    If Assigned(FGuiLayout) then
-    Begin
+begin
+  if FGuiLayout <> NewGui then
+  begin
+    if Assigned(FGuiLayout) then
+    begin
       FGuiLayout.RemoveGuiComponent(Self);
-    End;
-    FGuiComponent := Nil;
+    end;
+    FGuiComponent := nil;
     FGuiLayout := NewGui;
-    If Assigned(FGuiLayout) then
-    If FGuiLayoutName <> '' then
-      FGuiComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutName);
+    if Assigned(FGuiLayout) then
+      if FGuiLayoutName <> '' then
+        FGuiComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutName);
 
     // in effect this code have been moved...
-    If Assigned(FGuiLayout) then
+    if Assigned(FGuiLayout) then
       FGuiLayout.AddGuiComponent(Self);
 
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-procedure TGLBaseComponent.SetGuiLayoutName(NewName : TGLGuiComponentName);
+procedure TGLBaseComponent.SetGuiLayoutName(NewName: TGLGuiComponentName);
 
-Begin
-  If FGuiLayoutName <> NewName then
-  Begin
-    FGuiComponent := Nil;
+begin
+  if FGuiLayoutName <> NewName then
+  begin
+    FGuiComponent := nil;
     FGuiLayoutName := NewName;
-    If FGuiLayoutName <> '' then 
-    If Assigned(FGuiLayout) then
-    Begin
-      FGuiComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutName);
-    End;
+    if FGuiLayoutName <> '' then
+      if Assigned(FGuiLayout) then
+      begin
+        FGuiComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutName);
+      end;
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-procedure TGLBaseComponent.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TGLBaseComponent.Notification(AComponent: TComponent; Operation:
+  TOperation);
 
-Begin
-  If Operation = opRemove then
-  Begin
-    If AComponent = FGuiLayout then
-    Begin
+begin
+  if Operation = opRemove then
+  begin
+    if AComponent = FGuiLayout then
+    begin
       BlockRender;
-      GuiLayout := Nil;
+      GuiLayout := nil;
       UnBlockRender;
-    End;
-  End;
+    end;
+  end;
 
   inherited;
-End;
-
+end;
 
 // SetRotation
 //
-procedure TGLBaseComponent.SetRotation(const val : TGLFloat);
+
+procedure TGLBaseComponent.SetRotation(const val: TGLFloat);
 begin
-	if FRotation<>val then begin
-		FRotation:=val;
-		NotifyChange(Self);
-	end;
+  if FRotation <> val then
+  begin
+    FRotation := val;
+    NotifyChange(Self);
+  end;
 end;
 
 // SetAlphaChannel
 //
-procedure TGLBaseComponent.SetAlphaChannel(const val : Single);
+
+procedure TGLBaseComponent.SetAlphaChannel(const val: Single);
 begin
-   if val<>FAlphaChannel then begin
-      if val<0 then
-         FAlphaChannel:=0
-      else if val>1 then
-         FAlphaChannel:=1
-      else FAlphaChannel:=val;
-		NotifyChange(Self);
-   end;
+  if val <> FAlphaChannel then
+  begin
+    if val < 0 then
+      FAlphaChannel := 0
+    else if val > 1 then
+      FAlphaChannel := 1
+    else
+      FAlphaChannel := val;
+    NotifyChange(Self);
+  end;
+end;
+
+procedure TGLBaseComponent.SetAutosize(const Value: Boolean);
+var
+  MarginLeft, MarginCenter, MarginRight: TGLFloat;
+  MarginTop, MarginMiddle, MarginBottom: TGLFloat;
+  MaxWidth: TGLFloat;
+  MaxHeight: TGLFloat;
+  i: integer;
+begin
+  if FAutosize <> Value then
+  begin
+    FAutosize := Value;
+
+    if FAutosize and Assigned(FGuiComponent) then
+    begin
+      MarginLeft := 0;
+      MarginCenter := 0;
+      MarginRight := 0;
+      MarginTop := 0;
+      MarginMiddle := 0;
+      MarginBottom := 0;
+
+      for i := 0 to FGuiComponent.Elements.Count - 1 do
+        with FGuiComponent.Elements[i] do
+        begin
+          case Align of
+            GLAlTopLeft, GLAlLeft, GLAlBottomLeft:
+              begin
+                MarginLeft := Max(MarginLeft, abs(BottomRight.X - TopLeft.X) *
+                  Scale.X);
+              end;
+            GLAlTop, GLAlCenter, GLAlBottom:
+              begin
+                MarginCenter := Max(MarginCenter, abs(BottomRight.X - TopLeft.X)
+                  * Scale.X);
+              end;
+            GLAlTopRight, GLAlRight, GLAlBottomRight:
+              begin
+                MarginRight := Max(MarginRight, abs(BottomRight.X - TopLeft.X) *
+                  Scale.X);
+              end;
+          end;
+        end;
+
+      for i := 0 to FGuiComponent.Elements.Count - 1 do
+        with FGuiComponent.Elements[i] do
+        begin
+          case Align of
+            GLAlTopLeft, GLAlTop, GLAlTopRight:
+              begin
+                MarginTop := Max(MarginTop, abs(BottomRight.Y - TopLeft.Y) *
+                  Scale.Y);
+              end;
+            GLAlLeft, GLAlCenter, GLAlRight:
+              begin
+                MarginMiddle := Max(MarginMiddle, abs(BottomRight.Y - TopLeft.Y)
+                  * Scale.Y);
+              end;
+            GLAlBottomLeft, GLAlBottom, GLAlBottomRight:
+              begin
+                MarginBottom := Max(MarginBottom, abs(BottomRight.Y - TopLeft.Y)
+                  * Scale.Y);
+              end;
+          end;
+        end;
+
+      MaxWidth := MarginLeft + MarginCenter + MarginRight;
+      MaxHeight := MarginTop + MarginMiddle + MarginBottom;
+
+      if MaxWidth > 0 then
+        Width := MaxWidth;
+
+      if MaxHeight > 0 then
+        Height := MaxHeight;
+    end;
+  end;
 end;
 
 // StoreAlphaChannel
 //
-function TGLBaseComponent.StoreAlphaChannel : Boolean;
+
+function TGLBaseComponent.StoreAlphaChannel: Boolean;
 begin
-	Result:=(FAlphaChannel<>1);
+  Result := (FAlphaChannel <> 1);
 end;
 
 // SetNoZWrite
 //
-procedure TGLBaseComponent.SetNoZWrite(const val : Boolean);
+
+procedure TGLBaseComponent.SetNoZWrite(const val: Boolean);
 begin
-   FNoZWrite:=val;
-   NotifyChange(Self);
+  FNoZWrite := val;
+  NotifyChange(Self);
 end;
 
-Constructor TGLBaseComponent.Create(AOwner : TComponent);
+constructor TGLBaseComponent.Create(AOwner: TComponent);
 
-Begin
+begin
   inherited;
   FGuiLayout := nil;
   FGuiComponent := nil;
   BlockRendering := False;
   BlockedCount := 0;
   RenderingCount := 0;
-  Width      := 50;
-  Height     := 50;
+  Width := 50;
+  Height := 50;
   FReBuildGui := True;
   GuiDestroying := False;
   FAlphaChannel := 1;
-End;
+end;
 
-Destructor  TGLBaseComponent.Destroy;
+destructor TGLBaseComponent.Destroy;
 
-Begin
+begin
   GuiDestroying := True;
-  While RenderingCount > 0 do Sleep(1);
+  while RenderingCount > 0 do
+    Sleep(1);
 
-  GuiLayout := Nil;
+  GuiLayout := nil;
   inherited;
-End;
+end;
 
-procedure TGLBaseComponent.NotifyChange(Sender : TObject);
+procedure TGLBaseComponent.NotifyChange(Sender: TObject);
 
-Begin
-  If Sender = FGuiLayout then
-  Begin
-    If (FGuiLayoutName <> '') and (GuiLayout <> Nil) then
-    Begin
+begin
+  if Sender = FGuiLayout then
+  begin
+    if (FGuiLayoutName <> '') and (GuiLayout <> nil) then
+    begin
       BlockRender;
       FGuiComponent := GuiLayout.GuiComponents.FindItem(FGuiLayoutName);
       ReBuildGui := True;
       GUIRedraw := True;
       UnBlockRender;
-    End else
-    Begin
+    end
+    else
+    begin
       BlockRender;
-      FGuiComponent := Nil;
+      FGuiComponent := nil;
       ReBuildGui := True;
       GUIRedraw := True;
       UnBlockRender;
-    End;
-  End;
-  If Sender = Self then
-  Begin
+    end;
+  end;
+  if Sender = Self then
+  begin
     ReBuildGui := True;
     GUIRedraw := True;
-  End;
+  end;
   inherited;
-End;
+end;
 
-Procedure TGLBaseComponent.MoveGUI(XRel, YRel : Single);
+procedure TGLBaseComponent.MoveGUI(XRel, YRel: Single);
 
-Var
-  XC : Integer;
+var
+  XC: Integer;
 
-Begin
-  If RedrawAtOnce then
-  Begin
+begin
+  if RedrawAtOnce then
+  begin
     BeginUpdate;
     try
       MoveX := MoveX + XRel;
       MoveY := MoveY + YRel;
-      For XC := 0 to Count -1 do
-      If Children[XC] is TGLBaseComponent then
-      Begin
-        (Children[XC] as TGLBaseComponent).MoveGUI(XRel,YRel);
-      End;
+      for XC := 0 to Count - 1 do
+        if Children[XC] is TGLBaseComponent then
+        begin
+          (Children[XC] as TGLBaseComponent).MoveGUI(XRel, YRel);
+        end;
       GUIRedraw := True;
       DoChanges;
     finally
       Endupdate;
-    End;
-  End else
-  Begin
+    end;
+  end
+  else
+  begin
     MoveX := MoveX + XRel;
     MoveY := MoveY + YRel;
-    For XC := 0 to Count -1 do
-    If Children[XC] is TGLBaseComponent then
-    Begin
-      (Children[XC] as TGLBaseComponent).MoveGUI(XRel,YRel);
-    End;
+    for XC := 0 to Count - 1 do
+      if Children[XC] is TGLBaseComponent then
+      begin
+        (Children[XC] as TGLBaseComponent).MoveGUI(XRel, YRel);
+      end;
     GUIRedraw := True;
-  End;
-End;
-
-Procedure TGLBaseComponent.PlaceGUI(XPos, YPos : Single);
-
-Begin
-  MoveGUI(XPos-Left,YPos-Top);
+  end;
 end;
 
-Procedure TGLBaseComponent.DoChanges;
+procedure TGLBaseComponent.PlaceGUI(XPos, YPos: Single);
+begin
+  MoveGUI(XPos - Position.X, YPos - Position.Y);
+end;
 
-Var
-  XC : Integer;
+procedure TGLBaseComponent.DoChanges;
 
-Begin
-  If GUIRedraw then
-  Begin
+var
+  XC: Integer;
+
+begin
+  if GUIRedraw then
+  begin
     GUIRedraw := False;
     BeginUpdate;
     try
-      If MoveX <> 0 then Position.X := Position.X + MoveX;
-      If MoveY <> 0 then Position.Y := Position.Y + MoveY;
+      if MoveX <> 0 then
+        Position.X := Position.X + MoveX;
+      if MoveY <> 0 then
+        Position.Y := Position.Y + MoveY;
       MoveX := 0;
       MoveY := 0;
 
-      For XC := 0 to Count-1 do
-      If Children[XC] is TGLBaseComponent then
-      Begin
-        (Children[XC] as TGLBaseComponent).DoChanges;
-      End;
+      for XC := 0 to Count - 1 do
+        if Children[XC] is TGLBaseComponent then
+        begin
+          (Children[XC] as TGLBaseComponent).DoChanges;
+        end;
     finally
       EndUpdate;
-    End;
-  End else
-  Begin
-    For XC := 0 to Count-1 do
-    If Children[XC] is TGLBaseComponent then
-    Begin
-      (Children[XC] as TGLBaseComponent).DoChanges;
-    End;
-  End;
-End;
-
-Procedure TGLBaseComponent.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
-
-Begin
-  If Assigned(FGuiComponent) then
-  Begin
-    try
-      FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
-    except
-      on E : Exception do
-      GLOKMessageBox(E.Message,'Exception in GuiComponents InternalRender function');
     end;
-  End;
-End;
+  end
+  else
+  begin
+    for XC := 0 to Count - 1 do
+      if Children[XC] is TGLBaseComponent then
+      begin
+        (Children[XC] as TGLBaseComponent).DoChanges;
+      end;
+  end;
+end;
 
-procedure TGLBaseComponent.DoRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLBaseComponent.InternalRender(var rci: TRenderContextInfo;
+  renderSelf, renderChildren: Boolean);
 
-Var
-  B : Boolean;
-Begin
+begin
+  if Assigned(FGuiComponent) then
+  begin
+    try
+      FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+        FReBuildGui);
+    except
+      on E: Exception do
+        GLOKMessageBox(E.Message,
+          'Exception in GuiComponents InternalRender function');
+    end;
+  end;
+end;
+
+procedure TGLBaseComponent.DoRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
+
+var
+  B: Boolean;
+begin
   Inc(RenderingCount);
   B := BlockRendering;
-  If B then
-  Begin
+  if B then
+  begin
     Inc(BlockedCount);
-    While BlockRendering do sleep(1);
+    while BlockRendering do
+      sleep(1);
     Dec(BlockedCount);
-  End;
+  end;
 
-  If not GuiDestroying then
-  If RenderSelf then
-  If FGuiLayout <> nil then
-  Begin
-    RenderHeader(rci,renderSelf,renderChildren);
+  if not GuiDestroying then
+    if RenderSelf then
+      if FGuiLayout <> nil then
+      begin
+        RenderHeader(rci, renderSelf, renderChildren);
 
-    InternalRender(rci,RenderSelf,RenderChildren);
+        InternalRender(rci, RenderSelf, RenderChildren);
 
-    RenderFooter(rci,renderSelf,renderChildren);
-    FReBuildGui := False;
-  End;
+        RenderFooter(rci, renderSelf, renderChildren);
+        FReBuildGui := False;
+      end;
 
-  If renderChildren then
-  if Count>0 then
-    Self.RenderChildren(0, Count-1, rci);
+  if renderChildren then
+    if Count > 0 then
+      Self.RenderChildren(0, Count - 1, rci);
   Dec(RenderingCount);
-End;
+end;
 
-procedure TGLBaseControl.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
+procedure TGLBaseControl.InternalMouseDown(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
 
-Begin
-  If Assigned(FOnMouseDown) then FOnMouseDown(Self,Button,Shift,X,Y);
-End;
+begin
+  if Assigned(FOnMouseDown) then
+    FOnMouseDown(Self, Button, Shift, X, Y);
+end;
 
-procedure TGLBaseControl.InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
+procedure TGLBaseControl.InternalMouseUp(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
 
-Begin
-  If Assigned(FOnMouseUp) then FOnMouseUp(Self,Button,Shift,X,Y);
-End;
+begin
+  if Assigned(FOnMouseUp) then
+    FOnMouseUp(Self, Button, Shift, X, Y);
+end;
 
 procedure TGLBaseControl.InternalMouseMove(Shift: TShiftState; X, Y: Integer);
 
-Begin
-  If Assigned(FOnMouseMove) then FOnMouseMove(Self,Shift,X,Y);
-End;
+begin
+  if Assigned(FOnMouseMove) then
+    FOnMouseMove(Self, Shift, X, Y);
+end;
 
-Procedure TGLBaseControl.SetActiveControl(NewControl : TGLBaseControl);
+procedure TGLBaseControl.SetActiveControl(NewControl: TGLBaseControl);
 
-Begin
+begin
   FActiveControl := NewControl;
-End;
+end;
 
-Procedure TGLBaseControl.SetFocusedControl(NewControl : TGLFocusControl);
+procedure TGLBaseControl.SetFocusedControl(NewControl: TGLFocusControl);
 
-Begin
-  If NewControl <> FFocusedControl then
-  Begin
-    If Assigned(FFocusedControl) then
+begin
+  if NewControl <> FFocusedControl then
+  begin
+    if Assigned(FFocusedControl) then
       FFocusedControl.Focused := False;
     FFocusedControl := NewControl;
-    If Assigned(FFocusedControl) then
+    if Assigned(FFocusedControl) then
       FFocusedControl.Focused := True;
-  End;
-End;
+  end;
+end;
 
-Function  TGLBaseControl.FindFirstGui : TGLBaseControl;
+function TGLBaseControl.FindFirstGui: TGLBaseControl;
 
-Var
-  tmpFirst : TGLBaseControl;
-  TmpRoot : TGLBaseSceneObject;
+var
+  tmpFirst: TGLBaseControl;
+  TmpRoot: TGLBaseSceneObject;
 
-Begin
+begin
   tmpFirst := Self;
 
   TmpRoot := Self;
-  While (TmpRoot is TGLBaseComponent) do
-  Begin
-    If Assigned(TmpRoot.parent) then
-    Begin
-      If TmpRoot.parent is TGLBaseComponent then
-      Begin
+  while (TmpRoot is TGLBaseComponent) do
+  begin
+    if Assigned(TmpRoot.parent) then
+    begin
+      if TmpRoot.parent is TGLBaseComponent then
+      begin
         TmpRoot := TmpRoot.parent as TGLBaseComponent;
-        If TmpRoot is TGLBaseControl then tmpFirst := TmpRoot as TGLBaseControl;
-      End else Break;
-    End else Break;
-  End;
+        if TmpRoot is TGLBaseControl then
+          tmpFirst := TmpRoot as TGLBaseControl;
+      end
+      else
+        Break;
+    end
+    else
+      Break;
+  end;
   Result := tmpFirst;
-End;
+end;
 
 procedure TGLBaseControl.Notification(AComponent: TComponent;
   Operation: TOperation);
 begin
-  If Operation = opRemove then
-  Begin
+  if Operation = opRemove then
+  begin
     if FEnteredControl <> nil then
     begin
       FEnteredControl.DoMouseLeave;
       FEnteredControl := nil;
     end;
-  End;
+  end;
 
   inherited;
 end;
 
-Function  TGLBaseControl.MouseDown(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean;
-Var
-  Xc : Integer;
-  AcceptMouseEvent : Boolean;
+function TGLBaseControl.MouseDown(Sender: TObject; Button: TGLMouseButton;
+  Shift: TShiftState; X, Y: Integer): Boolean;
+var
+  Xc: Integer;
+  AcceptMouseEvent: Boolean;
 
-Begin
+begin
   Result := False;
 
-  AcceptMouseEvent := RecursiveVisible and ((Position.X <= X) and (Position.X+Width > X) and (Position.Y <= Y) and (Position.Y+Height > Y));
-  If Assigned(OnAcceptMouseQuery) then OnAcceptMouseQuery(Self,shift,ma_mousedown,Button,X,Y,AcceptMouseEvent);
+  AcceptMouseEvent := RecursiveVisible and ((Position.X <= X) and (Position.X +
+    Width > X) and (Position.Y <= Y) and (Position.Y + Height > Y));
+  if Assigned(OnAcceptMouseQuery) then
+    OnAcceptMouseQuery(Self, shift, ma_mousedown, Button, X, Y,
+      AcceptMouseEvent);
 
-  If AcceptMouseEvent then
-  Begin
+  if AcceptMouseEvent then
+  begin
     Result := True;
-    If not FKeepMouseEvents then
-    Begin
-      If Assigned(FActiveControl) then
-      If FActiveControl.MouseDown(Sender,Button,Shift,X,Y) then Exit;
+    if not FKeepMouseEvents then
+    begin
+      if Assigned(FActiveControl) then
+        if FActiveControl.MouseDown(Sender, Button, Shift, X, Y) then
+          Exit;
 
-      For XC := count-1 downto 0 do
-      If FActiveControl <> Children[XC] then
-      Begin
-        If Children[XC] is TGLBaseControl then
-        Begin
-          If (Children[XC] as TGLBaseControl).MouseDown(Sender,button,shift,x,y) then Exit;
-        End;
-      End;
-    End;
-    InternalMouseDown(Shift,Button,X,Y);
-  End;
-End;
+      for XC := count - 1 downto 0 do
+        if FActiveControl <> Children[XC] then
+        begin
+          if Children[XC] is TGLBaseControl then
+          begin
+            if (Children[XC] as TGLBaseControl).MouseDown(Sender, button, shift,
+              x, y) then
+              Exit;
+          end;
+        end;
+    end;
+    InternalMouseDown(Shift, Button, X, Y);
+  end;
+end;
 
-Function  TGLBaseControl.MouseUp(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean;
-Var
-  Xc : Integer;
-  AcceptMouseEvent : Boolean;
+function TGLBaseControl.MouseUp(Sender: TObject; Button: TGLMouseButton; Shift:
+  TShiftState; X, Y: Integer): Boolean;
+var
+  Xc: Integer;
+  AcceptMouseEvent: Boolean;
 
-Begin
+begin
   Result := False;
 
-  AcceptMouseEvent := RecursiveVisible and ((Position.X <= X) and (Position.X+Width > X) and (Position.Y <= Y) and (Position.Y+Height > Y));
-  If Assigned(OnAcceptMouseQuery) then OnAcceptMouseQuery(Self,shift,ma_mouseup,Button,X,Y,AcceptMouseEvent);
+  AcceptMouseEvent := RecursiveVisible and ((Position.X <= X) and (Position.X +
+    Width > X) and (Position.Y <= Y) and (Position.Y + Height > Y));
+  if Assigned(OnAcceptMouseQuery) then
+    OnAcceptMouseQuery(Self, shift, ma_mouseup, Button, X, Y, AcceptMouseEvent);
 
-  If AcceptMouseEvent then
-  Begin
+  if AcceptMouseEvent then
+  begin
     Result := True;
-    If not FKeepMouseEvents then
-    Begin
-      If Assigned(FActiveControl) then
-      If FActiveControl.MouseUp(Sender,button,shift,x,y) then Exit;
+    if not FKeepMouseEvents then
+    begin
+      if Assigned(FActiveControl) then
+        if FActiveControl.MouseUp(Sender, button, shift, x, y) then
+          Exit;
 
-      For XC := count-1 downto 0 do
-      If FActiveControl <> Children[XC] then
-      Begin
-        If Children[XC] is TGLBaseControl then
-        Begin
-          If (Children[XC] as TGLBaseControl).MouseUp(Sender,button,shift,x,y) then Exit;
-        End;
-      End;
-    End;
-    InternalMouseUp(Shift,Button,X,Y);
-  End;
-End;
+      for XC := count - 1 downto 0 do
+        if FActiveControl <> Children[XC] then
+        begin
+          if Children[XC] is TGLBaseControl then
+          begin
+            if (Children[XC] as TGLBaseControl).MouseUp(Sender, button, shift,
+              x, y) then
+              Exit;
+          end;
+        end;
+    end;
+    InternalMouseUp(Shift, Button, X, Y);
+  end;
+end;
 
-Function  TGLBaseControl.MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer) : Boolean;
-Var
-  Xc : Integer;
-  AcceptMouseEvent : Boolean;
+function TGLBaseControl.MouseMove(Sender: TObject; Shift: TShiftState; X, Y:
+  Integer): Boolean;
+var
+  Xc: Integer;
+  AcceptMouseEvent: Boolean;
 
-Begin
+begin
   Result := False;
 
-  AcceptMouseEvent := RecursiveVisible and ((Position.X <= X) and (Position.X + Width > X) and (Position.Y <= Y) and (Position.Y+Height > Y));
-  If Assigned(OnAcceptMouseQuery) then
-    OnAcceptMouseQuery(Self, shift, ma_mousemove, mbMiddle, X, Y, AcceptMouseEvent);
+  AcceptMouseEvent := RecursiveVisible and ((Position.X <= X) and (Position.X +
+    Width > X) and (Position.Y <= Y) and (Position.Y + Height > Y));
+  if Assigned(OnAcceptMouseQuery) then
+    OnAcceptMouseQuery(Self, shift, ma_mousemove, mbMiddle, X, Y,
+      AcceptMouseEvent);
 
-  If AcceptMouseEvent then
-  Begin
+  if AcceptMouseEvent then
+  begin
     Result := True;
-    If not FKeepMouseEvents then
-    Begin
-      If Assigned(FActiveControl) then
-      If FActiveControl.MouseMove(Sender,shift,x,y) then Exit;
+    if not FKeepMouseEvents then
+    begin
+      if Assigned(FActiveControl) then
+        if FActiveControl.MouseMove(Sender, shift, x, y) then
+          Exit;
 
-      For XC := count-1 downto 0 do
-        If FActiveControl <> Children[XC] then
-        Begin
-          If Children[XC] is TGLBaseControl then
-          Begin
-            If (Children[XC] as TGLBaseControl).MouseMove(Sender,shift,x,y) then
+      for XC := count - 1 downto 0 do
+        if FActiveControl <> Children[XC] then
+        begin
+          if Children[XC] is TGLBaseControl then
+          begin
+            if (Children[XC] as TGLBaseControl).MouseMove(Sender, shift, x, y)
+              then
             begin
               if FEnteredControl <> (Children[XC] as TGLBaseControl) then
               begin
@@ -1169,9 +1375,9 @@ Begin
 
               Exit;
             end;
-          End;
-        End;
-    End;
+          end;
+        end;
+    end;
 
     if FEnteredControl <> nil then
     begin
@@ -1179,49 +1385,54 @@ Begin
       FEnteredControl := nil;
     end;
 
-    InternalMouseMove(Shift,X,Y);
-  End;
-End;
+    InternalMouseMove(Shift, X, Y);
+  end;
+end;
 
-Procedure   TGLBaseControl.KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-Begin
-  If Assigned(FFocusedControl) then
-  Begin
-    FFocusedControl.KeyDown(Sender,Key,Shift);
-  End;
-End;
+procedure TGLBaseControl.KeyDown(Sender: TObject; var Key: Word; Shift:
+  TShiftState);
+begin
+  if Assigned(FFocusedControl) then
+  begin
+    FFocusedControl.KeyDown(Sender, Key, Shift);
+  end;
+end;
 
-Procedure   TGLBaseControl.KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-Begin
-  If Assigned(FFocusedControl) then
-  Begin
-    FFocusedControl.KeyUp(Sender,Key,Shift);
-  End;
-End;
+procedure TGLBaseControl.KeyUp(Sender: TObject; var Key: Word; Shift:
+  TShiftState);
+begin
+  if Assigned(FFocusedControl) then
+  begin
+    FFocusedControl.KeyUp(Sender, Key, Shift);
+  end;
+end;
 
-Procedure   TGLBaseControl.KeyPress(Sender: TObject; var Key: Char);
+procedure TGLBaseControl.KeyPress(Sender: TObject; var Key: Char);
 
-Begin
-  If Assigned(FFocusedControl) then
-  Begin
-    FFocusedControl.KeyPress(Sender,Key);
-  End;
-End;
+begin
+  if Assigned(FFocusedControl) then
+  begin
+    FFocusedControl.KeyPress(Sender, Key);
+  end;
+end;
 
-Procedure TGLFocusControl.InternalKeyPress(var Key: Char);
-Begin
-  if assigned(FOnKeyPress) then FOnKeyPress(Self,Key);
-End;
+procedure TGLFocusControl.InternalKeyPress(var Key: Char);
+begin
+  if assigned(FOnKeyPress) then
+    FOnKeyPress(Self, Key);
+end;
 
-Procedure TGLFocusControl.InternalKeyDown(var Key: Word; Shift: TShiftState);
-Begin
-  if assigned(FOnKeyDown) then FOnKeyDown(Self,Key,shift);
-End;
+procedure TGLFocusControl.InternalKeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if assigned(FOnKeyDown) then
+    FOnKeyDown(Self, Key, shift);
+end;
 
-Procedure TGLFocusControl.InternalKeyUp(var Key: Word; Shift: TShiftState);
-Begin
-  if assigned(FOnKeyUp) then FOnKeyUp(Self,Key,shift);
-End;
+procedure TGLFocusControl.InternalKeyUp(var Key: Word; Shift: TShiftState);
+begin
+  if assigned(FOnKeyUp) then
+    FOnKeyUp(Self, Key, shift);
+end;
 
 procedure TGLBaseControl.DoMouseEnter;
 begin
@@ -1242,880 +1453,943 @@ begin
     OnMouseLeave(Self);
 end;
 
-Procedure TGLFocusControl.SetFocused(Value :Boolean);
-Begin
-  If Value <> FFocused then
-  Begin
+procedure TGLFocusControl.SetFocused(Value: Boolean);
+begin
+  if Value <> FFocused then
+  begin
     FFocused := Value;
-    GUIRedraw :=True;
-  End;
-End;
+    GUIRedraw := True;
+  end;
+end;
 
-Function  TGLFocusControl.GetRootControl : TGLBaseControl;
+function TGLFocusControl.GetRootControl: TGLBaseControl;
 
-Begin
+begin
   if not Assigned(FRootControl) then
-  Begin
+  begin
     FRootControl := FindFirstGui;
-  End;
+  end;
   Result := FRootControl;
-End;
+end;
 
 procedure TGLFocusControl.NotifyHide;
 
-Begin
+begin
   inherited;
-  If (RootControl.FFocusedControl = Self) and (self.focused) then
-  Begin
+  if (RootControl.FFocusedControl = Self) and (self.focused) then
+  begin
     RootControl.FocusedControl.PrevControl;
-  End;
-End;
+  end;
+end;
 
 procedure TGLFocusControl.ReGetRootControl;
 
-Begin
+begin
   FRootControl := FindFirstGui;
-End;
+end;
 
-Function  TGLFocusControl.GetFocusedColor : TDelphiColor;
+function TGLFocusControl.GetFocusedColor: TDelphiColor;
 
-Begin
+begin
   Result := ConvertColorVector(FFocusedColor);
-End;
+end;
 
-Procedure TGLFocusControl.SetFocusedColor(const Val : TDelphiColor);
+procedure TGLFocusControl.SetFocusedColor(const Val: TDelphiColor);
 
-Begin
+begin
   FFocusedColor := ConvertWinColor(val);
   GUIRedraw := True;
-End;
+end;
 
-Procedure TGLFocusControl.SetFocus;
+procedure TGLFocusControl.SetFocus;
 
-Begin
+begin
   RootControl.FocusedControl := Self;
-End;
+end;
 
-Procedure TGLFocusControl.NextControl;
+procedure TGLFocusControl.NextControl;
 
-Var
-  Host : TGLBaseComponent;
-  Index : Integer;
-  IndexedChild : TGLBaseComponent;
-  RestartedLoop : Boolean;
+var
+  Host: TGLBaseComponent;
+  Index: Integer;
+  IndexedChild: TGLBaseComponent;
+  RestartedLoop: Boolean;
 
-Begin
+begin
   RestartedLoop := False;
-  If Parent is TGLBaseComponent then
-  Begin
+  if Parent is TGLBaseComponent then
+  begin
     Host := Parent as TGLBaseComponent;
     Index := Host.IndexOfChild(Self);
-    While not Host.RecursiveVisible do
-    Begin
-      If Host.Parent is TGLBaseComponent then
-      Begin
+    while not Host.RecursiveVisible do
+    begin
+      if Host.Parent is TGLBaseComponent then
+      begin
         IndexedChild := Host;
         Host := Host.Parent as TGLBaseComponent;
         Index := Host.IndexOfChild(IndexedChild);
-      End else
-      Begin
-        RootControl.FocusedControl := Nil;
+      end
+      else
+      begin
+        RootControl.FocusedControl := nil;
         Exit;
-      End;
-    End;
+      end;
+    end;
 
-    While true do
-    Begin
-      If Index > 0 then
-      Begin
+    while true do
+    begin
+      if Index > 0 then
+      begin
         Dec(Index);
-        If Host.Children[Index] is TGLFocusControl then
-        Begin
-          With (Host.Children[Index] as TGLFocusControl) do
-          If RecursiveVisible then
-          Begin
-            SetFocus;
-            Exit;
-          End;
-        End else
-        Begin
-          If Host.Children[Index] is TGLBaseComponent then
-          Begin
+        if Host.Children[Index] is TGLFocusControl then
+        begin
+          with (Host.Children[Index] as TGLFocusControl) do
+            if RecursiveVisible then
+            begin
+              SetFocus;
+              Exit;
+            end;
+        end
+        else
+        begin
+          if Host.Children[Index] is TGLBaseComponent then
+          begin
             IndexedChild := Host.Children[Index] as TGLBaseComponent;
-            If IndexedChild.RecursiveVisible then
-            Begin
+            if IndexedChild.RecursiveVisible then
+            begin
               Host := IndexedChild;
               Index := Host.Count;
-            End;
-          End;
-        End;
-      End else
-      Begin
-        If Host.Parent is TGLBaseComponent then
-        Begin
+            end;
+          end;
+        end;
+      end
+      else
+      begin
+        if Host.Parent is TGLBaseComponent then
+        begin
           Index := Host.Parent.IndexOfChild(Host);
           Host := Host.Parent as TGLBaseComponent;
-        End else
-        Begin
-          If RestartedLoop then
-          Begin
+        end
+        else
+        begin
+          if RestartedLoop then
+          begin
             SetFocus;
             Exit;
-          End;
+          end;
           Index := Host.Count;
           RestartedLoop := True;
-        End;
-      End;
-    End;
-  End;
-End;
+        end;
+      end;
+    end;
+  end;
+end;
 
-Procedure TGLFocusControl.PrevControl;
+procedure TGLFocusControl.PrevControl;
 
-Var
-  Host : TGLBaseComponent;
-  Index : Integer;
-  IndexedChild : TGLBaseComponent;
-  RestartedLoop : Boolean;
+var
+  Host: TGLBaseComponent;
+  Index: Integer;
+  IndexedChild: TGLBaseComponent;
+  RestartedLoop: Boolean;
 
-Begin
+begin
   RestartedLoop := False;
-  If Parent is TGLBaseComponent then
-  Begin
+  if Parent is TGLBaseComponent then
+  begin
     Host := Parent as TGLBaseComponent;
     Index := Host.IndexOfChild(Self);
-    While not Host.RecursiveVisible do
-    Begin
-      If Host.Parent is TGLBaseComponent then
-      Begin
+    while not Host.RecursiveVisible do
+    begin
+      if Host.Parent is TGLBaseComponent then
+      begin
         IndexedChild := Host;
         Host := Host.Parent as TGLBaseComponent;
         Index := Host.IndexOfChild(IndexedChild);
-      End else
-      Begin
-        RootControl.FocusedControl := Nil;
+      end
+      else
+      begin
+        RootControl.FocusedControl := nil;
         Exit;
-      End;
-    End;
+      end;
+    end;
 
-    While true do
-    Begin
+    while true do
+    begin
       Inc(Index);
 
-      If Index < Host.Count then
-      Begin
-        If Host.Children[Index] is TGLFocusControl then
-        Begin
-          With (Host.Children[Index] as TGLFocusControl) do
-          If RecursiveVisible then
-          Begin
-            SetFocus;
-            Exit;
-          End;
-        End;
-        If Host.Children[Index] is TGLBaseComponent then
-        Begin
+      if Index < Host.Count then
+      begin
+        if Host.Children[Index] is TGLFocusControl then
+        begin
+          with (Host.Children[Index] as TGLFocusControl) do
+            if RecursiveVisible then
+            begin
+              SetFocus;
+              Exit;
+            end;
+        end;
+        if Host.Children[Index] is TGLBaseComponent then
+        begin
           IndexedChild := Host.Children[Index] as TGLBaseComponent;
-          If IndexedChild.RecursiveVisible then
-          Begin
+          if IndexedChild.RecursiveVisible then
+          begin
             Host := IndexedChild;
             Index := -1;
-          End;
-        End;
-      End else
-      Begin
-        If Host.Parent is TGLBaseComponent then
-        Begin
+          end;
+        end;
+      end
+      else
+      begin
+        if Host.Parent is TGLBaseComponent then
+        begin
           IndexedChild := Host;
           Host := Host.Parent as TGLBaseComponent;
           Index := Host.IndexOfChild(IndexedChild);
-        End else
-        Begin
-          If RestartedLoop then
-          Begin
-            RootControl.FocusedControl := Nil;
+        end
+        else
+        begin
+          if RestartedLoop then
+          begin
+            RootControl.FocusedControl := nil;
             Exit;
-          End;
+          end;
           Index := -1;
           RestartedLoop := True;
-        End;
-      End;
-    End;
-  End;
-End;
+        end;
+      end;
+    end;
+  end;
+end;
 
-Procedure TGLFocusControl.KeyPress(Sender: TObject; var Key: Char);
+procedure TGLFocusControl.KeyPress(Sender: TObject; var Key: Char);
 
-Begin
+begin
   InternalKeyPress(Key);
-  If Key = #9 then
-  Begin
-    If ssShift in FShiftState then
-    Begin
+  if Key = #9 then
+  begin
+    if ssShift in FShiftState then
+    begin
       PrevControl;
-    End else
-    Begin
+    end
+    else
+    begin
       NextControl;
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
-Procedure TGLFocusControl.KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-Begin
+procedure TGLFocusControl.KeyDown(Sender: TObject; var Key: Word; Shift:
+  TShiftState);
+begin
   FShiftState := Shift;
-  InternalKeyDown(Key,Shift);
-  If Key = glKey_TAB then
-  Begin
-    If ssShift in FShiftState then
-    Begin
+  InternalKeyDown(Key, Shift);
+  if Key = glKey_TAB then
+  begin
+    if ssShift in FShiftState then
+    begin
       PrevControl;
-    End else
-    Begin
+    end
+    else
+    begin
       NextControl;
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
-Procedure TGLFocusControl.KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-Begin
+procedure TGLFocusControl.KeyUp(Sender: TObject; var Key: Word; Shift:
+  TShiftState);
+begin
   FShiftState := Shift;
-  InternalKeyUp(Key,Shift);
-  If Key = glKey_TAB then
-  Begin
-    If ssShift in FShiftState then
-    Begin
+  InternalKeyUp(Key, Shift);
+  if Key = glKey_TAB then
+  begin
+    if ssShift in FShiftState then
+    begin
       PrevControl;
-    End else
-    Begin
+    end
+    else
+    begin
       NextControl;
-    End;
-  End;
+    end;
+  end;
 
-End;
+end;
 
 { base font control }
 
-Constructor TGLBaseFontControl.Create(AOwner : TComponent);
+constructor TGLBaseFontControl.Create(AOwner: TComponent);
 
-Begin
+begin
   inherited;
   FBitmapFont := nil;
   FDefaultColor := clrBlack;
-End;
+end;
 
-Destructor TGLBaseFontControl.Destroy;
-Begin
+destructor TGLBaseFontControl.Destroy;
+begin
   inherited;
-  BitmapFont := Nil;
-End;
+  BitmapFont := nil;
+end;
 
-Procedure TGLBaseFontControl.SetBitmapFont(NewFont : TGLCustomBitmapFont);
+procedure TGLBaseFontControl.SetBitmapFont(NewFont: TGLCustomBitmapFont);
 
-Begin
-   if NewFont<>FBitmapFont then begin
-      if Assigned(FBitmapFont) then
-      Begin
-         FBitmapFont.RemoveFreeNotification(Self);
-         FBitmapFont.UnRegisterUser(Self);
-      End;
-      FBitmapFont:=NewFont;
-      if Assigned(FBitmapFont) then begin
-         FBitmapFont.RegisterUser(Self);
-         FBitmapFont.FreeNotification(Self);
-      end;
-      GUIRedraw := True;
-   end;
-End;
+begin
+  if NewFont <> FBitmapFont then
+  begin
+    if Assigned(FBitmapFont) then
+    begin
+      FBitmapFont.RemoveFreeNotification(Self);
+      FBitmapFont.UnRegisterUser(Self);
+    end;
+    FBitmapFont := NewFont;
+    if Assigned(FBitmapFont) then
+    begin
+      FBitmapFont.RegisterUser(Self);
+      FBitmapFont.FreeNotification(Self);
+    end;
+    GUIRedraw := True;
+  end;
+end;
 
-Function  TGLBaseFontControl.GetBitmapFont : TGLCustomBitmapFont;
+function TGLBaseFontControl.GetBitmapFont: TGLCustomBitmapFont;
 
-Begin
-  Result := Nil;
+begin
+  Result := nil;
   if Assigned(FBitmapFont) then
-     Result := FBitmapFont
-  else
-  if Assigned(GuiLayout) then
-  if Assigned(GuiLayout.BitmapFont) then
-  Begin
-    If not (csDesigning in ComponentState) then
-    Begin
-      If not GuiDestroying then
-      Begin
-        BitmapFont := GuiLayout.BitmapFont;
-        Result := FBitmapFont;
-      End;
-    End else
-    Result := GuiLayout.BitmapFont;
-  End;
-End;
+    Result := FBitmapFont
+  else if Assigned(GuiLayout) then
+    if Assigned(GuiLayout.BitmapFont) then
+    begin
+      if not (csDesigning in ComponentState) then
+      begin
+        if not GuiDestroying then
+        begin
+          BitmapFont := GuiLayout.BitmapFont;
+          Result := FBitmapFont;
+        end;
+      end
+      else
+        Result := GuiLayout.BitmapFont;
+    end;
+end;
 
-Function  TGLBaseFontControl.GetDefaultColor : TDelphiColor;
+function TGLBaseFontControl.GetDefaultColor: TDelphiColor;
 
-Begin
+begin
   Result := ConvertColorVector(FDefaultColor);
-End;
+end;
 
-procedure TGLBaseFontControl.SetDefaultColor(value : TDelphiColor);
+procedure TGLBaseFontControl.SetDefaultColor(value: TDelphiColor);
 
-Begin
+begin
   FDefaultColor := ConvertWinColor(value);
   GUIRedraw := True;
   NotifyChange(Self);
-End;
+end;
 
-procedure TGLBaseFontControl.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TGLBaseFontControl.Notification(AComponent: TComponent; Operation:
+  TOperation);
 begin
-  if (Operation=opRemove) and (AComponent=FBitmapFont) then
-  Begin
+  if (Operation = opRemove) and (AComponent = FBitmapFont) then
+  begin
     BlockRender;
-    BitmapFont:=nil;
+    BitmapFont := nil;
     UnBlockRender;
-  End;
+  end;
   inherited;
 end;
 
 { GLWindow }
 
-Procedure TGLBaseTextControl.SetCaption(NewCaption : String);
+procedure TGLBaseTextControl.SetCaption(const NewCaption: UnicodeString);
 
-Begin
+begin
   FCaption := NewCaption;
   GuiRedraw := True;
-End;
+end;
 
-Procedure TGLBaseFontControl.WriteTextAt(var rci : TRenderContextInfo; Const X,Y : TGLFloat; Const Data : String; Const Color : TColorVector);
-
-Var
-  Position : TVector;
-Begin
-  If Assigned(BitmapFont) then
-  Begin
-    Position[0] := Round(X);
-    Position[1] := Round(Y);
-    Position[2] := 0;
-    Position[3] := 0;
-    BitmapFont.RenderString(rci, Data,taLeftJustify,tlTop,Color, @Position);
-  End;
-End;
-
-Procedure TGLBaseFontControl.WriteTextAt(var rci : TRenderContextInfo; Const X1,Y1,X2,Y2 : TGLFloat; Const Data : String; const Color : TColorVector);
+procedure TGLBaseFontControl.WriteTextAt(var rci: TRenderContextInfo; const X,
+  Y: TGLFloat; const Data: UnicodeString; const Color: TColorVector);
 var
-  Position : TVector;
-Begin
-  If Assigned(BitmapFont) then
-  Begin
-    Position[0] := Round(((X2+X1-BitmapFont.CalcStringWidth(Data))*0.5));
-    Position[1] := Round(-((Y2+Y1-GetFontHeight)*0.5))+2;
-    Position[2] := 0;
-    Position[3] := 0;
-    BitmapFont.RenderString(rci, Data,taLeftJustify,tlTop,Color,@Position);
-  End;
-End;
+  Position: TVector;
+begin
+  if Assigned(BitmapFont) then
+  begin
+    Position.V[0] := Round(X);
+    Position.V[1] := Round(Y);
+    Position.V[2] := 0;
+    Position.V[3] := 0;
+    BitmapFont.RenderString(rci, Data, taLeftJustify, tlTop, Color, @Position);
+  end;
+end;
 
+procedure TGLBaseFontControl.WriteTextAt(var rci: TRenderContextInfo; const X1,
+  Y1, X2, Y2: TGLFloat; const Data: UnicodeString; const Color: TColorVector);
+var
+  Position: TVector;
+begin
+  if Assigned(BitmapFont) then
+  begin
+    Position.V[0] := Round(((X2 + X1 -
+      BitmapFont.CalcStringWidth(Data)) * 0.5));
+    Position.V[1] := Round(-((Y2 + Y1 - GetFontHeight) * 0.5)) + 2;
+    Position.V[2] := 0;
+    Position.V[3] := 0;
+    BitmapFont.RenderString(rci, Data, taLeftJustify, tlTop, Color, @Position);
+  end;
+end;
 
-Function  TGLBaseFontControl.GetFontHeight : Integer;
+function TGLBaseFontControl.GetFontHeight: Integer;
 
-Begin
-  If Assigned(BitmapFont) then
-    If BitmapFont is TGLWindowsBitmapFont then
+begin
+  if Assigned(BitmapFont) then
+    if BitmapFont is TGLWindowsBitmapFont then
       Result := Abs((BitmapFont as TGLWindowsBitmapFont).Font.Height)
     else
       Result := BitmapFont.CharHeight
-  else Result := -1;
-End;
+  else
+    Result := -1;
+end;
 
-Constructor TGLCustomControl.Create(AOwner : TComponent);
+constructor TGLCustomControl.Create(AOwner: TComponent);
 
-Begin
+begin
   inherited;
   FMaterial := TGLMaterial.create(Self);
-  FBitmap   := TGLBitmap.create;
+  FBitmap := TGLBitmap.create;
   FBitmap.OnChange := OnBitmapChanged;
-  FInternalBitmap := Nil;
+  FInternalBitmap := nil;
   FInvalidRenderCount := 0;
 
-  FXTexCoord     := 1;
-  FYTexCoord     := 1;
-End;
+  FXTexCoord := 1;
+  FYTexCoord := 1;
+end;
 
-Destructor  TGLCustomControl.Destroy;
-Begin
-  If Assigned(FInternalBitmap) then FInternalBitmap.Free;
+destructor TGLCustomControl.Destroy;
+begin
+  if Assigned(FInternalBitmap) then
+    FInternalBitmap.Free;
   Bitmap.Free;
   FMaterial.Free;
   inherited;
-End;
+end;
 
 procedure TGLCustomControl.SetCentered(const Value: Boolean);
 begin
   FCentered := Value;
 end;
 
-Procedure   TGLCustomControl.OnBitmapChanged(Sender : TObject);
-Begin
+procedure TGLCustomControl.OnBitmapChanged(Sender: TObject);
+begin
   FBitmapChanged := True;
-End;
+end;
 
-Procedure   TGLCustomControl.SetBitmap(ABitmap : TGLBitmap);
-Begin
+procedure TGLCustomControl.SetBitmap(ABitmap: TGLBitmap);
+begin
   FBitmap.Assign(ABitmap);
-End;
+end;
 
-procedure   TGLCustomControl.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLCustomControl.InternalRender(var rci: TRenderContextInfo;
+  renderSelf, renderChildren: Boolean);
 
-Var
-  X1,X2,Y1,Y2 : Single;
+var
+  X1, X2, Y1, Y2: Single;
 
-Begin
-  If Assigned(OnRender) then
-  OnRender(self, FBitmap);
+begin
+  if Assigned(OnRender) then
+    OnRender(self, FBitmap);
 
-  If FBitmapChanged then
-  If FInvalidRenderCount >= FMaxInvalidRenderCount then
-  Begin
-    FInvalidRenderCount := 0;
-    If not Assigned(FInternalBitmap) then FInternalBitmap := TGLBitmap.Create;
+  if FBitmapChanged then
+    if FInvalidRenderCount >= FMaxInvalidRenderCount then
+    begin
+      FInvalidRenderCount := 0;
+      if not Assigned(FInternalBitmap) then
+        FInternalBitmap := TGLBitmap.Create;
 
-    FInternalBitmap.PixelFormat := FBitmap.PixelFormat;
-    FInternalBitmap.Width  := RoundUpToPowerOf2(FBitmap.Width);
-    FInternalBitmap.Height := RoundUpToPowerOf2(FBitmap.Height);
-    FInternalBitmap.Canvas.CopyRect(FBitmap.Canvas.ClipRect,FBitmap.Canvas,FBitmap.Canvas.ClipRect);
-    FBitmapChanged := False;
-    With Material.GetActualPrimaryTexture do
-    Begin
-      Disabled := False;
-      Image.Assign(FInternalBitmap);
-    End;
-    FXTexCoord     := FBitmap.Width / FInternalBitmap.Width;
-    FYTexCoord     := FBitmap.Height / FInternalBitmap.Height;
-  End else Inc(FInvalidRenderCount);
+      FInternalBitmap.PixelFormat := FBitmap.PixelFormat;
+      FInternalBitmap.Width := RoundUpToPowerOf2(FBitmap.Width);
+      FInternalBitmap.Height := RoundUpToPowerOf2(FBitmap.Height);
+      FInternalBitmap.Canvas.CopyRect(FBitmap.Canvas.ClipRect, FBitmap.Canvas,
+        FBitmap.Canvas.ClipRect);
+      FBitmapChanged := False;
+      with Material.GetActualPrimaryTexture do
+      begin
+        Disabled := False;
+        Image.Assign(FInternalBitmap);
+      end;
+      FXTexCoord := FBitmap.Width / FInternalBitmap.Width;
+      FYTexCoord := FBitmap.Height / FInternalBitmap.Height;
+    end
+    else
+      Inc(FInvalidRenderCount);
 
-  If Assigned(FGuiComponent) then
-  Begin
+  if Assigned(FGuiComponent) then
+  begin
     try
-      If Centered then
-        FGuiComponent.RenderToArea(-Width / 2,-Height / 2,Width,Height, FRenderStatus, FReBuildGui)
+      if Centered then
+        FGuiComponent.RenderToArea(-Width / 2, -Height / 2, Width, Height,
+          FRenderStatus, FReBuildGui)
       else
-        FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
+        FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+          FReBuildGui);
     except
-      on E : Exception do
-      GLOKMessageBox(E.Message,'Exception in TGLCustomControl InternalRender function');
+      on E: Exception do
+        GLOKMessageBox(E.Message,
+          'Exception in TGLCustomControl InternalRender function');
     end;
     X1 := FRenderStatus[GLAlCenter].X1;
     X2 := FRenderStatus[GLAlCenter].X2;
     Y1 := -FRenderStatus[GLAlCenter].Y2;
     Y2 := -FRenderStatus[GLAlCenter].Y1;
-  End else
-  Begin
-    If Centered then
-    Begin
+  end
+  else
+  begin
+    if Centered then
+    begin
       X2 := Width / 2;
       Y1 := -Height / 2;
       X1 := -X2;
       Y2 := -Y1;
-    End else
-    Begin
+    end
+    else
+    begin
       X2 := Width;
       Y2 := -Height;
       X1 := 0;
       Y1 := 0;
-    End;
-  End;
+    end;
+  end;
 
   GuiLayout.Material.UnApply(rci);
   Material.Apply(rci);
-  glBegin(GL_QUADS);
+  GL.Begin_(GL_QUADS);
 
-    glTexCoord2f( FXTexCoord, -FYTexCoord);
-    glVertex2f(X2,Y2);
+  GL.TexCoord2f(FXTexCoord, -FYTexCoord);
+  GL.Vertex2f(X2, Y2);
 
-    glTexCoord2f( FXTexCoord, 0);
-    glVertex2f(X2,Y1);
+  GL.TexCoord2f(FXTexCoord, 0);
+  GL.Vertex2f(X2, Y1);
 
-    glTexCoord2f( 0, 0);
-    glVertex2f(X1,Y1);
+  GL.TexCoord2f(0, 0);
+  GL.Vertex2f(X1, Y1);
 
-    glTexCoord2f( 0, -FYTexCoord);
-    glVertex2f(X1,Y2);
+  GL.TexCoord2f(0, -FYTexCoord);
+  GL.Vertex2f(X1, Y2);
 
-  glEnd();
+  GL.End_();
 
   Material.UnApply(rci);
   GuiLayout.Material.Apply(rci);
-End;
+end;
 
-procedure   TGLCustomControl.SetMaterial(AMaterial : TGLMaterial);
+procedure TGLCustomControl.SetMaterial(AMaterial: TGLMaterial);
 
-Begin
+begin
   FMaterial.Assign(AMaterial);
-End;
+end;
 
-Procedure   TGLPopupMenu.SetFocused(Value :Boolean);
+procedure TGLPopupMenu.SetFocused(Value: Boolean);
 
-Begin
+begin
   inherited;
   if not (csDesigning in ComponentState) then
-  If not FFocused then Visible := False;
-End;
+    if not FFocused then
+      Visible := False;
+end;
 
-Procedure   TGLPopupMenu.SetMenuItems(Value :TStrings);
+procedure TGLPopupMenu.SetMenuItems(Value: TStrings);
 
-Begin
+begin
   FMenuItems.Assign(Value);
   NotifyChange(Self);
-End;
+end;
 
-Procedure TGLPopupMenu.SetMarginSize(const val : Single);
+procedure TGLPopupMenu.SetMarginSize(const val: Single);
 
-Begin
-  If FMarginSize <> val then
-  Begin
+begin
+  if FMarginSize <> val then
+  begin
     FMarginSize := val;
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-Procedure TGLPopupMenu.SetSelIndex(const val : Integer);
+procedure TGLPopupMenu.SetSelIndex(const val: Integer);
 
-Begin
-  If FSelIndex <> val then
-  Begin
+begin
+  if FSelIndex <> val then
+  begin
     FSelIndex := val;
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-procedure TGLPopupMenu.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
-Var
-  ClickIndex : Integer;
-  Tx : Single;
-  Ty : Single;
+procedure TGLPopupMenu.InternalMouseDown(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
+var
+  ClickIndex: Integer;
+  Tx: Single;
+  Ty: Single;
 
-Begin
-  Tx := X-Left;
-  Ty := Y-Top;
-  If Button = mbLeft then
-  If IsInRect(fRenderStatus[glAlCenter],Tx,Ty) then
-  If Assigned(BitmapFont) then
-  Begin
-    ClickIndex := Round(Int((Ty-fRenderStatus[glAlCenter].y1) / BitmapFont.CharHeight));
-    If (ClickIndex >= 0) and (ClickIndex < FMenuItems.Count) then
-    Begin
-      if Assigned(OnClick) then OnClick(Self,ClickIndex,FMenuItems[ClickIndex]);
-      Visible := False;
-    End;
-  End;
-End;
+begin
+  Tx := X - Position.X;
+  Ty := Y - Position.Y;
+  if Button = mbLeft then
+    if IsInRect(fRenderStatus[glAlCenter], Tx, Ty) then
+      if Assigned(BitmapFont) then
+      begin
+        ClickIndex := Round(Int((Ty - fRenderStatus[glAlCenter].y1) /
+          BitmapFont.CharHeight));
+        if (ClickIndex >= 0) and (ClickIndex < FMenuItems.Count) then
+        begin
+          if Assigned(OnClick) then
+            OnClick(Self, ClickIndex, FMenuItems[ClickIndex]);
+          Visible := False;
+        end;
+      end;
+end;
 
 procedure TGLPopupMenu.InternalMouseMove(Shift: TShiftState; X, Y: Integer);
-Var
-  Tx : Single;
-  Ty : Single;
-Begin
-  Tx := X-Left;
-  Ty := Y-Top;
-  If IsInRect(fRenderStatus[glAlCenter],Tx,Ty) then
-  If Assigned(BitmapFont) then
-  Begin
-    SelIndex := Round(Int((Ty-fRenderStatus[glAlCenter].y1) / BitmapFont.CharHeight));
-  End;
-End;
+var
+  Tx: Single;
+  Ty: Single;
+begin
+  Tx := X - Position.X;
+  Ty := Y - Position.Y;
+  if IsInRect(fRenderStatus[glAlCenter], Tx, Ty) then
+    if Assigned(BitmapFont) then
+    begin
+      SelIndex := Round(Int((Ty - fRenderStatus[glAlCenter].y1) /
+        BitmapFont.CharHeight));
+    end;
+end;
 
-Procedure TGLPopupMenu.OnStringListChange(Sender : TObject);
+procedure TGLPopupMenu.OnStringListChange(Sender: TObject);
 
-Var
-  CenterHeight : Single;
-  TextHeight   : Single;
-Begin
-  If not FReBuildGui then
-  Begin
-    If Assigned(BitmapFont) then
-    With FRenderStatus[GLalCenter] do
-    Begin
-      CenterHeight := Y2-Y1;
-      CenterHeight := Round(CenterHeight+0.499);
-      TextHeight   := BitmapFont.CharHeight*FMenuItems.Count;
-      If CenterHeight <> TextHeight then // allways round up!
-      Begin
-        Height := Height + TextHeight-CenterHeight;
-      End;
-    End;
-  End;
-End;
+var
+  CenterHeight: Single;
+  TextHeight: Single;
+begin
+  if not FReBuildGui then
+  begin
+    if Assigned(BitmapFont) then
+      with FRenderStatus[GLalCenter] do
+      begin
+        CenterHeight := Y2 - Y1;
+        CenterHeight := Round(CenterHeight + 0.499);
+        TextHeight := BitmapFont.CharHeight * FMenuItems.Count;
+        if CenterHeight <> TextHeight then // allways round up!
+        begin
+          Height := Height + TextHeight - CenterHeight;
+        end;
+      end;
+  end;
+end;
 
-Constructor TGLPopupMenu.Create(AOwner : TComponent);
-Begin
+constructor TGLPopupMenu.Create(AOwner: TComponent);
+begin
   inherited;
-  FOnClick   := Nil;
+  FOnClick := nil;
   FMenuItems := TStringList.Create;
   (FMenuItems as TStringList).OnChange := OnStringListChange;
-  FSelIndex  := 0;
+  FSelIndex := 0;
   NewHeight := -1;
-End;
+end;
 
-Destructor  TGLPopupMenu.Destroy;
-Begin
+destructor TGLPopupMenu.Destroy;
+begin
   inherited;
   FMenuItems.Free;
-End;
+end;
 
-Procedure   TGLPopupMenu.PopUp(Px,Py : Integer);
-Begin
+procedure TGLPopupMenu.PopUp(Px, Py: Integer);
+begin
   Position.X := PX;
   Position.Y := PY;
   Visible := True;
   SetFocus;
   RootControl.ActiveControl := Self;
-End;
+end;
 
-procedure   TGLPopupMenu.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLPopupMenu.InternalRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 
-Var
-  CenterHeight : Single;
-  TextHeight : Single;
-  YPos       : Single;
-  XPos       : Single;
-  XC         : Integer;
+var
+  CenterHeight: Single;
+  TextHeight: Single;
+  YPos: Single;
+  XPos: Single;
+  XC: Integer;
   changedHeight: single;
-Begin
-  If Assigned(FGuiComponent) then
-  Begin
+begin
+  if Assigned(FGuiComponent) then
+  begin
     try
-      If NewHeight <> -1 then
-        FGuiComponent.RenderToArea(0,0,Width,NewHeight, FRenderStatus, FReBuildGui)
+      if NewHeight <> -1 then
+        FGuiComponent.RenderToArea(0, 0, Width, NewHeight, FRenderStatus,
+          FReBuildGui)
       else
-        FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
+        FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+          FReBuildGui);
     except
-      on E : Exception do
-      GLOKMessageBox(E.Message,'Exception in GuiComponents InternalRender function');
+      on E: Exception do
+        GLOKMessageBox(E.Message,
+          'Exception in GuiComponents InternalRender function');
     end;
-  End;
-  If Assigned(BitmapFont) and (FMenuItems.Count > 0) then
-  With FRenderStatus[GLalCenter] do
-  Begin
-    CenterHeight := Y2-Y1;
-    CenterHeight := Round(CenterHeight+0.499);
-    TextHeight   := BitmapFont.CharHeight*FMenuItems.Count;
-    If CenterHeight <> TextHeight then // allways round up!
-    Begin
-      changedHeight := Height + TextHeight-CenterHeight;
-      if changedHeight <> newHeight then begin
-        newHeight:= changedHeight;
-        InternalRender(rci,RenderSelf,RenderChildren);
+  end;
+  if Assigned(BitmapFont) and (FMenuItems.Count > 0) then
+    with FRenderStatus[GLalCenter] do
+    begin
+      CenterHeight := Y2 - Y1;
+      CenterHeight := Round(CenterHeight + 0.499);
+      TextHeight := BitmapFont.CharHeight * FMenuItems.Count;
+      if CenterHeight <> TextHeight then // allways round up!
+      begin
+        changedHeight := Height + TextHeight - CenterHeight;
+        if changedHeight <> newHeight then
+        begin
+          newHeight := changedHeight;
+          InternalRender(rci, RenderSelf, RenderChildren);
+        end;
+      end
+      else
+      begin
+        YPos := -Y1;
+        XPos := X1 + MarginSize;
+        for XC := 0 to FMenuItems.count - 1 do
+        begin
+          if FSelIndex = XC then
+            WriteTextAt(rci, XPos, YPos, FMenuItems[XC], FFocusedColor)
+          else
+            WriteTextAt(rci, XPos, YPos, FMenuItems[XC], FDefaultColor);
+          YPos := YPos - BitmapFont.CharHeight;
+        end;
       end;
-    End else
-    Begin
-      YPos := -Y1;
-      XPos := X1+MarginSize;
-      For XC := 0 to FMenuItems.count-1 do
-      Begin
-        If FSelIndex = XC then
-          WriteTextAt(rci, XPos,YPos,FMenuItems[XC],FFocusedColor)
-        else
-          WriteTextAt(rci, XPos,YPos,FMenuItems[XC],FDefaultColor);
-        YPos := YPos - BitmapFont.CharHeight;
-      End;
-    End;
-  End;
-End;
+    end;
+end;
 
-procedure TGLPopupMenu.DoRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLPopupMenu.DoRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 
-Begin
+begin
   inherited;
   // to avoid gui render-block deadlock!
-  If NewHeight <> -1 then
-  Begin
+  if NewHeight <> -1 then
+  begin
     Height := NewHeight;
     NewHeight := -1;
-  End;
-End;
+  end;
+end;
 
-function TGLPopupMenu.MouseDown(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer): Boolean;
+function TGLPopupMenu.MouseDown(Sender: TObject; Button: TGLMouseButton; Shift:
+  TShiftState; X, Y: Integer): Boolean;
 begin
   Result := inherited MouseDown(Sender, Button, Shift, X, Y);
 
-  If (not Result) and (RootControl.ActiveControl = Self) then
-  Begin
-    RootControl.ActiveControl := Nil;
+  if (not Result) and (RootControl.ActiveControl = Self) then
+  begin
+    RootControl.ActiveControl := nil;
     NextControl;
-  End;
+  end;
 end;
 
-procedure TGLForm.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
+procedure TGLForm.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton;
+  X, Y: Integer);
 
-Var
-  CanMove : Boolean;
-  YHere : TGLFloat;
+var
+  CanMove: Boolean;
+  YHere: TGLFloat;
 
-Begin
+begin
   YHere := Y - Position.Y;
-  If YHere < FRenderStatus[GLALTop].Y2 then
-  Begin
-    If Button = mbLeft then
-    Begin
-{      If contains(Width-22,Width-6,XHere) and contains(8,24,YHere) then
-      Begin
-        Close;
-      End else{}
-      Begin
+  if YHere < FRenderStatus[GLALTop].Y2 then
+  begin
+    if Button = mbLeft then
+    begin
+      {      If contains(Width-22,Width-6,XHere) and contains(8,24,YHere) then
+            Begin
+              Close;
+            End else{}
+      begin
         CanMove := True;
-        If Assigned(FOnCanMove) then FOnCanMove(Self,CanMove);
-        If CanMove then
-        Begin
+        if Assigned(FOnCanMove) then
+          FOnCanMove(Self, CanMove);
+        if CanMove then
+        begin
           OldX := X;
           OldY := Y;
           Moving := True;
-          If Parent is TGLFocusControl then
-          (Parent as TGLFocusControl).ActiveControl := Self;
-        End;
-      End;
-    End;
-  End else inherited;
-End;
+          if Parent is TGLFocusControl then
+            (Parent as TGLFocusControl).ActiveControl := Self;
+        end;
+      end;
+    end;
+  end
+  else
+    inherited;
+end;
 
-procedure TGLForm.InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
+procedure TGLForm.InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X,
+  Y: Integer);
 
-Begin
-  If (Button = mbLeft) and Moving then
-  Begin
+begin
+  if (Button = mbLeft) and Moving then
+  begin
     Moving := False;
-    If Parent is TGLFocusControl then
-    (Parent as TGLFocusControl).ActiveControl := Nil;
+    if Parent is TGLFocusControl then
+      (Parent as TGLFocusControl).ActiveControl := nil;
     Exit;
-  End;
+  end;
 
-  If Y - Position.Y < 27 then
-  Begin
-  End else inherited;
-End;
+  if Y - Position.Y < 27 then
+  begin
+  end
+  else
+    inherited;
+end;
 
 procedure TGLForm.InternalMouseMove(Shift: TShiftState; X, Y: Integer);
 
-Var
-  XRel, YRel : Single;
+var
+  XRel, YRel: Single;
 
-
-Begin
-  If Moving then
-  Begin
-    If (X <> OldX) or (Y <> OldY) then
-    Begin
+begin
+  if Moving then
+  begin
+    if (X <> OldX) or (Y <> OldY) then
+    begin
       XRel := X - OldX;
       YRel := Y - OldY;
 
-      XRel := XRel + Left;
-      YRel := YRel + Top;
-      If Assigned(OnMoving) then OnMoving(Self,XRel,YRel);
-      XRel := XRel - Left;
-      YRel := YRel - Top;
+      XRel := XRel + Position.X;
+      YRel := YRel + Position.Y;
+      if Assigned(OnMoving) then
+        OnMoving(Self, XRel, YRel);
+      XRel := XRel - Position.X;
+      YRel := YRel - Position.Y;
 
-      MoveGUI(XRel,YRel);
+      MoveGUI(XRel, YRel);
       OldX := X;
       OldY := Y;
 
-    End;
-  End else
-  If Y - Position.Y < 27 then
-  Begin
+    end;
+  end
+  else if Y - Position.Y < 27 then
+  begin
 
-  End else inherited;
-End;
+  end
+  else
+    inherited;
+end;
 
-Function  TGLForm.GetTitleColor : TDelphiColor;
+function TGLForm.GetTitleColor: TDelphiColor;
 
-Begin
+begin
   Result := ConvertColorVector(FTitleColor);
-End;
+end;
 
-procedure TGLForm.SetTitleColor(value : TDelphiColor);
+procedure TGLForm.SetTitleColor(value: TDelphiColor);
 
-Begin
+begin
   FTitleColor := ConvertWinColor(value);
   GUIRedraw := True;
-End;
+end;
 
-Constructor TGLForm.Create(AOwner : TComponent);
+constructor TGLForm.Create(AOwner: TComponent);
 
-Begin
+begin
   inherited;
   FTitleOffset := 2;
-End;
+end;
 
-Procedure   TGLForm.Close;
+procedure TGLForm.Close;
 
-Var
-  HowClose : TGLFormCloseOptions;
+var
+  HowClose: TGLFormCloseOptions;
 
-Begin
+begin
   HowClose := co_hide;
-  If Assigned(FOnCanClose) then FOnCanClose(Self,HowClose);
-  Case HowClose of
-    co_hide   : Visible := False;
-    co_ignore : ;
-    co_Destroy : Free;
-  End;
-End;
+  if Assigned(FOnCanClose) then
+    FOnCanClose(Self, HowClose);
+  case HowClose of
+    co_hide: Visible := False;
+    co_ignore: ;
+    co_Destroy: Free;
+  end;
+end;
 
 procedure TGLForm.NotifyShow;
 
-Begin
+begin
   inherited;
-  if Assigned(FOnShow) then FOnShow(Self);
-End;
+  if Assigned(FOnShow) then
+    FOnShow(Self);
+end;
 
 procedure TGLForm.NotifyHide;
 
-Begin
+begin
   inherited;
-  if Assigned(FOnHide) then FOnHide(Self);
-End;
+  if Assigned(FOnHide) then
+    FOnHide(Self);
+end;
 
-Function  TGLForm.MouseUp(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean;
+function TGLForm.MouseUp(Sender: TObject; Button: TGLMouseButton; Shift:
+  TShiftState; X, Y: Integer): Boolean;
 
-Begin
-  If (Button = mbLeft) and (Moving) then
-  Begin
+begin
+  if (Button = mbLeft) and (Moving) then
+  begin
     Result := True;
-    InternalMouseUp(Shift,Button,X,Y);
-  End else Result := Inherited MouseUp(Sender,Button,Shift,X,Y);
-End;
+    InternalMouseUp(Shift, Button, X, Y);
+  end
+  else
+    Result := inherited MouseUp(Sender, Button, Shift, X, Y);
+end;
 
-Function  TGLForm.MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer) : Boolean;
+function TGLForm.MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer):
+  Boolean;
 
-Begin
-  If (Moving) then
-  Begin
+begin
+  if (Moving) then
+  begin
     Result := True;
-    InternalMouseMove(Shift,X,Y);
-  End else Result := Inherited MouseMove(Sender,Shift,X,Y);
-End;
+    InternalMouseMove(Shift, X, Y);
+  end
+  else
+    Result := inherited MouseMove(Sender, Shift, X, Y);
+end;
 
-procedure TGLForm.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLForm.InternalRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 var
-  ATitleColor: TColorVector;  
-Begin
-  If Assigned(FGuiComponent) then
-  Begin
-    FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
+  ATitleColor: TColorVector;
+begin
+  if Assigned(FGuiComponent) then
+  begin
+    FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus, FReBuildGui);
 
     ATitleColor := FTitleColor;
-    ATitleColor[3] := AlphaChannel;
+    ATitleColor.V[3] := AlphaChannel;
 
-    WriteTextAt(rci, ((FRenderStatus[GLAlTop].X2+FRenderStatus[GLAlTop].X1-BitmapFont.CalcStringWidth(Caption))*0.5),-((FRenderStatus[GLAlTop].Y2+FRenderStatus[GLAlTop].Y1-GetFontHeight)*0.5)+TitleOffset,Caption,ATitleColor);
-  End;
-End;
+    WriteTextAt(rci, ((FRenderStatus[GLAlTop].X2 + FRenderStatus[GLAlTop].X1 -
+      BitmapFont.CalcStringWidth(Caption)) * 0.5),
+      -((FRenderStatus[GLAlTop].Y2 + FRenderStatus[GLAlTop].Y1 - GetFontHeight) *
+      0.5) + TitleOffset, Caption, ATitleColor);
+  end;
+end;
 
-Procedure TGLCheckBox.SetChecked(NewChecked : Boolean);
+procedure TGLCheckBox.SetChecked(NewChecked: Boolean);
 
-Begin
-  If NewChecked <> FChecked then
+begin
+  if NewChecked <> FChecked then
   begin
     BlockRender;
     try
-      If NewChecked then
-      If Group >= 0 then
-      UnpressGroup(FindFirstGui,Group);
+      if NewChecked then
+        if Group >= 0 then
+          UnpressGroup(FindFirstGui, Group);
 
       FChecked := NewChecked;
     finally
@@ -2123,571 +2397,604 @@ Begin
     end;
 
     NotifyChange(Self);
-    if Assigned(FOnChange) then FOnChange(Self);
-  End;
-End;
+    if Assigned(FOnChange) then
+      FOnChange(Self);
+  end;
+end;
 
-procedure TGLCheckBox.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
-Begin
-  Checked := Not Checked;
+procedure TGLCheckBox.InternalMouseDown(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
+begin
+  Checked := not Checked;
   inherited;
-End;
+end;
 
-procedure TGLCheckBox.InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
+procedure TGLCheckBox.InternalMouseUp(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
 
-Begin
+begin
   inherited;
-End;
+end;
 
-procedure TGLCheckBox.SetGuiLayoutNameChecked(newName : TGLGuiComponentName);
+procedure TGLCheckBox.SetGuiLayoutNameChecked(newName: TGLGuiComponentName);
 
-Begin
-  If FGuiLayoutNameChecked <> NewName then
-  Begin
-    FGuiCheckedComponent := Nil;
+begin
+  if FGuiLayoutNameChecked <> NewName then
+  begin
+    FGuiCheckedComponent := nil;
     FGuiLayoutNameChecked := NewName;
-    If Assigned(FGuiLayout) then
-    Begin
-      FGuiCheckedComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutNameChecked);
+    if Assigned(FGuiLayout) then
+    begin
+      FGuiCheckedComponent :=
+        FGuiLayout.GuiComponents.FindItem(FGuiLayoutNameChecked);
       FReBuildGui := True;
       GUIRedraw := True;
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
-procedure TGLCheckBox.SetGuiLayout(NewGui : TGLGuiLayout);
+procedure TGLCheckBox.SetGuiLayout(NewGui: TGLGuiLayout);
 
-Begin
-  FGuiCheckedComponent := Nil;
+begin
+  FGuiCheckedComponent := nil;
   inherited;
-  If Assigned(FGuiLayout) then
-  Begin
-    FGuiCheckedComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutNameChecked);
+  if Assigned(FGuiLayout) then
+  begin
+    FGuiCheckedComponent :=
+      FGuiLayout.GuiComponents.FindItem(FGuiLayoutNameChecked);
     FReBuildGui := True;
     GUIRedraw := True;
-  End;
-End;
+  end;
+end;
 
-Procedure TGLCheckBox.SetGroup(const val : Integer);
+procedure TGLCheckBox.SetGroup(const val: Integer);
 
-Begin
+begin
   FGroup := val;
-  If Checked then
-  Begin
+  if Checked then
+  begin
     BlockRender;
     FChecked := False;
-    UnpressGroup(FindFirstGui,val);
+    UnpressGroup(FindFirstGui, val);
     FChecked := true;
     UnBlockRender;
-  End;
-End;
+  end;
+end;
 
 constructor TGLCheckBox.Create(AOwner: TComponent);
 
-Begin
+begin
   inherited;
   FChecked := False;
   FGroup := -1;
-End;
+end;
 
-procedure TGLCheckBox.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
-Begin
-  If Checked then
-  Begin
-    If Assigned(FGuiCheckedComponent) then
-    Begin
-      FGuiCheckedComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
-    End;
-  End else
-  Begin
-    If Assigned(FGuiComponent) then
-    Begin
-      FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
-    End;
-  End;
-End;
+procedure TGLCheckBox.InternalRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
+begin
+  if Checked then
+  begin
+    if Assigned(FGuiCheckedComponent) then
+    begin
+      FGuiCheckedComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+        FReBuildGui);
+    end;
+  end
+  else
+  begin
+    if Assigned(FGuiComponent) then
+    begin
+      FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+        FReBuildGui);
+    end;
+  end;
+end;
 
-procedure TGLCheckBox.NotifyChange(Sender : TObject);
+procedure TGLCheckBox.NotifyChange(Sender: TObject);
 
-Begin
-  If Sender = FGuiLayout then
-  Begin
-    If (FGuiLayoutNameChecked <> '') and (GuiLayout <> Nil) then
-    Begin
+begin
+  if Sender = FGuiLayout then
+  begin
+    if (FGuiLayoutNameChecked <> '') and (GuiLayout <> nil) then
+    begin
       BlockRender;
-      FGuiCheckedComponent := GuiLayout.GuiComponents.FindItem(FGuiLayoutNameChecked);
+      FGuiCheckedComponent :=
+        GuiLayout.GuiComponents.FindItem(FGuiLayoutNameChecked);
       ReBuildGui := True;
       GUIRedraw := True;
       UnBlockRender;
-    End else
-    Begin
+    end
+    else
+    begin
       BlockRender;
-      FGuiCheckedComponent := Nil;
+      FGuiCheckedComponent := nil;
       ReBuildGui := True;
       GUIRedraw := True;
       UnBlockRender;
-    End;
-  End;
+    end;
+  end;
   inherited;
-End;
+end;
 
+procedure TGLButton.SetPressed(NewPressed: Boolean);
 
-Procedure TGLButton.SetPressed(NewPressed : Boolean);
-
-Begin
-  If FPressed <> NewPressed then
+begin
+  if FPressed <> NewPressed then
   begin
     BlockRender;
     try
-      If NewPressed then
-      If Group >= 0 then
-      UnpressGroup(RootControl,Group);
+      if NewPressed then
+        if Group >= 0 then
+          UnpressGroup(RootControl, Group);
 
       FPressed := NewPressed;
     finally
       UnBlockRender;
     end;
 
-    If FPressed then
-    if Assigned(FOnButtonClick) then FOnButtonClick(Self);
-    
-    NotifyChange(Self);
-  End;
-End;
+    if FPressed then
+      if Assigned(FOnButtonClick) then
+        FOnButtonClick(Self);
 
-procedure TGLButton.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
-Begin
+    NotifyChange(Self);
+  end;
+end;
+
+procedure TGLButton.InternalMouseDown(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
+begin
   SetFocus;
   inherited;
-  If Button = mbLeft then
-  If AllowUp then
-    Pressed := not Pressed
-  else
-    Pressed := True;
-End;
+  if Button = mbLeft then
+    if AllowUp then
+      Pressed := not Pressed
+    else
+      Pressed := True;
+end;
 
-procedure TGLButton.InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
+procedure TGLButton.InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton;
+  X, Y: Integer);
 
-Begin
-  If (Button = mbLeft) and (Group < 0) then
-  Pressed := False;
-  inherited;
-End;
-
-Procedure TGLButton.InternalKeyDown(var Key: Word; Shift: TShiftState);
-
-Begin
-  inherited;
-  If Key = glKey_SPACE then
-  Begin
-    Pressed := True;
-  End;
-  If Key = glKey_RETURN then
-  Begin
-    Pressed := True;
-  End;
-End;
-
-Procedure TGLButton.InternalKeyUp(var Key: Word; Shift: TShiftState);
-
-Begin
-  If ((Key = glKey_SPACE) or (Key = glKey_RETURN)) and (Group < 0) then
-  Begin
+begin
+  if (Button = mbLeft) and (Group < 0) then
     Pressed := False;
-  End;
   inherited;
-End;
+end;
 
-Procedure TGLButton.SetFocused(Value :Boolean);
-Begin
+procedure TGLButton.InternalKeyDown(var Key: Word; Shift: TShiftState);
+
+begin
   inherited;
-  If (not FFocused) and (Group < 0) then
-  Pressed := False;
-End;
+  if Key = glKey_SPACE then
+  begin
+    Pressed := True;
+  end;
+  if Key = glKey_RETURN then
+  begin
+    Pressed := True;
+  end;
+end;
 
-procedure TGLButton.SetGuiLayoutNamePressed(newName : TGLGuiComponentName);
+procedure TGLButton.InternalKeyUp(var Key: Word; Shift: TShiftState);
 
-Begin
-  If FGuiLayoutNamePressed <> NewName then
-  Begin
-    FGuiPressedComponent := Nil;
+begin
+  if ((Key = glKey_SPACE) or (Key = glKey_RETURN)) and (Group < 0) then
+  begin
+    Pressed := False;
+  end;
+  inherited;
+end;
+
+procedure TGLButton.SetFocused(Value: Boolean);
+begin
+  inherited;
+  if (not FFocused) and (Group < 0) then
+    Pressed := False;
+end;
+
+procedure TGLButton.SetGuiLayoutNamePressed(newName: TGLGuiComponentName);
+
+begin
+  if FGuiLayoutNamePressed <> NewName then
+  begin
+    FGuiPressedComponent := nil;
     FGuiLayoutNamePressed := NewName;
-    If Assigned(FGuiLayout) then
-    Begin
-      FGuiPressedComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutNamePressed);
+    if Assigned(FGuiLayout) then
+    begin
+      FGuiPressedComponent :=
+        FGuiLayout.GuiComponents.FindItem(FGuiLayoutNamePressed);
       FReBuildGui := True;
       GUIRedraw := True;
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
-procedure TGLButton.SetGuiLayout(NewGui : TGLGuiLayout);
+procedure TGLButton.SetGuiLayout(NewGui: TGLGuiLayout);
 
-Begin
-  FGuiPressedComponent := Nil;
+begin
+  FGuiPressedComponent := nil;
   inherited;
-  If Assigned(FGuiLayout) then
-  Begin
-    FGuiPressedComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutNamePressed);
+  if Assigned(FGuiLayout) then
+  begin
+    FGuiPressedComponent :=
+      FGuiLayout.GuiComponents.FindItem(FGuiLayoutNamePressed);
     FReBuildGui := True;
     GUIRedraw := True;
-  End;
-End;
+  end;
+end;
 
 procedure TGLButton.SetBitBtn(AValue: TGLMaterial);
 
-Begin
-   FBitBtn.Assign(AValue);
-   NotifyChange(Self);
+begin
+  FBitBtn.Assign(AValue);
+  NotifyChange(Self);
 end;
 
 procedure TGLButton.DestroyHandle;
 begin
-   inherited;
-   FBitBtn.DestroyHandles;
+  inherited;
+  FBitBtn.DestroyHandles;
 end;
 
-Procedure TGLButton.SetGroup(const val : Integer);
+procedure TGLButton.SetGroup(const val: Integer);
 
-Begin
+begin
   FGroup := val;
-  If Pressed then
-  Begin
+  if Pressed then
+  begin
     BlockRender;
     FPressed := False;
-    UnpressGroup(RootControl,Group);
+    UnpressGroup(RootControl, Group);
     FPressed := True;
     UnBlockRender;
-  End;
+  end;
 end;
 
-Procedure TGLButton.SetLogicWidth(const val : single);
+procedure TGLButton.SetLogicWidth(const val: single);
 
-Begin
+begin
   FLogicWidth := val;
   NotifyChange(Self);
-End;
+end;
 
-Procedure TGLButton.SetLogicHeight(const val : single);
+procedure TGLButton.SetLogicHeight(const val: single);
 
-Begin
+begin
   FLogicHeight := val;
   NotifyChange(Self);
-End;
+end;
 
-Procedure TGLButton.SetXOffset(const val : single);
+procedure TGLButton.SetXOffset(const val: single);
 
-Begin
+begin
   FXOffSet := val;
   NotifyChange(Self);
-End;
+end;
 
-Procedure TGLButton.SetYOffset(const val : single);
+procedure TGLButton.SetYOffset(const val: single);
 
-Begin
+begin
   FYOffSet := val;
   NotifyChange(Self);
-End;
-
+end;
 
 constructor TGLButton.Create(AOwner: TComponent);
 begin
-   inherited Create(AOwner);
-   FBitBtn:=TGLMaterial.Create(Self);
-   FGroup := -1;
-   FPressed := False;
+  inherited Create(AOwner);
+  FBitBtn := TGLMaterial.Create(Self);
+  FGroup := -1;
+  FPressed := False;
 end;
 
 destructor TGLButton.Destroy;
 begin
-   inherited Destroy;
-   FBitBtn.Free;
+  inherited Destroy;
+  FBitBtn.Free;
 end;
 
-procedure TGLButton.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLButton.InternalRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 
-Var
-  B : Boolean;
-  TexWidth : Integer;
-  TexHeight : Integer;
-  Material : TGLMaterial;
-  LibMaterial : TGLLibMaterial;
+var
+  B: Boolean;
+  TexWidth: Integer;
+  TexHeight: Integer;
+  Material: TGLMaterial;
+  LibMaterial: TGLLibMaterial;
   TextColor: TColorVector;
 
-Begin
+begin
   if Pressed then
   begin
-    If Assigned(FGuiPressedComponent) then
-    Begin
-      FGuiPressedComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
-    End;
-  end else
+    if Assigned(FGuiPressedComponent) then
+    begin
+      FGuiPressedComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+        FReBuildGui);
+    end;
+  end
+  else
   begin
-    If Assigned(FGuiComponent) then
-    Begin
-      FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
-    End;
+    if Assigned(FGuiComponent) then
+    begin
+      FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+        FReBuildGui);
+    end;
   end;
 
   B := not BitBtn.Texture.Disabled;
-  Material := Nil;
+  Material := nil;
   if not B then
-  Begin
-    if BitBtn.MaterialLibrary <> nil then
+  begin
+    if (BitBtn.MaterialLibrary <> nil) and (BitBtn.MaterialLibrary is
+      TGLMaterialLibrary) then
     begin
 
-      LibMaterial := BitBtn.MaterialLibrary.Materials.GetLibMaterialByName(BitBtn.LibMaterialName);
+      LibMaterial :=
+        TGLMaterialLibrary(BitBtn.MaterialLibrary).Materials.GetLibMaterialByName(BitBtn.LibMaterialName);
       if LibMaterial <> nil then
-      Begin
+      begin
         Material := LibMaterial.Material;
         B := True;
-      End;
-    End;
-  end else
+      end;
+    end;
+  end
+  else
   begin
     Material := BitBtn;
-  End;
+  end;
 
   if B then
-  with FRenderStatus[GLAlCenter] do
-  Begin
-    GuiLayout.Material.UnApply(rci);
-    BitBtn.Apply(rci);
+    with FRenderStatus[GLAlCenter] do
+    begin
+      GuiLayout.Material.UnApply(rci);
+      BitBtn.Apply(rci);
 
-    TexWidth  := Material.Texture.TexWidth;
-    If TexWidth = 0 then
-    TexWidth := Material.Texture.Image.Width;
+      TexWidth := Material.Texture.TexWidth;
+      if TexWidth = 0 then
+        TexWidth := Material.Texture.Image.Width;
 
-    TexHeight := Material.Texture.TexHeight;
-    If TexHeight = 0 then
-    TexHeight := Material.Texture.Image.Height;
+      TexHeight := Material.Texture.TexHeight;
+      if TexHeight = 0 then
+        TexHeight := Material.Texture.Image.Height;
 
-    glBegin(GL_QUADS);
+      GL.Begin_(GL_QUADS);
 
-    glTexCoord2f(0,0);
-    glVertex2f(X1-XOffSet, -Y1+YOffSet);
+      GL.TexCoord2f(0, 0);
+      GL.Vertex2f(X1 - XOffSet, -Y1 + YOffSet);
 
-    glTexCoord2f(0,-(LogicHeight-1)/TexHeight);
-    glVertex2f(X1-XOffSet, -Y1+YOffset-LogicHeight+1);
+      GL.TexCoord2f(0, -(LogicHeight - 1) / TexHeight);
+      GL.Vertex2f(X1 - XOffSet, -Y1 + YOffset - LogicHeight + 1);
 
-    glTexCoord2f((LogicWidth-1)/TexWidth,-(LogicHeight-1)/TexHeight);
-    glVertex2f(X1-XOffSet+LogicWidth-1, -Y1+YOffset-LogicHeight+1);
+      GL.TexCoord2f((LogicWidth - 1) / TexWidth, -(LogicHeight - 1) /
+        TexHeight);
+      GL.Vertex2f(X1 - XOffSet + LogicWidth - 1, -Y1 + YOffset - LogicHeight +
+        1);
 
-    glTexCoord2f((LogicWidth-1)/TexWidth,0);
-    glVertex2f(X1-XOffSet+LogicWidth-1, -Y1+YOffSet);
+      GL.TexCoord2f((LogicWidth - 1) / TexWidth, 0);
+      GL.Vertex2f(X1 - XOffSet + LogicWidth - 1, -Y1 + YOffSet);
 
-    glEnd();
-    BitBtn.UnApply(rci);
-    GuiLayout.Material.Apply(rci);
-  End;
+      GL.End_();
+      BitBtn.UnApply(rci);
+      GuiLayout.Material.Apply(rci);
+    end;
 
-   If Assigned(BitmapFont) then
-   Begin
+  if Assigned(BitmapFont) then
+  begin
 
-     If FFocused then
-     Begin
-       TextColor := FFocusedColor;
-     End else
-     Begin
-       TextColor := FDefaultColor;
-     End;
-     TextColor[3] := AlphaChannel;
+    if FFocused then
+    begin
+      TextColor := FFocusedColor;
+    end
+    else
+    begin
+      TextColor := FDefaultColor;
+    end;
+    TextColor.V[3] := AlphaChannel;
 
-     WriteTextAt(rci, FRenderStatus[GLALCenter].X1,
-                      FRenderStatus[GLALCenter].Y1,
-                      FRenderStatus[GLALCenter].X2,
-                      FRenderStatus[GLALCenter].Y2,
-                      Caption,
-                      TextColor);
-   End;
-End;
+    WriteTextAt(rci, FRenderStatus[GLALCenter].X1,
+      FRenderStatus[GLALCenter].Y1,
+      FRenderStatus[GLALCenter].X2,
+      FRenderStatus[GLALCenter].Y2,
+      Caption,
+      TextColor);
+  end;
+end;
 
-procedure TGLEdit.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
-Begin
+procedure TGLEdit.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton;
+  X, Y: Integer);
+begin
   if not FReadOnly then
     SetFocus;
   inherited;
-End;
+end;
 
-Procedure TGLEdit.InternalKeyPress(var Key: Char);
-Begin
-  if FReadOnly then exit;
+procedure TGLEdit.InternalKeyPress(var Key: Char);
+begin
+  if FReadOnly then
+    exit;
   inherited;
-  Case Key of
-    #8 :
-    Begin
-      If FSelStart > 1 then
-      Begin
-        system.Delete(FCaption,FSelStart-1,1);
-        Dec(FSelStart);
-        GUIRedraw := True;
-      End;
-    End;
-    else
-    Begin
-      If Key >= #32 then
-      Begin
-        system.Insert(Key,FCaption,SelStart);
+  case Key of
+    #8:
+      begin
+        if FSelStart > 1 then
+        begin
+          system.Delete(FCaption, FSelStart - 1, 1);
+          Dec(FSelStart);
+          GUIRedraw := True;
+        end;
+      end;
+  else
+    begin
+      if Key >= #32 then
+      begin
+        system.Insert(Key, FCaption, SelStart);
         inc(FSelStart);
         GUIRedraw := True;
-      End;
-    End;
-  End;
-End;
+      end;
+    end;
+  end;
+end;
 
-Procedure TGLEdit.InternalKeyDown(var Key: Word; Shift: TShiftState);
-Begin
-  if FReadOnly then exit;
+procedure TGLEdit.InternalKeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if FReadOnly then
+    exit;
   inherited;
-  Case Key of
-    glKey_DELETE :
-    Begin
-      If FSelStart <= Length(Caption) then
-      Begin
-        System.Delete(FCaption,FSelStart,1);
-        GUIRedraw := True;
-      End;
-    End;
-    glKey_LEFT   :
-    Begin
-      If FSelStart > 1 then
-      Begin
-        Dec(FSelStart);
-        GUIRedraw := True;
-      End;
-    End;
-    glKey_RIGHT   :
-    Begin
-      If FSelStart < Length(Caption)+1 then
-      Begin
-        Inc(FSelStart);
-        GUIRedraw := True;
-      End;
-    End;
-    glKey_HOME   :
-    Begin
-      If FSelStart > 1 then
-      Begin
-        FSelStart := 1;
-        GUIRedraw := True;
-      End;
-    End;
-    glKey_END   :
-    Begin
-      If FSelStart < Length(Caption)+1 then
-      Begin
-        FSelStart := Length(Caption)+1;
-        GUIRedraw := True;
-      End;
-    End;
-  End;
+  case Key of
+    glKey_DELETE:
+      begin
+        if FSelStart <= Length(Caption) then
+        begin
+          System.Delete(FCaption, FSelStart, 1);
+          GUIRedraw := True;
+        end;
+      end;
+    glKey_LEFT:
+      begin
+        if FSelStart > 1 then
+        begin
+          Dec(FSelStart);
+          GUIRedraw := True;
+        end;
+      end;
+    glKey_RIGHT:
+      begin
+        if FSelStart < Length(Caption) + 1 then
+        begin
+          Inc(FSelStart);
+          GUIRedraw := True;
+        end;
+      end;
+    glKey_HOME:
+      begin
+        if FSelStart > 1 then
+        begin
+          FSelStart := 1;
+          GUIRedraw := True;
+        end;
+      end;
+    glKey_END:
+      begin
+        if FSelStart < Length(Caption) + 1 then
+        begin
+          FSelStart := Length(Caption) + 1;
+          GUIRedraw := True;
+        end;
+      end;
+  end;
 
-End;
+end;
 
-Procedure TGLEdit.InternalKeyUp(var Key: Word; Shift: TShiftState);
+procedure TGLEdit.InternalKeyUp(var Key: Word; Shift: TShiftState);
 
-Begin
+begin
   inherited;
-End;
+end;
 
-Procedure TGLEdit.SetFocused(Value :Boolean);
+procedure TGLEdit.SetFocused(Value: Boolean);
 
-Begin
-  Inherited;
-  If Value then
-  SelStart := Length(Caption)+1;
-End;
+begin
+  inherited;
+  if Value then
+    SelStart := Length(Caption) + 1;
+end;
 
-Procedure TGLEdit.SetSelStart(const Value : Integer);
+procedure TGLEdit.SetSelStart(const Value: Integer);
 
-Begin
+begin
   FSelStart := Value;
   GUIRedraw := True;
-End;
+end;
 
-Procedure TGLEdit.SetEditChar(const Value : String);
+procedure TGLEdit.SetEditChar(const Value: string);
 
-Begin
+begin
   FEditChar := Value;
   GUIRedraw := True;
-End;
+end;
 
-Constructor TGLEdit.Create(AOwner : TComponent);
+constructor TGLEdit.Create(AOwner: TComponent);
 
-Begin
+begin
   inherited;
   FEditChar := '*';
-End;
+end;
 
-procedure TGLEdit.InternalRender(var rci : TRenderContextInfo; renderSelf,
-renderChildren : Boolean);
+procedure TGLEdit.InternalRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 var
-  Tekst : String;
-  pBig  : Integer;
-Begin
-// Renders the background
-  If Assigned(FGuiComponent) then
-  Begin
-    FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
-  End;
-// Renders the text
-  If Assigned(FBitmapFont) then
-  Begin
+  Tekst: UnicodeString;
+  pBig: Integer;
+begin
+  // Renders the background
+  if Assigned(FGuiComponent) then
+  begin
+    FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus, FReBuildGui);
+  end;
+  // Renders the text
+  if Assigned(FBitmapFont) then
+  begin
     Tekst := Caption;
 
     if FFocused then
-      begin
-        // First put in the edit character where it should be.
-        system.insert(FEditChar,Tekst,SelStart);
-        // Next figure out if the string is too long.
-        if FBitmapFont.CalcStringWidth(Tekst) > Width - 2 then
-          begin
-          // if it is then we need to check to see where SelStart is
-          if SelStart >= Length(Tekst) -1 then
-            begin
-            // SelStart is within close proximity of the end of the string
-            // Calculate the % of text that we can use and return it against the length of the string.
-              pBig := Trunc(Int(((Width - 2) / FBitmapFont.CalcStringWidth(Tekst)) * Length(Tekst)));
-              dec(pBig);
-              Tekst:= Copy(Tekst, Length(Tekst) - pBig + 1, pBig);
-            end
-          else
-            begin
-            // SelStart is within close proximity of the end of the string
-            // Calculate the % of text that we can use and return it against the length of the string.
-              pBig := Trunc(Int(((Width - 2) / FBitmapFont.CalcStringWidth(Tekst)) * Length(Tekst)));
-              dec(pBig);
-            if SelStart + pBig < Length(Tekst) then
-              Tekst := Copy(Tekst, SelStart, pBig)
-            else
-              Tekst:= Copy(Tekst, Length(Tekst) - pBig + 1, pBig);
-            end;
-          end;
-      end
-    else { if FFocused then }
+    begin
+      // First put in the edit character where it should be.
+      system.insert(FEditChar, Tekst, SelStart);
+      // Next figure out if the string is too long.
       if FBitmapFont.CalcStringWidth(Tekst) > Width - 2 then
+      begin
+        // if it is then we need to check to see where SelStart is
+        if SelStart >= Length(Tekst) - 1 then
         begin
-        // The while loop should never execute more then once, but just in case its here.
-          while FBitmapFont.CalcStringWidth(Tekst) > Width - 2 do
-            begin
-            // Calculate the % of text that we can use and return it against the length of the string.
-              pBig := Trunc(Int(((Width - 2) / FBitmapFont.CalcStringWidth(Tekst)) * Length(Tekst)));
-              Tekst:= Copy(Tekst, 1, pBig);
-            end;
+          // SelStart is within close proximity of the end of the string
+          // Calculate the % of text that we can use and return it against the length of the string.
+          pBig := Trunc(Int(((Width - 2) /
+            FBitmapFont.CalcStringWidth(Tekst)) * Length(Tekst)));
+          dec(pBig);
+          Tekst := Copy(Tekst, Length(Tekst) - pBig + 1, pBig);
+        end
+        else
+        begin
+          // SelStart is within close proximity of the end of the string
+          // Calculate the % of text that we can use and return it against the length of the string.
+          pBig := Trunc(Int(((Width - 2) /
+            FBitmapFont.CalcStringWidth(Tekst)) * Length(Tekst)));
+          dec(pBig);
+          if SelStart + pBig < Length(Tekst) then
+            Tekst := Copy(Tekst, SelStart, pBig)
+          else
+            Tekst := Copy(Tekst, Length(Tekst) - pBig + 1, pBig);
         end;
-
-    If FFocused then
-      Begin
-        WriteTextAt(rci, FRenderStatus[GLAlLeft].X1,FRenderStatus[GLAlCenter].Y1,FRenderStatus[GLALCenter].X2,FRenderStatus[GLALCenter].Y2,Tekst,FFocusedColor);
-      End
+      end;
+    end
     else
-      Begin
-        WriteTextAt(rci, FRenderStatus[GLAlLeft].X1,FRenderStatus[GLAlCenter].Y1,FRenderStatus[GLALCenter].X2,FRenderStatus[GLALCenter].Y2,Tekst,FDefaultColor);
-      End;
-  End;
-End;
+      { if FFocused then } if FBitmapFont.CalcStringWidth(Tekst) >
+      Width - 2 then
+      begin
+        // The while loop should never execute more then once, but just in case its here.
+        while FBitmapFont.CalcStringWidth(Tekst) > Width - 2 do
+        begin
+          // Calculate the % of text that we can use and return it against the length of the string.
+          pBig := Trunc(Int(((Width - 2) /
+            FBitmapFont.CalcStringWidth(Tekst)) * Length(Tekst)));
+          Tekst := Copy(Tekst, 1, pBig);
+        end;
+      end;
 
-
+    if FFocused then
+    begin
+      WriteTextAt(rci, FRenderStatus[GLAlLeft].X1, FRenderStatus[GLAlCenter].Y1,
+        FRenderStatus[GLALCenter].X2, FRenderStatus[GLALCenter].Y2, Tekst,
+        FFocusedColor);
+    end
+    else
+    begin
+      WriteTextAt(rci, FRenderStatus[GLAlLeft].X1, FRenderStatus[GLAlCenter].Y1,
+        FRenderStatus[GLALCenter].X2, FRenderStatus[GLALCenter].Y2, Tekst,
+        FDefaultColor);
+    end;
+  end;
+end;
 
 constructor TGLLabel.Create(AOwner: TComponent);
 begin
@@ -2695,50 +3002,58 @@ begin
   FTextLayout := tlCenter;
 end;
 
-procedure TGLLabel.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLLabel.InternalRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 
-Var
-  TekstPos : TVector;
-  Tekst : String;
+var
+  TekstPos: TVector;
+  Tekst: UnicodeString;
   TextColor: TColorVector;
-Begin
-  If Assigned(BitmapFont) then
-  Begin
+begin
+  if Assigned(BitmapFont) then
+  begin
     case Alignment of
-      taLeftJustify  : begin
-                         TekstPos[0] := 0;
-                       end;
-      taCenter       : begin
-                         TekstPos[0] := Width / 2;
-                       end;
-      taRightJustify : begin
-                         TekstPos[0] := Width;
-                       end;
+      taLeftJustify:
+        begin
+          TekstPos.V[0] := 0;
+        end;
+      taCenter:
+        begin
+          TekstPos.V[0] := Width / 2;
+        end;
+      taRightJustify:
+        begin
+          TekstPos.V[0] := Width;
+        end;
     end;
 
     case TextLayout of
-      tlTop    : begin
-                   TekstPos[1] := 0;
-                 end;
-      tlCenter : begin
-                   TekstPos[1] := Round(-Height / 2);
-                 end;
-      tlBottom : begin
-                   TekstPos[1] := -Height;
-                 end;
+      tlTop:
+        begin
+          TekstPos.V[1] := 0;
+        end;
+      tlCenter:
+        begin
+          TekstPos.V[1] := Round(-Height / 2);
+        end;
+      tlBottom:
+        begin
+          TekstPos.V[1] := -Height;
+        end;
     end;
 
-    TekstPos[2] := 0;
-    TekstPos[3] := 0;
+    TekstPos.V[2] := 0;
+    TekstPos.V[3] := 0;
 
     Tekst := Caption;
 
     TextColor := FDefaultColor;
-    TextColor[3] := AlphaChannel;
+    TextColor.V[3] := AlphaChannel;
 
-    BitmapFont.RenderString(rci, Tekst, FAlignment, FTextLayout, TextColor, @TekstPos);
-  End;
-End;
+    BitmapFont.RenderString(rci, Tekst, FAlignment, FTextLayout, TextColor,
+      @TekstPos);
+  end;
+end;
 
 procedure TGLLabel.SetAlignment(const Value: TAlignment);
 begin
@@ -2758,583 +3073,626 @@ begin
   end;
 end;
 
+procedure TGLAdvancedLabel.InternalRender(var rci: TRenderContextInfo;
+  renderSelf, renderChildren: Boolean);
 
-procedure TGLAdvancedLabel.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+begin
+  if Assigned(BitmapFont) then
+  begin
+    if Focused then
+    begin
+      WriteTextAt(rci, 8, -((Height - GetFontHeight) / 2) + 1, Caption,
+        FFocusedColor);
+    end
+    else
+    begin
+      WriteTextAt(rci, 8, -((Height - GetFontHeight) / 2) + 1, Caption,
+        FDefaultColor);
+    end;
+  end;
+end;
 
-Begin
-   If Assigned(BitmapFont) then
-   Begin
-     If Focused then
-     Begin
-       WriteTextAt(rci, 8,-((Height-GetFontHeight) / 2)+1,Caption,FFocusedColor);
-     End else
-     Begin
-       WriteTextAt(rci, 8,-((Height-GetFontHeight) / 2)+1,Caption,FDefaultColor);
-     End;
-   End;
-End;
-
-Procedure TGLScrollbar.SetMin(const val      : Single);
-Begin
-  If FMin <> val then
-  Begin
+procedure TGLScrollbar.SetMin(const val: Single);
+begin
+  if FMin <> val then
+  begin
     FMin := val;
-    If FPos < FMin then Pos := FMin;
+    if FPos < FMin then
+      Pos := FMin;
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-Procedure TGLScrollbar.SetMax(const val      : Single);
-Begin
-  If FMax <> val then
-  Begin
+procedure TGLScrollbar.SetMax(const val: Single);
+begin
+  if FMax <> val then
+  begin
     FMax := val;
-    If FMax < FMin then FMax := FMin;
-    If FPos > (FMax-FPageSize+1) then Pos := (FMax-FPageSize+1);
+    if FMax < FMin then
+      FMax := FMin;
+    if FPos > (FMax - FPageSize + 1) then
+      Pos := (FMax - FPageSize + 1);
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-Procedure TGLScrollbar.SetPos(const val : Single);
-Begin
-  If FPos <> val then
-  Begin
+procedure TGLScrollbar.SetPos(const val: Single);
+begin
+  if FPos <> val then
+  begin
     FPos := val;
-    If FPos < FMin then FPos := FMin;
-    If FPos > (FMax-FPageSize+1) then FPos := (FMax-FPageSize+1);
+    if FPos < FMin then
+      FPos := FMin;
+    if FPos > (FMax - FPageSize + 1) then
+      FPos := (FMax - FPageSize + 1);
 
     NotifyChange(Self);
-    If Assigned(FOnChange) then FOnChange(Self);
-  End;
-End;
+    if Assigned(FOnChange) then
+      FOnChange(Self);
+  end;
+end;
 
-Procedure TGLScrollbar.SetPageSize(const val : Single);
+procedure TGLScrollbar.SetPageSize(const val: Single);
 
-Begin
-  If FPageSize <> val then
-  Begin
+begin
+  if FPageSize <> val then
+  begin
     FPageSize := val;
-    If FPos > (FMax-FPageSize+1) then Pos := (FMax-FPageSize+1);
+    if FPos > (FMax - FPageSize + 1) then
+      Pos := (FMax - FPageSize + 1);
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-Procedure TGLScrollbar.SetHorizontal(const val : Boolean);
+procedure TGLScrollbar.SetHorizontal(const val: Boolean);
 
-Begin
-  If FHorizontal <> val then
-  Begin
+begin
+  if FHorizontal <> val then
+  begin
     FHorizontal := val;
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-procedure TGLScrollbar.SetGuiLayoutKnobName(newName : TGLGuiComponentName);
+procedure TGLScrollbar.SetGuiLayoutKnobName(newName: TGLGuiComponentName);
 
-Begin
+begin
   if newName <> FGuiLayoutKnobName then
-  Begin
-    FGuiKnobComponent := Nil;
+  begin
+    FGuiKnobComponent := nil;
     FGuiLayoutKnobName := NewName;
-    If Assigned(FGuiLayout) then
-    Begin
-      FGuiKnobComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutKnobName);
+    if Assigned(FGuiLayout) then
+    begin
+      FGuiKnobComponent :=
+        FGuiLayout.GuiComponents.FindItem(FGuiLayoutKnobName);
       FReBuildGui := True;
       GUIRedraw := True;
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
-procedure TGLScrollbar.SetGuiLayout(NewGui : TGLGuiLayout);
+procedure TGLScrollbar.SetGuiLayout(NewGui: TGLGuiLayout);
 
-Begin
-  FGuiKnobComponent := Nil;
+begin
+  FGuiKnobComponent := nil;
   inherited;
-  If Assigned(FGuiLayout) then
-  Begin
+  if Assigned(FGuiLayout) then
+  begin
     FGuiKnobComponent := FGuiLayout.GuiComponents.FindItem(FGuiLayoutKnobName);
     FReBuildGui := True;
     GUIRedraw := True;
-  End;
-End;
+  end;
+end;
 
-Function  TGLScrollbar.GetScrollPosY(ScrollPos : Single) : Single;
-Begin
-  With FRenderStatus[GLAlCenter] do
-  Begin
-    Result := (ScrollPos-FMin)/(FMax-FMin) * (Y2-Y1) + Y1;
-  End;
-End;
+function TGLScrollbar.GetScrollPosY(ScrollPos: Single): Single;
+begin
+  with FRenderStatus[GLAlCenter] do
+  begin
+    Result := (ScrollPos - FMin) / (FMax - FMin) * (Y2 - Y1) + Y1;
+  end;
+end;
 
-Function  TGLScrollbar.GetYScrollPos(Y : Single) : Single;
-Begin
-  With FRenderStatus[GLAlCenter] do
-  Begin
-    Result := (Y-Y1)/(Y2-Y1)*(FMax-FMin)+FMin;
-  End;
-End;
+function TGLScrollbar.GetYScrollPos(Y: Single): Single;
+begin
+  with FRenderStatus[GLAlCenter] do
+  begin
+    Result := (Y - Y1) / (Y2 - Y1) * (FMax - FMin) + FMin;
+  end;
+end;
 
-Function  TGLScrollbar.GetScrollPosX(ScrollPos : Single) : Single;
-Begin
-  With FRenderStatus[GLAlCenter] do
-  Begin
-    Result := (ScrollPos-FMin)/(FMax-FMin) * (X2-X1) + X1;
-  End;
-End;
+function TGLScrollbar.GetScrollPosX(ScrollPos: Single): Single;
+begin
+  with FRenderStatus[GLAlCenter] do
+  begin
+    Result := (ScrollPos - FMin) / (FMax - FMin) * (X2 - X1) + X1;
+  end;
+end;
 
-Function  TGLScrollbar.GetXScrollPos(X : Single) : Single;
-Begin
-  With FRenderStatus[GLAlCenter] do
-  Begin
-    Result := (X-X1)/(X2-X1)*(FMax-FMin)+FMin;
-  End;
-End;
+function TGLScrollbar.GetXScrollPos(X: Single): Single;
+begin
+  with FRenderStatus[GLAlCenter] do
+  begin
+    Result := (X - X1) / (X2 - X1) * (FMax - FMin) + FMin;
+  end;
+end;
 
-procedure TGLScrollbar.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
+procedure TGLScrollbar.InternalMouseDown(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
 
-Var
-  Tx, Ty : Single;
+var
+  Tx, Ty: Single;
 
-Begin
+begin
   if (Button = mbLeft)
-   and not FLocked
-    then
-  Begin
-    Tx := x - left;
-    Ty := y - top;
+    and not FLocked then
+  begin
+    Tx := x - Position.X;
+    Ty := y - Position.Y;
     // is in mid area ?
-    If IsInRect(FRenderStatus[GLAlCenter],Tx,Ty) then
-    Begin
-      If FHorizontal then
-      Begin
+    if IsInRect(FRenderStatus[GLAlCenter], Tx, Ty) then
+    begin
+      if FHorizontal then
+      begin
         Tx := GetxScrollPos(Tx);
-        If Tx < FPos then PageUp
+        if Tx < FPos then
+          PageUp
+        else if Tx > FPos + FPageSize - 1 then
+          PageDown
         else
-        If Tx > FPos+FPageSize-1 then PageDown
-        else
-        Begin
+        begin
           fScrolling := True;
-          FScrollOffs := Tx-FPos;
+          FScrollOffs := Tx - FPos;
           RootControl.ActiveControl := Self;
-        End;
-      End else
-      Begin
+        end;
+      end
+      else
+      begin
         Ty := GetYScrollPos(Ty);
-        If Ty < FPos then PageUp
+        if Ty < FPos then
+          PageUp
+        else if Ty > FPos + FPageSize - 1 then
+          PageDown
         else
-        If Ty > FPos+FPageSize-1 then PageDown
-        else
-        Begin
+        begin
           fScrolling := True;
-          FScrollOffs := Ty-FPos;
+          FScrollOffs := Ty - FPos;
           RootControl.ActiveControl := Self;
-        End;
+        end;
       end;
-    End else
-    Begin
+    end
+    else
+    begin
       // if not, is at end buttons ?
-      If horizontal then
-      Begin
-        If IsInRect(FRenderStatus[GLAlLeft],Tx,Ty) then StepUp;
-        If IsInRect(FRenderStatus[GLAlRight],Tx,Ty) then StepDown;
-      End else
-      Begin
-        If IsInRect(FRenderStatus[GLAlTop],Tx,Ty) then StepUp;
-        If IsInRect(FRenderStatus[GLAlBottom],Tx,Ty) then StepDown;
-      End;
-    End;
-  End;
+      if horizontal then
+      begin
+        if IsInRect(FRenderStatus[GLAlLeft], Tx, Ty) then
+          StepUp;
+        if IsInRect(FRenderStatus[GLAlRight], Tx, Ty) then
+          StepDown;
+      end
+      else
+      begin
+        if IsInRect(FRenderStatus[GLAlTop], Tx, Ty) then
+          StepUp;
+        if IsInRect(FRenderStatus[GLAlBottom], Tx, Ty) then
+          StepDown;
+      end;
+    end;
+  end;
   inherited;
-End;
+end;
 
-procedure TGLScrollbar.InternalMouseUp(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
-Begin
-  If fScrolling then
-  Begin
+procedure TGLScrollbar.InternalMouseUp(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
+begin
+  if fScrolling then
+  begin
     fScrolling := False;
-    RootControl.ActiveControl := Nil;
-  End;
+    RootControl.ActiveControl := nil;
+  end;
 
   inherited;
-End;
+end;
 
 procedure TGLScrollbar.InternalMouseMove(Shift: TShiftState; X, Y: Integer);
 
-Var
-  Tx : Single;
-  Ty : Single;
-Begin
-  If fScrolling then
-  If FHorizontal then
-  Begin
-    Tx := GetXScrollPos(x - left)-FScrollOffs;
-    Pos := Round(Tx);
-  End else
-  Begin
-    Ty := GetYScrollPos(y - top)-FScrollOffs;
-    Pos := Round(Ty);
-  End;
+var
+  Tx: Single;
+  Ty: Single;
+begin
+  if fScrolling then
+    if FHorizontal then
+    begin
+      Tx := GetXScrollPos(x - Position.X) - FScrollOffs;
+      Pos := Round(Tx);
+    end
+    else
+    begin
+      Ty := GetYScrollPos(y - Position.Y) - FScrollOffs;
+      Pos := Round(Ty);
+    end;
 
   inherited;
-End;
+end;
 
-constructor TGLScrollbar.Create(AOwner : TComponent);
+constructor TGLScrollbar.Create(AOwner: TComponent);
 
-Begin
+begin
   inherited;
-  FGuiKnobComponent := Nil;
+  FGuiKnobComponent := nil;
   FMin := 1;
   FMax := 10;
   FPos := 1;
   FStep := 1;
   FPageSize := 3;
-  FOnChange := Nil;
+  FOnChange := nil;
   FGuiLayoutKnobName := '';
-  FScrollOffs   := 0;
-  FScrolling    := False;
-  FHorizontal   := False;
-End;
+  FScrollOffs := 0;
+  FScrolling := False;
+  FHorizontal := False;
+end;
 
-Procedure TGLScrollbar.StepUp;
+procedure TGLScrollbar.StepUp;
 
-Begin
+begin
   Pos := Pos - FStep;
-End;
+end;
 
-Procedure TGLScrollbar.StepDown;
-Begin
+procedure TGLScrollbar.StepDown;
+begin
   Pos := Pos + FStep;
-End;
+end;
 
-Procedure TGLScrollbar.PageUp;
-Begin
+procedure TGLScrollbar.PageUp;
+begin
   Pos := Pos - FPageSize;
-End;
+end;
 
-Procedure TGLScrollbar.PageDown;
-Begin
+procedure TGLScrollbar.PageDown;
+begin
   Pos := Pos + FPageSize;
-End;
+end;
 
-Function  TGLScrollbar.MouseUp(Sender: TObject; Button: TGLMouseButton; Shift: TShiftState; X, Y: Integer) : Boolean;
+function TGLScrollbar.MouseUp(Sender: TObject; Button: TGLMouseButton; Shift:
+  TShiftState; X, Y: Integer): Boolean;
 
-Begin
-  If (Button = mbLeft) and (FScrolling) then
-  Begin
+begin
+  if (Button = mbLeft) and (FScrolling) then
+  begin
     Result := True;
-    InternalMouseUp(Shift,Button,X,Y);
-  End else Result := Inherited MouseUp(Sender,Button,Shift,X,Y);
-End;
+    InternalMouseUp(Shift, Button, X, Y);
+  end
+  else
+    Result := inherited MouseUp(Sender, Button, Shift, X, Y);
+end;
 
-Function  TGLScrollbar.MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer) : Boolean;
+function TGLScrollbar.MouseMove(Sender: TObject; Shift: TShiftState; X, Y:
+  Integer): Boolean;
 
-Begin
-  If (FScrolling) then
-  Begin
+begin
+  if (FScrolling) then
+  begin
     Result := True;
-    InternalMouseMove(Shift,X,Y);
-  End else Result := Inherited MouseMove(Sender,Shift,X,Y);
-End;
+    InternalMouseMove(Shift, X, Y);
+  end
+  else
+    Result := inherited MouseMove(Sender, Shift, X, Y);
+end;
 
-procedure TGLScrollbar.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLScrollbar.InternalRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 
-Var
-  Start, Size : Integer;
-Begin
-  If Assigned(FGuiComponent) then
-  Begin
+var
+  Start, Size: Integer;
+begin
+  if Assigned(FGuiComponent) then
+  begin
     try
-      FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
+      FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+        FReBuildGui);
     except
-      on E : Exception do
-      GLOKMessageBox(E.Message,'Exception in GuiComponents InternalRender function');
+      on E: Exception do
+        GLOKMessageBox(E.Message,
+          'Exception in GuiComponents InternalRender function');
     end;
-  End;
-  If Assigned(FGuiKnobComponent) then
-  Begin
+  end;
+  if Assigned(FGuiKnobComponent) then
+  begin
     try
-      With FRenderStatus[GLAlCenter] do
-      Begin
-        If FHorizontal then
-        Begin
-           Start := Round(GetScrollPosX(FPos));
-           If FPageSize+FPos > FMax+1 then
-             Size  := Round(GetScrollPosX(FMax)-X1)
-           else
-             Size  := Round(GetScrollPosX(FPageSize)-X1);
+      with FRenderStatus[GLAlCenter] do
+      begin
+        if FHorizontal then
+        begin
+          Start := Round(GetScrollPosX(FPos));
+          if FPageSize + FPos > FMax + 1 then
+            Size := Round(GetScrollPosX(FMax) - X1)
+          else
+            Size := Round(GetScrollPosX(FPageSize) - X1);
 
-           FGuiKnobComponent.RenderToArea(Start,Y1,Start+Size,Y2, FKnobRenderStatus, True);
-//           Tag := start;
-//           tagfloat := size;
-        end else
-        Begin
-           Start := Round(GetScrollPosY(FPos));
-           If FPageSize+FPos > FMax+1 then
-             Size  := Round(GetScrollPosY(FMax)-Y1)
-           else
-             Size  := Round(GetScrollPosY(FPageSize)-Y1);
-           FGuiKnobComponent.RenderToArea(X1,Start,X2,Start+Size, FKnobRenderStatus, True);
-//           Tag := start;
-//           tagfloat := size;
+          FGuiKnobComponent.RenderToArea(Start, Y1, Start + Size, Y2,
+            FKnobRenderStatus, True);
+          //           Tag := start;
+          //           tagfloat := size;
+        end
+        else
+        begin
+          Start := Round(GetScrollPosY(FPos));
+          if FPageSize + FPos > FMax + 1 then
+            Size := Round(GetScrollPosY(FMax) - Y1)
+          else
+            Size := Round(GetScrollPosY(FPageSize) - Y1);
+          FGuiKnobComponent.RenderToArea(X1, Start, X2, Start + Size,
+            FKnobRenderStatus, True);
+          //           Tag := start;
+          //           tagfloat := size;
         end;
-      End;
+      end;
     except
-      on E : Exception do
-      GLOKMessageBox(E.Message,'Exception in GuiComponents InternalRender function');
+      on E: Exception do
+        GLOKMessageBox(E.Message,
+          'Exception in GuiComponents InternalRender function');
     end;
-  End;
-End;
+  end;
+end;
 
-Function  TGLStringGrid.GetCell(X,Y : Integer; out oCol,oRow : Integer) : Boolean;
+function TGLStringGrid.GetCell(X, Y: Integer; out oCol, oRow: Integer): Boolean;
 
-Var
-  ClientRect : TRectangle;
-  XPos : Integer;
-  YPos : Integer;
-  XC, YC : Integer;
+var
+  ClientRect: TRectangle;
+  XPos: Integer;
+  YPos: Integer;
+  XC, YC: Integer;
 
-Begin
+begin
   Result := False;
-  If Assigned(BitmapFont) then
-  Begin
-    If Assigned(FGuiComponent) then
-    Begin
-      ClientRect.Left   := Round(FRenderStatus[GLAlCenter].X1);
-      ClientRect.Top    := Round(FRenderStatus[GLAlCenter].Y1);
-      ClientRect.Width  := Round(FRenderStatus[GLAlCenter].X2);
+  if Assigned(BitmapFont) then
+  begin
+    if Assigned(FGuiComponent) then
+    begin
+      ClientRect.Left := Round(FRenderStatus[GLAlCenter].X1);
+      ClientRect.Top := Round(FRenderStatus[GLAlCenter].Y1);
+      ClientRect.Width := Round(FRenderStatus[GLAlCenter].X2);
       ClientRect.Height := Round(FRenderStatus[GLAlCenter].Y2);
-    End else
-    Begin
-      ClientRect.Left   := 0;
-      ClientRect.Top    := 0;
-      ClientRect.Width  := Round(Width);
+    end
+    else
+    begin
+      ClientRect.Left := 0;
+      ClientRect.Top := 0;
+      ClientRect.Width := Round(Width);
       ClientRect.Height := Round(Height);
-    End;
+    end;
 
     YPos := ClientRect.Top;
-    If FDrawHeader then
-    YPos := YPos + RowHeight;
+    if FDrawHeader then
+      YPos := YPos + RowHeight;
     XPos := ClientRect.Left;
 
-    If y < YPos then Exit;
-    If x < XPos then Exit;
+    if y < YPos then
+      Exit;
+    if x < XPos then
+      Exit;
 
-    XPos := XPos+MarginSize;
+    XPos := XPos + MarginSize;
 
-    For XC := 0 to Columns.Count-1 do
-    Begin
+    for XC := 0 to Columns.Count - 1 do
+    begin
       XPos := XPos + Integer(Columns.Objects[XC]);
 
-      If x > XPos then continue;
+      if x > XPos then
+        continue;
 
-      For YC := 0 to RowCount-1 do
-      Begin
+      for YC := 0 to RowCount - 1 do
+      begin
         YPos := YPos + RowHeight;
-        If y < YPos then
-        Begin
+        if y < YPos then
+        begin
           Result := True;
-          If Assigned(Scrollbar) then
-            oRow := YC+Round(Scrollbar.Pos)-1
+          if Assigned(Scrollbar) then
+            oRow := YC + Round(Scrollbar.Pos) - 1
           else
             oRow := YC;
 
           oCol := XC;
           Exit;
-        End;
-      End;
-    End;
-  End;
-End;
-
-procedure TGLStringGrid.InternalMouseDown(Shift: TShiftState; Button: TGLMouseButton; X, Y: Integer);
-
-Var
-  tRow, tCol : Integer;
-Begin
-  SetFocus;
-  If GetCell(Round(X-Left),Round(Y-Top), tCol, tRow) then
-  Begin
-    SelCol := tCol;
-    SelRow := tRow;
-  End;
-  inherited;
-End;
-
-Procedure TGLStringGrid.SetColumns(const val : TStrings);
-Var
-  XC : Integer;
-Begin
-  FColumns.Assign(val);
-  For XC := 0 to Columns.Count-1 do
-  Columns.Objects[XC] := TObject(ColumnSize);
+        end;
+      end;
+    end;
+  end;
 end;
 
-Procedure TGLStringGrid.SetColSelect(const val : Boolean);
-Begin
+procedure TGLStringGrid.InternalMouseDown(Shift: TShiftState; Button:
+  TGLMouseButton; X, Y: Integer);
+
+var
+  tRow, tCol: Integer;
+begin
+  SetFocus;
+  if GetCell(Round(X - Position.X), Round(Y - Position.Y), tCol, tRow) then
+  begin
+    SelCol := tCol;
+    SelRow := tRow;
+  end;
+  inherited;
+end;
+
+procedure TGLStringGrid.SetColumns(const val: TStrings);
+var
+  XC: Integer;
+begin
+  FColumns.Assign(val);
+  for XC := 0 to Columns.Count - 1 do
+    Columns.Objects[XC] := TObject(ColumnSize);
+end;
+
+procedure TGLStringGrid.SetColSelect(const val: Boolean);
+begin
   FColSelect := Val;
   NotifyChange(Self);
-End;
+end;
 
-Function  TGLStringGrid.GetRow(index : Integer) : TStringList;
+function TGLStringGrid.GetRow(index: Integer): TStringList;
 
-Begin
+begin
   if (index >= 0) and (index < FRows.Count) then
     Result := TStringList(FRows[index])
   else
-    Result := Nil;
-End;
+    Result := nil;
+end;
 
-Procedure TGLStringGrid.SetRow(index : Integer; const val : TStringList);
+procedure TGLStringGrid.SetRow(index: Integer; const val: TStringList);
 
-Begin
+begin
   if (index >= 0) then
   begin
-    If (index >= RowCount) then
-    RowCount := index+1;
+    if (index >= RowCount) then
+      RowCount := index + 1;
 
     TStringList(FRows[index]).Assign(val);
-  End;
-End;
+  end;
+end;
 
-Function  TGLStringGrid.GetRowCount : Integer;
+function TGLStringGrid.GetRowCount: Integer;
 
-Begin
+begin
   Result := FRows.count;
-End;
+end;
 
-Procedure TGLStringGrid.SetRowCount(const val : Integer);
+procedure TGLStringGrid.SetRowCount(const val: Integer);
 
-Var
-  XC : Integer;
+var
+  XC: Integer;
 
-Begin
+begin
   XC := FRows.count;
-  If val <> XC then
-  Begin
-    If val > XC then
+  if val <> XC then
+  begin
+    if val > XC then
     begin
       FRows.count := val;
-      For XC := XC to val-1 do
-      Begin
+      for XC := XC to val - 1 do
+      begin
         FRows[XC] := TStringList.Create;
         TStringList(FRows[XC]).OnChange := OnStringListChange;
-      End;
-    End else
-    Begin
-      For XC := XC-1 downto val do
-      Begin
+      end;
+    end
+    else
+    begin
+      for XC := XC - 1 downto val do
+      begin
         TStringList(FRows[XC]).Free;
-      End;
+      end;
       FRows.count := val;
-    End;
-    If Assigned(Scrollbar) then
-    Scrollbar.FMax := FRows.Count;
+    end;
+    if Assigned(Scrollbar) then
+      Scrollbar.FMax := FRows.Count;
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-Procedure TGLStringGrid.SetSelCol(const val : Integer);
-Begin
-  If FSelCol <> Val then
-  Begin
+procedure TGLStringGrid.SetSelCol(const val: Integer);
+begin
+  if FSelCol <> Val then
+  begin
     FSelCol := Val;
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-Procedure TGLStringGrid.SetSelRow(const val : Integer);
-Begin
-  If FSelRow <> Val then
-  Begin
+procedure TGLStringGrid.SetSelRow(const val: Integer);
+begin
+  if FSelRow <> Val then
+  begin
     FSelRow := Val;
     NotifyChange(Self);
-  End;
-End;
+  end;
+end;
 
-Procedure TGLStringGrid.SetRowSelect(const val : Boolean);
-Begin
+procedure TGLStringGrid.SetRowSelect(const val: Boolean);
+begin
   FRowSelect := Val;
   NotifyChange(Self);
-End;
+end;
 
-Procedure TGLStringGrid.SetDrawHeader(const val : Boolean);
+procedure TGLStringGrid.SetDrawHeader(const val: Boolean);
 
-Begin
+begin
   FDrawHeader := Val;
   NotifyChange(Self);
-End;
+end;
 
-Function  TGLStringGrid.GetHeaderColor : TDelphiColor;
+function TGLStringGrid.GetHeaderColor: TDelphiColor;
 
-Begin
+begin
   Result := ConvertColorVector(FHeaderColor);
-End;
+end;
 
-Procedure TGLStringGrid.SetHeaderColor(const val : TDelphiColor);
+procedure TGLStringGrid.SetHeaderColor(const val: TDelphiColor);
 
-Begin
+begin
   FHeaderColor := ConvertWinColor(val);
   GUIRedraw := True;
-End;
+end;
 
-Procedure TGLStringGrid.SetMarginSize(const val : Integer);
+procedure TGLStringGrid.SetMarginSize(const val: Integer);
 
-Begin
-  If FMarginSize <> val then
-  Begin
+begin
+  if FMarginSize <> val then
+  begin
     FMarginSize := val;
     GUIRedraw := True;
-  End;
-End;
+  end;
+end;
 
-Procedure TGLStringGrid.SetColumnSize(const val : Integer);
+procedure TGLStringGrid.SetColumnSize(const val: Integer);
 
-Var
-  XC : Integer;
+var
+  XC: Integer;
 
-Begin
-  If FColumnSize <> val then
-  Begin
+begin
+  if FColumnSize <> val then
+  begin
     FColumnSize := val;
-    For XC := 0 to Columns.Count-1 do
-    Columns.Objects[XC] := TObject(ColumnSize);
+    for XC := 0 to Columns.Count - 1 do
+      Columns.Objects[XC] := TObject(ColumnSize);
     GUIRedraw := True;
-  End;
-End;
+  end;
+end;
 
-Procedure TGLStringGrid.SetRowHeight(const val : Integer);
+procedure TGLStringGrid.SetRowHeight(const val: Integer);
 
-Begin
-  If FRowHeight <> val then
+begin
+  if FRowHeight <> val then
   begin
     FRowHeight := val;
     GUIRedraw := True;
-  End;
-End;
+  end;
+end;
 
-Procedure TGLStringGrid.SetScrollbar(const val : TGLScrollbar);
+procedure TGLStringGrid.SetScrollbar(const val: TGLScrollbar);
 
-Begin
-  If FScrollbar <> Val then
-  Begin
-    If Assigned(FScrollbar) then FScrollbar.RemoveFreeNotification(Self);
+begin
+  if FScrollbar <> Val then
+  begin
+    if Assigned(FScrollbar) then
+      FScrollbar.RemoveFreeNotification(Self);
     FScrollbar := Val;
-    If Assigned(FScrollbar) then FScrollbar.FreeNotification(Self);
-  End;
-End;
+    if Assigned(FScrollbar) then
+      FScrollbar.FreeNotification(Self);
+  end;
+end;
 
-procedure TGLStringGrid.SetGuiLayout(NewGui : TGLGuiLayout);
+procedure TGLStringGrid.SetGuiLayout(NewGui: TGLGuiLayout);
 
-Begin
+begin
   inherited;
-  If Assigned(Scrollbar) then
-  If Scrollbar.GuiLayout <> Nil then
-    Scrollbar.GuiLayout := NewGui;
-End;
+  if Assigned(Scrollbar) then
+    if Scrollbar.GuiLayout <> nil then
+      Scrollbar.GuiLayout := NewGui;
+end;
 
-constructor TGLStringGrid.Create(AOwner : TComponent);
+constructor TGLStringGrid.Create(AOwner: TComponent);
 
-Begin
+begin
   inherited;
   FRows := TList.Create;
   FColumns := TStringList.Create;
@@ -3342,205 +3700,213 @@ Begin
   FSelCol := 0;
   FSelRow := 0;
   FRowSelect := True;
-  FScrollbar := Nil;
+  FScrollbar := nil;
   FDrawHeader := True;
-End;
+end;
 
-Destructor  TGLStringGrid.Destroy;
+destructor TGLStringGrid.Destroy;
 
-Begin
-  Scrollbar := Nil;
+begin
+  Scrollbar := nil;
   inherited;
   Clear;
   FRows.Free;
   FColumns.Free;
-End;
+end;
 
-Procedure TGLStringGrid.Clear;
+procedure TGLStringGrid.Clear;
 
-Begin
+begin
   RowCount := 0;
-End;
+end;
 
-procedure TGLStringGrid.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TGLStringGrid.Notification(AComponent: TComponent; Operation:
+  TOperation);
 
-Begin
-  If (AComponent = FScrollbar) and (Operation = opRemove) then
-  Begin
-    FScrollbar := Nil;
-  End;
+begin
+  if (AComponent = FScrollbar) and (Operation = opRemove) then
+  begin
+    FScrollbar := nil;
+  end;
   inherited;
-End;
+end;
 
-procedure TGLStringGrid.NotifyChange(Sender : TObject);
+procedure TGLStringGrid.NotifyChange(Sender: TObject);
 
-Begin
+begin
   if Sender = Scrollbar then
-  Begin
+  begin
     ReBuildGui := True;
     GUIRedraw := True;
-  End;
+  end;
   inherited;
-End;
+end;
 
-procedure TGLStringGrid.InternalRender(var rci : TRenderContextInfo; renderSelf, renderChildren : Boolean);
+procedure TGLStringGrid.InternalRender(var rci: TRenderContextInfo; renderSelf,
+  renderChildren: Boolean);
 
-Function CellSelected(X,Y : Integer) : Boolean;
-Begin
-  if (RowSelect and ColSelect) then
-    Result := (Y = SelRow) or (x = SelCol)
-  else if RowSelect then
-    Result := Y = SelRow
-  else if ColSelect then
-    Result := X = SelCol
-  else
-    Result := (Y = SelRow) and (x = SelCol);
-End;
+  function CellSelected(X, Y: Integer): Boolean;
+  begin
+    if (RowSelect and ColSelect) then
+      Result := (Y = SelRow) or (x = SelCol)
+    else if RowSelect then
+      Result := Y = SelRow
+    else if ColSelect then
+      Result := X = SelCol
+    else
+      Result := (Y = SelRow) and (x = SelCol);
+  end;
 
+  function CellText(X, Y: Integer): string;
 
-Function CellText(X,Y : Integer) : String;
+  begin
+    with Row[y] do
+      if (X >= 0) and (X < Count) then
+        Result := strings[x]
+      else
+        Result := '';
+  end;
 
-Begin
-  With Row[y] do
-  If (X >= 0) and (X < Count) then
-    Result := strings[x]
-  else
-    Result := '';
-End;
+var
+  ClientRect: TRectangle;
+  XPos: Integer;
+  YPos: Integer;
+  XC, YC: Integer;
+  From, Till: Integer;
 
-
-Var
-  ClientRect : TRectangle;
-  XPos : Integer;
-  YPos : Integer;
-  XC, YC : Integer;
-  From, Till : Integer;
-
-Begin
-  If Assigned(FGuiComponent) then
-  Begin
+begin
+  if Assigned(FGuiComponent) then
+  begin
     try
-      FGuiComponent.RenderToArea(0,0,Width,Height, FRenderStatus, FReBuildGui);
-      ClientRect.Left   := Round(FRenderStatus[GLAlCenter].X1);
-      ClientRect.Top    := Round(FRenderStatus[GLAlCenter].Y1);
-      ClientRect.Width  := Round(FRenderStatus[GLAlCenter].X2);
+      FGuiComponent.RenderToArea(0, 0, Width, Height, FRenderStatus,
+        FReBuildGui);
+      ClientRect.Left := Round(FRenderStatus[GLAlCenter].X1);
+      ClientRect.Top := Round(FRenderStatus[GLAlCenter].Y1);
+      ClientRect.Width := Round(FRenderStatus[GLAlCenter].X2);
       ClientRect.Height := Round(FRenderStatus[GLAlCenter].Y2);
     except
-      on E : Exception do
-      GLOKMessageBox(E.Message,'Exception in GuiComponents InternalRender function');
+      on E: Exception do
+        GLOKMessageBox(E.Message,
+          'Exception in GuiComponents InternalRender function');
     end;
-  End else
-  Begin
-    ClientRect.Left   := 0;
-    ClientRect.Top    := 0;
-    ClientRect.Width  := Round(Width);
+  end
+  else
+  begin
+    ClientRect.Left := 0;
+    ClientRect.Top := 0;
+    ClientRect.Width := Round(Width);
     ClientRect.Height := Round(Height);
-  End;
+  end;
 
-  If Assigned(BitmapFont) then
-  Begin
-    XPos := ClientRect.Left+MarginSize;
+  if Assigned(BitmapFont) then
+  begin
+    XPos := ClientRect.Left + MarginSize;
 
-    If Assigned(Scrollbar) then
-    Begin
-      Scrollbar.Left := Left+FRenderStatus[GLAlCenter].X2-Scrollbar.Width;
-      Scrollbar.Top  := Top +FRenderStatus[GLAlCenter].Y1;
-      Scrollbar.Height := FRenderStatus[GLAlCenter].Y2-FRenderStatus[GLAlCenter].Y1;
+    if Assigned(Scrollbar) then
+    begin
+      Scrollbar.Position.X := Position.X + FRenderStatus[GLAlCenter].X2 -
+        Scrollbar.Width;
+      Scrollbar.Position.Y := Position.Y + FRenderStatus[GLAlCenter].Y1;
+      Scrollbar.Height := FRenderStatus[GLAlCenter].Y2 -
+        FRenderStatus[GLAlCenter].Y1;
       XC := (ClientRect.Height - ClientRect.Top);
-      If FDrawHeader then
-        YC := (XC div RowHeight)-1
+      if FDrawHeader then
+        YC := (XC div RowHeight) - 1
       else
         YC := (XC div RowHeight);
 
       Scrollbar.PageSize := YC;
-      From := Round(Scrollbar.pos-1);
-      Till := Round(Scrollbar.pageSize+From-1);
-      If Till > RowCount-1 then Till := RowCount-1;
-    End else
-    Begin
+      From := Round(Scrollbar.pos - 1);
+      Till := Round(Scrollbar.pageSize + From - 1);
+      if Till > RowCount - 1 then
+        Till := RowCount - 1;
+    end
+    else
+    begin
       From := 0;
-      Till := RowCount-1;
-    End;
+      Till := RowCount - 1;
+    end;
 
-    For XC := 0 to Columns.Count-1 do
-    Begin
+    for XC := 0 to Columns.Count - 1 do
+    begin
       YPos := -ClientRect.Top;
-      If FDrawHeader then
-      Begin
-        WriteTextAt(rci, XPos,YPos,Columns[XC],FHeaderColor);
+      if FDrawHeader then
+      begin
+        WriteTextAt(rci, XPos, YPos, Columns[XC], FHeaderColor);
         YPos := YPos - RowHeight;
-      End;
-      For YC := From to Till do
-      Begin
-        If CellSelected(XC,YC) then
-          WriteTextAt(rci, XPos,YPos,CellText(XC,YC),FFocusedColor)
+      end;
+      for YC := From to Till do
+      begin
+        if CellSelected(XC, YC) then
+          WriteTextAt(rci, XPos, YPos, CellText(XC, YC), FFocusedColor)
         else
-          WriteTextAt(rci, XPos,YPos,CellText(XC,YC),FDefaultColor);
+          WriteTextAt(rci, XPos, YPos, CellText(XC, YC), FDefaultColor);
         YPos := YPos - RowHeight;
-      End;
+      end;
       XPos := XPos + Integer(Columns.Objects[XC]);
-    End;
-  End;
-End;
+    end;
+  end;
+end;
 
-Procedure TGLStringGrid.OnStringListChange(Sender : TObject);
+procedure TGLStringGrid.OnStringListChange(Sender: TObject);
 
-Begin
+begin
   NotifyChange(Self);
-End;
-Function TGLStringGrid.Add(Data : Array of String) : Integer;
-Var
-  XC : Integer;
-Begin
+end;
+
+function TGLStringGrid.Add(Data: array of string): Integer;
+var
+  XC: Integer;
+begin
   Result := RowCount;
-  RowCount := RowCount +1;
-  For XC := 0 to Length(Data)-1 do
+  RowCount := RowCount + 1;
+  for XC := 0 to Length(Data) - 1 do
     Row[Result].Add(Data[XC]);
-End;
+end;
 
-Function TGLStringGrid.Add(const Data : String) : Integer;
-Begin
+function TGLStringGrid.Add(const Data: string): Integer;
+begin
   Result := Add([Data]);
-  If Assigned(Scrollbar) then
-  Begin
-    If Result > Round(Scrollbar.pageSize+Scrollbar.pos-2) then
-      Scrollbar.pos := Result-Scrollbar.pageSize+2;
-  End;
-End;
+  if Assigned(Scrollbar) then
+  begin
+    if Result > Round(Scrollbar.pageSize + Scrollbar.pos - 2) then
+      Scrollbar.pos := Result - Scrollbar.pageSize + 2;
+  end;
+end;
 
-procedure TGLStringGrid.SetText(Data : String);
+procedure TGLStringGrid.SetText(Data: string);
 
-Var
-  Posi : Integer;
-Begin
+var
+  Posi: Integer;
+begin
   Clear;
-  While Data <> '' do
-  Begin
-    Posi := Pos(#13#10,Data);
-    If Posi > 0 then
-    Begin
-      Add(Copy(Data,1,Posi-1));
-      Delete(Data,1,Posi+1);
-    End else
-    Begin
+  while Data <> '' do
+  begin
+    Posi := Pos(#13#10, Data);
+    if Posi > 0 then
+    begin
+      Add(Copy(Data, 1, Posi - 1));
+      Delete(Data, 1, Posi + 1);
+    end
+    else
+    begin
       Add(Data);
       Data := '';
-    End;
-  End;
-End;
-
+    end;
+  end;
+end;
 
 destructor TGLFocusControl.Destroy;
 begin
-  If Focused then
-    RootControl.FocusedControl := Nil;
+  if Focused then
+    RootControl.FocusedControl := nil;
   inherited;
 end;
 
 procedure TGLBaseComponent.DoProgress(const progressTime: TProgressTimes);
 begin
   inherited;
-  If FDoChangesOnProgress then
+  if FDoChangesOnProgress then
     DoChanges;
 
 end;
@@ -3548,7 +3914,7 @@ end;
 procedure TGLBaseComponent.SetDoChangesOnProgress(const Value: Boolean);
 begin
   FDoChangesOnProgress := Value;
-End;
+end;
 
 procedure TGLFocusControl.MoveTo(newParent: TGLBaseSceneObject);
 begin
@@ -3557,5 +3923,8 @@ begin
 end;
 
 initialization
-   RegisterClasses([TGLBaseControl,TGLPopupMenu,TGLForm,TGLPanel,TGLButton,TGLCheckBox,TGLEdit,TGLLabel,TGLAdvancedLabel, TGLScrollbar, TGLStringGrid, TGLCustomControl]);
+  RegisterClasses([TGLBaseControl, TGLPopupMenu, TGLForm, TGLPanel, TGLButton,
+    TGLCheckBox, TGLEdit, TGLLabel, TGLAdvancedLabel, TGLScrollbar, TGLStringGrid,
+    TGLCustomControl]);
 end.
+

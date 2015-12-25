@@ -38,9 +38,9 @@ interface
 
 uses
 {$IFDEF MSWINDOWS} Windows, {$ENDIF}
-{$IFDEF LINUX} x, xlib, xf86vmode, {$ENDIF}
+{$IFDEF GLS_X11_SUPPORT} x, xlib, xf86vmode, {$ENDIF}
 {$IFDEF FPC} LCLVersion, {$ENDIF}
-  Classes, VectorGeometry, GLCrossPlatform;
+  Classes, GLVectorGeometry, GLCrossPlatform;
 
 const
   MaxVideoModes = 200;
@@ -116,7 +116,7 @@ var
 {$IFDEF MSWINDOWS}
   vVideoModes: array of TVideoMode;
 {$ENDIF} // Unix
-{$IFDEF LINUX}
+{$IFDEF GLS_X11_SUPPORT}
   vDisplay: PDisplay;
   vScreenModeChanged: Boolean;
   vVideoModes: array of PXF86VidModeModeInfo;
@@ -217,7 +217,7 @@ begin
       end;
     end;
 {$ENDIF}
-{$IFDEF LINUX}
+{$IFDEF GLS_X11_SUPPORT}
   with vVideoModes[I]^ do
   begin
     if (hDisplay >= XRes) and ((hDisplay - XRes) <= XDiff) and
@@ -281,7 +281,7 @@ begin
   end;
   Inc(vNumberVideoModes);
 {$ENDIF}
-{$IFDEF LINUX}
+{$IFDEF GLS_X11_SUPPORT}
 
   procedure TryToAddToList(); // Without input parameters.
   begin
@@ -362,7 +362,7 @@ begin
         end;
       end;
 {$ENDIF}
-{$IFDEF LINUX}
+{$IFDEF GLS_X11_SUPPORT}
       var
         I, j: Integer;
       begin
@@ -393,6 +393,7 @@ begin
         XCloseDisplay(vDisplay);
 {$ENDIF}
 {$IFDEF Darwin}
+        begin
 {$MESSAGE Warn 'ReadVideoModes not yet implemented for Darwin platforms'}
 {$ENDIF}
         end;
@@ -427,7 +428,7 @@ begin
           if Result then
             vCurrentVideoMode := modeIndex;
 {$ENDIF}
-{$IFDEF LINUX}
+{$IFDEF GLS_X11_SUPPORT}
           var
             vSettings: TXF86VidModeModeInfo;
             wnd: TWindow;
@@ -459,6 +460,7 @@ begin
             Result := vScreenModeChanged;
 {$ENDIF}
 {$IFDEF Darwin}
+            begin
 {$MESSAGE Warn 'Needs to be implemented'}
 {$ENDIF}
             end;
@@ -489,9 +491,7 @@ begin
 {$IFDEF MSWINDOWS}
             var
               t: PDevMode;
-{$ENDIF}
             begin
-{$IFDEF MSWINDOWS}
               t := nil;
               ChangeDisplaySettings(t^, CDS_FULLSCREEN);
 {$ENDIF}
@@ -505,6 +505,7 @@ begin
                 XCloseDisplay(vDisplay);
 {$ENDIF}
 {$IFDEF Darwin}
+                begin
 {$MESSAGE Warn 'Needs to be implemented'}
 {$ENDIF}
                 end;
@@ -521,8 +522,8 @@ begin
                 end;
 
                 procedure GLSetCursorPos(AScreenX, AScreenY: Integer);
-                begin
 {$IFDEF MSWINDOWS}
+                begin
                   SetCursorPos(AScreenX, AScreenY);
 {$ENDIF}
 {$IFDEF GLS_X11_SUPPORT}
@@ -537,13 +538,14 @@ begin
                     XCloseDisplay(dpy);
 {$ENDIF}
 {$IFDEF Darwin}
+                    begin
 {$MESSAGE Warn 'Needs to be implemented'}
 {$ENDIF}
                     end;
 
                     procedure GLGetCursorPos(var point: TGLPoint);
-                      begin
 {$IFDEF MSWINDOWS}
+                    begin
                       GetCursorPos(point);
 {$ENDIF}
 {$IFDEF GLS_X11_SUPPORT}
@@ -568,6 +570,7 @@ begin
                         XCloseDisplay(dpy);
 {$ENDIF}
 {$IFDEF Darwin}
+                        begin
 {$MESSAGE Warn 'Needs to be implemented'}
 {$ENDIF}
                         end;
@@ -581,6 +584,15 @@ begin
                         begin
                           Result := Screen.Height;
                         end;
+
+                        // ------------------------------------------------------------------
+                        // ------------------------------------------------------------------
+                        // ------------------------------------------------------------------
+initialization
+
+// ------------------------------------------------------------------
+// ------------------------------------------------------------------
+// ------------------------------------------------------------------
 
 finalization
 

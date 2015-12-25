@@ -16,7 +16,7 @@ unit FileGL2;
 interface
 
 uses
-  Classes,VectorTypes,SysUtils,VectorGeometry;
+  Classes, GLVectorTypes, SysUtils, GLVectorGeometry;
 
 type
   TGLMHeader = record
@@ -206,7 +206,7 @@ end;
 procedure MC_UnCompressQuat(var mat : TMatrix; const comp : TGLACompQuatBone);
 begin
   mat:=QuaternionToMatrix(QuaternionMake([comp[1]-32726,comp[2]-32726,comp[3]-32726],comp[0]-32726));
-  mat[3]:=VectorMake(comp[4]/64-512,comp[5]/64-512,comp[6]/64-512,1);
+  mat.V[3]:=VectorMake(comp[4]/64-512,comp[5]/64-512,comp[6]/64-512,1);
 end;
 
 

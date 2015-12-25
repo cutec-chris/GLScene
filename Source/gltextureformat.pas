@@ -4,6 +4,10 @@
 {: GLTextureFormat<p>
 
  <b>History : </b><font size=-1><ul>
+        <li>10/05/12 - Yar - Fixed extension checking for float texture (thnaks Nelson Chu)
+        <li>03/08/10 - Yar - Added SNORM texture format
+        <li>15/06/10 - Yar - Replace OpenGL1x extensions to OpenGLAdapter
+        <li>22/04/10 - Yar - Moved TGLTextureTarget
         <li>23/01/10 - Yar - Separated GLTextureFormat and GLInternalFormat
                              GLTextureFormat moved to GLTexture
         <li>21/01/10 - Yar - Creation
@@ -14,9 +18,33 @@ unit GLTextureFormat;
 interface
 
 uses
-  OpenGL1x;
+  GLStrings,
+  OpenGLTokens;
 
 type
+
+  // Texture addressing rules
+  TGLSeparateTextureWrap = (twRepeat, twClampToEdge, twClampToBorder,
+    twMirrorRepeat, twMirrorClampToEdge, twMirrorClampToBorder);
+
+  // Specifies the texture comparison mode for currently bound depth textures.
+  // That is, a texture whose internal format is tfDEPTH_COMPONENT*
+  TGLTextureCompareMode = (tcmNone, tcmCompareRtoTexture);
+
+  // Filtering quality
+  TGLTextureFilteringQuality = (tfIsotropic, tfAnisotropic);
+
+  // TGLTextureTarget
+  //
+  TGLTextureTarget =
+  (
+    ttNoShape, ttTexture1D, ttTexture2D, ttTexture3D, ttTexture1DArray,
+    ttTexture2DArray, ttTextureRect, ttTextureBuffer, ttTextureCube,
+    ttTexture2DMultisample, ttTexture2DMultisampleArray, ttTextureCubeArray
+  );
+
+  TGLTextureSwizzle = (tswRed, tswGreen, tswBlue, tswAlpha, tswZero, tswOne);
+  TSwizzleVector = array[0..3] of TGLTextureSwizzle;
 
   // TGLInternalFormat
   //
@@ -171,7 +199,16 @@ type
     tfCOMPRESSED_RED_RGTC1,
     tfCOMPRESSED_SIGNED_RED_RGTC1,
     tfCOMPRESSED_RG_RGTC2,
-    tfCOMPRESSED_SIGNED_RG_RGTC2);
+    tfCOMPRESSED_SIGNED_RG_RGTC2,
+    tfR8_SNORM,
+    tfRG8_SNORM,
+    tfRGB8_SNORM,
+    tfRGBA8_SNORM,
+    tfR16_SNORM,
+    tfRG16_SNORM,
+    tfRGB16_SNORM,
+    tfRGBA16_SNORM
+    );
 
   // TGLInternalCompression
   //
@@ -192,237 +229,250 @@ var
   vDefaultTextureFormat: TGLInternalFormat = tfRGBA8;
   vDefaultTextureCompression: TGLInternalCompression = tcNone;
 
-// Give a openGL texture format from GLScene texture format
-function InternalFormatToOpenGLFormat(texFormat: TGLInternalFormat): Integer;
-// Give a GLScene texture format from openGL texture format
-function OpenGLFormatToInternalFormat(intFormat: Integer): TGLInternalFormat;
-// Give a pixel size in bytes from texture format or data format
-function GetTextureElementSize(texFormat: TGLInternalFormat): Integer; overload;
+const
+  cDefaultSwizzleVector: TSwizzleVector = (tswRed, tswGreen, tswBlue, tswAlpha);
+
+{: Give a openGL texture format from GLScene texture format. }
+function InternalFormatToOpenGLFormat(intFormat: TGLInternalFormat): TGLEnum;
+{: Give a GLScene texture format from openGL texture format. }
+function OpenGLFormatToInternalFormat(glFormat: TGLEnum): TGLInternalFormat;
+{: Give a pixel size in bytes from texture format or data format. }
+function GetTextureElementSize(intFormat: TGLInternalFormat): Integer; overload;
 function GetTextureElementSize(colorFormat: TGLEnum; dataType: TGLEnum):
   Integer; overload;
-// Give compatible openGL image format and data type
-procedure FindCompatibleDataFormat(texFormat: TGLInternalFormat; out dFormat:
+{: Give compatible openGL image format and data type. }
+procedure FindCompatibleDataFormat(intFormat: TGLInternalFormat; out dFormat:
   GLenum; out dType: GLenum);
-// Give a compressed openGL texture format from GLScene texture format
-// if format is have not compression than return same openGL format
-function CompressedInternalFormatToOpenGL(texFormat: TGLInternalFormat):
+{: Give a compressed openGL texture format from GLScene texture format
+  if format is have not compression than return same openGL format. }
+function CompressedInternalFormatToOpenGL(intFormat: TGLInternalFormat):
   Integer;
-// True if texture target supported
-function IsTargetSupported(target: TGLEnum): Boolean;
-// True if texture format is supported by hardware or software
-function IsFormatSupported(texFormat: TGLInternalFormat): Boolean;
-// True if texture format is float
-function IsFloatFormat(texFormat: TGLInternalFormat): Boolean; overload;
-function IsFloatFormat(intFormat: TGLEnum): Boolean; overload;
-// True if depth texture
-function IsDepthFormat(texFormat: TGLInternalFormat): boolean; overload;
-function IsDepthFormat(intFormat: TGLEnum): Boolean; overload;
-// True if texture compressed
-function IsCompressedFormat(texFormat: TGLInternalFormat): Boolean; overload;
-function IsCompressedFormat(intFormat: TGLEnum): Boolean; overload;
-// Give generic compressed OpenGL texture format
-function GetGenericCompressedFormat(const texFormat: TGLInternalFormat;
+{: True if texture target supported. }
+function IsTargetSupported(glTarget: TGLEnum): Boolean; overload;
+function IsTargetSupported(target: TGLTextureTarget): Boolean; overload;
+{: True if texture format is supported by hardware or software. }
+function IsFormatSupported(intFormat: TGLInternalFormat): Boolean;
+{: True if texture format is float. }
+function IsFloatFormat(intFormat: TGLInternalFormat): Boolean; overload;
+function IsFloatFormat(glFormat: TGLEnum): Boolean; overload;
+{: True if depth texture. }
+function IsDepthFormat(intFormat: TGLInternalFormat): boolean; overload;
+function IsDepthFormat(glFormat: TGLEnum): Boolean; overload;
+{: True if texture compressed. }
+function IsCompressedFormat(intFormat: TGLInternalFormat): Boolean; overload;
+function IsCompressedFormat(glFormat: TGLEnum): Boolean; overload;
+{: Give generic compressed OpenGL texture format. }
+function GetGenericCompressedFormat(const intFormat: TGLInternalFormat;
   const colorFormat: TGLEnum; out internalFormat: TGLEnum): Boolean;
-// Give uncompressed texture format and OpenGL color format
-function GetUncompressedFormat(const texFormat: TGLInternalFormat;
+{: Give uncompressed texture format and OpenGL color format. }
+function GetUncompressedFormat(const intFormat: TGLInternalFormat;
   out internalFormat: TGLInternalFormat; out colorFormat: TGLEnum): Boolean;
+
+function DecodeGLTextureTarget(const TextureTarget: TGLTextureTarget): TGLEnum;
+function EncodeGLTextureTarget(const glTarget: TGLEnum): TGLTextureTarget;
+function IsTargetSupportMipmap(const TextureTarget: TGLTextureTarget): Boolean; overload;
+function IsTargetSupportMipmap(const glTarget: TGLEnum): Boolean; overload;
 
 implementation
 
 uses
-  GLStrings;
+  GLContext;
+
+type
+
+  TFormatDesc = record
+    IntFmt: TGLEnum;
+    ClrFmt: TGLEnum;
+    DataFmt: TGLEnum;
+    RBit: Byte;
+    GBit: Byte;
+    BBit: Byte;
+    ABit: Byte;
+    LBit: Byte;
+    DBit: Byte;
+    Sign: Boolean;
+    Flt: Boolean;
+    Fix: Boolean;
+    Comp: Boolean;
+  end;
 
 const
   //: InternalFormat, ColorFormat, DataType
-  cTextureFormatToOpenGL: array[low(TGLInternalFormat)..high(TGLInternalFormat), 0..2] of Integer
-    = (
-    (GL_ALPHA4, GL_ALPHA, GL_UNSIGNED_BYTE),
-    (GL_ALPHA8, GL_ALPHA, GL_UNSIGNED_BYTE),
-    (GL_ALPHA12, GL_ALPHA, GL_UNSIGNED_SHORT),
-    (GL_ALPHA16, GL_ALPHA, GL_UNSIGNED_SHORT),
-    (GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE),
-    (GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE),
-    (GL_DEPTH_COMPONENT32, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE),
-    (GL_LUMINANCE4, GL_LUMINANCE, GL_UNSIGNED_BYTE),
-    (GL_LUMINANCE8, GL_LUMINANCE, GL_UNSIGNED_BYTE),
-    (GL_LUMINANCE12, GL_LUMINANCE, GL_UNSIGNED_SHORT),
-    (GL_LUMINANCE16, GL_LUMINANCE, GL_UNSIGNED_SHORT),
-    (GL_LUMINANCE4_ALPHA4, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE),
-    (GL_LUMINANCE6_ALPHA2, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE),
-    (GL_LUMINANCE8_ALPHA8, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE),
-    (GL_LUMINANCE12_ALPHA4, GL_LUMINANCE_ALPHA, GL_UNSIGNED_SHORT),
-    (GL_LUMINANCE12_ALPHA12, GL_LUMINANCE_ALPHA, GL_UNSIGNED_SHORT),
-    (GL_LUMINANCE16_ALPHA16, GL_LUMINANCE_ALPHA, GL_UNSIGNED_SHORT),
-    (GL_INTENSITY4, GL_LUMINANCE, GL_UNSIGNED_BYTE),
-    (GL_INTENSITY8, GL_LUMINANCE, GL_UNSIGNED_BYTE),
-    (GL_INTENSITY12, GL_LUMINANCE, GL_UNSIGNED_SHORT),
-    (GL_INTENSITY16, GL_LUMINANCE, GL_UNSIGNED_SHORT),
-    (GL_R3_G3_B2, GL_RGB, GL_UNSIGNED_BYTE_3_3_2),
-    (GL_RGB4, GL_RGB, GL_UNSIGNED_BYTE),
-    (GL_RGB5, GL_RGB, GL_UNSIGNED_SHORT_5_6_5),
-    (GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE),
-    (GL_RGB10, GL_RGBA, GL_UNSIGNED_INT_10_10_10_2),
-    (GL_RGB12, GL_RGB, GL_UNSIGNED_BYTE),
-    (GL_RGB16, GL_RGB, GL_UNSIGNED_SHORT),
-    (GL_RGBA2, GL_RGBA, GL_UNSIGNED_BYTE),
-    (GL_RGBA4, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4),
-    (GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1),
-    (GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),
-    (GL_RGB10_A2, GL_RGBA, GL_UNSIGNED_INT_10_10_10_2),
-    (GL_RGBA12, GL_RGBA, GL_UNSIGNED_BYTE),
-    (GL_RGBA16, GL_RGBA, GL_UNSIGNED_SHORT),
-    (GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
-      GL_COMPRESSED_RGB_S3TC_DXT1_EXT),
-    (GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
-      GL_COMPRESSED_RGBA_S3TC_DXT1_EXT),
-    (GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
-      GL_COMPRESSED_RGBA_S3TC_DXT3_EXT),
-    (GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
-      GL_COMPRESSED_RGBA_S3TC_DXT5_EXT),
-    (GL_SIGNED_LUMINANCE8_NV, GL_LUMINANCE, GL_BYTE),
-    (GL_SIGNED_LUMINANCE8_ALPHA8_NV, GL_LUMINANCE_ALPHA, GL_SHORT),
-    (GL_SIGNED_RGB8_NV, GL_RGB, GL_BYTE),
-    (GL_SIGNED_RGBA8_NV, GL_RGBA, GL_BYTE),
-    (GL_SIGNED_RGB8_UNSIGNED_ALPHA8_NV, GL_RGBA, GL_BYTE),
-    (GL_SIGNED_ALPHA8_NV, GL_ALPHA, GL_BYTE),
-    (GL_SIGNED_INTENSITY8_NV, GL_INTENSITY, GL_BYTE),
-    (GL_HILO16_NV, GL_RG, GL_UNSIGNED_SHORT),
-    (GL_SIGNED_HILO16_NV, GL_RG, GL_SHORT),
-    (GL_DSDT8_NV, GL_RED, GL_UNSIGNED_BYTE),
-    (GL_DSDT8_MAG8_NV, GL_RG, GL_UNSIGNED_BYTE),
-    (GL_DSDT8_MAG8_INTENSITY8_NV, GL_RGB, GL_UNSIGNED_BYTE),
-    (GL_HILO8_NV, GL_RG, GL_UNSIGNED_BYTE),
-    (GL_SIGNED_HILO8_NV, GL_RG, GL_BYTE),
-    (GL_FLOAT_R16_NV, GL_RED, GL_HALF_FLOAT),
-    (GL_FLOAT_R32_NV, GL_RED, GL_FLOAT),
-    (GL_FLOAT_RG16_NV, GL_RG, GL_HALF_FLOAT),
-    (GL_FLOAT_RGB16_NV, GL_RGB, GL_HALF_FLOAT),
-    (GL_FLOAT_RGBA16_NV, GL_RGBA, GL_HALF_FLOAT),
-    (GL_FLOAT_RG32_NV, GL_RG, GL_FLOAT),
-    (GL_FLOAT_RGB32_NV, GL_RGB, GL_FLOAT),
-    (GL_FLOAT_RGBA32_NV, GL_RGBA, GL_FLOAT),
-    (GL_RGBA_FLOAT32_ATI, GL_RGBA, GL_FLOAT),
-    (GL_RGB_FLOAT32_ATI, GL_RGB, GL_FLOAT),
-    (GL_ALPHA_FLOAT32_ATI, GL_ALPHA, GL_FLOAT),
-    (GL_INTENSITY_FLOAT32_ATI, GL_LUMINANCE, GL_FLOAT),
-    (GL_LUMINANCE_FLOAT32_ATI, GL_LUMINANCE, GL_FLOAT),
-    (GL_LUMINANCE_ALPHA_FLOAT32_ATI, GL_LUMINANCE_ALPHA, GL_FLOAT),
-    (GL_RGBA_FLOAT16_ATI, GL_RGBA, GL_HALF_FLOAT),
-    (GL_RGB_FLOAT16_ATI, GL_RGB, GL_HALF_FLOAT),
-    (GL_ALPHA_FLOAT16_ATI, GL_ALPHA, GL_HALF_FLOAT),
-    (GL_INTENSITY_FLOAT16_ATI, GL_LUMINANCE, GL_HALF_FLOAT),
-    (GL_LUMINANCE_FLOAT16_ATI, GL_LUMINANCE, GL_HALF_FLOAT),
-    (GL_LUMINANCE_ALPHA_FLOAT16_ATI, GL_LUMINANCE_ALPHA, GL_HALF_FLOAT),
-    (GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_BYTE),
-    (GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT),
-    (GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT),
-    (GL_SRGB8, GL_RGB, GL_UNSIGNED_BYTE),
-    (GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE),
-    (GL_SLUMINANCE8, GL_LUMINANCE, GL_UNSIGNED_BYTE),
-    (GL_SLUMINANCE8_ALPHA8, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE),
-    (GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
-      GL_COMPRESSED_SRGB_S3TC_DXT1_EXT),
-    (GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
-      GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
-      GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT),
-    (GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
-      GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
-      GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT),
-    (GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
-      GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
-      GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT),
-    (GL_RGB9_E5, GL_RGBA, GL_FLOAT),
-    (GL_R11F_G11F_B10F, GL_RGB, GL_FLOAT),
-    (GL_COMPRESSED_LUMINANCE_LATC1_EXT, GL_COMPRESSED_LUMINANCE_LATC1_EXT,
-      GL_COMPRESSED_LUMINANCE_LATC1_EXT),
-    (GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT,
-      GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT,
-      GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT),
-    (GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT,
-      GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT,
-      GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT),
-    (GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT,
-      GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT,
-      GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT),
-    (GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI,
-      GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI,
-      GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI),
-    (GL_RGBA32UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT),
-    (GL_RGB32UI, GL_RGB_INTEGER, GL_UNSIGNED_INT),
-    (GL_ALPHA32UI_EXT, GL_ALPHA_INTEGER, GL_UNSIGNED_INT),
-    (GL_INTENSITY32UI_EXT, GL_LUMINANCE_INTEGER_EXT, GL_UNSIGNED_INT),
-    (GL_LUMINANCE32UI_EXT, GL_LUMINANCE_INTEGER_EXT, GL_UNSIGNED_INT),
-    (GL_LUMINANCE_ALPHA32UI_EXT, GL_LUMINANCE_ALPHA_INTEGER_EXT, GL_UNSIGNED_INT),
-    (GL_RGBA16UI, GL_RGBA_INTEGER, GL_UNSIGNED_SHORT),
-    (GL_RGB16UI, GL_RGB_INTEGER, GL_UNSIGNED_SHORT),
-    (GL_ALPHA16UI_EXT, GL_ALPHA_INTEGER, GL_UNSIGNED_SHORT),
-    (GL_INTENSITY16UI_EXT, GL_LUMINANCE_INTEGER_EXT, GL_UNSIGNED_SHORT),
-    (GL_LUMINANCE16UI_EXT, GL_LUMINANCE_INTEGER_EXT, GL_UNSIGNED_SHORT),
-    (GL_LUMINANCE_ALPHA16UI_EXT, GL_LUMINANCE_ALPHA_INTEGER_EXT, GL_UNSIGNED_SHORT),
-    (GL_RGBA8UI, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE),
-    (GL_RGB8UI, GL_RGB_INTEGER, GL_UNSIGNED_BYTE),
-    (GL_ALPHA8UI_EXT, GL_ALPHA_INTEGER, GL_UNSIGNED_BYTE),
-    (GL_INTENSITY8UI_EXT, GL_LUMINANCE_INTEGER_EXT, GL_UNSIGNED_BYTE),
-    (GL_LUMINANCE8UI_EXT, GL_LUMINANCE_INTEGER_EXT, GL_UNSIGNED_BYTE),
-    (GL_LUMINANCE_ALPHA8UI_EXT, GL_LUMINANCE_ALPHA_INTEGER_EXT, GL_UNSIGNED_BYTE),
-    (GL_RGBA32I, GL_RGBA_INTEGER, GL_INT),
-    (GL_RGB32I, GL_RGB_INTEGER, GL_INT),
-    (GL_ALPHA32I_EXT, GL_ALPHA_INTEGER, GL_INT),
-    (GL_INTENSITY32I_EXT, GL_LUMINANCE_INTEGER_EXT, GL_INT),
-    (GL_LUMINANCE32I_EXT, GL_LUMINANCE_INTEGER_EXT, GL_INT),
-    (GL_LUMINANCE_ALPHA32I_EXT, GL_LUMINANCE_ALPHA_INTEGER_EXT, GL_INT),
-    (GL_RGBA16I, GL_RGBA_INTEGER, GL_SHORT),
-    (GL_RGB16I, GL_RGB_INTEGER, GL_SHORT),
-    (GL_ALPHA16I_EXT, GL_ALPHA_INTEGER, GL_SHORT),
-    (GL_INTENSITY16I_EXT, GL_LUMINANCE_INTEGER_EXT, GL_SHORT),
-    (GL_LUMINANCE16I_EXT, GL_LUMINANCE_INTEGER_EXT, GL_SHORT),
-    (GL_LUMINANCE_ALPHA16I_EXT, GL_LUMINANCE_ALPHA_INTEGER_EXT, GL_SHORT),
-    (GL_RGBA8I, GL_RGBA_INTEGER, GL_BYTE),
-    (GL_RGB8I, GL_RGB_INTEGER, GL_BYTE),
-    (GL_ALPHA8I_EXT, GL_ALPHA_INTEGER, GL_BYTE),
-    (GL_INTENSITY8I_EXT, GL_INTENSITY, GL_BYTE),
-    (GL_LUMINANCE8I_EXT, GL_LUMINANCE, GL_BYTE),
-    (GL_LUMINANCE_ALPHA8I_EXT, GL_LUMINANCE_ALPHA, GL_BYTE),
-    (GL_RG32UI, GL_RG, GL_UNSIGNED_INT),
-    (GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT),
-    (GL_RG16UI, GL_RG, GL_UNSIGNED_SHORT),
-    (GL_R16UI, GL_RED_INTEGER, GL_UNSIGNED_SHORT),
-    (GL_RG8UI, GL_RG, GL_UNSIGNED_BYTE),
-    (GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE),
-    (GL_RG32I, GL_RG, GL_INT),
-    (GL_R32I, GL_RED_INTEGER, GL_INT),
-    (GL_RG16I, GL_RG, GL_SHORT),
-    (GL_R16I, GL_RED_INTEGER, GL_SHORT),
-    (GL_RG8I, GL_RG, GL_BYTE),
-    (GL_R8I, GL_RED_INTEGER, GL_BYTE),
-    (GL_RG8, GL_RG, GL_BYTE),
-    (GL_R8, GL_RED, GL_BYTE),
-    (GL_RG16, GL_RG, GL_SHORT),
-    (GL_R16, GL_RED, GL_SHORT),
-    (GL_RG16F, GL_RG, GL_HALF_FLOAT),
-    (GL_R16F, GL_RED, GL_HALF_FLOAT),
-    (GL_RG32F, GL_RG, GL_FLOAT),
-    (GL_R32F, GL_LUMINANCE, GL_FLOAT),
-    (GL_COMPRESSED_RED_RGTC1, GL_COMPRESSED_RED_RGTC1, GL_COMPRESSED_RED_RGTC1),
-    (GL_COMPRESSED_SIGNED_RED_RGTC1, GL_COMPRESSED_SIGNED_RED_RGTC1,
-      GL_COMPRESSED_SIGNED_RED_RGTC1),
-    (GL_COMPRESSED_RG_RGTC2, GL_COMPRESSED_RG_RGTC2, GL_COMPRESSED_RG_RGTC2),
-    (GL_COMPRESSED_SIGNED_RG_RGTC2, GL_COMPRESSED_SIGNED_RG_RGTC2,
-      GL_COMPRESSED_SIGNED_RG_RGTC2)
+  cTextureFormatToOpenGL: array[low(TGLInternalFormat)..high(TGLInternalFormat)] of TFormatDesc =
+  (
+    (IntFmt: GL_ALPHA4; ClrFmt: GL_ALPHA; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 4; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_ALPHA8; ClrFmt: GL_ALPHA; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_ALPHA12; ClrFmt: GL_ALPHA; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 12; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_ALPHA16; ClrFmt: GL_ALPHA; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 16; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_DEPTH_COMPONENT16; ClrFmt: GL_DEPTH_COMPONENT; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 16; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_DEPTH_COMPONENT24; ClrFmt: GL_DEPTH_COMPONENT; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 24; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_DEPTH_COMPONENT32; ClrFmt: GL_DEPTH_COMPONENT; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 32; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE4; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 4; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE8; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE12; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 12; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE16; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 16; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE4_ALPHA4; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 4; LBit: 4; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE6_ALPHA2; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 6; LBit: 2; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE8_ALPHA8; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE12_ALPHA4; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 4; LBit: 12; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE12_ALPHA12; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 12; LBit: 12; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE16_ALPHA16; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 16; LBit: 16; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_INTENSITY4; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 4; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_INTENSITY8; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_INTENSITY12; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 12; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_INTENSITY16; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 16; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_R3_G3_B2; ClrFmt: GL_RGB; DataFmt: GL_UNSIGNED_BYTE_3_3_2; RBit: 3; GBit: 3; BBit: 2; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB4; ClrFmt: GL_RGB; DataFmt: GL_UNSIGNED_BYTE; RBit: 4; GBit: 4; BBit: 4; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB5; ClrFmt: GL_RGB; DataFmt: GL_UNSIGNED_SHORT_5_6_5; RBit: 5; GBit: 6; BBit: 5; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB8; ClrFmt: GL_RGB; DataFmt: GL_UNSIGNED_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB10; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_INT_10_10_10_2; RBit: 10; GBit: 10; BBit: 10; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB12; ClrFmt: GL_RGB; DataFmt: GL_UNSIGNED_BYTE; RBit: 12; GBit: 12; BBit: 12; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB16; ClrFmt: GL_RGB; DataFmt: GL_UNSIGNED_SHORT; RBit: 16; GBit: 16; BBit: 16; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA2; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_BYTE; RBit: 2; GBit: 2; BBit: 2; ABit: 2; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA4; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_SHORT_4_4_4_4; RBit: 4; GBit: 4; BBit: 4; ABit: 4; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB5_A1; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_SHORT_5_5_5_1; RBit: 5; GBit: 5; BBit: 5; ABit: 1; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA8; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB10_A2; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_INT_10_10_10_2; RBit: 10; GBit: 10; BBit: 10; ABit: 2; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA12; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_BYTE; RBit: 12; GBit: 12; BBit: 12; ABit: 12; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA16; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_SHORT; RBit: 16; GBit: 16; BBit: 16; ABit: 16; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_COMPRESSED_RGB_S3TC_DXT1_EXT; ClrFmt: GL_COMPRESSED_RGB_S3TC_DXT1_EXT; DataFmt: GL_COMPRESSED_RGB_S3TC_DXT1_EXT; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; ClrFmt: GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; DataFmt: GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; RBit: 8; GBit: 8; BBit: 8; ABit: 1; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; ClrFmt: GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; DataFmt: GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; ClrFmt: GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; DataFmt: GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; RBit: 8; GBit: 8; BBit: 0; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_SIGNED_LUMINANCE8_NV; ClrFmt: GL_LUMINANCE; DataFmt: GL_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SIGNED_LUMINANCE8_ALPHA8_NV; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 8; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SIGNED_RGB8_NV; ClrFmt: GL_RGB; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SIGNED_RGBA8_NV; ClrFmt: GL_RGBA; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SIGNED_RGB8_UNSIGNED_ALPHA8_NV; ClrFmt: GL_RGBA; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SIGNED_ALPHA8_NV; ClrFmt: GL_ALPHA; DataFmt: GL_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SIGNED_INTENSITY8_NV; ClrFmt: GL_INTENSITY; DataFmt: GL_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_HILO16_NV; ClrFmt: GL_RG; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SIGNED_HILO16_NV; ClrFmt: GL_RG; DataFmt: GL_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_DSDT8_NV; ClrFmt: GL_RED; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_DSDT8_MAG8_NV; ClrFmt: GL_RG; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_DSDT8_MAG8_INTENSITY8_NV; ClrFmt: GL_RGB; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_HILO8_NV; ClrFmt: GL_RG; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SIGNED_HILO8_NV; ClrFmt: GL_RG; DataFmt: GL_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_FLOAT_R16_NV; ClrFmt: GL_RED; DataFmt: GL_HALF_FLOAT; RBit: 16; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_FLOAT_R32_NV; ClrFmt: GL_RED; DataFmt: GL_FLOAT; RBit: 32; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_FLOAT_RG16_NV; ClrFmt: GL_RG; DataFmt: GL_HALF_FLOAT; RBit: 16; GBit: 16; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_FLOAT_RGB16_NV; ClrFmt: GL_RGB; DataFmt: GL_HALF_FLOAT; RBit: 16; GBit: 16; BBit: 16; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_FLOAT_RGBA16_NV; ClrFmt: GL_RGBA; DataFmt: GL_HALF_FLOAT; RBit: 16; GBit: 16; BBit: 16; ABit: 16; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_FLOAT_RG32_NV; ClrFmt: GL_RG; DataFmt: GL_FLOAT; RBit: 32; GBit: 32; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_FLOAT_RGB32_NV; ClrFmt: GL_RGB; DataFmt: GL_FLOAT; RBit: 32; GBit: 32; BBit: 32; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_FLOAT_RGBA32_NV; ClrFmt: GL_RGBA; DataFmt: GL_FLOAT; RBit: 32; GBit: 32; BBit: 32; ABit: 32; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA32F_ARB; ClrFmt: GL_RGBA; DataFmt: GL_FLOAT; RBit: 32; GBit: 32; BBit: 32; ABit: 32; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RGB32F_ARB; ClrFmt: GL_RGB; DataFmt: GL_FLOAT; RBit: 32; GBit: 32; BBit: 32; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_ALPHA32F_ARB; ClrFmt: GL_ALPHA; DataFmt: GL_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 32; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_INTENSITY32F_ARB; ClrFmt: GL_LUMINANCE; DataFmt: GL_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 32; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE32F_ARB; ClrFmt: GL_LUMINANCE; DataFmt: GL_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 32; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE_ALPHA32F_ARB; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 32; LBit: 32; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA16F_ARB; ClrFmt: GL_RGBA; DataFmt: GL_HALF_FLOAT; RBit: 16; GBit: 16; BBit: 16; ABit: 16; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RGB16F_ARB; ClrFmt: GL_RGB; DataFmt: GL_HALF_FLOAT; RBit: 16; GBit: 16; BBit: 16; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_ALPHA16F_ARB; ClrFmt: GL_ALPHA; DataFmt: GL_HALF_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 16; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_INTENSITY16F_ARB; ClrFmt: GL_LUMINANCE; DataFmt: GL_HALF_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 16; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE16F_ARB; ClrFmt: GL_LUMINANCE; DataFmt: GL_HALF_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 16; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_LUMINANCE_ALPHA16F_ARB; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_HALF_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 16; LBit: 16; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_DEPTH24_STENCIL8; ClrFmt: GL_DEPTH_STENCIL; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 24; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_DEPTH_COMPONENT32F; ClrFmt: GL_DEPTH_COMPONENT; DataFmt: GL_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 32; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_DEPTH32F_STENCIL8; ClrFmt: GL_DEPTH_STENCIL; DataFmt: GL_FLOAT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 32; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_SRGB8; ClrFmt: GL_RGB; DataFmt: GL_UNSIGNED_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SRGB8_ALPHA8; ClrFmt: GL_RGBA; DataFmt: GL_UNSIGNED_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SLUMINANCE8; ClrFmt: GL_LUMINANCE; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_SLUMINANCE8_ALPHA8; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_COMPRESSED_SRGB_S3TC_DXT1_EXT; ClrFmt: GL_COMPRESSED_SRGB_S3TC_DXT1_EXT; DataFmt: GL_COMPRESSED_SRGB_S3TC_DXT1_EXT; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT; ClrFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT; DataFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT; RBit: 8; GBit: 8; BBit: 8; ABit: 1; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT; ClrFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT; DataFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT; ClrFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT; DataFmt: GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_RGB9_E5; ClrFmt: GL_RGBA; DataFmt: GL_FLOAT; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_R11F_G11F_B10F; ClrFmt: GL_RGB; DataFmt: GL_FLOAT; RBit: 11; GBit: 11; BBit: 10; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_COMPRESSED_LUMINANCE_LATC1_EXT; ClrFmt: GL_COMPRESSED_LUMINANCE_LATC1_EXT; DataFmt: GL_COMPRESSED_LUMINANCE_LATC1_EXT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT; ClrFmt: GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT; DataFmt: GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT; ClrFmt: GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT; DataFmt: GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT; ClrFmt: GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT; DataFmt: GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 8; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI; ClrFmt: GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI; DataFmt: GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_RGBA32UI; ClrFmt: GL_RGBA_INTEGER; DataFmt: GL_UNSIGNED_INT; RBit: 32; GBit: 32; BBit: 32; ABit: 32; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RGB32UI; ClrFmt: GL_RGB_INTEGER; DataFmt: GL_UNSIGNED_INT; RBit: 32; GBit: 32; BBit: 32; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_ALPHA32UI_EXT; ClrFmt: GL_ALPHA_INTEGER; DataFmt: GL_UNSIGNED_INT; RBit: 0; GBit: 0; BBit: 0; ABit: 32; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_INTENSITY32UI_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_UNSIGNED_INT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 32; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE32UI_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_UNSIGNED_INT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 32; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE_ALPHA32UI_EXT; ClrFmt: GL_LUMINANCE_ALPHA_INTEGER_EXT; DataFmt: GL_UNSIGNED_INT; RBit: 0; GBit: 0; BBit: 0; ABit: 32; LBit: 32; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA16UI; ClrFmt: GL_RGBA_INTEGER; DataFmt: GL_UNSIGNED_SHORT; RBit: 16; GBit: 16; BBit: 16; ABit: 16; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RGB16UI; ClrFmt: GL_RGB_INTEGER; DataFmt: GL_UNSIGNED_SHORT; RBit: 16; GBit: 16; BBit: 16; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_ALPHA16UI_EXT; ClrFmt: GL_ALPHA_INTEGER; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 16; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_INTENSITY16UI_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 16; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE16UI_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 16; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE_ALPHA16UI_EXT; ClrFmt: GL_LUMINANCE_ALPHA_INTEGER_EXT; DataFmt: GL_UNSIGNED_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 16; LBit: 16; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RGBA8UI; ClrFmt: GL_RGBA_INTEGER; DataFmt: GL_UNSIGNED_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RGB8UI; ClrFmt: GL_RGB_INTEGER; DataFmt: GL_UNSIGNED_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_ALPHA8UI_EXT; ClrFmt: GL_ALPHA_INTEGER; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_INTENSITY8UI_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE8UI_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE_ALPHA8UI_EXT; ClrFmt: GL_LUMINANCE_ALPHA_INTEGER_EXT; DataFmt: GL_UNSIGNED_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 8; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA32I; ClrFmt: GL_RGBA_INTEGER; DataFmt: GL_INT; RBit: 32; GBit: 32; BBit: 32; ABit: 32; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RGB32I; ClrFmt: GL_RGB_INTEGER; DataFmt: GL_INT; RBit: 32; GBit: 32; BBit: 32; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_ALPHA32I_EXT; ClrFmt: GL_ALPHA_INTEGER; DataFmt: GL_INT; RBit: 0; GBit: 0; BBit: 0; ABit: 32; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_INTENSITY32I_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_INT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 32; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE32I_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_INT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 32; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE_ALPHA32I_EXT; ClrFmt: GL_LUMINANCE_ALPHA_INTEGER_EXT; DataFmt: GL_INT; RBit: 0; GBit: 0; BBit: 0; ABit: 32; LBit: 32; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RGBA16I; ClrFmt: GL_RGBA_INTEGER; DataFmt: GL_SHORT; RBit: 16; GBit: 16; BBit: 16; ABit: 16; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RGB16I; ClrFmt: GL_RGB_INTEGER; DataFmt: GL_SHORT; RBit: 16; GBit: 16; BBit: 16; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_ALPHA16I_EXT; ClrFmt: GL_ALPHA_INTEGER; DataFmt: GL_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 16; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_INTENSITY16I_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 16; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE16I_EXT; ClrFmt: GL_LUMINANCE_INTEGER_EXT; DataFmt: GL_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 16; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE_ALPHA16I_EXT; ClrFmt: GL_LUMINANCE_ALPHA_INTEGER_EXT; DataFmt: GL_SHORT; RBit: 0; GBit: 0; BBit: 0; ABit: 16; LBit: 16; DBit: 0; Sign: True; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA8I; ClrFmt: GL_RGBA_INTEGER; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RGB8I; ClrFmt: GL_RGB_INTEGER; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_ALPHA8I_EXT; ClrFmt: GL_ALPHA_INTEGER; DataFmt: GL_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_INTENSITY8I_EXT; ClrFmt: GL_INTENSITY; DataFmt: GL_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE8I_EXT; ClrFmt: GL_LUMINANCE; DataFmt: GL_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 0; LBit: 8; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_LUMINANCE_ALPHA8I_EXT; ClrFmt: GL_LUMINANCE_ALPHA; DataFmt: GL_BYTE; RBit: 0; GBit: 0; BBit: 0; ABit: 8; LBit: 8; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RG32UI; ClrFmt: GL_RG; DataFmt: GL_UNSIGNED_INT; RBit: 8; GBit: 8; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_R32UI; ClrFmt: GL_RED_INTEGER; DataFmt: GL_UNSIGNED_INT; RBit: 8; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RG16UI; ClrFmt: GL_RG; DataFmt: GL_UNSIGNED_SHORT; RBit: 16; GBit: 16; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_R16UI; ClrFmt: GL_RED_INTEGER; DataFmt: GL_UNSIGNED_SHORT; RBit: 16; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RG8UI; ClrFmt: GL_RG; DataFmt: GL_UNSIGNED_BYTE; RBit: 8; GBit: 8; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_R8UI; ClrFmt: GL_RED_INTEGER; DataFmt: GL_UNSIGNED_BYTE; RBit: 8; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RG32I; ClrFmt: GL_RG; DataFmt: GL_INT; RBit: 32; GBit: 32; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_R32I; ClrFmt: GL_RED_INTEGER; DataFmt: GL_INT; RBit: 16; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RG16I; ClrFmt: GL_RG; DataFmt: GL_SHORT; RBit: 16; GBit: 16; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_R16I; ClrFmt: GL_RED_INTEGER; DataFmt: GL_SHORT; RBit: 16; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RG8I; ClrFmt: GL_RG; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_R8I; ClrFmt: GL_RED_INTEGER; DataFmt: GL_BYTE; RBit: 8; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: True; Comp: False),
+    (IntFmt: GL_RG8; ClrFmt: GL_RG; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_R8; ClrFmt: GL_RED; DataFmt: GL_BYTE; RBit: 8; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RG16; ClrFmt: GL_RG; DataFmt: GL_SHORT; RBit: 16; GBit: 16; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_R16; ClrFmt: GL_RED; DataFmt: GL_SHORT; RBit: 16; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RG16F; ClrFmt: GL_RG; DataFmt: GL_HALF_FLOAT; RBit: 16; GBit: 16; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_R16F; ClrFmt: GL_RED; DataFmt: GL_HALF_FLOAT; RBit: 16; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_RG32F; ClrFmt: GL_RG; DataFmt: GL_FLOAT; RBit: 32; GBit: 32; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_R32F; ClrFmt: GL_LUMINANCE; DataFmt: GL_FLOAT; RBit: 32; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: True; Fix: False; Comp: False),
+    (IntFmt: GL_COMPRESSED_RED_RGTC1; ClrFmt: GL_COMPRESSED_RED_RGTC1; DataFmt: GL_COMPRESSED_RED_RGTC1; RBit: 8; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_SIGNED_RED_RGTC1; ClrFmt: GL_COMPRESSED_SIGNED_RED_RGTC1; DataFmt: GL_COMPRESSED_SIGNED_RED_RGTC1; RBit: 8; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_RG_RGTC2; ClrFmt: GL_COMPRESSED_RG_RGTC2; DataFmt: GL_COMPRESSED_RG_RGTC2; RBit: 8; GBit: 8; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_COMPRESSED_SIGNED_RG_RGTC2; ClrFmt: GL_COMPRESSED_SIGNED_RG_RGTC2; DataFmt: GL_COMPRESSED_SIGNED_RG_RGTC2; RBit: 8; GBit: 8; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: True; Flt: False; Fix: False; Comp: True),
+    (IntFmt: GL_R8_SNORM; ClrFmt: GL_R; DataFmt: GL_BYTE; RBit: 8; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RG8_SNORM; ClrFmt: GL_RG; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB8_SNORM; ClrFmt: GL_RGB; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA8_SNORM; ClrFmt: GL_RGBA; DataFmt: GL_BYTE; RBit: 8; GBit: 8; BBit: 8; ABit: 8; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_R16_SNORM; ClrFmt: GL_R; DataFmt: GL_SHORT; RBit: 16; GBit: 0; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RG16_SNORM; ClrFmt: GL_RG; DataFmt: GL_SHORT; RBit: 16; GBit: 16; BBit: 0; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGB16_SNORM; ClrFmt: GL_RGB; DataFmt: GL_SHORT; RBit: 16; GBit: 16; BBit: 16; ABit: 0; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False),
+    (IntFmt: GL_RGBA16_SNORM; ClrFmt: GL_RGBA; DataFmt: GL_SHORT; RBit: 16; GBit: 16; BBit: 16; ABit: 16; LBit: 0; DBit: 0; Sign: False; Flt: False; Fix: False; Comp: False)
     );
 
-function InternalFormatToOpenGLFormat(texFormat: TGLInternalFormat): Integer;
+function InternalFormatToOpenGLFormat(intFormat: TGLInternalFormat): TGLEnum;
 begin
-  Result := cTextureFormatToOpenGL[texFormat, 0];
+  Result := cTextureFormatToOpenGL[intFormat].IntFmt;
 end;
 
-function OpenGLFormatToInternalFormat(intFormat: Integer): TGLInternalFormat;
+function OpenGLFormatToInternalFormat(glFormat: TGLEnum): TGLInternalFormat;
 var
   i: TGLInternalFormat;
 begin
   Result := tfRGBA8;
   for i := Low(cTextureFormatToOpenGL) to High(cTextureFormatToOpenGL) do
-    if intFormat = cTextureFormatToOpenGL[i, 0] then
+    if glFormat = cTextureFormatToOpenGL[i].IntFmt then
     begin
       Result := i;
       Exit;
@@ -430,10 +480,11 @@ begin
   Assert(false);
 end;
 
-function GetTextureElementSize(texFormat: TGLInternalFormat): Integer;
+function GetTextureElementSize(intFormat: TGLInternalFormat): Integer;
 begin
-  Result := GetTextureElementSize(cTextureFormatToOpenGL[texFormat, 1],
-    cTextureFormatToOpenGL[texFormat, 2]);
+  Result := GetTextureElementSize(
+    cTextureFormatToOpenGL[intFormat].ClrFmt,
+    cTextureFormatToOpenGL[intFormat].DataFmt);
 end;
 
 function GetTextureElementSize(colorFormat: TGLEnum; dataType: TGLEnum):
@@ -511,11 +562,11 @@ begin
   end;
 end;
 
-function CompressedInternalFormatToOpenGL(texFormat: TGLInternalFormat):
+function CompressedInternalFormatToOpenGL(intFormat: TGLInternalFormat):
   Integer;
 begin
   Result := GL_COMPRESSED_RGBA;
-  case texFormat of
+  case intFormat of
     tfRGB8: Result := GL_COMPRESSED_RGB;
     tfRGBA8: Result := GL_COMPRESSED_RGBA;
     tfRGB5: Result := GL_COMPRESSED_RGB;
@@ -524,34 +575,43 @@ begin
     tfLUMINANCE8: Result := GL_COMPRESSED_LUMINANCE;
     tfLUMINANCE8_ALPHA8: Result := GL_COMPRESSED_LUMINANCE_ALPHA;
     tfINTENSITY8: Result := GL_COMPRESSED_INTENSITY;
-    else Assert(false);
+  else
+    Assert(false);
   end;
 end;
 
-procedure FindCompatibleDataFormat(texFormat: TGLInternalFormat; out dFormat:
+procedure FindCompatibleDataFormat(intFormat: TGLInternalFormat; out dFormat:
   TGLEnum; out dType: GLenum);
 begin
-  dFormat := cTextureFormatToOpenGL[texFormat, 1];
-  dType := cTextureFormatToOpenGL[texFormat, 2];
+  dFormat := cTextureFormatToOpenGL[intFormat].ClrFmt;
+  dType := cTextureFormatToOpenGL[intFormat].DataFmt;
 end;
 
-function IsTargetSupported(target: TGLEnum): Boolean;
+function IsTargetSupported(target: TGLTextureTarget): Boolean;
 begin
-  case target of
-    GL_TEXTURE_1D: Result := GL_VERSION_1_1 or GL_EXT_texture_object;
-    GL_TEXTURE_2D: Result := GL_VERSION_1_1 or GL_EXT_texture_object;
-    GL_TEXTURE_3D: Result := GL_EXT_texture3D;
-    GL_TEXTURE_RECTANGLE: Result := GL_ARB_texture_rectangle;
+  Result := IsTargetSupported(DecodeGLTextureTarget(target));
+end;
+
+function IsTargetSupported(glTarget: TGLEnum): Boolean;
+begin
+  case glTarget of
+    GL_TEXTURE_1D: Result := GL.VERSION_1_1 or GL.EXT_texture_object;
+    GL_TEXTURE_2D: Result := GL.VERSION_1_1 or GL.EXT_texture_object;
+    GL_TEXTURE_3D: Result := GL.EXT_texture3D;
+    GL_TEXTURE_RECTANGLE: Result := GL.ARB_texture_rectangle;
     GL_TEXTURE_CUBE_MAP,
       GL_TEXTURE_CUBE_MAP_POSITIVE_X,
       GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
       GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
       GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
       GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-      GL_TEXTURE_CUBE_MAP_NEGATIVE_Z: Result := GL_ARB_texture_cube_map;
-    GL_TEXTURE_1D_ARRAY: Result := GL_EXT_texture_array;
-    GL_TEXTURE_2D_ARRAY: Result := GL_EXT_texture_array;
-    GL_TEXTURE_CUBE_MAP_ARRAY: Result := GL_ARB_texture_cube_map_array;
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_Z: Result := GL.ARB_texture_cube_map;
+    GL_TEXTURE_1D_ARRAY: Result := GL.EXT_texture_array;
+    GL_TEXTURE_2D_ARRAY: Result := GL.EXT_texture_array;
+    GL_TEXTURE_CUBE_MAP_ARRAY: Result := GL.ARB_texture_cube_map_array;
+    GL_TEXTURE_BUFFER: Result := GL.ARB_texture_buffer_object;
+    GL_TEXTURE_2D_MULTISAMPLE,
+      GL_TEXTURE_2D_MULTISAMPLE_ARRAY: Result := GL.ARB_texture_multisample;
   else
     begin
       Result := false;
@@ -560,247 +620,165 @@ begin
   end;
 end;
 
-function IsFormatSupported(texFormat: TGLInternalFormat): Boolean;
+function IsFormatSupported(intFormat: TGLInternalFormat): Boolean;
 begin
   Result := false;
 
-  if ((texFormat >= tfALPHA4) and (texFormat <= tfALPHA16)) or
-    ((texFormat >= tfLUMINANCE4) and (texFormat <= tfR16G16B16A16)) then
+  if ((intFormat >= tfALPHA4) and (intFormat <= tfALPHA16)) or
+    ((intFormat >= tfLUMINANCE4) and (intFormat <= tfR16G16B16A16)) then
   begin
-    Result := GL_VERSION_1_1;
+    Result := GL.VERSION_1_1;
     EXIT;
   end;
 
-  if ((texFormat >= tfDEPTH_COMPONENT16) and (texFormat <= tfDEPTH_COMPONENT32))
-    then
+  if ((intFormat >= tfDEPTH_COMPONENT16) and (intFormat <= tfDEPTH_COMPONENT32)) then
   begin
-    Result := GL_ARB_depth_texture;
+    Result := GL.ARB_depth_texture;
     EXIT;
   end;
 
-  if ((texFormat >= tfCOMPRESSED_RGB_S3TC_DXT1) and (texFormat <=
+  if ((intFormat >= tfCOMPRESSED_RGB_S3TC_DXT1) and (intFormat <=
     tfCOMPRESSED_RGBA_S3TC_DXT5)) then
   begin
-    Result := GL_EXT_texture_compression_s3tc;
+    Result := GL.EXT_texture_compression_s3tc;
     EXIT;
   end;
 
-  if ((texFormat >= tfSIGNED_LUMINANCE8) and (texFormat <=
+  if ((intFormat >= tfSIGNED_LUMINANCE8) and (intFormat <=
     tfDSDT8_MAG8_INTENSITY8)) then
   begin
-    Result := GL_NV_texture_shader;
+    Result := GL.NV_texture_shader;
     EXIT;
   end;
 
-  if ((texFormat = tfHILO8) or (texFormat = tfSIGNED_HILO8)) then
+  if ((intFormat = tfHILO8) or (intFormat = tfSIGNED_HILO8)) then
   begin
-    Result := GL_NV_texture_shader3;
+    Result := GL.NV_texture_shader3;
     EXIT;
   end;
 
-  if ((texFormat >= tfFLOAT_R16) and (texFormat <= tfFLOAT_RGBA32)) then
+  if ((intFormat >= tfFLOAT_R16) and (intFormat <= tfFLOAT_RGBA32)) then
   begin
-    Result := GL_NV_float_buffer;
+    Result := GL.NV_float_buffer;
     EXIT;
   end;
 
-  if ((texFormat >= tfRGBA_FLOAT32)
-    and (texFormat <= tfLUMINANCE_ALPHA_FLOAT16)) then
+  if ((intFormat >= tfRGBA_FLOAT32)
+    and (intFormat <= tfLUMINANCE_ALPHA_FLOAT16)) then
   begin
-    Result := GL_ATI_texture_float;
+    Result := GL.ARB_texture_float or GL.ATI_texture_float;
     EXIT;
   end;
 
-  if texFormat = tfDEPTH24_STENCIL8 then
+  if intFormat = tfDEPTH24_STENCIL8 then
   begin
-    Result := GL_EXT_packed_depth_stencil;
+    Result := GL.EXT_packed_depth_stencil;
     EXIT;
   end;
 
-  if ((texFormat = tfDEPTH_COMPONENT32F) or (texFormat = tfDEPTH32F_STENCIL8))
-    then
+  if ((intFormat = tfDEPTH_COMPONENT32F) or (intFormat = tfDEPTH32F_STENCIL8)) then
   begin
-    Result := GL_NV_depth_buffer_float;
+    Result := GL.NV_depth_buffer_float;
     EXIT;
   end;
 
-  if ((texFormat >= tfSRGB8) and (texFormat <=
+  if ((intFormat >= tfSRGB8) and (intFormat <=
     tfCOMPRESSED_SRGB_ALPHA_S3TC_DXT5)) then
   begin
-    Result := GL_EXT_texture_sRGB;
+    Result := GL.EXT_texture_sRGB;
     EXIT;
   end;
 
-  if texFormat = tfRGB9_E5 then
+  if intFormat = tfRGB9_E5 then
   begin
-    Result := GL_EXT_texture_shared_exponent;
+    Result := GL.EXT_texture_shared_exponent;
     EXIT;
   end;
 
-  if texFormat = tfR11F_G11F_B10F then
+  if intFormat = tfR11F_G11F_B10F then
   begin
-    Result := GL_EXT_packed_float;
+    Result := GL.EXT_packed_float;
     EXIT;
   end;
 
-  if ((texFormat >= tfCOMPRESSED_LUMINANCE_LATC1) and (texFormat <=
+  if ((intFormat >= tfCOMPRESSED_LUMINANCE_LATC1) and (intFormat <=
     tfCOMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2)) then
   begin
-    Result := GL_EXT_texture_compression_latc;
-  end;
-
-  if texFormat = tfCOMPRESSED_LUMINANCE_ALPHA_3DC then
-  begin
-    Result := GL_ATI_texture_compression_3dc;
+    Result := GL.EXT_texture_compression_latc;
     EXIT;
   end;
 
-  if ((texFormat >= tfRGBA32UI) and (texFormat <= tfLUMINANCE_ALPHA8I)) then
+  if intFormat = tfCOMPRESSED_LUMINANCE_ALPHA_3DC then
   begin
-    Result := GL_EXT_texture_integer;
+    Result := GL.ATI_texture_compression_3dc;
     EXIT;
   end;
 
-  if ((texFormat >= tfRG32UI) and (texFormat <= tfR32F)) then
-    Result := GL_ARB_texture_rg;
+  if ((intFormat >= tfRGBA32UI) and (intFormat <= tfLUMINANCE_ALPHA8I)) then
+  begin
+    Result := GL.EXT_texture_integer;
+    EXIT;
+  end;
 
-  if ((texFormat >= tfCOMPRESSED_RED_RGTC1) and (texFormat <=
+  if ((intFormat >= tfRG32UI) and (intFormat <= tfR32F)) then
+    Result := GL.ARB_texture_rg;
+
+  if ((intFormat >= tfCOMPRESSED_RED_RGTC1) and (intFormat <=
     tfCOMPRESSED_SIGNED_RG_RGTC2)) then
   begin
-    Result := GL_ARB_texture_compression_rgtc;
+    Result := GL.ARB_texture_compression_rgtc;
+    EXIT;
+  end;
+
+  if ((intFormat >= tfR8_SNORM) and (intFormat <= tfRGBA16_SNORM)) then
+  begin
+    Result := GL.VERSION_3_1;
+    EXIT;
   end
 end;
 
-function IsFloatFormat(texFormat: TGLInternalFormat): boolean;
+function IsFloatFormat(intFormat: TGLInternalFormat): boolean;
 begin
-  Result := IsFloatFormat(InternalFormatToOpenGLFormat(texFormat));
+  Result := cTextureFormatToOpenGL[intFormat].Flt;
 end;
 
-function IsFloatFormat(intFormat: TGLEnum): boolean;
-const
-  cFloatFormat: array[0..26] of GLenum = (
-    GL_RG16F,
-    GL_R16F,
-    GL_RG32F,
-    GL_R32F,
-    GL_FLOAT_R16_NV,
-    GL_FLOAT_R32_NV,
-    GL_FLOAT_RG16_NV,
-    GL_FLOAT_RGB16_NV,
-    GL_FLOAT_RGBA16_NV,
-    GL_FLOAT_RG32_NV,
-    GL_FLOAT_RGB32_NV,
-    GL_FLOAT_RGBA32_NV,
-    GL_RGBA_FLOAT32_ATI,
-    GL_RGB_FLOAT32_ATI,
-    GL_ALPHA_FLOAT32_ATI,
-    GL_INTENSITY_FLOAT32_ATI,
-    GL_LUMINANCE_FLOAT32_ATI,
-    GL_LUMINANCE_ALPHA_FLOAT32_ATI,
-    GL_RGBA_FLOAT16_ATI,
-    GL_RGB_FLOAT16_ATI,
-    GL_ALPHA_FLOAT16_ATI,
-    GL_INTENSITY_FLOAT16_ATI,
-    GL_LUMINANCE_FLOAT16_ATI,
-    GL_LUMINANCE_ALPHA_FLOAT16_ATI,
-    GL_DEPTH_COMPONENT32F,
-    GL_DEPTH32F_STENCIL8,
-    GL_R11F_G11F_B10F);
-var
-  i: GLenum;
+function IsFloatFormat(glFormat: TGLEnum): boolean;
 begin
-  Result := false;
-  for i := 0 to High(cFloatFormat) do
-    if cFloatFormat[i] = intFormat then
-    begin
-      Result := true;
-      exit;
-    end;
+  Result := IsFloatFormat(OpenGLFormatToInternalFormat(glFormat));
 end;
 
-function IsDepthFormat(texFormat: TGLInternalFormat): boolean;
+function IsDepthFormat(intFormat: TGLInternalFormat): boolean;
 begin
-  Result := IsDepthFormat(InternalFormatToOpenGLFormat(texFormat));
+  Result := cTextureFormatToOpenGL[intFormat].DBit > 0;
 end;
 
-function IsDepthFormat(intFormat: TGLEnum): boolean;
-const
-  cDepthFormat: array[0..5] of GLenum = (
-    GL_DEPTH_COMPONENT16,
-    GL_DEPTH_COMPONENT24,
-    GL_DEPTH_COMPONENT32,
-    GL_DEPTH24_STENCIL8,
-    GL_DEPTH_COMPONENT32F,
-    GL_DEPTH32F_STENCIL8);
-var
-  i: GLenum;
+function IsDepthFormat(glFormat: TGLEnum): boolean;
 begin
-  Result := false;
-  for i := 0 to High(cDepthFormat) do
-    if cDepthFormat[i] = intFormat then
-    begin
-      Result := true;
-      exit;
-    end;
+  Result := cTextureFormatToOpenGL[OpenGLFormatToInternalFormat(glFormat)].DBit > 0;
 end;
 
-function IsCompressedFormat(texFormat: TGLInternalFormat): boolean;
+function IsCompressedFormat(intFormat: TGLInternalFormat): boolean;
 begin
-  Result := IsCompressedFormat(InternalFormatToOpenGLFormat(texFormat));
+  Result := cTextureFormatToOpenGL[intFormat].Comp;
 end;
 
-function IsCompressedFormat(intFormat: TGLEnum): boolean;
-const
-  cCompressedFormat: array[0..24] of GLenum = (
-    GL_COMPRESSED_RGB_ARB,
-    GL_COMPRESSED_RGBA_ARB,
-    GL_COMPRESSED_ALPHA_ARB,
-    GL_COMPRESSED_LUMINANCE_ARB,
-    GL_COMPRESSED_LUMINANCE_ALPHA_ARB,
-    GL_COMPRESSED_INTENSITY_ARB,
-    GL_COMPRESSED_RGB_ARB,
-    GL_COMPRESSED_RGB_ARB,
-    GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
-    GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
-    GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
-    GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
-    GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,
-    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
-    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
-    GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
-    GL_COMPRESSED_LUMINANCE_LATC1_EXT,
-    GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT,
-    GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT,
-    GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT,
-    GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI,
-    GL_COMPRESSED_RED_RGTC1,
-    GL_COMPRESSED_SIGNED_RED_RGTC1,
-    GL_COMPRESSED_RG_RGTC2,
-    GL_COMPRESSED_SIGNED_RG_RGTC2);
-var
-  i: GLenum;
+function IsCompressedFormat(glFormat: TGLEnum): boolean;
 begin
-  Result := false;
-  for i := 0 to High(cCompressedFormat) do
-    if cCompressedFormat[i] = intFormat then
-    begin
-      Result := true;
-      exit;
-    end;
+  Result := cTextureFormatToOpenGL[OpenGLFormatToInternalFormat(glFormat)].Comp;
 end;
 
-function GetGenericCompressedFormat(const texFormat: TGLInternalFormat;
+function GetGenericCompressedFormat(const intFormat: TGLInternalFormat;
   const colorFormat: TGLEnum; out internalFormat: TGLEnum): Boolean;
 
 begin
   Result := false;
-  if IsCompressedFormat(texFormat) then
+  if IsCompressedFormat(intFormat) then
     Exit;
-  if not IsFormatSupported(texFormat) then
+  if not IsFormatSupported(intFormat) then
     Exit;
   internalFormat := 0;
 
-  if ((texFormat >= tfSRGB8) and (texFormat <=
+  if ((intFormat >= tfSRGB8) and (intFormat <=
     tfCOMPRESSED_SRGB_ALPHA_S3TC_DXT5)) then
     case colorFormat of
       GL_RGB: internalFormat := GL_COMPRESSED_SRGB;
@@ -825,16 +803,16 @@ begin
   Result := true;
 end;
 
-function GetUncompressedFormat(const texFormat: TGLInternalFormat;
+function GetUncompressedFormat(const intFormat: TGLInternalFormat;
   out internalFormat: TGLInternalFormat; out colorFormat: TGLEnum): Boolean;
 begin
   Result := false;
-  if not IsCompressedFormat(texFormat) then
+  if not IsCompressedFormat(intFormat) then
     Exit;
-  if not IsFormatSupported(texFormat) then
+  if not IsFormatSupported(intFormat) then
     Exit;
   colorFormat := 0;
-  case texFormat of
+  case intFormat of
     tfCOMPRESSED_RGB_S3TC_DXT1:
       begin
         colorFormat := GL_RGB;
@@ -921,7 +899,64 @@ begin
         internalFormat := tfRG8;
       end;
   end;
-  Result := colorFormat<>0;
+  Result := colorFormat <> 0;
+end;
+
+function DecodeGLTextureTarget(const TextureTarget: TGLTextureTarget): Cardinal;
+const
+  cTargetToEnum: array[TGLTextureTarget] of TGLEnum =
+  (
+    0,
+    GL_TEXTURE_1D,
+    GL_TEXTURE_2D,
+    GL_TEXTURE_3D,
+    GL_TEXTURE_1D_ARRAY,
+    GL_TEXTURE_2D_ARRAY,
+    GL_TEXTURE_RECTANGLE,
+    GL_TEXTURE_BUFFER,
+    GL_TEXTURE_CUBE_MAP,
+    GL_TEXTURE_2D_MULTISAMPLE,
+    GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
+    GL_TEXTURE_CUBE_MAP_ARRAY
+  );
+begin
+  Assert(TextureTarget <> ttNoShape);
+  Result := cTargetToEnum[TextureTarget];
+end;
+
+function EncodeGLTextureTarget(const glTarget: TGLEnum): TGLTextureTarget;
+begin
+  case glTarget of
+    GL_TEXTURE_1D: Result := ttTexture1d;
+    GL_TEXTURE_2D: Result := ttTexture2d;
+    GL_TEXTURE_3D: Result := ttTexture3d;
+    GL_TEXTURE_RECTANGLE: Result := ttTextureRect;
+    GL_TEXTURE_CUBE_MAP: Result := ttTextureCube;
+    GL_TEXTURE_1D_ARRAY: Result := ttTexture1dArray;
+    GL_TEXTURE_2D_ARRAY: Result := ttTexture2dArray;
+    GL_TEXTURE_CUBE_MAP_ARRAY: Result := ttTextureCubeArray;
+    GL_TEXTURE_2D_MULTISAMPLE: Result := ttTexture2DMultisample;
+    GL_TEXTURE_2D_MULTISAMPLE_ARRAY: Result := ttTexture2DMultisampleArray;
+  else
+    begin
+      Result := ttTexture2d;
+      Assert(False, glsErrorEx + glsUnknownType);
+    end;
+  end;
+end;
+
+function IsTargetSupportMipmap(const TextureTarget: TGLTextureTarget): Boolean;
+begin
+  Result := (TextureTarget <> ttTextureRect)
+    and (TextureTarget <> ttTexture2DMultisample)
+    and (TextureTarget <> ttTexture2DMultisampleArray);
+end;
+
+function IsTargetSupportMipmap(const glTarget: TGLEnum): Boolean;
+begin
+  Result := (glTarget <> GL_TEXTURE_RECTANGLE)
+    and (glTarget <> GL_TEXTURE_2D_MULTISAMPLE)
+    and (glTarget <> GL_TEXTURE_2D_MULTISAMPLE_ARRAY);
 end;
 
 end.

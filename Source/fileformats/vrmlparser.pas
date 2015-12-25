@@ -20,7 +20,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, SysUtils, VectorTypes, VectorLists;
+  Classes, SysUtils, GLVectorTypes, GLVectorLists;
 
 type
   TVRMLNode = class
@@ -369,9 +369,9 @@ end;
 constructor TVRMLTransform.Create;
 begin
   inherited;
-  FScaleFactor[0]:=1;
-  FScaleFactor[1]:=1;
-  FScaleFactor[2]:=1;
+  FScaleFactor.V[0]:=1;
+  FScaleFactor.V[1]:=1;
+  FScaleFactor.V[2]:=1;
 end;
 
 
@@ -473,19 +473,19 @@ end;
 //
 function TVRMLParser.ReadVector3f : TVector3f;
 begin
-  Result[0]:=ReadSingle;
-  Result[1]:=ReadSingle;
-  Result[2]:=ReadSingle;
+  Result.V[0]:=ReadSingle;
+  Result.V[1]:=ReadSingle;
+  Result.V[2]:=ReadSingle;
 end;
 
 // ReadVector4f
 //
 function TVRMLParser.ReadVector4f : TVector4f;
 begin
-  Result[0]:=ReadSingle;
-  Result[1]:=ReadSingle;
-  Result[2]:=ReadSingle;
-  Result[3]:=ReadSingle;
+  Result.V[0]:=ReadSingle;
+  Result.V[1]:=ReadSingle;
+  Result.V[2]:=ReadSingle;
+  Result.V[3]:=ReadSingle;
 end;
 
 // ReadPointArray

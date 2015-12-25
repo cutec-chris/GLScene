@@ -24,7 +24,13 @@ unit GLTimeEventsMgr;
 interface
 
 uses
-  GLCadencer, SysUtils, Classes, BaseClasses;
+  {$IFDEF GLS_DELPHI_XE2_UP}
+    System.Classes, System.SysUtils,
+  {$ELSE}
+    Classes, SysUtils,
+  {$ENDIF}
+
+  GLCadencer,  GLBaseClasses;
 
 type
 
@@ -35,21 +41,21 @@ type
 	//
    TGLTimeEventsMGR = class(TGLUpdateAbleComponent)
    private
-      { Dï¿½clarations privï¿½es }
+      { Déclarations privées }
       FCadencer : TGLCadencer;
       FEnabled : boolean;
       FFreeEventOnEnd : boolean;
       FEvents : TTimeEvents;
 
    protected
-      { Dï¿½clarations protï¿½gï¿½es }
+      { Déclarations protégées }
       procedure Notification(AComponent: TComponent; Operation: TOperation); override;
 
       procedure SetCadencer(const val : TGLCadencer);
       procedure SetEvents(const val : TTimeEvents);
 
    public
-      { Dï¿½clarations publiques }
+      { Déclarations publiques }
       constructor Create(aOwner : TComponent); override;
       destructor Destroy; override;
 
@@ -57,7 +63,7 @@ type
       procedure Reset();
 
    published
-      { Dï¿½clarations publiï¿½es }
+      { Déclarations publiées }
       property Cadencer : TGLCadencer read FCadencer write SetCadencer;
       property Enabled : boolean read FEnabled write FEnabled default True;
       property FreeEventOnEnd : boolean read FFreeEventOnEnd write FFreeEventOnEnd default False;

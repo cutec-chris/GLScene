@@ -17,8 +17,9 @@ unit Q3MD3;
 interface
 
 uses
-  Classes,SysUtils,ApplicationFileIO,VectorGeometry,GLVectorFileObjects,
-  VectorLists,GLMaterial,FileMD3;
+  Classes, SysUtils,
+  GLApplicationFileIO, GLVectorGeometry, GLVectorFileObjects,
+  GLVectorLists, GLMaterial, FileMD3;
 
 type
   // This class is used to extract the tag transform information
@@ -98,6 +99,7 @@ begin
   anim:=TStringList.Create;
   TorsoStartFrame := 0;
   LegsStartFrame  := 0;
+  FillChar(val[0], SizeOf(val), $00);
   for strindex:=0 to Strings.Count-1 do begin
     commatext:=Strings.Strings[strindex];
     while Pos('  ',commatext)>0 do
@@ -292,7 +294,7 @@ begin
   Result:=IdentityHMGMatrix;
   TagIdx:=-1;
   for i:=0 to FNumTags do
-    if lowercase(trim(TagName))=lowercase(trim(FTags[i].strName)) then begin
+    if lowercase(trim(TagName))=lowercase(trim(string(FTags[i].strName))) then begin
       TagIdx:=i;
       Break;
     end;
@@ -300,9 +302,9 @@ begin
   Tag:=FTags[TagIdx+Frame*FNumTags];
   for j:=0 to 2 do
     for i:=0 to 2 do
-      Result[i][j]:=Tag.rotation[i][j];
+      Result.V[i].V[j]:=Tag.rotation.V[i].V[j];
   for i:=0 to 2 do
-    Result[3][i]:=Tag.vPosition[i];
+    Result.V[3].V[i]:=Tag.vPosition.V[i];
 end;
 
 end.

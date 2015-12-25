@@ -1,21 +1,29 @@
 //
 // This unit is part of the GLScene Project, http://glscene.org
 //
-{: GLFBO<p>
+{ : GLFBO<p>
 
-   Implements FBO support for GLScene.
+  Implements FBO support for GLScene.
 
-   Original author of the unit is Riz.
-   Modified by C4 and YarUnderoaker (hope, I didn't miss anybody).
+  Original author of the unit is Riz.
+  Modified by C4 and YarUnderoaker (hope, I didn't miss anybody).
 
-   <b>History : </b><font size=-1><ul>
-      <li>15/02/10 - Yar - Added notification of freeing RootObject
-      <li>22/01/10 - Yar - Added ClearOptions, Level, Layer, PostGenerateMipmap
-                             UseBufferBackground moved to coUseBufferBackground
-      <li>14/12/09 - DaStr - Fixed memory leak (thanks YarUnderoaker)
-      <li>11/11/09 - DaStr - Added $I GLScene.inc
-      <li>09/11/09 - DaStr - Initial version (contributed to GLScene)
-   </ul></font>
+  <b>History : </b><font size=-1><ul>
+  <li>30/08/13 - NelC - Added OnSetTextureTargets
+  <li>09/07/12 - Yar - Fixed DoPostInitialize and DoPreInitialize events (thanks to Gabriel Corneanu)
+  <li>22/04/11 - Yar - Bugfixed lighting state restoration
+  <li>13/02/11 - Yar - Added RenderContextInfo to BeforeRender and AfterRender event
+  <li>07/01/11 - Yar - Added properties Active and PickableTarget
+  <li>23/08/10 - Yar - Changes for forward core
+  <li>02/06/10 - Yar - Replaced OpenGL functions to OpenGLAdapter
+  <li>22/04/10 - Yar - Fixes after GLState revision
+  <li>15/02/10 - Yar - Added notification of freeing RootObject
+  <li>22/01/10 - Yar - Added ClearOptions, Level, Layer, PostGenerateMipmap
+  UseBufferBackground moved to coUseBufferBackground
+  <li>14/12/09 - DaStr - Fixed memory leak (thanks YarUnderoaker)
+  <li>11/11/09 - DaStr - Added $I GLScene.inc
+  <li>09/11/09 - DaStr - Initial version (contributed to GLScene)
+  </ul></font>
 }
 unit GLFBORenderer;
 
@@ -24,8 +32,14 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, VectorGeometry, GLScene, GLTexture, GLContext, GLFBO, GLColor,
-  GLMaterial, GLRenderContextInfo;
+  Classes, SysUtils,
+  //GLS
+  GLVectorGeometry, GLScene, GLTexture, GLContext, GLFBO, GLColor,
+  GLMaterial, GLRenderContextInfo, GLState, OpenGLTokens,
+  GLTextureFormat,
+  GLVectorTypes,
+  GLMultisampleImage,
+  GLSLog;
 
 type
   TGLEnabledRenderBuffer = (erbDepth, erbStencil);
@@ -36,6 +50,11 @@ type
   TGLFBOClearOption = (coColorBufferClear, coDepthBufferClear,
     coStencilBufferClear, coUseBufferBackground);
   TGLFBOClearOptions = set of TGLFBOClearOption;
+
+  TGLTextureArray = array of TGLTexture;
+
+  TSetTextureTargetsEvent = procedure(Sender : TObject;
+    var colorTexs : TGLTextureArray) of object;
 
   TGLFBORenderer = class(TGLBaseSceneObject, IGLMaterialLibrarySupported)
   private
@@ -49,8 +68,6 @@ type
     FHasDepth: Boolean;
     FHasStencil: Boolean;
 
-    FChanged: Boolean;
-
     FMaterialLibrary: TGLMaterialLibrary;
     FColorTextureName: TGLLibMaterialName;
     FDepthTextureName: TGLLibMaterialName;
@@ -63,9 +80,9 @@ type
     FCamera: TGLCamera;
     FEnabledRenderBuffers: TGLEnabledRenderBuffers;
     FTargetVisibility: TGLFBOTargetVisibility;
-    FBeforeRender: TNotifyEvent;
+    FBeforeRender: TDirectRenderEvent;
     FPostInitialize: TNotifyEvent;
-    FAfterRender: TNotifyEvent;
+    FAfterRender: TDirectRenderEvent;
     FPreInitialize: TNotifyEvent;
     FBackgroundColor: TGLColor;
     FClearOptions: TGLFBOClearOptions;
@@ -73,10 +90,13 @@ type
     FSceneScaleFactor: Single;
     FUseLibraryAsMultiTarget: Boolean;
     FPostGenerateMipmap: Boolean;
-
+    FMaxSize: Integer;
+    FMaxAttachment: Integer;
+    FStoreCamera: array[0..2] of TVector;
+    FOnSetTextureTargets: TSetTextureTargetsEvent;
     // implementing IGLMaterialLibrarySupported
-    function GetMaterialLibrary: TGLMaterialLibrary;
-    procedure SetMaterialLibrary(const Value: TGLMaterialLibrary);
+    function GetMaterialLibrary: TGLAbstractMaterialLibrary;
+    procedure SetMaterialLibrary(const Value: TGLAbstractMaterialLibrary);
     procedure SetDepthTextureName(const Value: TGLLibMaterialName);
     procedure SetColorTextureName(const Value: TGLLibMaterialName);
     procedure SetForceTextureDimentions(const Value: Boolean);
@@ -98,20 +118,19 @@ type
     procedure SetUseLibraryAsMultiTarget(Value: Boolean);
     procedure SetPostGenerateMipmap(const Value: Boolean);
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    procedure InitializeFBO;
+    procedure Notification(AComponent: TComponent;
+      Operation: TOperation); override;
+    procedure Initialize;
 
     procedure ForceDimensions(Texture: TGLTexture);
 
     procedure RenderToFBO(var ARci: TRenderContextInfo);
 
-    procedure ApplyCamera;
-    procedure UnApplyCamera;
-    procedure SetupLights;
-    procedure SetViewport;
+    procedure ApplyCamera(var ARci: TRenderContextInfo);
+    procedure UnApplyCamera(var ARci: TRenderContextInfo);
 
-    procedure DoBeforeRender;
-    procedure DoAfterRender;
+    procedure DoBeforeRender(var ARci: TRenderContextInfo);
+    procedure DoAfterRender(var ARci: TRenderContextInfo);
     procedure DoPreInitialize;
     procedure DoPostInitialize;
 
@@ -124,131 +143,143 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    procedure StructureChanged; override;
-
     procedure DoRender(var ARci: TRenderContextInfo; ARenderSelf: Boolean;
       ARenderChildren: Boolean); override;
 
-    {: Layer (also cube map face) is activated only on
-       the volume textures, texture array and cube map.
-       You can select the layer during the drawing to. }
+    { : Layer (also cube map face) is activated only on
+      the volume textures, texture array and cube map.
+      You can select the layer during the drawing to. }
     property Layer: Integer read GetLayer write SetLayer;
-    {: Mipmap Level where will be rendering }
+    { : Mipmap Level where will be rendering }
     property Level: Integer read GetLevel write SetLevel;
 
   published
-    {: force texture dimensions when initializing
-       only works with TGLBlankImage and TGLFloatDataImage, otherwise does nothing }
-    property ForceTextureDimensions: Boolean read FForceTextureDimensions write
-      SetForceTextureDimentions default True;
+    property Active: Boolean read GetVisible write SetVisible default True;
+    property PickableTarget: Boolean read GetPickable write SetPickable
+      default False;
+    { : force texture dimensions when initializing
+      only works with TGLBlankImage and TGLFloatDataImage, otherwise does nothing }
+    property ForceTextureDimensions: Boolean read FForceTextureDimensions
+      write SetForceTextureDimentions default True;
 
     property Width: Integer read FWidth write SetWidth default 256;
     property Height: Integer read FHeight write SetHeight default 256;
 
     property Aspect: Single read FAspect write FAspect stored StoreAspect;
 
-    property ColorTextureName: TGLLibMaterialName read FColorTextureName write
-      SetColorTextureName;
+    property ColorTextureName: TGLLibMaterialName read FColorTextureName
+      write SetColorTextureName;
 
-    property DepthTextureName: TGLLibMaterialName read FDepthTextureName write
-      SetDepthTextureName;
-    property MaterialLibrary: TGLMaterialLibrary read GetMaterialLibrary write
-      SetMaterialLibrary;
+    property DepthTextureName: TGLLibMaterialName read FDepthTextureName
+      write SetDepthTextureName;
+    property MaterialLibrary: TGLAbstractMaterialLibrary read GetMaterialLibrary
+      write SetMaterialLibrary;
 
-    property BackgroundColor: TGLColor read FBackgroundColor write
-      SetBackgroundColor;
-    property ClearOptions: TGLFBOClearOptions read FClearOptions write
-      FClearOptions;
+    property BackgroundColor: TGLColor read FBackgroundColor
+      write SetBackgroundColor;
+    property ClearOptions: TGLFBOClearOptions read FClearOptions
+      write FClearOptions;
 
-    {: camera used for rendering to the FBO
-       if not assigned, use the active view's camera }
+    { : camera used for rendering to the FBO
+      if not assigned, use the active view's camera }
     property Camera: TGLCamera read FCamera write SetCamera;
 
-    {: adjust the scene scale of the camera so that the rendering
-       becomes independent of the width of the fbo renderer
-       0 = disabled }
-    property SceneScaleFactor: Single read FSceneScaleFactor write
-      FSceneScaleFactor stored StoreSceneScaleFactor;
+    { : adjust the scene scale of the camera so that the rendering
+      becomes independent of the width of the fbo renderer
+      0 = disabled }
+    property SceneScaleFactor: Single read FSceneScaleFactor
+      write FSceneScaleFactor stored StoreSceneScaleFactor;
 
-    {: root object used when rendering to the FBO
-       if not assigned, uses itself as root and renders the child objects to the FBO }
-    property RootObject: TGLBaseSceneObject read FRootObject write
-      SetRootObject;
+    { : root object used when rendering to the FBO
+      if not assigned, uses itself as root and renders the child objects to the FBO }
+    property RootObject: TGLBaseSceneObject read FRootObject
+      write SetRootObject;
 
-    {: determines if target is rendered to FBO only or rendered normally
-       in FBO only mode, if RootObject is assigned, the RootObject's Visible flag is modified
-       in default mode, if RootObject is not assigned, children are rendered normally after being
-       rendered to the FBO }
+    { : determines if target is rendered to FBO only or rendered normally
+      in FBO only mode, if RootObject is assigned, the RootObject's Visible flag is modified
+      in default mode, if RootObject is not assigned, children are rendered normally after being
+      rendered to the FBO }
     property TargetVisibility: TGLFBOTargetVisibility read FTargetVisibility
       write SetTargetVisibility default tvDefault;
 
-    {: Enables the use of a render buffer if a texture is not assigned }
-    property EnabledRenderBuffers: TGLEnabledRenderBuffers read
-      FEnabledRenderBuffers write SetEnabledRenderBuffers;
+    { : Enables the use of a render buffer if a texture is not assigned }
+    property EnabledRenderBuffers: TGLEnabledRenderBuffers
+      read FEnabledRenderBuffers write SetEnabledRenderBuffers;
 
-    {: use stencil buffer }
-    property StencilPrecision: TGLStencilPrecision read FStencilPrecision write
-      SetStencilPrecision default spDefault;
+    { : use stencil buffer }
+    property StencilPrecision: TGLStencilPrecision read FStencilPrecision
+      write SetStencilPrecision default spDefault;
 
-    {: called before rendering to the FBO }
-    property BeforeRender: TNotifyEvent read FBeforeRender write FBeforeRender;
-    {: called after the rendering to the FBO }
-    property AfterRender: TNotifyEvent read FAfterRender write FAfterRender;
-    {: Called before the FBO is initialized
-       the FBO is bound before calling this event }
-    property PreInitialize: TNotifyEvent read FPreInitialize write
-      FPreInitialize;
-    {: Called after the FBO is initialized, but before any rendering
-       the FBO is bound before calling this event }
-    property PostInitialize: TNotifyEvent read FPostInitialize write
-      FPostInitialize;
+    { : called before rendering to the FBO }
+    property BeforeRender: TDirectRenderEvent read FBeforeRender write FBeforeRender;
+    { : called after the rendering to the FBO }
+    property AfterRender: TDirectRenderEvent read FAfterRender write FAfterRender;
+    { : Called before the FBO is initialized
+      the FBO is bound before calling this event }
+    property PreInitialize: TNotifyEvent read FPreInitialize
+      write FPreInitialize;
+    { : Called after the FBO is initialized, but before any rendering
+      the FBO is bound before calling this event }
+    property PostInitialize: TNotifyEvent read FPostInitialize
+      write FPostInitialize;
 
-    property UseLibraryAsMultiTarget: Boolean read FUseLibraryAsMultiTarget write
-      SetUseLibraryAsMultiTarget default False;
+    property UseLibraryAsMultiTarget: Boolean read FUseLibraryAsMultiTarget
+      write SetUseLibraryAsMultiTarget default False;
 
-    {: Control mipmap generation after rendering
-       texture must have MinFilter with mipmaping }
-    property PostGenerateMipmap: Boolean read FPostGenerateMipmap write
-      SetPostGenerateMipmap default true;
+    { : Control mipmap generation after rendering
+      texture must have MinFilter with mipmaping }
+    property PostGenerateMipmap: Boolean read FPostGenerateMipmap
+      write SetPostGenerateMipmap default True;
+
+    { : Allows multiTargeting to different texture sources instead of all coming
+      from one single MatLib with UseLibraryAsMultiTarget. OnSetTextureTargets
+      overrides the other method of setting target textures via the MaterialLibrary,
+      ColorTextureName and DepthTextureName propertes }
+    property OnSetTextureTargets: TSetTextureTargetsEvent read FOnSetTextureTargets
+      write FOnSetTextureTargets;
   end;
 
 implementation
 
-uses
-  OpenGL1x;
+{ TGLFBORenderer }
 
-var
-  vMaxRenderBufferSize: GLsizei = -1;
-
-  { TGLFBORenderer }
-
-procedure TGLFBORenderer.ApplyCamera;
+procedure TGLFBORenderer.ApplyCamera(var ARci: TRenderContextInfo);
 var
   sc: Single;
 begin
-  if assigned(Camera) then
+  with ARci.PipelineTransformation do
   begin
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix;
-    glLoadIdentity;
-    sc := FCamera.SceneScale;
-    if FSceneScaleFactor > 0 then
-      FCamera.SceneScale := Width / FSceneScaleFactor;
-    FCamera.ApplyPerspective(Viewport, Width, Height, 96); // 96 is default dpi
-    FCamera.SceneScale := sc;
+    Push;
+    if Assigned(Camera) then
+    begin
+      FStoreCamera[0] := ARci.cameraPosition;
+      FStoreCamera[1] := ARci.cameraDirection;
+      FStoreCamera[2] := ARci.cameraUp;
+      IdentityAll;
+      sc := FCamera.SceneScale;
+      if FSceneScaleFactor > 0 then
+        FCamera.SceneScale := Width / FSceneScaleFactor;
+      FCamera.ApplyPerspective(Viewport, Width, Height, 96);
+      // 96 is default dpi
+      FCamera.SceneScale := sc;
 
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix;
-    glLoadIdentity;
-    glScalef(1.0 / FAspect, 1.0, 1.0);
-    FCamera.Apply;
-  end
-  else
-  begin
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix;
-    glScalef(1.0 / FAspect, 1.0, 1.0);
+      ViewMatrix := CreateScaleMatrix(Vector3fMake(1.0 / FAspect, 1.0, 1.0));
+      FCamera.Apply;
+    end
+    else
+    begin
+      ViewMatrix := MatrixMultiply(ViewMatrix,
+        CreateScaleMatrix(Vector3fMake(1.0 / FAspect, 1.0, 1.0)));
+    end;
   end;
+end;
+
+procedure TGLFBORenderer.UnApplyCamera(var ARci: TRenderContextInfo);
+begin
+  ARci.cameraPosition := FStoreCamera[0];
+  ARci.cameraDirection := FStoreCamera[1];
+  ARci.cameraUp := FStoreCamera[2];
+  ARci.PipelineTransformation.Pop;
 end;
 
 constructor TGLFBORenderer.Create(AOwner: TComponent);
@@ -264,9 +295,10 @@ begin
   FEnabledRenderBuffers := [erbDepth];
   FClearOptions := [coColorBufferClear, coDepthBufferClear,
     coStencilBufferClear, coUseBufferBackground];
+  PickableTarget := False;
   FAspect := 1.0;
   FSceneScaleFactor := 0.0;
-  FPostGenerateMipmap := true;
+  FPostGenerateMipmap := True;
   StructureChanged;
 end;
 
@@ -279,49 +311,45 @@ begin
   inherited;
 end;
 
-procedure TGLFBORenderer.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TGLFBORenderer.Notification(AComponent: TComponent;
+  Operation: TOperation);
 begin
   inherited;
   if (AComponent = FRootObject) and (Operation = opRemove) then
     FRootObject := nil;
 end;
 
-procedure TGLFBORenderer.DoAfterRender;
+procedure TGLFBORenderer.DoAfterRender(var ARci: TRenderContextInfo);
 begin
-  if assigned(FAfterRender) then
-    FAfterRender(Self);
+  if Assigned(FAfterRender) then
+    FAfterRender(Self, ARci);
 end;
 
-procedure TGLFBORenderer.DoBeforeRender;
+procedure TGLFBORenderer.DoBeforeRender(var ARci: TRenderContextInfo);
 begin
-  if assigned(FBeforeRender) then
-    FBeforeRender(Self);
+  if Assigned(FBeforeRender) then
+    FBeforeRender(Self, ARci);
 end;
 
 procedure TGLFBORenderer.DoPostInitialize;
 begin
-  if assigned(FPreInitialize) then
-    FPreInitialize(Self);
+  if Assigned(FPostInitialize) then
+    FPostInitialize(Self);
 end;
 
 procedure TGLFBORenderer.DoPreInitialize;
 begin
-  if assigned(FPostInitialize) then
-    FPostInitialize(Self);
+  if Assigned(FPreInitialize) then
+    FPreInitialize(Self);
 end;
 
-procedure TGLFBORenderer.DoRender(var ARci: TRenderContextInfo; ARenderSelf,
-  ARenderChildren: Boolean);
+procedure TGLFBORenderer.DoRender(var ARci: TRenderContextInfo;
+  ARenderSelf, ARenderChildren: Boolean);
 begin
-  if vMaxRenderBufferSize < 0 then
-    glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, @vMaxRenderBufferSize);
+  if not (csDesigning in ComponentState) then
+    RenderToFBO(ARci);
 
-  if (csDesigning in ComponentState) then
-    Exit;
-
-  RenderToFBO(ARci);
-
-  if (not assigned(FRootObject)) and (TargetVisibility = tvDefault) and
+  if (not Assigned(FRootObject)) and (TargetVisibility = tvDefault) and
     ARenderChildren then
   begin
     RenderChildren(0, Count - 1, ARci);
@@ -331,7 +359,7 @@ end;
 procedure TGLFBORenderer.ForceDimensions(Texture: TGLTexture);
 var
   bi: TGLBlankImage;
-  fi: TGLFloatDataImage;
+  mi: TGLMultisampleImage;
 begin
   if Texture.Image is TGLBlankImage then
   begin
@@ -339,11 +367,11 @@ begin
     bi.Width := Width;
     bi.Height := Height;
   end
-  else if Texture.Image is TGLFloatDataImage then
+  else if Texture.Image is TGLMultisampleImage then
   begin
-    fi := TGLFloatDataImage(Texture.Image);
-    fi.Width := Width;
-    fi.Height := Height;
+    mi := TGLMultisampleImage(Texture.Image);
+    mi.Width := Width;
+    mi.Height := Height;
   end;
 end;
 
@@ -355,35 +383,54 @@ begin
   Result.Height := Height;
 end;
 
-procedure TGLFBORenderer.InitializeFBO;
+procedure TGLFBORenderer.Initialize;
+
+  procedure AddOneMultiTarget(colorTex: TGLTexture);
+  begin
+    if ForceTextureDimensions then
+      ForceDimensions(colorTex);
+    if FColorAttachment >= FMaxAttachment then
+    begin
+      GLSLogger.LogError
+        ('Number of color attachments out of GL_MAX_COLOR_ATTACHMENTS');
+      Visible := False;
+      Abort;
+    end;
+    FFbo.AttachTexture(FColorAttachment, colorTex);
+    Inc(FColorAttachment);
+  end;
+
 const
-  cDrawBuffers: array[0..15] of GLenum =
-    (
-    GL_COLOR_ATTACHMENT0_EXT,
-    GL_COLOR_ATTACHMENT1_EXT,
-    GL_COLOR_ATTACHMENT2_EXT,
-    GL_COLOR_ATTACHMENT3_EXT,
-    GL_COLOR_ATTACHMENT4_EXT,
-    GL_COLOR_ATTACHMENT5_EXT,
-    GL_COLOR_ATTACHMENT6_EXT,
-    GL_COLOR_ATTACHMENT7_EXT,
-    GL_COLOR_ATTACHMENT8_EXT,
-    GL_COLOR_ATTACHMENT9_EXT,
-    GL_COLOR_ATTACHMENT10_EXT,
-    GL_COLOR_ATTACHMENT11_EXT,
-    GL_COLOR_ATTACHMENT12_EXT,
-    GL_COLOR_ATTACHMENT13_EXT,
-    GL_COLOR_ATTACHMENT14_EXT,
-    GL_COLOR_ATTACHMENT15_EXT
-    );
+  cDrawBuffers: array [0 .. 15] of GLenum = (GL_COLOR_ATTACHMENT0,
+    GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
+    GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4,
+    GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6,
+    GL_COLOR_ATTACHMENT7, GL_COLOR_ATTACHMENT8,
+    GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT10,
+    GL_COLOR_ATTACHMENT11, GL_COLOR_ATTACHMENT12,
+    GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT14,
+    GL_COLOR_ATTACHMENT15);
 var
   colorTex: TGLTexture;
   depthTex: TGLTexture;
   I: Integer;
-  maxAttachment: Integer;
+  MulTexture : TGLTextureArray;
 begin
   for I := 0 to MaxColorAttachments - 1 do
     FFbo.DetachTexture(I);
+
+  if FMaxSize = 0 then
+    GL.GetIntegerv(GL_MAX_RENDERBUFFER_SIZE, @FMaxSize);
+  if Width > FMaxSize then
+  begin
+    FWidth := FMaxSize;
+    GLSLogger.LogWarningFmt('%s.Width out of GL_MAX_RENDERBUFFER_SIZE', [Name]);
+  end;
+  if Height > FMaxSize then
+  begin
+    FHeight := FMaxSize;
+    GLSLogger.LogWarningFmt('%s.Height out of GL_MAX_RENDERBUFFER_SIZE', [Name]);
+  end;
 
   FFbo.Width := Width;
   FFbo.Height := Height;
@@ -392,31 +439,55 @@ begin
   DoPreInitialize;
   FFbo.Unbind;
 
-  colorTex := FMaterialLibrary.TextureByName(ColorTextureName);
-  depthTex := FMaterialLibrary.TextureByName(DepthTextureName);
+  if Assigned(FMaterialLibrary) then
+  begin
+    colorTex := FMaterialLibrary.TextureByName(ColorTextureName);
+    depthTex := FMaterialLibrary.TextureByName(DepthTextureName);
+  end
+  else
+  begin
+   colorTex := nil;
+   depthTex := nil;
+  end;
 
   FHasColor := False;
   FHasDepth := False;
   FHasStencil := False;
   FColorAttachment := 0;
 
-  if FUseLibraryAsMultiTarget then
+  if FUseLibraryAsMultiTarget or Assigned(FOnSetTextureTargets) then
   begin
-    glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, @maxAttachment);
-    Assert(FMaterialLibrary.Materials.Count <= maxAttachment,
-      'Too many color attachments.');
-    // Multicolor attachments
-    for I := 0 to FMaterialLibrary.Materials.Count - 1 do
+    if not(GL.ARB_draw_buffers or GL.ATI_draw_buffers) then
     begin
-      colorTex := FMaterialLibrary.Materials[I].Material.Texture;
-      // Skip depth texture
-      if colorTex = depthTex then
-        Continue;
-      if ForceTextureDimensions then
-        ForceDimensions(colorTex);
-      FFbo.AttachTexture(I, colorTex);
-      Inc(FColorAttachment);
+      GLSLogger.LogError('Hardware do not support MRT');
+      Active := False;
+      exit;
     end;
+    if FMaxAttachment = 0 then
+      GL.GetIntegerv(GL_MAX_COLOR_ATTACHMENTS, @FMaxAttachment);
+
+    if Assigned(FOnSetTextureTargets) then
+    begin
+      FOnSetTextureTargets(Self, MulTexture);
+      for I := 0 to High(MulTexture) do
+      begin
+        colorTex := MulTexture[i];
+        // Skip depth texture
+        if colorTex = depthTex then
+          Continue;
+        AddOneMultiTarget(colorTex);
+      end;
+    end
+    else
+      // Multicolor attachments
+      for I := 0 to FMaterialLibrary.Materials.Count - 1 do
+      begin
+        colorTex := FMaterialLibrary.Materials[I].Material.Texture;
+        // Skip depth texture
+        if colorTex = depthTex then
+          Continue;
+        AddOneMultiTarget(colorTex);
+      end;
     FHasColor := FColorAttachment > 0;
   end
   else
@@ -440,6 +511,7 @@ begin
     FDepthRBO.Free;
     FDepthRBO := nil;
     FHasDepth := True;
+    FHasStencil := depthTex.TextureFormatEx = tfDEPTH24_STENCIL8;
   end
   else if erbDepth in EnabledRenderBuffers then
   begin
@@ -455,16 +527,17 @@ begin
   else
   begin
     FFbo.DetachDepthBuffer;
-    FDepthRBO.Free;
-    FDepthRBO := nil;
+    if Assigned(FDepthRBO) then
+    begin
+      FDepthRBO.Free;
+      FDepthRBO := nil;
+    end;
   end;
 
   if erbStencil in EnabledRenderBuffers then
   begin
-    if not assigned(FStencilRBO) then
-    begin
+    if not Assigned(FStencilRBO) then
       FStencilRBO := TGLStencilRBO.Create;
-    end;
 
     FStencilRBO.StencilPrecision := FStencilPrecision;
     FStencilRBO.Width := Width;
@@ -475,27 +548,29 @@ begin
   end
   else
   begin
-    FFbo.DetachStencilBuffer;
-    FStencilRBO.Free;
-    FStencilRBO := nil;
+    if not FHasStencil then
+      FFbo.DetachStencilBuffer;
+    if Assigned(FStencilRBO) then
+    begin
+      FStencilRBO.Free;
+      FStencilRBO := nil;
+    end;
   end;
-
-  CheckOpenGLError;
-
   FFbo.Bind;
 
   if FColorAttachment = 0 then
   begin
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
+    GL.DrawBuffer(GL_NONE);
+    GL.ReadBuffer(GL_NONE);
   end
   else
-    glDrawBuffers(FColorAttachment, @cDrawBuffers);
+    GL.DrawBuffers(FColorAttachment, @cDrawBuffers);
 
   DoPostInitialize;
   FFbo.Unbind;
 
-  FChanged := False;
+  GL.CheckError;
+  ClearStructureChanged;
 end;
 
 procedure TGLFBORenderer.RenderToFBO(var ARci: TRenderContextInfo);
@@ -512,104 +587,118 @@ procedure TGLFBORenderer.RenderToFBO(var ARci: TRenderContextInfo);
   end;
 
 type
-  TGLStates = record
+  TGLStoredStates = record
     ColorClearValue: TColorVector;
-    ColorWriteMasks: array[0..3] of TGLboolean;
-    DepthTest: TGLboolean;
-    StencilTest: TGLboolean;
+    ColorWriteMask: TColorMask;
+    Tests: TGLStates;
   end;
 
-  function SaveStates: TGLStates;
+  function StoreStates: TGLStoredStates;
   begin
-    glGetFloatv(GL_COLOR_CLEAR_VALUE, @Result.ColorClearValue);
-    glGetBooleanv(GL_COLOR_WRITEMASK, @Result.ColorWriteMasks);
-    Result.DepthTest := glIsEnabled(GL_DEPTH_TEST);
-    Result.StencilTest := glIsEnabled(GL_STENCIL_TEST);
+    Result.ColorClearValue := ARci.GLStates.ColorClearValue;
+    Result.ColorWriteMask := ARci.GLStates.ColorWriteMask[0];
+    Result.Tests := [stDepthTest, stStencilTest] * ARci.GLStates.States;
   end;
 
-  procedure RestoreStates(const states: TGLStates);
-
-    procedure SetEnabled(cap: cardinal; Enabled: TGLboolean);
-    begin
-      if Enabled then
-        glEnable(cap)
-      else
-        glDisable(cap);
-    end;
-
+  procedure RestoreStates(const aStates: TGLStoredStates);
   begin
-    glClearColor(states.ColorClearValue[0], states.ColorClearValue[1],
-      states.ColorClearValue[2], states.ColorClearValue[3]);
-    glColorMask(states.ColorWriteMasks[0], states.ColorWriteMasks[1],
-      states.ColorWriteMasks[2], states.ColorWriteMasks[3]);
+    ARci.GLStates.ColorClearValue := aStates.ColorClearValue;
+    ARci.GLStates.SetColorMask(aStates.ColorWriteMask);
+    if stDepthTest in aStates.Tests then
+      ARci.GLStates.Enable(stDepthTest)
+    else
+      ARci.GLStates.Disable(stDepthTest);
 
-    SetEnabled(GL_DEPTH_TEST, states.DepthTest);
-    SetEnabled(GL_STENCIL_TEST, states.StencilTest);
+    if stStencilTest in aStates.Tests then
+      ARci.GLStates.Enable(stStencilTest)
+    else
+      ARci.GLStates.Disable(stStencilTest);
   end;
 
 var
-  saveLighting: cardinal;
   backColor: TColorVector;
   buffer: TGLSceneBuffer;
-  savedStates: TGLStates;
+  savedStates: TGLStoredStates;
+  w, h: Integer;
+  s: string;
 begin
+  if (ARci.drawState = dsPicking) and not PickableTarget then
+    Exit;
+
+  if not TGLFramebufferHandle.IsSupported then
+  begin
+    GLSLogger.LogError('Framebuffer not supported - deactivated');
+    Active := False;
+    Exit;
+  end;
+
   // prevent recursion
   if FRendering then
     Exit;
 
   FRendering := True;
-  if (not assigned(FFbo)) or FChanged then
-    InitializeFBO;
+  if (ocStructure in Changes) or Assigned(FOnSetTextureTargets) then
+  begin
+    Initialize;
+    if not Active then
+      Exit;
+  end;
+
+  ApplyCamera(ARci);
 
   try
-    ApplyCamera;
-    DoBeforeRender;
+    savedStates := StoreStates;
+
     FFbo.Bind;
-    Assert(FFbo.Status = fsComplete, 'Framebuffer not complete');
-    saveLighting := 0;
-    if assigned(Camera) then
-      saveLighting := GL_LIGHTING_BIT;
+    if FFbo.GetStringStatus(s) <> fsComplete then
+    begin
+      GLSLogger.LogErrorFmt('Framebuffer error: %s. Deactivated', [s]);
+      Active := False;
+      Exit;
+    end;
 
-    // due to some bug, pushing either GL_ENABLE_BIT or GL_COLOR_BUFFER_BIT
-    // breaks post processing using shaders
-    glPushAttrib(saveLighting or GL_VIEWPORT_BIT);
+    DoBeforeRender(ARci);
+    if Assigned(Camera) then
+      Camera.Scene.SetupLights(ARci.GLStates.MaxLights);
 
-    // so we save the states we modify manually
-    savedStates := SaveStates;
-
-    SetupLights;
-    SetViewport;
-
+    w := Width;
+    h := Height;
+    if FFbo.Level > 0 then
+    begin
+      w := w shr FFbo.Level;
+      h := h shr FFbo.Level;
+      if w = 0 then
+        w := 1;
+      if h = 0 then
+        h := 1;
+    end;
+    ARci.GLStates.Viewport := Vector4iMake(0, 0, w, h);
     buffer := ARci.buffer as TGLSceneBuffer;
 
     if HasColor then
-      glColorMask(True, True, True, True)
+      ARci.GLStates.SetColorMask(cAllColorComponents)
     else
-      glColorMask(False, False, False, False);
+      ARci.GLStates.SetColorMask([]);
 
-    if HasDepth then
-      glEnable(GL_DEPTH_TEST)
-    else
-      glDisable(GL_DEPTH_TEST);
+    ARci.GLStates.DepthWriteMask := HasDepth;
 
     if HasStencil then
-      glEnable(GL_STENCIL_TEST)
+      ARci.GLStates.Enable(stStencilTest)
     else
-      glDisable(GL_STENCIL_TEST);
+      ARci.GLStates.Disable(stStencilTest);
 
     if coUseBufferBackground in FClearOptions then
     begin
       backColor := ConvertWinColor(buffer.BackgroundColor);
-      glClearColor(backColor[0], backColor[1], backColor[2],
-        buffer.BackgroundAlpha);
+      backColor.V[3] := buffer.BackgroundAlpha;
+      ARci.GLStates.ColorClearValue := backColor;
     end
     else
     begin
-      glClearColor(FBackgroundColor.Red, FBackgroundColor.Green,
-        FBackgroundColor.Blue, FBackgroundColor.Alpha);
+      ARci.GLStates.ColorClearValue := FBackgroundColor.Color;
     end;
 
-    glClear(GetClearBits);
+    GL.Clear(GetClearBits);
 
     FFbo.PreRender;
     // render to fbo
@@ -629,15 +718,15 @@ begin
     FFbo.PostRender(FPostGenerateMipmap);
 
     RestoreStates(savedStates);
-
-    glPopAttrib;
-
-    UnApplyCamera;
+    ARci.GLStates.Viewport := Vector4iMake(0, 0, ARci.viewPortSize.cx,
+      ARci.viewPortSize.cy);
   finally
     FFbo.Unbind;
     FRendering := False;
-
-    DoAfterRender;
+    DoAfterRender(ARci);
+    UnApplyCamera(ARci);
+    if Assigned(Camera) then
+      Camera.Scene.SetupLights(ARci.GLStates.MaxLights);
   end;
 end;
 
@@ -673,8 +762,8 @@ begin
   end;
 end;
 
-procedure TGLFBORenderer.SetEnabledRenderBuffers(const Value:
-  TGLEnabledRenderBuffers);
+procedure TGLFBORenderer.SetEnabledRenderBuffers(const Value
+  : TGLEnabledRenderBuffers);
 begin
   if FEnabledRenderBuffers <> Value then
   begin
@@ -695,17 +784,20 @@ end;
 // GetMaterialLibrary
 //
 
-function TGLFBORenderer.GetMaterialLibrary: TGLMaterialLibrary;
+function TGLFBORenderer.GetMaterialLibrary: TGLAbstractMaterialLibrary;
 begin
   Result := FMaterialLibrary;
 end;
 
-procedure TGLFBORenderer.SetMaterialLibrary(const Value: TGLMaterialLibrary);
+procedure TGLFBORenderer.SetMaterialLibrary(const Value: TGLAbstractMaterialLibrary);
 begin
   if FMaterialLibrary <> Value then
   begin
-    FMaterialLibrary := Value;
-    StructureChanged;
+    if Value is TGLMaterialLibrary then
+    begin
+      FMaterialLibrary := TGLMaterialLibrary(Value);
+      StructureChanged;
+    end;
   end;
 end;
 
@@ -714,7 +806,6 @@ end;
 
 procedure TGLFBORenderer.SetUseLibraryAsMultiTarget(Value: Boolean);
 begin
-  //  Value := Value and (GL_ARB_draw_buffers or GL_ATI_draw_buffers);
   if FUseLibraryAsMultiTarget <> Value then
   begin
     FUseLibraryAsMultiTarget := Value;
@@ -750,12 +841,12 @@ begin
   end;
 end;
 
-procedure TGLFBORenderer.SetTargetVisibility(const Value:
-  TGLFBOTargetVisibility);
+procedure TGLFBORenderer.SetTargetVisibility(const Value
+  : TGLFBOTargetVisibility);
 begin
   if FTargetVisibility <> Value then
   begin
-    if assigned(RootObject) then
+    if Assigned(RootObject) then
     begin
       if (TargetVisibility = tvFBOOnly) then
       begin
@@ -772,37 +863,6 @@ begin
     FTargetVisibility := Value;
     StructureChanged;
   end;
-end;
-
-procedure TGLFBORenderer.SetupLights;
-var
-  maxLights: Integer;
-begin
-  if not assigned(Camera) then
-    Exit;
-  glGetIntegerv(GL_MAX_LIGHTS, @maxLights);
-  Camera.Scene.SetupLights(maxLights);
-end;
-
-// SetViewport
-//
-
-procedure TGLFBORenderer.SetViewport;
-var
-  w, h: Integer;
-begin
-  w := Width;
-  h := Height;
-  if FFBO.Level > 0 then
-  begin
-    w := w shr FFBO.Level;
-    h := h shr FFBO.Level;
-    if w = 0 then
-      w := 1;
-    if h = 0 then
-      h := 1;
-  end;
-  glViewport(0, 0, w, h);
 end;
 
 // StoreSceneScaleFactor
@@ -825,9 +885,6 @@ procedure TGLFBORenderer.SetWidth(Value: Integer);
 begin
   if FWidth <> Value then
   begin
-    if (vMaxRenderBufferSize > 0)
-      and (Value > vMaxRenderBufferSize) then
-      Value := vMaxRenderBufferSize;
     FWidth := Value;
     StructureChanged;
   end;
@@ -837,9 +894,6 @@ procedure TGLFBORenderer.SetHeight(Value: Integer);
 begin
   if FHeight <> Value then
   begin
-    if (vMaxRenderBufferSize > 0)
-      and (Value > vMaxRenderBufferSize) then
-      Value := vMaxRenderBufferSize;
     FHeight := Value;
     StructureChanged;
   end;
@@ -847,15 +901,15 @@ end;
 
 procedure TGLFBORenderer.SetLayer(const Value: Integer);
 begin
-  if Value <> FFBO.Layer then
+  if Value <> FFbo.Layer then
   begin
-    if FRendering or FChanged then
-      FFBO.Layer := Value
+    if FRendering or (ocStructure in Changes) then
+      FFbo.Layer := Value
     else
     begin
-      FFBO.Bind;
-      FFBO.Layer := Value;
-      FFBO.Unbind;
+      FFbo.Bind;
+      FFbo.Layer := Value;
+      FFbo.Unbind;
     end;
   end;
 end;
@@ -866,19 +920,32 @@ begin
 end;
 
 procedure TGLFBORenderer.SetLevel(const Value: Integer);
+var
+  w, h: Integer;
 begin
-  if Value <> FFBO.Level then
+  if Value <> FFbo.Level then
   begin
-    if FRendering or FChanged then
+    if FRendering or (ocStructure in Changes) then
     begin
-      FFBO.Level := Value;
-      SetViewport;
+      FFbo.Level := Value;
+      w := Width;
+      h := Height;
+      if FFbo.Level > 0 then
+      begin
+        w := w shr FFbo.Level;
+        h := h shr FFbo.Level;
+        if w = 0 then
+          w := 1;
+        if h = 0 then
+          h := 1;
+        CurrentGLContext.GLStates.Viewport := Vector4iMake(0, 0, w, h);
+      end;
     end
     else
     begin
-      FFBO.Bind;
-      FFBO.Level := Value;
-      FFBO.Unbind;
+      FFbo.Bind;
+      FFbo.Level := Value;
+      FFbo.Unbind;
     end;
   end;
 end;
@@ -888,32 +955,8 @@ begin
   Result := FFbo.Level;
 end;
 
-procedure TGLFBORenderer.StructureChanged;
-begin
-  FChanged := True;
-  inherited;
-end;
-
-procedure TGLFBORenderer.UnApplyCamera;
-begin
-  if assigned(Camera) then
-  begin
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix;
-
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix;
-  end
-  else
-  begin
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix;
-  end;
-end;
-
 initialization
 
-  RegisterClasses([TGLFBORenderer]);
+RegisterClasses([TGLFBORenderer]);
 
 end.
-

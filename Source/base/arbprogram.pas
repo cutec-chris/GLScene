@@ -17,7 +17,7 @@ interface
 {$I GLScene.inc}
 
 uses
-   SysUtils, OpenGL1x;
+   SysUtils, OpenGL1x,OpenGLTokens;
 
 procedure LoadARBProgram(target : GLenum; programText : String; var handle : cardinal);
 

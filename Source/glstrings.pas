@@ -6,13 +6,13 @@
 	String constants that are used in many GLScene units<p>
 
 	<b>History :</b><font size=-1><ul>
-      22/01/10 - Yar - Added glsFailedApplyWrap
-      23/02/07 - DaStr - Added glsDot, glsUnsupportedType, glsUncompatibleTypes,
+      <li>16/09/10 - YP - Added glsUnknownParam
+      <li>23/02/07 - DaStr - Added glsDot, glsUnsupportedType, glsUncompatibleTypes,
                          glsUnknownType, glsShaderNeedsAtLeastOneLightSource(Ex),
                          glsCadencerNotDefined(Ex), glsSceneViewerNotDefined
-      16/02/07 - DaStr - Added glsOCProxyObjects, glsError, glsErrorEx,
+      <li>16/02/07 - DaStr - Added glsOCProxyObjects, glsError, glsErrorEx,
                          glsMatLibNotDefined, glsMaterialNotFoundInMatlib(Ex)
-      26/08/02 - EG - Added missing header, added glsUnknownExtension
+      <li>26/08/02 - EG - Added missing header, added glsUnknownExtension
 	</ul></font>
 }
 unit GLStrings;
@@ -65,12 +65,16 @@ resourcestring
   glsInterleaveNotSupported = 'Interleaved Array format not supported yet. Sorry.';
 
   // common messages
+  glsUnknownArchive = '%s : unknown archive version %d';
   glsOutOfMemory = 'Fatal: Out of memory';
+  glsFileNotFound = 'File %s not found';
   glsFailedOpenFile = 'Could not open file: %s';
+  glsFailedOpenFileFromCurrentDir = 'Could not open file: %s'#13#10'(Current directory is %s)';
   glsNoDescriptionAvailable = 'No description available';
   glsUnBalancedBeginEndUpdate = 'Unbalanced Begin/EndUpdate';
   glsUnknownExtension = 'Unknown file extension (%s), maybe you forgot to add the support '
                        +'unit to your uses? (%s?)' ;
+  glsMissingResource = 'Missing application resource: %s: %s';
 
   glsIncompatibleTypes = 'Incompatible types!';
   glsUnknownType       = 'Unknown type!';
@@ -88,7 +92,10 @@ resourcestring
   glsOCHUDObjects = 'HUD objects';
   glsOCGuiObjects = 'GUI objects';
   glsOCProxyObjects = 'Proxy objects';
-  glsFailedApplyWrap = 'Unsupported texture wrapping mode.';
+  glsOCExperimental = 'Experimental objects';
+
+  glsUnknownParam =
+    'Unknown %s "%s" for "%s" or program not in use';
 
 implementation
 

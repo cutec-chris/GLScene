@@ -1,6 +1,8 @@
 //
 // This unit is part of the GLScene Project, http://glscene.org
 //
+//  05/04/13 - Yar - Fixes TLWChunkList.Create for FPC (thanks to VIT)
+//  20/05/10 - Yar - Fixes for Linux x64
 //  16/10/08 - UweR - Compatibility fix for Delphi 2009
 //  30/03/07 - DaStr - Moved all UNSAFE_TYPE, UNSAFE_CODE checks to GLSCene.inc
 //  29/03/07 - DaStr - Renamed parameters in some methods
@@ -36,7 +38,8 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes;
+uses
+  Classes, GLVectorGeometry;
 
 type
 
@@ -594,7 +597,7 @@ type
 
   procedure RegisterChunkClass(ChunkClass: TLWChunkClass);
 
-  function LoadLW0FromStream(Stream: TStream; ReadCallback: TLWOReadCallback; UserData: Pointer): DWord; //cdecl;//LongWord; cdecl;
+  function LoadLW0FromStream(Stream: TStream; ReadCallback: TLWOReadCallback; UserData: Pointer): LongWord; cdecl;
   function LoadLWOFromFile(const AFilename: string; ReadCallback: TLWOReadCallback; UserData: Pointer): LongWord;
 
   procedure ReadMotorolaNumber(Stream: TStream; Data: Pointer; ElementSize:
@@ -628,7 +631,8 @@ type
 
 implementation
 
-uses SysUtils, ApplicationFileIO;
+uses
+  SysUtils, GLApplicationFileIO;
 
 type
   PWord = ^Word;
@@ -699,20 +703,6 @@ begin
   if (AChunk is TLWVMap) and
     (TLWVMap(AChunk).Name = PString(AName)^) then
       Found := true;
-end;
-
-function ArcTan2(const y, x : Single) : Single;
-begin
- asm
-      FLD  Y
-      FLD  X
-      FPATAN
- end;
-end;
-
-function ArcCos(X: Single): Single;
-begin
-  Result:=ArcTan2(Sqrt(1 - Sqr(X)), X);
 end;
 
 function VecAdd(v1,v2: TVec12):TVec12;
@@ -885,7 +875,7 @@ end;
 
 
 -----------------------------------------------------------------------------}
-function LoadLW0FromStream(Stream: TStream; ReadCallback: TLWOReadCallback; UserData: Pointer): DWord;//LongWord;
+function LoadLW0FromStream(Stream: TStream; ReadCallback: TLWOReadCallback; UserData: Pointer): LongWord;
 var
   Chunk: TLWChunkRec;
   CurId: TID4;
@@ -897,7 +887,7 @@ begin
 
     ReadMotorolaNumber(Stream,@CurSize,4);
 
-    if UpperCase(CurId) = 'FORM' then
+    if UpperCase(string(CurId)) = 'FORM' then
     begin
 
       Stream.Read(CurId,4);
@@ -952,6 +942,10 @@ end;
 procedure ReverseByteOrder(ValueIn: Pointer; Size: Integer; Count: Integer = 1);
 var
   W: Word;
+{$IFDEF GLS_NO_ASM}
+  pB: PByte;
+  Blo, Bhi: Byte;
+{$ENDIF}
   L: LongWord;
   i: Integer;
 begin
@@ -965,14 +959,21 @@ begin
 
         W := PU2Array(ValueIn)^[i];
 
+{$IFNDEF GLS_NO_ASM}
         asm
-
           mov ax,w;   { move w into ax register }
           xchg al,ah; { swap lo and hi byte of word }
           mov w,ax;   { move "swapped" ax back to w }
-
         end;
-
+{$ELSE}
+        pB := @W;
+        Blo := pB^;
+        Inc(pB);
+        Bhi := pB^;
+        pB^ := Blo;
+        Dec(pB);
+        pB^ := Bhi;
+{$ENDIF}
         PU2Array(ValueIn)^[i] := w;
 
         Inc(i);
@@ -988,13 +989,21 @@ begin
 
         L := PU4Array(ValueIn)^[i];
 
+{$IFNDEF GLS_NO_ASM}
         asm
-
-          mov eax,l; { move l into eax register }
-          BSWAP eax; { reverse the order of bytes in eax }
-          mov l,eax; { move "swapped" eax back to 1 }
-
+          mov ax,w;   { move w into ax register }
+          xchg al,ah; { swap lo and hi byte of word }
+          mov w,ax;   { move "swapped" ax back to w }
         end;
+{$ELSE}
+        pB := @W;
+        Blo := pB^;
+        Inc(pB);
+        Bhi := pB^;
+        pB^ := Blo;
+        Dec(pB);
+        pB^ := Bhi;
+{$ENDIF}
 
         PU4Array(ValueIn)^[i] := l;
 
@@ -1062,7 +1071,7 @@ begin
     Stream.Read(Buf,2);
   end;
 
-  if Buf[0] <> #0 then StrBuf := StrBuf + Buf[0];
+  if Buf[0] <> #0 then StrBuf := StrBuf + Char(Buf[0]);
 
   Str := Copy(StrBuf,1,Length(StrBuf));
 
@@ -1185,7 +1194,7 @@ begin
 
   TmpId := Id;
 
-  TmpId := UpperCase(Id);
+  TmpId := AnsiString(UpperCase(string(Id)));
 
   result := PInteger(@TmpId)^;
 
@@ -1248,6 +1257,7 @@ end;
 }
 constructor TLWChunkList.Create(AOwnsItems: boolean; AOwner: TObject);
 begin
+  inherited Create;
   FOwnsItems := AOwnsItems;
   FOwner := AOwner;
 end;
@@ -1371,7 +1381,7 @@ begin
 
   ReadMotorolaNumber(AStream,@CurSize,4);
 
-  if UpperCase(CurId) = 'FORM' then
+  if UpperCase(string(CurId)) = 'FORM' then
   begin
 
     AStream.Read(CurId,4);
@@ -1832,7 +1842,7 @@ begin
 
   if (result=nil) and (Source<>'') then
   begin
-    sParam := Param;
+    sParam := string(Param);
     Idx:=RootChunks.FindChunk(@FindSurfaceByName,@sParam,0);
 
     if Idx<>-1 then

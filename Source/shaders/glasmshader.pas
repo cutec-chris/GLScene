@@ -7,16 +7,15 @@
     This component is only a template and has to be replaced with a
     proper version by someone who uses ARB shaders more then me.
 
-
-	<b>History : </b><font size=-1><ul>
+ <b>History : </b><font size=-1><ul>
+      <li>23/08/10 - Yar - Upgraded program hadles
+      <li>04/06/10 - Yar - Replace OpenGL functons to OpenGLAdapter
       <li>28/07/09 - DaStr - Added GeomertyShader support (thanks YarUnderoaker)
       <li>24/07/09 - DaStr - TGLShader.DoInitialize() now passes rci
-                              (BugTracker ID = 2826217)  
+                              (BugTracker ID = 2826217)
       <li>20/03/07 - DaStr - TGLCustomAsmShader now generates its own events
                              All outside stuff moved back to TGLPhongShader
       <li>22/02/07 - DaStr - Initial version (contributed to GLScene)
-
-
 
     Previous version history:
       v1.0    12 March     '2005  Creation
@@ -34,8 +33,8 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  VectorGeometry, VectorTypes, GLTexture, OpenGL1x, ARBProgram, GLCustomShader,
-  GLRenderContextInfo;
+  GLVectorGeometry, GLVectorTypes, GLTexture, OpenGLTokens, GLContext,
+  GLCustomShader, GLRenderContextInfo;
 
 type
   TGLCustomAsmShader = class;
@@ -94,9 +93,9 @@ type
   TGLCustomAsmShader = class(TGLCustomShader)
   private
     { Private Declarations }
-    FVPHandle: Cardinal;
-    FFPHandle: Cardinal;
-    FGPHandle: Cardinal;
+    FVPHandle: TGLARBVertexProgramHandle;
+    FFPHandle: TGLARBFragmentProgramHandle;
+    FGPHandle: TGLARBGeometryProgramHandle;
 
     FOnInitialize: TGLAsmShaderEvent;
     FOnApply: TGLAsmShaderEvent;
@@ -107,15 +106,11 @@ type
     procedure UnApplyShaderPrograms;
     procedure DestroyARBPrograms; virtual;
 
-    function GetVPHandle: Cardinal; virtual;
-    function GetFPHandle: Cardinal; virtual;
-    function GetGPHandle: Cardinal; virtual;
-
     property OnApply: TGLAsmShaderEvent read FOnApply write FOnApply;
     property OnUnApply: TGLAsmShaderUnUplyEvent read FOnUnApply write FOnUnApply;
     property OnInitialize: TGLAsmShaderEvent read FOnInitialize write FOnInitialize;
 
-    procedure DoInitialize(var rci : TRenderContextInfo; Sender : TObject); override;
+    procedure DoInitialize(var rci: TRenderContextInfo; Sender: TObject); override;
     procedure DoApply(var rci: TRenderContextInfo; Sender: TObject); override;
     function DoUnApply(var rci: TRenderContextInfo): Boolean; override;
     procedure DoFinalize; override;
@@ -152,7 +147,6 @@ begin
   DestroyARBPrograms;
 end;
 
-
 procedure TGLCustomAsmShader.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
@@ -163,12 +157,10 @@ begin
   end;
 end;
 
-
 constructor TGLCustomAsmShader.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 end;
-
 
 destructor TGLCustomAsmShader.Destroy;
 begin
@@ -179,23 +171,12 @@ end;
 
 procedure TGLCustomAsmShader.DestroyARBPrograms;
 begin
-  if FVPHandle <> 0 then
-  begin
-    glDeleteProgramsARB(1, @FVPHandle);
-    FVPHandle := 0;
-  end;
-
-  if FFPHandle <> 0 then
-  begin
-    glDeleteProgramsARB(1, @FFPHandle);
-    FFPHandle := 0;
-  end;
-
-  if FGPHandle <> 0 then
-  begin
-    glDeleteProgramsARB(1, @FGPHandle);
-    FGPHandle := 0;
-  end;
+  FVPHandle.Free;
+  FVPHandle := nil;
+  FFPHandle.Free;
+  FFPHandle := nil;
+  FGPHandle.Free;
+  FGPHandle := nil;
 end;
 
 procedure TGLCustomAsmShader.DoApply(var rci: TRenderContextInfo; Sender: TObject);
@@ -206,10 +187,7 @@ begin
     FOnApply(Self);
 end;
 
-
-procedure TGLCustomAsmShader.DoInitialize(var rci : TRenderContextInfo; Sender : TObject);
-var
-  FailedText: string;
+procedure TGLCustomAsmShader.DoInitialize(var rci: TRenderContextInfo; Sender: TObject);
 begin
   if not ShaderSupported then
   begin
@@ -219,48 +197,36 @@ begin
   else
   begin
     if VertexProgram.Enabled then
-      try
-        LoadARBProgram(GL_VERTEX_PROGRAM_ARB, VertexProgram.Code.Text, FVPHandle);
-      except
-        on E: Exception do
-        begin
-          FailedText := 'VertexProgram error: ' + #13  + E.Message;
-          VertexProgram.Enabled := False;
-        end;
-      end;
+    begin
+      if not Assigned(FVPHandle) then
+        FVPHandle := TGLARBVertexProgramHandle.CreateAndAllocate;
+      FVPHandle.LoadARBProgram(VertexProgram.Code.Text);
+      VertexProgram.Enabled := FVPHandle.Ready;
+    end;
 
     if FragmentProgram.Enabled then
-      try
-        LoadARBProgram(GL_FRAGMENT_PROGRAM_ARB, FragmentProgram.Code.Text, FFPHandle);
-      except
-        on E: Exception do
-        begin
-          FailedText := 'FragmentProgram error: ' + #13  + E.Message;
-          FragmentProgram.Enabled := False;
-        end;
-      end;
+    begin
+      if not Assigned(FFPHandle) then
+        FFPHandle := TGLARBFragmentProgramHandle.CreateAndAllocate;
+      FFPHandle.LoadARBProgram(FragmentProgram.Code.Text);
+      FragmentProgram.Enabled := FFPHandle.Ready;
+    end;
 
     if GeometryProgram.Enabled then
-      try
-        LoadARBProgram(GL_GEOMETRY_PROGRAM_NV, GeometryProgram.Code.Text, FGPHandle);
-      except
-        on E: Exception do
-        begin
-          FailedText := 'GeometryProgram error: ' + #13  + E.Message;
-          GeometryProgram.Enabled := False;
-        end;
-      end;
+    begin
+      if not Assigned(FGPHandle) then
+        FGPHandle := TGLARBGeometryProgramHandle.CreateAndAllocate;
+      FGPHandle.LoadARBProgram(GeometryProgram.Code.Text);
+      GeometryProgram.Enabled := FGPHandle.Ready;
+    end;
 
-    Enabled := (FragmentProgram.Enabled or VertexProgram.Enabled or GeometryProgram.Enabled) and
-               (FailedText = '');
-    
+    Enabled := (FragmentProgram.Enabled or VertexProgram.Enabled or GeometryProgram.Enabled);
+
     if Enabled then
     begin
       if Assigned(FOnInitialize) then
         FOnInitialize(Self)
-    end
-    else
-      HandleFailedInitialization(FailedText);
+    end;
   end;
 end;
 
@@ -276,45 +242,39 @@ end;
 
 function TGLCustomAsmShader.ShaderSupported: Boolean;
 begin
-  Result := (GL_ARB_vertex_program and GL_ARB_fragment_program);
-end;
-
-function TGLCustomAsmShader.GetFPHandle: Cardinal;
-begin
-  Result := FFPHandle;
-end;
-
-function TGLCustomAsmShader.GetVPHandle: Cardinal;
-begin
-  Result := FVPHandle;
-end;
-
-function TGLCustomAsmShader.GetGPHandle: Cardinal;
-begin
-  Result := FGPHandle;
+  Result :=
+    (VertexProgram.Enabled and TGLARBVertexProgramHandle.IsSupported) or
+    (FragmentProgram.Enabled and TGLARBFragmentProgramHandle.IsSupported) or
+    (GeometryProgram.Enabled and TGLARBGeometryProgramHandle.IsSupported);
 end;
 
 procedure TGLCustomAsmShader.ApplyShaderPrograms;
 begin
-  if VertexProgram.Enabled then begin
-    glEnable(GL_VERTEX_PROGRAM_ARB);
-    glBindProgramARB(GL_VERTEX_PROGRAM_ARB, FVPHandle);
+  if VertexProgram.Enabled then
+  begin
+    FVPHandle.Enable;
+    FVPHandle.Bind;
   end;
-  if FragmentProgram.Enabled then begin
-    glEnable(GL_FRAGMENT_PROGRAM_ARB);
-    glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, FFPHandle);
+  if FragmentProgram.Enabled then
+  begin
+    FFPHandle.Enable;
+    FFPHandle.Bind;
   end;
-  if GeometryProgram.Enabled then begin
-    glEnable(GL_GEOMETRY_PROGRAM_NV);
-    glBindProgramARB(GL_GEOMETRY_PROGRAM_NV, FGPHandle);
+  if GeometryProgram.Enabled then
+  begin
+    FGPHandle.Enable;
+    FGPHandle.Bind;
   end;
 end;
 
 procedure TGLCustomAsmShader.UnApplyShaderPrograms;
 begin
-  if VertexProgram.Enabled   then glDisable(GL_VERTEX_PROGRAM_ARB);
-  if FragmentProgram.Enabled then glDisable(GL_FRAGMENT_PROGRAM_ARB);
-  if GeometryProgram.Enabled then glDisable(GL_GEOMETRY_PROGRAM_NV);
+  if VertexProgram.Enabled then
+    FVPHandle.Disable;
+  if FragmentProgram.Enabled then
+    FFPHandle.Disable;
+  if GeometryProgram.Enabled then
+    FGPHandle.Disable;
 end;
 
 initialization

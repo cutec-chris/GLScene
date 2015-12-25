@@ -28,15 +28,15 @@ interface
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLScene, GLTerrainRenderer, GLObjects, GLHeightData,
-  ExtCtrls, GLCadencer, StdCtrls, GLTexture, GLHUDObjects, VectorLists,
-  GLSkydome, GLLCLViewer, VectorGeometry, GLHeightTileFileHDS, GLWindowsFont,
+  ExtCtrls, GLCadencer, StdCtrls, GLTexture, GLHUDObjects, GLVectorLists,
+  GLSkydome, GLLCLViewer, GLVectorGeometry, GLHeightTileFileHDS, GLWindowsFont,
   GLBitmapFont, ComCtrls, FileUtil, GLRoamPatch, GLVectorFileObjects,
-  GLMaterial, GLCoordinates, GLCrossPlatform, BaseClasses, GLRenderContextInfo,
+  GLMaterial, GLCoordinates, GLCrossPlatform, GLBaseClasses, GLRenderContextInfo,
   GLColor;
 
 type
   TForm1 = class(TForm)
-    GLSceneViewer: TGLSceneViewerLCL;
+    GLSceneViewer: TGLSceneViewer;
     GLScene1: TGLScene;
     GLCamera: TGLCamera;
     DCCamera: TGLDummyCube;
@@ -241,7 +241,7 @@ begin
       Y:=terrainHeight+CamHeight;
    end;
    // adjust fog distance/color for air/water
-   if (GLCamera.AbsolutePosition[1]>surfaceHeight) or (not WaterPlane) then begin
+   if (GLCamera.AbsolutePosition.Y>surfaceHeight) or (not WaterPlane) then begin
       if not WasAboveWater then begin
          SkyDome.Visible:=True;
          with GLSceneViewer.Buffer.FogEnvironment do begin
@@ -277,8 +277,8 @@ begin
    end;
    // rock the sailboat
    sbp:=TerrainRenderer.AbsoluteToLocal(FFSailBoat.AbsolutePosition);
-   alpha:=WaterPhase(sbp[0]+TerrainRenderer.TileSize*0.5,
-                     sbp[1]+TerrainRenderer.TileSize*0.5);
+   alpha:=WaterPhase(sbp.X+TerrainRenderer.TileSize*0.5,
+                     sbp.Y+TerrainRenderer.TileSize*0.5);
    FFSailBoat.Position.Y:=(cWaterLevel+Sin(alpha)*cWaveAmplitude)*(TerrainRenderer.Scale.Z/128)
                           -1.5;
    f:=cWaveAmplitude*0.01;
@@ -303,17 +303,16 @@ begin
    case Key of
       'w', 'W' : begin
          with MaterialLibrary do begin
-            if Materials[0].Material.FrontProperties.PolygonMode=pmLines then
+            if Materials[0].Material.PolygonMode=pmLines then
                pm:=pmFill
             else pm:=pmLines;
             for i:=0 to Materials.Count-1 do
                begin
-                 Materials[i].Material.FrontProperties.PolygonMode:=pm;
-                 Materials[i].Material.BackProperties.PolygonMode:=pm;
+                 Materials[i].Material.PolygonMode:=pm;
                end;
          end;
          with MLSailBoat do for i:=0 to Materials.Count-1 do
-            Materials[i].Material.FrontProperties.PolygonMode:=pm;
+            Materials[i].Material.PolygonMode:=pm;
          FFSailBoat.StructureChanged;
       end;
       's', 'S' : WaterPlane:=not WaterPlane;
@@ -561,7 +560,7 @@ begin
             glColor3f(c, c, c);
             glTexCoord2f(0, WakeTime[i div 2]);
          end else glTexCoord2f(1, WakeTime[i div 2]);
-         glVertex3f(p[0], WaterHeight(sbp[0], sbp[1]), p[2]);
+         glVertex3f(p.X, WaterHeight(sbp.X, sbp.Y), p.Z);
       end;
       glEnd;
 

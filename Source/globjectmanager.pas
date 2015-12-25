@@ -248,9 +248,12 @@ begin
   bmp := TBitmap.Create;
   try
     // Try loading bitmap from module that class is in
-    GLLoadBitmapFromInstance(HInstance(*FindClassHInstance(ASceneObject)*), bmp, resBitmapName);
+    try
+      GLLoadBitmapFromInstance(HInstance(*FindClassHInstance(ASceneObject)*), bmp, resBitmapName);
     if bmp.Width=0 then
       GLLoadBitmapFromInstance(HInstance, bmp, resBitmapName);
+    except
+    end;
     // If resource was found, register scene object with bitmap
     if bmp.Width<>0 then
     begin
@@ -329,8 +332,11 @@ begin
   bmp:=TBitmap.Create;
   try
     // Load resource
+    try
     if (ResourceModule<>0) then
       GLLoadBitmapFromInstance(ResourceModule, bmp, resBitmapName);
+    except
+    end;
     // If the resource was found, then register scene object using the bitmap
     if bmp.Width>0 then
       RegisterSceneObject(ASceneObject,aName,aCategory,bmp)

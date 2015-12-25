@@ -12,7 +12,8 @@ uses
   GLMaterial, GLTexCombineShader, GLCadencer, GLLensFlare,
   GLScene, GLObjects, GLCoordinates, GLSkydome, GLCrossPlatform,
   GLLCLViewer, GLViewer, GLTexture, GLRenderContextInfo, GLColor, GLState,
-  GLUtils, OpenGL1x, GLContext, GLTextureFormat,BaseClasses, Types;
+  GLUtils, OpenGL1x, GLContext, GLTextureFormat,GLBaseClasses, Types,
+  OpenGLTokens;
 
 
 type
@@ -72,7 +73,7 @@ implementation
 
 uses
 // accurate movements left for later... or the astute reader
-  USolarSystem,VectorGeometry;
+  USolarSystem,GLVectorGeometry;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -109,8 +110,8 @@ const
   cAtmosphereRadius: Single = 0.55;
   // use value slightly lower than actual radius, for antialiasing effect
   cPlanetRadius: Single = 0.495;
-  cLowAtmColor: TColorVector = (1, 1, 1, 1);
-  cHighAtmColor: TColorVector = (0, 0, 1, 1);
+  cLowAtmColor: TColorVector = (X:1; Y:1; Z:1; W:1);
+  cHighAtmColor: TColorVector = (X:0; Y:0; Z:1; W:1);
   cOpacity: Single = 5;
   cIntDivTable: array[2..20] of Single =
     (1 / 2, 1 / 3, 1 / 4, 1 / 5, 1 / 6, 1 / 7, 1 / 8, 1 / 9, 1 / 10,
@@ -149,19 +150,19 @@ var
         intensity := intensity * contrib;
         alt := (VectorLength(atmPoint) - cPlanetRadius) * invAtmosphereHeight;
         VectorLerp(cLowAtmColor, cHighAtmColor, alt, altColor);
-        Result[0] := Result[0] * decay + altColor[0] * intensity;
-        Result[1] := Result[1] * decay + altColor[1] * intensity;
-        Result[2] := Result[2] * decay + altColor[2] * intensity;
+        Result.X := Result.X * decay + altColor.X * intensity;
+        Result.Y := Result.Y * decay + altColor.Y * intensity;
+        Result.Z := Result.Z * decay + altColor.Z * intensity;
       end
       else
       begin
         // sample on the dark sid
-        Result[0] := Result[0] * decay;
-        Result[1] := Result[1] * decay;
-        Result[2] := Result[2] * decay;
+        Result.X := Result.X * decay;
+        Result.Y := Result.Y * decay;
+        Result.Z := Result.Z * decay;
       end;
     end;
-    Result[3] := n * contrib * cOpacity * 0.1;
+    Result.W := n * contrib * cOpacity * 0.1;
   end;
 
   function ComputeColor(var rayDest: TVector; mayHitGround: Boolean): TColorVector;
@@ -292,9 +293,9 @@ var
   var
     f: Single;
   begin
-    SinCos(lat * (PI / 180), Result[1], f);
+    SinCos(lat * (PI / 180), Result.Y, f);
     SinCos(lon * (360 / 24 * PI / 180), f,
-      Result[0], Result[2]);
+      Result.X, Result.Z);
   end;
 
 var

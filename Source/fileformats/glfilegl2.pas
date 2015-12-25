@@ -18,8 +18,8 @@ unit GLFileGL2;
 interface
 
 uses
-  Classes, SysUtils, GLVectorFileObjects, ApplicationFileIO, GLMaterial, VectorGeometry,
-  FileGL2, VectorTypes, VectorLists;
+  Classes, SysUtils, GLVectorFileObjects, GLApplicationFileIO, GLMaterial,
+  GLVectorGeometry, FileGL2, GLVectorTypes, GLVectorLists;
 
 type
 
@@ -124,7 +124,7 @@ begin
 
             // Fix and then add the Texture coords
             vec2:=TexCoords[j];
-            vec2[1]:=1-vec2[1]; // reverse the v coordinate
+            vec2.V[1]:=1-vec2.V[1]; // reverse the v coordinate
             mesh.TexCoords.Add(vec2);
 
             // Add weighted bones

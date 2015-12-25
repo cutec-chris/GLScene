@@ -11,6 +11,7 @@
    CAUTION : both connectivity classes leak memory.<p>
 
 	<b>History : </b><font size=-1><ul>
+      <li>04/11/10 - DaStr - Restored Delphi5 and Delphi6 compatibility  
       <li>28/03/07 - DaStr - Renamed parameters in some methods
                              (thanks Burkhard Carstens) (Bugtracker ID = 1678658)
       <li>16/03/07 - DaStr - Added explicit pointer dereferencing
@@ -26,7 +27,7 @@ interface
 
 {$i GLScene.inc}
 
-uses Classes, VectorGeometry, VectorLists;
+uses Classes, GLVectorGeometry, GLVectorLists, GLCrossPlatform;
 
 type
    // TGLSilhouetteStyle
@@ -244,7 +245,7 @@ begin
    vList:=Vertices.List;
    vListN:=@vList[nv];
    for i:=0 to nv-1 do begin
-      vListN^[i][3]:=0;
+      vListN^[i].V[3]:=0;
       VectorSubtract(PAffineVector(@vList[i])^, origin, PAffineVector(@vListN[i])^);
    end;
    // change silhouette indices to quad indices

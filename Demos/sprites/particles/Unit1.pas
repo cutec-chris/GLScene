@@ -29,7 +29,7 @@ interface
 
 uses
   Forms, GLObjects, GLParticles, StdCtrls, ExtCtrls,
-  GLBehaviours, Classes, Controls, VectorGeometry, SysUtils, GLLCLViewer,
+  GLBehaviours, Classes, Controls, GLVectorGeometry, SysUtils, GLLCLViewer,
   LResources, GLScene, GLCadencer, GLViewer;
 
 type

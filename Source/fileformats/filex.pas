@@ -4,8 +4,10 @@
 {: FileX<p>
 
    Simple X format support for Delphi (Microsoft's favorite format)<p>
-   
+
    <b>History : </b><font size=-1><ul>
+      <li>17/04/13 - YP - Warn user if file content unparsable (http://paulbourke.net/dataformats/directx/)
+      <li>04/10/10 - Yar - Fixed TDXFileHeader type (thanks JironBach)
       <li>07/11/09 - DaStr - Initial version (Added from the GLScene-Lazarus SVN)
    </ul></font>
 }
@@ -20,17 +22,17 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  VectorTypes, VectorGeometry, VectorLists, PersistentClasses, GLUtils;
+  GLVectorTypes, GLVectorGeometry, GLVectorLists, GLPersistentClasses, GLUtils;
 
 type
   TDXNode = class;
 
   TDXFileHeader = record
-    Magic : array[0..3] of char;
-    Major : array[0..1] of char;
-    Minor : array[0..1] of char;
-    FileType : array[0..3] of char;
-    FloatType : array[0..3] of char;
+    Magic : array[0..3] of AnsiChar;
+    Major : array[0..1] of AnsiChar;
+    Minor : array[0..1] of AnsiChar;
+    FileType : array[0..3] of AnsiChar;
+    FloatType : array[0..3] of AnsiChar;
   end;
 
   TDXNode = class (TList)
@@ -194,7 +196,17 @@ begin
   Assert(Header.Magic = 'xof ', 'Invalid DirectX file');
 
   if Header.FileType = 'txt ' then
-    ParseText(Stream);
+    ParseText(Stream)
+  else
+  if Header.FileType = 'bin ' then
+    raise Exception.Create('FileX error, "bin" filetype not supported')
+  else
+  if Header.FileType = 'tzip' then
+    raise Exception.Create('FileX error, "tzip" filetype not supported')
+  else
+  if Header.FileType = 'bzip' then
+    raise Exception.Create('FileX error, "bzip" filetype not supported');
+
 end;
 
 procedure TDXFile.ParseBinary(Stream: TStream);
@@ -286,7 +298,7 @@ var
     try
       for j:=0 to 3 do
         for i:=0 to 3 do
-          Result[i][j]:=ReadSingle;
+          Result.V[i].V[j]:=ReadSingle;
     except
       on E:Exception do begin
         Result:=IdentityHMGMatrix;
@@ -302,13 +314,13 @@ var
     str:=StringReplace(str, ';', ' ', [rfReplaceAll]);
     TempBuffer.CommaText:=str;
     if TempBuffer.Count > 1 then begin
-      Result[0]:=StrToFloatDef(TempBuffer[0]);
-      Result[1]:=StrToFloatDef(TempBuffer[1]);
-      Result[2]:=StrToFloatDef(TempBuffer[2]);
+      Result.V[0]:=StrToFloatDef(TempBuffer[0]);
+      Result.V[1]:=StrToFloatDef(TempBuffer[1]);
+      Result.V[2]:=StrToFloatDef(TempBuffer[2]);
     end else begin
-      Result[0]:=StrToFloatDef(TempBuffer[0]);
-      Result[1]:=ReadSingle;
-      Result[2]:=ReadSingle;
+      Result.V[0]:=StrToFloatDef(TempBuffer[0]);
+      Result.V[1]:=ReadSingle;
+      Result.V[2]:=ReadSingle;
     end;
   end;
 
@@ -320,15 +332,15 @@ var
     str:=StringReplace(str, ';', ' ', [rfReplaceAll]);
     TempBuffer.CommaText:=str;
     if TempBuffer.Count > 1 then begin
-      Result[0]:=StrToFloatDef(TempBuffer[0]);
-      Result[1]:=StrToFloatDef(TempBuffer[1]);
-      Result[2]:=StrToFloatDef(TempBuffer[2]);
-      Result[3]:=StrToFloatDef(TempBuffer[3]);
+      Result.V[0]:=StrToFloatDef(TempBuffer[0]);
+      Result.V[1]:=StrToFloatDef(TempBuffer[1]);
+      Result.V[2]:=StrToFloatDef(TempBuffer[2]);
+      Result.V[3]:=StrToFloatDef(TempBuffer[3]);
     end else begin
-      Result[0]:=StrToFloatDef(TempBuffer[0]);
-      Result[1]:=ReadSingle;
-      Result[2]:=ReadSingle;
-      Result[3]:=ReadSingle;
+      Result.V[0]:=StrToFloatDef(TempBuffer[0]);
+      Result.V[1]:=ReadSingle;
+      Result.V[2]:=ReadSingle;
+      Result.V[3]:=ReadSingle;
     end;
   end;
 
@@ -340,13 +352,13 @@ var
     str:=StringReplace(str, ';', ' ', [rfReplaceAll]);
     TempBuffer.CommaText:=str;
     if TempBuffer.Count > 1 then begin
-      Result[0]:=StrToFloatDef(TempBuffer[0]);
-      Result[1]:=StrToFloatDef(TempBuffer[1]);
+      Result.V[0]:=StrToFloatDef(TempBuffer[0]);
+      Result.V[1]:=StrToFloatDef(TempBuffer[1]);
     end else begin
-      Result[0]:=StrToFloatDef(TempBuffer[0]);
-      Result[1]:=ReadSingle;
+      Result.V[0]:=StrToFloatDef(TempBuffer[0]);
+      Result.V[1]:=ReadSingle;
     end;
-    Result[2]:=0;
+    Result.V[2]:=0;
   end;
 
   procedure ReadMeshVectors(VectorList : TAffineVectorList);
@@ -689,4 +701,4 @@ begin
     AOwner.Add(Self);
 end;
 
-end.
+end.

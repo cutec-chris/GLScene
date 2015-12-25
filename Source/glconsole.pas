@@ -6,6 +6,7 @@
    The console is a popdown window that appears on a game for text output/input.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>16/03/11 - Yar - Fixes after emergence of GLMaterialEx
       <li>02/04/07 - DaStr - All cross-version stuff abstracted into GLCrossPlatform
       <li>30/03/07 - DaStr - Replaced GLWin32Viewer with GLViewer
       <li>25/02/07 - DaStr - Made some fixes for Delphi5 compatibility
@@ -14,8 +15,6 @@
       <li>15/02/07 - DaStr - Some properties are not stored now, because they are
                               read directly from HUDSprite and HUDText
       <li>07/02/07 - DaStr - Initial version (donated to GLScene)
-
-
 
    What is different compared to the original component?
      1) Can be aded to any object, not just the root one
@@ -37,7 +36,6 @@
         Long help is shown elsewhere
     11) Show command help by "/?", "-?", "--?" etc
     12) Assign() added for every class
-
 
     TODO:
       [new command] Redirection with the | operator, like in any othe console (optional)
@@ -76,13 +74,15 @@ interface
 {$I GLScene.inc}
 
 uses
-  // VCL
-  Classes, SysUtils, Graphics, TypInfo,
-
+{$IFDEF GLS_DELPHI_XE2_UP}
+  System.Classes, System.SysUtils, System.TypInfo, Vcl.Graphics,
+{$ELSE}
+  Classes, SysUtils, TypInfo, Graphics,
+{$ENDIF}
   // GLScene
-  GLScene, GLObjects, GLHUDObjects, GLViewer, GLBitmapFont, GLKeyboard,
-  VectorTypes, PersistentClasses, GLContext, GLTexture, GLUtils, GLStrings,
-  GLCrossPlatform, GLMaterial;
+  GLScene, GLObjects, GLHUDObjects, GLViewer, GLBitmapFont,
+  GLPersistentClasses, GLContext, GLTexture, GLUtils, GLStrings,
+  GLCrossPlatform, GLMaterial, GLVectorTypes;
 
 const
   CONSOLE_MAX_COMMANDS = 120;
@@ -90,10 +90,11 @@ const
 type
   EGLConsoleException = class(Exception);
 
-  TGLConsoleOption = (coAutoCompleteCommandsOnKeyPress,  //commands are auto-completed as user types them
-                      coAutoCompleteCommandsOnEnter,     //commands are auto-completed when user presses the "Enter" key
-                      coShowConsoleHelpIfUnknownCommand, //take a wild guess ;)
-                      coRemoveQuotes);                   //remove quotes when a command line is parsed
+  TGLConsoleOption = (coAutoCompleteCommandsOnKeyPress,
+    //commands are auto-completed as user types them
+    coAutoCompleteCommandsOnEnter, //commands are auto-completed when user presses the "Enter" key
+    coShowConsoleHelpIfUnknownCommand, //take a wild guess ;)
+    coRemoveQuotes); //remove quotes when a command line is parsed
 
   TGLConsoleOptions = set of TGLConsoleOption;
 
@@ -101,18 +102,19 @@ type
   TGLConsoleCommandList = class;
   TGLConsoleCommand = class;
 
-  {: Stores info on a command. A command is a parsed input line. 
+  {: Stores info on a command. A command is a parsed input line.
     Should be transformed into a class, I think...}
   TGLUserInputCommand = record
     CommandCount: Integer;
     Strings: array of string;
-    UnknownCommand: Boolean; //if user identifies a command, he must set this to  "True"
+    UnknownCommand: Boolean;
+      //if user identifies a command, he must set this to  "True"
   end;
 
   {: Event called when used presses the "Enter"}
   TGLlConsoleEvent = procedure(const ConsoleCommand: TGLConsoleCommand;
-                                   const Console: TGLCustomConsole;
-                                   var Command: TGLUserInputCommand) of object;
+    const Console: TGLCustomConsole;
+    var Command: TGLUserInputCommand) of object;
 
   TGLConsoleMatchList = set of 0..CONSOLE_MAX_COMMANDS {Byte};
 
@@ -143,7 +145,8 @@ type
     procedure SetCommandName(const Value: string);
   protected
     procedure ShowInvalidUseOfCommandError; virtual;
-    procedure ShowInvalidNumberOfArgumentsError(const ShowHelpAfter: Boolean = True); virtual;
+    procedure ShowInvalidNumberOfArgumentsError(const ShowHelpAfter: Boolean =
+      True); virtual;
     procedure DoOnCommand(var UserInputCommand: TGLUserInputCommand); virtual;
     function GetDisplayName: string; override;
   public
@@ -167,12 +170,12 @@ type
     property Enabled: Boolean read FEnabled write FEnabled default True;
     {: If command is disabled and user calls it, no error report will be
        generated if SilentDisabled is enabled }
-    property SilentDisabled: Boolean read FSilentDisabled write FSilentDisabled default False;
+    property SilentDisabled: Boolean read FSilentDisabled write FSilentDisabled
+      default False;
     {: Hidden commands won't show when user requests command list
       or uses auto-complete }
     property Visible: Boolean read FVisible write FVisible default True;
   end;
-
 
   TGLConsoleCommandList = class(TCollection)
   private
@@ -193,9 +196,9 @@ type
     constructor Create(const AOwner: TGLCustomConsole);
     destructor Destroy; override;
 
-    property Items[const Index: Integer]: TGLConsoleCommand read GetItems; default;
+    property Items[const Index: Integer]: TGLConsoleCommand read GetItems;
+      default;
   end;
-
 
   TGLConsoleControls = class(TPersistent)
   private
@@ -215,14 +218,22 @@ type
     constructor Create(AOwner: TPersistent);
     procedure Assign(Source: TPersistent); override;
   published
-    property NavigateUp: Byte read FNavigateUp write FNavigateUp default glKey_HOME;
-    property NavigateDown: Byte read FNavigateDown write FNavigateDown default glKey_END;
-    property NavigatePageUp: Byte read FNavigatePageUp write FNavigatePageUp default glKey_PRIOR;
-    property NavigatePageDown: Byte read FNavigatePageDown write FNavigatePageDown default glKey_NEXT;
-    property NextCommand: Byte read FNextCommand write FNextCommand default glKey_DOWN;
-    property PreviousCommand: Byte read FPreviousCommand write FPreviousCommand default glKey_UP;
-    property AutoCompleteCommand: Byte read FAutoCompleteCommand write FAutoCompleteCommand default glKey_CONTROL;
-    property DblClickDelay: Integer read FDblClickDelay write FDblClickDelay default 300;
+    property NavigateUp: Byte read FNavigateUp write FNavigateUp default
+      glKey_HOME;
+    property NavigateDown: Byte read FNavigateDown write FNavigateDown default
+      glKey_END;
+    property NavigatePageUp: Byte read FNavigatePageUp write FNavigatePageUp
+      default glKey_PRIOR;
+    property NavigatePageDown: Byte read FNavigatePageDown write
+      FNavigatePageDown default glKey_NEXT;
+    property NextCommand: Byte read FNextCommand write FNextCommand default
+      glKey_DOWN;
+    property PreviousCommand: Byte read FPreviousCommand write FPreviousCommand
+      default glKey_UP;
+    property AutoCompleteCommand: Byte read FAutoCompleteCommand write
+      FAutoCompleteCommand default glKey_CONTROL;
+    property DblClickDelay: Integer read FDblClickDelay write FDblClickDelay
+      default 300;
   end;
 
   {: TGLCustomConsole }
@@ -255,7 +266,8 @@ type
     procedure SetFont(const Value: TGLCustomBitmapFont);
   protected
     {: Misc }
-    procedure DoOnCommandIssued(var UserInputCommand: TGLUserInputCommand); virtual;
+    procedure DoOnCommandIssued(var UserInputCommand: TGLUserInputCommand);
+      virtual;
     procedure SetFontColor(const Color: TColor); virtual;
     function GetFontColor: TColor; virtual;
     procedure SetHUDSpriteColor(const Color: TColor); virtual;
@@ -266,7 +278,9 @@ type
 
     {: Auto Complete Command }
     procedure AutoCompleteCommand; overload; virtual;
-    procedure AutoCompleteCommand(var MatchCount: Integer; var AdditionalCommandsMatchList: TGLConsoleMatchList; var CommandsMatchList: TGLConsoleMatchList); overload;
+    procedure AutoCompleteCommand(var MatchCount: Integer; var
+      AdditionalCommandsMatchList: TGLConsoleMatchList; var CommandsMatchList:
+      TGLConsoleMatchList); overload;
 
     {: Command interpreters }
     procedure CommandIssued(var UserInputCommand: TGLUserInputCommand); virtual;
@@ -282,26 +296,51 @@ type
 
     //: Internal command handlers:
 
-    procedure ProcessInternalCommandHelp(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
-    procedure ProcessInternalCommandClearScreen(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandHelp(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandClearScreen(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
 
-    procedure ProcessInternalCommandConsoleHide(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
-    procedure ProcessInternalCommandConsoleColor(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
-    procedure ProcessInternalCommandConsoleRename(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
-    procedure ProcessInternalCommandConsoleClearTypedCommands(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandConsoleHide(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandConsoleColor(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandConsoleRename(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandConsoleClearTypedCommands(const
+      ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var
+      Command: TGLUserInputCommand); virtual;
 
-    procedure ProcessInternalCommandSystemTime(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
-    procedure ProcessInternalCommandSystemDate(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandSystemTime(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandSystemDate(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
 
-    procedure ProcessInternalCommandViewerFPS(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
-    procedure ProcessInternalCommandViewerResetPerformanceMonitor(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
-    procedure ProcessInternalCommandViewerVSync(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
-    procedure ProcessInternalCommandViewerAntiAliasing(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandViewerFPS(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandViewerResetPerformanceMonitor(const
+      ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var
+      Command: TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandViewerVSync(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
+    procedure ProcessInternalCommandViewerAntiAliasing(const ConsoleCommand:
+      TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+      TGLUserInputCommand); virtual;
 
     // Internal command help handlers:
     procedure GetHelpInternalCommandRename(Sender: TObject); virtual;
 
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation);
+      override;
     procedure SetName(const Value: TComponentName); override;
   public
     //: Methods:
@@ -330,8 +369,10 @@ type
     destructor Destroy; override;
     {: Properties. }
     {: Changes the console font color. }
-    property FontColor: TColor read GetFontColor write SetFontColor stored False;
-    property HUDSpriteColor: TColor read GetHUDSpriteColor write SetHUDSpriteColor stored False;
+    property FontColor: TColor read GetFontColor write SetFontColor stored
+      False;
+    property HUDSpriteColor: TColor read GetHUDSpriteColor write
+      SetHUDSpriteColor stored False;
 
     //: Where user enters his commands.
     property InputLine: string read FInputLine write FInputLine;
@@ -359,11 +400,12 @@ type
 
     property Options: TGLConsoleOptions read FOptions write FOptions;
 
-  { Main event of the console. Happens whenever the enter key is pressed.
-    First the input line is compared to all registered commands, then everything
-    is parsed into a TGLUserInputCommand record and  sent to the event.
-    Empty lines are <b>not</b> ignored (i.e. they also trigger events)}
-    property OnCommandIssued: TGLlConsoleEvent read FOnCommandIssued write FOnCommandIssued;
+    { Main event of the console. Happens whenever the enter key is pressed.
+      First the input line is compared to all registered commands, then everything
+      is parsed into a TGLUserInputCommand record and  sent to the event.
+      Empty lines are <b>not</b> ignored (i.e. they also trigger events)}
+    property OnCommandIssued: TGLlConsoleEvent read FOnCommandIssued write
+      FOnCommandIssued;
 
     {: Standard stuff }
     property Hint: string read FHint write FHint;
@@ -398,43 +440,49 @@ implementation
 
 const
   STR_NO_DUPLICATE_NAMES_ALLOWED = 'Duplicate names not allowed!';
-  STR_UNRECOGNIZED_PARAMETER     = 'Unrecognized parameter: ';
+  STR_UNRECOGNIZED_PARAMETER = 'Unrecognized parameter: ';
 
   conDefaultFontCharHeight = 15;
   conDefaultConsoleWidth = 400;
   conDefaultConsoleHeight = 100;
 
+  { TGLCustomConsole }
 
-
-{ TGLCustomConsole }
-
-procedure TGLCustomConsole.ProcessInternalCommandClearScreen(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandClearScreen(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 begin
   Console.FInputLine := '';
   Console.ColsoleLog.Clear;
 end;
 
-procedure TGLCustomConsole.ProcessInternalCommandConsoleHide(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandConsoleHide(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 begin
   Console.Visible := False;
   AddLine(' - Console hidden');
 end;
 
-procedure TGLCustomConsole.ProcessInternalCommandConsoleColor(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandConsoleColor(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 var
   NewColor: TColor;
 begin
   with Console, ConsoleCommand do
   begin
     if Command.CommandCount = 1 then
-      AddLine(' - Current console font color is ' + ColorToString(FHudText.ModulateColor.AsWinColor))
+      AddLine(' - Current console font color is ' +
+        ColorToString(FHudText.ModulateColor.AsWinColor))
     else if Command.CommandCount = 2 then
     begin
       if TryStringToColorAdvanced(Command.Strings[1], NewColor) then
       begin
         //color changed successfully
         SetFontColor(NewColor);
-        AddLine(' - Current console font changed to ' + ColorToString(NewColor));
+        AddLine(' - Current console font changed to ' +
+          ColorToString(NewColor));
       end
       else
       begin
@@ -447,7 +495,9 @@ begin
   end;
 end;
 
-procedure TGLCustomConsole.ProcessInternalCommandConsoleRename(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandConsoleRename(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 var
   CommandIndex: Integer;
 begin
@@ -455,32 +505,38 @@ begin
     ConsoleCommand.ShowInvalidNumberOfArgumentsError
   else
   begin
-    CommandIndex := ConsoleCommand.FCommandList.GetCommandIndex(Command.Strings[1]);
+    CommandIndex :=
+      ConsoleCommand.FCommandList.GetCommandIndex(Command.Strings[1]);
 
     if CommandIndex = -1 then
     begin
-      AddLine(' - Could not rename  command +"' + Command.Strings[1] + '" to "' +
+      AddLine(' - Could not rename  command +"' + Command.Strings[1] + '" to "'
+        +
         Command.Strings[2] + '": such command was not found!');
       ConsoleCommand.ShowHelp;
     end
     else if ConsoleCommand.FCommandList.CommandExists(Command.Strings[2]) or
       Console.FAdditionalCommands.CommandExists(Command.Strings[2]) then
     begin
-      AddLine(' - Could not rename  command +"' + Command.Strings[1] + '" to "' +
-        Command.Strings[2] + '": command "' + Command.Strings[2] + '" already exists!');
+      AddLine(' - Could not rename  command +"' + Command.Strings[1] + '" to "'
+        +
+        Command.Strings[2] + '": command "' + Command.Strings[2] +
+          '" already exists!');
       ConsoleCommand.ShowHelp;
     end
     else
     begin
       ConsoleCommand.FCommandName := Command.Strings[2];
-      AddLine(' - Command "' + Command.Strings[1] + '" successfully renamed to "' +
+      AddLine(' - Command "' + Command.Strings[1] + '" successfully renamed to "'
+        +
         Command.Strings[2] + '"!');
     end;
   end;
 end;
 
-
-procedure TGLCustomConsole.ProcessInternalCommandConsoleClearTypedCommands(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandConsoleClearTypedCommands(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 begin
   if (Command.CommandCount = 1) then
     Console.ClearTypedCommands
@@ -488,8 +544,9 @@ begin
     ConsoleCommand.ShowInvalidNumberOfArgumentsError;
 end;
 
-
-procedure TGLCustomConsole.ProcessInternalCommandSystemDate(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandSystemDate(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 begin
   if (Command.CommandCount = 1) then
     AddLine(' - Current system date is: ' + DateToStr(now))
@@ -497,7 +554,9 @@ begin
     ConsoleCommand.ShowInvalidNumberOfArgumentsError;
 end;
 
-procedure TGLCustomConsole.ProcessInternalCommandHelp(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandHelp(const ConsoleCommand:
+  TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 var
   MainCommand: string;
   I: Integer;
@@ -520,7 +579,8 @@ begin
       for I := 0 to FAdditionalCommands.Count - 1 do
         if MainCommand = LowerCase(FAdditionalCommands[I]) then
         begin
-          AddLine(' - Command "' + Command.Strings[1] + '" exists, but help is unavaible,');
+          AddLine(' - Command "' + Command.Strings[1] +
+            '" exists, but help is unavaible,');
           AddLine(' - because it is an external command');
           Exit;
         end;
@@ -531,7 +591,9 @@ begin
     ConsoleCommand.ShowInvalidNumberOfArgumentsError;
 end;
 
-procedure TGLCustomConsole.ProcessInternalCommandSystemTime(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandSystemTime(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 begin
   if Command.CommandCount = 1 then
     AddLine(' - Current system time is: ' + TimeToStr(now))
@@ -549,12 +611,15 @@ begin
   end;
 end;
 
-procedure TGLCustomConsole.ProcessInternalCommandViewerFPS(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandViewerFPS(const ConsoleCommand:
+  TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 begin
   if Command.CommandCount = 1 then
   begin
     if Console.FSceneViewer <> nil then
-      AddLine(' - Current SceneViewer has ' + Console.FSceneViewer.FramesPerSecondText)
+      AddLine(' - Current SceneViewer has ' +
+        Console.FSceneViewer.FramesPerSecondText)
     else
       AddLine(' - ' + glsErrorEx + glsSceneViewerNotDefined);
   end
@@ -562,7 +627,10 @@ begin
     ConsoleCommand.ShowInvalidNumberOfArgumentsError;
 end;
 
-procedure TGLCustomConsole.ProcessInternalCommandViewerResetPerformanceMonitor(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure
+  TGLCustomConsole.ProcessInternalCommandViewerResetPerformanceMonitor(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 begin
   if Command.CommandCount = 1 then
   begin
@@ -578,16 +646,18 @@ begin
     ConsoleCommand.ShowInvalidNumberOfArgumentsError;
 end;
 
-
-procedure TGLCustomConsole.ProcessInternalCommandViewerVSync(const ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command: TGLUserInputCommand);
+procedure TGLCustomConsole.ProcessInternalCommandViewerVSync(const
+  ConsoleCommand: TGLConsoleCommand; const Console: TGLCustomConsole; var Command:
+  TGLUserInputCommand);
 const
-  ON_OFF: array [Boolean] of string = ('Off', 'On');
+  ON_OFF: array[Boolean] of string = ('Off', 'On');
 begin
   if Console.FSceneViewer <> nil then
   begin
     if Command.CommandCount = 1 then
     begin
-      AddLine(' - Current SceneViewer VSync is ' + ON_OFF[Console.FSceneViewer.VSync = vsmSync]);
+      AddLine(' - Current SceneViewer VSync is ' +
+        ON_OFF[Console.FSceneViewer.VSync = vsmSync]);
     end
     else if (Command.CommandCount = 2) then
     begin
@@ -601,7 +671,8 @@ begin
         Exit;
       end;
 
-      AddLine(' - Current SceneViewer VSync was changed to ' + ON_OFF[Console.FSceneViewer.VSync = vsmSync]);
+      AddLine(' - Current SceneViewer VSync was changed to ' +
+        ON_OFF[Console.FSceneViewer.VSync = vsmSync]);
     end
     else
       HandleUnknownCommand(Command.Strings[1]);
@@ -619,7 +690,9 @@ begin
   if Console.FSceneViewer <> nil then
   begin
     if Command.CommandCount = 1 then
-      AddLine(' - Current SceneViewer AntiAliasing = ' + GetEnumName(TypeInfo(TGLAntiAliasing), Ord(Console.FSceneViewer.Buffer.AntiAliasing)))
+      AddLine(' - Current SceneViewer AntiAliasing = ' +
+        GetEnumName(TypeInfo(TGLAntiAliasing),
+        Ord(Console.FSceneViewer.Buffer.AntiAliasing)))
     else if (Command.CommandCount = 2) then
     begin
       Temp := GetEnumValue(TypeInfo(TGLAntiAliasing), Command.Strings[1]);
@@ -630,7 +703,9 @@ begin
       else
       begin
         Console.FSceneViewer.Buffer.AntiAliasing := TGLAntiAliasing(Temp);
-        AddLine(' - Current SceneViewer AntiAliasing was changed to  ' + GetEnumName(TypeInfo(TGLAntiAliasing), Ord(Console.FSceneViewer.Buffer.AntiAliasing)))
+        AddLine(' - Current SceneViewer AntiAliasing was changed to  ' +
+          GetEnumName(TypeInfo(TGLAntiAliasing),
+          Ord(Console.FSceneViewer.Buffer.AntiAliasing)))
       end;
     end
     else
@@ -663,11 +738,11 @@ begin
   end;
 end;
 
-
-procedure TGLCustomConsole.FixCommand(var UserInputCommand: TGLUserInputCommand);
+procedure TGLCustomConsole.FixCommand(var UserInputCommand:
+  TGLUserInputCommand);
 var
   nCount, I: Integer;
-  openq:     Boolean;
+  openq: Boolean;
 begin
   for I := 0 to UserInputCommand.CommandCount - 1 do
     UserInputCommand.Strings[I] := trim(UserInputCommand.Strings[I]);
@@ -683,26 +758,32 @@ begin
         UserInputCommand.Strings[I] := UserInputCommand.Strings[nCount];
     end
     else if openq then
-      UserInputCommand.Strings[I] := UserInputCommand.Strings[I] + ' ' + UserInputCommand.Strings[nCount];
+      UserInputCommand.Strings[I] := UserInputCommand.Strings[I] + ' ' +
+        UserInputCommand.Strings[nCount];
 
     if (Length(UserInputCommand.Strings[I]) > 0) then
     begin
       if coRemoveQuotes in FOptions then
       begin
         if (UserInputCommand.Strings[I][1] = '"') and
-          (UserInputCommand.Strings[I][Length(UserInputCommand.Strings[I])] = '"') then
-          UserInputCommand.Strings[I] := copy(UserInputCommand.Strings[I], 2, Length(UserInputCommand.Strings[I]) - 2);
+          (UserInputCommand.Strings[I][Length(UserInputCommand.Strings[I])] =
+            '"') then
+          UserInputCommand.Strings[I] := copy(UserInputCommand.Strings[I], 2,
+            Length(UserInputCommand.Strings[I]) - 2);
 
         if (UserInputCommand.Strings[I][1] = '"') and not openq then
         begin
           openq := True;
-          UserInputCommand.Strings[I] := copy(UserInputCommand.Strings[I], 2, Length(UserInputCommand.Strings[I]));
+          UserInputCommand.Strings[I] := copy(UserInputCommand.Strings[I], 2,
+            Length(UserInputCommand.Strings[I]));
         end;
 
-        if (UserInputCommand.Strings[I][Length(UserInputCommand.Strings[I])] = '"') and openq then
+        if (UserInputCommand.Strings[I][Length(UserInputCommand.Strings[I])] =
+          '"') and openq then
         begin
           openq := False;
-          UserInputCommand.Strings[I] := copy(UserInputCommand.Strings[I], 1, Length(UserInputCommand.Strings[I]) - 1);
+          UserInputCommand.Strings[I] := copy(UserInputCommand.Strings[I], 1,
+            Length(UserInputCommand.Strings[I]) - 1);
         end;
       end;
 
@@ -718,7 +799,6 @@ begin
     UserInputCommand.CommandCount := I;
   end;
 end;
-
 
 constructor TGLCustomConsole.Create(AOwner: TComponent);
 begin
@@ -756,7 +836,6 @@ begin
   SetFontColor(clBlue);
 end;
 
-
 destructor TGLCustomConsole.Destroy;
 begin
   Controls.Destroy;
@@ -768,7 +847,6 @@ begin
   FreeAndNil(FHudText);
   inherited;
 end;
-
 
 procedure TGLCustomConsole.ProcessKeyPress(const c: Char);
 begin
@@ -805,7 +883,6 @@ begin
   RefreshHud;
 end;
 
-
 procedure TGLCustomConsole.ProcessKeyDown(const key: word);
 var
   MatchCount: Integer;
@@ -836,9 +913,10 @@ begin
   if (key = FControls.AutoCompleteCommand) then
   begin
     CurrentTickCount := GLGetTickCount;
-    AutoCompleteCommand(MatchCount, AdditionalCommandsMatchList, CommandsMatchList);
+    AutoCompleteCommand(MatchCount, AdditionalCommandsMatchList,
+      CommandsMatchList);
     if MatchCount = 0 then
-      SysUtils.beep;
+      Beep;
 
     if CurrentTickCount - FPreviousTickCount < Controls.FDblClickDelay then
       if MatchCount > 1 then
@@ -875,10 +953,9 @@ begin
   RefreshHud;
 end;
 
-
 procedure TGLCustomConsole.RefreshHud;
 var
-  outStr:     string;
+  outStr: string;
   endLine, I: Integer;
 begin
   //beware! This stuf is messy
@@ -900,7 +977,6 @@ begin
 
   FHudText.Text := outStr + '> ' + FInputLine;
 end;
-
 
 function TGLCustomConsole.NumLines: Integer;
 begin
@@ -929,7 +1005,6 @@ begin
   FinputLine := '';
 end;
 
-
 procedure TGLCustomConsole.ExecuteCommands(const Commands: TStrings);
 var
   I: Integer;
@@ -953,8 +1028,8 @@ begin
   RefreshHud;
 end;
 
-
-procedure TGLCustomConsole.CommandIssued(var UserInputCommand: TGLUserInputCommand);
+procedure TGLCustomConsole.CommandIssued(var UserInputCommand:
+  TGLUserInputCommand);
 var
   MainCommand: string;
   I: Integer;
@@ -1001,7 +1076,6 @@ begin
     HandleUnknownCommand(UserInputCommand.Strings[0]);
 end;
 
-
 procedure TGLCustomConsole.RefreshHudSize;
 begin
   if FSceneViewer <> nil then
@@ -1020,13 +1094,11 @@ begin
   RefreshHud;
 end;
 
-
 procedure TGLCustomConsole.SetFontColor(const Color: TColor);
 begin
   FHUDText.ModulateColor.AsWinColor := Color;
   FHUDText.Material.FrontProperties.Ambient.AsWinColor := Color;
 end;
-
 
 procedure TGLCustomConsole.ShowConsoleHelp;
 var
@@ -1053,14 +1125,14 @@ begin
   end;
 end;
 
-
 procedure TGLCustomConsole.ClearTypedCommands;
 begin
   FTypedCommands.Clear;
   FCurrentCommand := 0;
 end;
 
-{$Warnings off}
+{$WARNINGS off}
+
 procedure TGLCustomConsole.AutoCompleteCommand(var MatchCount: Integer;
   var AdditionalCommandsMatchList: TGLConsoleMatchList;
   var CommandsMatchList: TGLConsoleMatchList);
@@ -1119,68 +1191,66 @@ begin
           end;
     end
     else
-    //if more than 1, try to complete other letters
-    if MatchCount > 1 then
-    begin
-      NewInputLine := FInputLine;
-      //find 1st match
-      if AdditionalCommandsMatchList <> [] then
-        for I := 0 to CONSOLE_MAX_COMMANDS do
-          if I in AdditionalCommandsMatchList then
-          begin
-            FirstMatch := FAdditionalCommands[I];
-            FirstMatchIndex := I;
-            break;
-          end;
-
-      if AdditionalCommandsMatchList = [] then
-        for I := 0 to CONSOLE_MAX_COMMANDS do
-          if I in CommandsMatchList then
-          begin
-            FirstMatch := FCommands[I].FCommandName;
-            FirstMatchIndex := I;
-            break;
-          end;
-
-      NewMatchCount := MatchCount;
-      while (NewMatchCount = MatchCount) and (Length(NewInputLine) <>
-          Length(FirstMatch)) do
+      {//if more than 1, try to complete other letters} if MatchCount > 1 then
       begin
-        NewInputLine := NewInputLine + FirstMatch[Length(NewInputLine) + 1];
-        NewMatchCount := 0;
-
+        NewInputLine := FInputLine;
+        //find 1st match
         if AdditionalCommandsMatchList <> [] then
-          for I := FirstMatchIndex to FAdditionalCommands.Count - 1 do
-            if AnsiStartsText(NewInputLine, FAdditionalCommands[I]) then
-              Inc(NewMatchCount);
+          for I := 0 to CONSOLE_MAX_COMMANDS do
+            if I in AdditionalCommandsMatchList then
+            begin
+              FirstMatch := FAdditionalCommands[I];
+              FirstMatchIndex := I;
+              break;
+            end;
 
         if AdditionalCommandsMatchList = [] then
+          for I := 0 to CONSOLE_MAX_COMMANDS do
+            if I in CommandsMatchList then
+            begin
+              FirstMatch := FCommands[I].FCommandName;
+              FirstMatchIndex := I;
+              break;
+            end;
+
+        NewMatchCount := MatchCount;
+        while (NewMatchCount = MatchCount) and (Length(NewInputLine) <>
+          Length(FirstMatch)) do
         begin
-          for I := FirstMatchIndex to FCommands.Count - 1 do
-            if AnsiStartsText(NewInputLine, FCommands[I].FCommandName) then
-              Inc(NewMatchCount);
-        end
-        else
-        if CommandsMatchList <> [] then
-        begin
-          for I := 0 to FCommands.Count - 1 do
-            if AnsiStartsText(NewInputLine, FCommands[I].FCommandName) then
-              Inc(NewMatchCount);
+          NewInputLine := NewInputLine + FirstMatch[Length(NewInputLine) + 1];
+          NewMatchCount := 0;
+
+          if AdditionalCommandsMatchList <> [] then
+            for I := FirstMatchIndex to FAdditionalCommands.Count - 1 do
+              if AnsiStartsText(NewInputLine, FAdditionalCommands[I]) then
+                Inc(NewMatchCount);
+
+          if AdditionalCommandsMatchList = [] then
+          begin
+            for I := FirstMatchIndex to FCommands.Count - 1 do
+              if AnsiStartsText(NewInputLine, FCommands[I].FCommandName) then
+                Inc(NewMatchCount);
+          end
+          else if CommandsMatchList <> [] then
+          begin
+            for I := 0 to FCommands.Count - 1 do
+              if AnsiStartsText(NewInputLine, FCommands[I].FCommandName) then
+                Inc(NewMatchCount);
+          end;
         end;
+
+        FInputLine := NewInputLine;
+
+        if NewMatchCount <> MatchCount then
+          Delete(FInputLine, Length(NewInputLine), 1);
       end;
-
-      FInputLine := NewInputLine;
-
-      if NewMatchCount <> MatchCount then
-        Delete(FInputLine, Length(NewInputLine), 1);
-    end;
 
     //Restore the #13 key
     if HasEnterKey then
       FInputLine := FInputLine + #13;
   end;
 end;
-{$Warnings on}
+{$WARNINGS on}
 
 procedure TGLCustomConsole.AutoCompleteCommand;
 var
@@ -1188,7 +1258,8 @@ var
   AdditionalCommandsMatchList: TGLConsoleMatchList;
   CommandsMatchList: TGLConsoleMatchList;
 begin
-  AutoCompleteCommand(MatchCount, AdditionalCommandsMatchList, CommandsMatchList);
+  AutoCompleteCommand(MatchCount, AdditionalCommandsMatchList,
+    CommandsMatchList);
 end;
 
 procedure TGLCustomConsole.RegisterBuiltInCommands;
@@ -1353,16 +1424,21 @@ end;
 
 function TGLCustomConsole.GetHUDSpriteColor: TColor;
 begin
-  if Assigned(HUDSprite.Material.MaterialLibrary) and (HUDSprite.Material.LibMaterialName <> '') then
-    Result := HUDSprite.Material.MaterialLibrary.LibMaterialByName(HUDSprite.Material.LibMaterialName).Material.FrontProperties.Ambient.AsWinColor
+  if Assigned(HUDSprite.Material.MaterialLibrary)
+    and (HUDSprite.Material.MaterialLibrary is TGLMaterialLibrary)
+    and (HUDSprite.Material.LibMaterialName <> '') then
+    Result :=
+      TGLMaterialLibrary(HUDSprite.Material.MaterialLibrary).LibMaterialByName(HUDSprite.Material.LibMaterialName).Material.FrontProperties.Ambient.AsWinColor
   else
     Result := HUDSprite.Material.FrontProperties.Ambient.AsWinColor;
 end;
 
 procedure TGLCustomConsole.SetHUDSpriteColor(const Color: TColor);
 begin
-  if Assigned(HUDSprite.Material.MaterialLibrary) and (HUDSprite.Material.LibMaterialName <> '') then
-    HUDSprite.Material.MaterialLibrary.LibMaterialByName(HUDSprite.Material.LibMaterialName).Material.FrontProperties.Ambient.AsWinColor := Color
+  if Assigned(HUDSprite.Material.MaterialLibrary)
+    and (HUDSprite.Material.MaterialLibrary is TGLMaterialLibrary)
+    and (HUDSprite.Material.LibMaterialName <> '') then
+      TGLMaterialLibrary(HUDSprite.Material.MaterialLibrary).LibMaterialByName(HUDSprite.Material.LibMaterialName).Material.FrontProperties.Ambient.AsWinColor := Color
   else
     HUDSprite.Material.FrontProperties.Ambient.AsWinColor := Color;
 end;
@@ -1378,7 +1454,8 @@ begin
   end;
 end;
 
-procedure TGLCustomConsole.DoOnCommandIssued(var UserInputCommand: TGLUserInputCommand);
+procedure TGLCustomConsole.DoOnCommandIssued(var UserInputCommand:
+  TGLUserInputCommand);
 begin
   if Assigned(FOnCommandIssued) then
     FOnCommandIssued(nil, Self, UserInputCommand);
@@ -1394,8 +1471,8 @@ begin
       FSceneViewer := nil;
 
     if AComponent = FHudSprite then
-     FHudSprite := nil;
-     
+      FHudSprite := nil;
+
     if AComponent = FHudText then
       FHudText := nil;
   end;
@@ -1437,7 +1514,7 @@ end;
 
 procedure TGLConsoleControls.Assign(Source: TPersistent);
 begin
-  if  Source is TGLConsoleControls then
+  if Source is TGLConsoleControls then
   begin
     FNavigateUp := TGLConsoleControls(Source).FNavigateUp;
     FNavigateDown := TGLConsoleControls(Source).FNavigateDown;
@@ -1508,7 +1585,8 @@ begin
   FCommandList.FConsole.AddLine('   - Invalid use of command!');
 end;
 
-procedure TGLConsoleCommand.ShowInvalidNumberOfArgumentsError(const ShowHelpAfter: Boolean);
+procedure TGLConsoleCommand.ShowInvalidNumberOfArgumentsError(const
+  ShowHelpAfter: Boolean);
 begin
   FCommandList.FConsole.AddLine('   - Invalid number of arguments!');
   if ShowHelpAfter then
@@ -1534,13 +1612,13 @@ var
 begin
   if Assigned(FOnHelp) then
     FOnHelp(Self)
-  else
-  if FLongHelp.Count <> 0 then
+  else if FLongHelp.Count <> 0 then
     for I := 0 to FLongHelp.Count - 1 do
       FCommandList.FConsole.AddLine('   - ' + FLongHelp[I]);
 end;
 
-procedure TGLConsoleCommand.DoOnCommand(var UserInputCommand: TGLUserInputCommand);
+procedure TGLConsoleCommand.DoOnCommand(var UserInputCommand:
+  TGLUserInputCommand);
 begin
   Assert(Assigned(FOnCommand));
   if FEnabled then
@@ -1548,7 +1626,8 @@ begin
   else
   begin
     if not FSilentDisabled then
-      FCommandList.FConsole.AddLine(' - Command "' + FCommandName + '" has been disabled!');
+      FCommandList.FConsole.AddLine(' - Command "' + FCommandName +
+        '" has been disabled!');
   end;
 end;
 
@@ -1586,7 +1665,8 @@ begin
   inherited;
 end;
 
-function TGLConsoleCommandList.GetItems(const Index: Integer): TGLConsoleCommand;
+function TGLConsoleCommandList.GetItems(const Index: Integer):
+  TGLConsoleCommand;
 begin
   Result := TGLConsoleCommand(inherited Items[Index]);
 end;
@@ -1622,7 +1702,6 @@ begin
 
   Result := -1;
 end;
-
 
 function TGLConsoleCommandList.GetOwner: TPersistent;
 begin
@@ -1664,7 +1743,7 @@ end;
 
 initialization
   RegisterClasses([TGLCustomConsole, TGLConsole, TGLConsoleStringList,
-                   TGLConsoleCommand, TGLConsoleCommandList, TGLConsoleControls]);
-  
+    TGLConsoleCommand, TGLConsoleCommandList, TGLConsoleControls]);
+
 end.
 

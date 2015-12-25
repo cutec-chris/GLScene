@@ -10,6 +10,10 @@
    or the casters will be rendered incorrectly.<p>
 
  <b>History : </b><font size=-1><ul>
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
+      <li>31/05/10 - Yar - Fixes forLinux x64
+      <li>01/05/10 - Yar - Moved ignoreBlendingRequests and ignoreDepthRequests behind RenderChildren
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>31/03/07 - DaStr - Fixed issue with invalid typecasting
                             (thanks Burkhard Carstens) (Bugtracker ID = 1692016)
@@ -33,8 +37,11 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, VectorGeometry, OpenGL1x, GLSilhouette,
-  GLCrossPlatform, PersistentClasses, GeometryBB, GLColor, GLRenderContextInfo;
+uses
+  Classes,
+  GLScene, GLVectorGeometry, OpenGLTokens, GLContext, GLSilhouette,
+  GLCrossPlatform, GLPersistentClasses, GLGeometryBB, GLColor,
+  GLRenderContextInfo;
 
 type
 
@@ -183,12 +190,12 @@ type
     { Public Declarations }
     function AddCaster(obj: TGLBaseSceneObject; effectiveRadius: Single = 0;
       CastingMode: TGLShadowCastingMode = scmRecursivelyVisible):
-        TGLShadowVolumeCaster;
+      TGLShadowVolumeCaster;
     procedure RemoveCaster(obj: TGLBaseSceneObject);
     function IndexOfCaster(obj: TGLBaseSceneObject): Integer;
 
     property Items[index: Integer]: TGLShadowVolumeCaster read GetItems;
-      default;
+    default;
   end;
 
   // TGLShadowVolumeOption
@@ -305,7 +312,11 @@ implementation
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 
-uses SysUtils, VectorLists, GLState;
+uses
+  SysUtils,
+  GLVectorLists,
+  GLState
+  , GLVectorTypes;
 
 // ------------------
 // ------------------ TGLShadowVolumeCaster ------------------
@@ -488,7 +499,7 @@ end;
 function TGLShadowVolumeLight.SetupScissorRect(worldAABB: PAABB; var rci:
   TRenderContextInfo): Boolean;
 var
-  mv, proj, mvp: TMatrix;
+  mvp: TMatrix;
   ls: TGLLightSource;
   aabb: TAABB;
   clipRect: TClipRect;
@@ -519,11 +530,8 @@ begin
     Exit;
   end;
 
-  mv := rci.modelViewMatrix^;
-  glGetFloatv(GL_PROJECTION_MATRIX, @proj);
-
   // Calculate the window-space bounds of the light's bounding box.
-  mvp := MatrixMultiply(mv, proj);
+  mvp := rci.PipelineTransformation.ViewProjectionMatrix;
 
   clipRect := AABBToClipRect(aabb, mvp, rci.viewPortSize.cx,
     rci.viewPortSize.cy);
@@ -536,7 +544,7 @@ begin
   end;
 
   with clipRect do
-    glScissor(Round(Left), Round(Top), Round(Right - Left), Round(Bottom -
+    GL.Scissor(Round(Left), Round(Top), Round(Right - Left), Round(Bottom -
       Top));
   Result := True;
 end;
@@ -570,7 +578,7 @@ end;
 function TGLShadowVolumeCasters.AddCaster(obj: TGLBaseSceneObject;
   effectiveRadius: Single = 0;
   CastingMode: TGLShadowCastingMode = scmRecursivelyVisible):
-    TGLShadowVolumeCaster;
+  TGLShadowVolumeCaster;
 var
   newCaster: TGLShadowVolumeCaster;
 begin
@@ -761,7 +769,8 @@ procedure TGLShadowVolume.DoRender(var ARci: TRenderContextInfo;
 // * it finds the shadow volume as an ancestor (=> visible)
 //
 // This does _not_ mean that the object is actually visible on the screen
-  function DirectHierarchicalVisibility(obj: TGLBaseSceneObject): boolean;
+
+function DirectHierarchicalVisibility(obj: TGLBaseSceneObject): boolean;
   var
     p: TGLBaseSceneObject;
   begin
@@ -798,9 +807,9 @@ var
   caster: TGLShadowVolumeCaster;
   opaques, opaqueCapping: TList;
   silParams: TGLSilhouetteParameters;
-  mat: TMatrix;
   worldAABB: TAABB;
   pWorldAABB: PAABB;
+  PM: TMatrix;
 begin
   if not Active then
   begin
@@ -844,19 +853,20 @@ begin
         (Caster.CastingMode = scmAlways) or
         ((Caster.CastingMode = scmVisible) and obj.Visible) or
         ((Caster.CastingMode = scmRecursivelyVisible) and
-          DirectHierarchicalVisibility(obj)) or
+        DirectHierarchicalVisibility(obj)) or
         ((Caster.CastingMode = scmParentRecursivelyVisible) and
-          DirectHierarchicalVisibility(obj.Parent)) or
-        ((Caster.CastingMode = scmParentVisible) and (not Assigned(obj.Parent) or
-          obj.Parent.Visible))
+        DirectHierarchicalVisibility(obj.Parent)) or
+        ((Caster.CastingMode = scmParentVisible) and (not Assigned(obj.Parent)
+          or
+        obj.Parent.Visible))
         )
         and ((caster.EffectiveRadius <= 0)
         or (obj.DistanceTo(ARci.cameraPosition) < caster.EffectiveRadius)) then
       begin
         opaques.Add(obj);
-        opaqueCapping.Add(Pointer(ord((caster.Capping = svcAlways)
+        opaqueCapping.Add(Pointer(PtrUInt(ord((caster.Capping = svcAlways)
           or ((caster.Capping = svcDefault)
-          and (Capping = svcAlways)))));
+          and (Capping = svcAlways))))));
       end
       else
       begin
@@ -866,253 +876,258 @@ begin
     end;
 
     // render the shadow volumes
-    ARci.GLStates.PushAttrib(cAllAttribBits);
-
-    if Mode = svmAccurate then
+    with ARci.GLStates do
     begin
-      // first turn off all the shadow casting lights diffuse and specular
-      for i := 0 to Lights.Count - 1 do
-      begin
-        lightCaster := TGLShadowVolumeLight(Lights[i]);
-        lightSource := lightCaster.LightSource;
-        if Assigned(lightSource) and (lightSource.Shining) then
-        begin
-          lightID := lightSource.LightID;
-          glLightfv(lightID, GL_DIFFUSE, @NullHmgVector);
-          glLightfv(lightID, GL_SPECULAR, @NullHmgVector);
-        end;
-      end;
-    end;
-    // render shadow receivers with ambient lighting
-
-    // DanB - not sure why this doesn't render properly with these statements
-    // where they were originally (after the RenderChildren call).
-    ARci.ignoreBlendingRequests := True;
-    ARci.ignoreDepthRequests := True;
-    Self.RenderChildren(0, Count - 1, ARci);
-
-    ARci.GLStates.DepthWriteMask := False;
-    ARci.GLStates.Enable(stDepthTest);
-    ARci.GLStates.SetBlendFunc(bfSrcAlpha, bfOne);
-    ARci.GLStates.Disable(stAlphaTest);
-    ARci.GLStates.Enable(stStencilTest);
-    if GL_ARB_vertex_buffer_object then
-    begin
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    end;
-
-    // turn off *all* lights
-    for i := 0 to TGLScene(ARci.scene).Lights.Count - 1 do
-    begin
-      lightSource := (TGLScene(ARci.scene).Lights.Items[i]) as TGLLightSource;
-      if Assigned(lightSource) and lightSource.Shining then
-        glDisable(lightSource.LightID);
-    end;
-    CheckOpenGLError;
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, @NullHmgPoint);
-
-    // render contribution of all shadow casting lights
-    for i := 0 to Lights.Count - 1 do
-    begin
-      lightCaster := TGLShadowVolumeLight(lights[i]);
-      lightSource := lightCaster.LightSource;
-
-      if (not Assigned(lightSource)) or (not lightSource.Shining) then
-        Continue;
-
-      lightID := lightSource.LightID;
-
-      SetVector(silParams.LightDirection,
-        lightSource.SpotDirection.DirectVector);
-      case lightSource.LightStyle of
-        lsParallel: silParams.Style := ssParallel
-      else
-        silParams.Style := ssOmni;
-      end;
-      silParams.CappingRequired := True;
-
-      if Assigned(pWorldAABB) or (svoScissorClips in Options) then
-      begin
-        if lightCaster.SetupScissorRect(pWorldAABB, ARci) then
-          ARci.GLStates.Enable(stScissorTest)
-        else
-          ARci.GLStates.Disable(stScissorTest);
-      end;
-
-      // clear the stencil and prepare for shadow volume pass
-      glClear(GL_STENCIL_BUFFER_BIT);
-      ARci.GLStates.SetStencilFunc(cfAlways, 0, 255);
-      ARci.GLStates.DepthFunc := cfLess;
-
-      if svoShowVolumes in Options then
-      begin
-        glColor3f(0.05 * i, 0.1, 0);
-        ARci.GLStates.Enable(stBlend);
-      end
-      else
-      begin
-        ARci.GLStates.SetGLColorWriting(False);
-        ARci.GLStates.Disable(stBlend);
-      end;
-      ARci.GLStates.Enable(stCullFace);
-
-      ARci.GLStates.Disable(stLighting);
-      glEnableClientState(GL_VERTEX_ARRAY);
-      ARci.GLStates.SetPolygonOffset(1, 1);
-
-      // for all opaque shadow casters
-      for k := 0 to opaques.Count - 1 do
-      begin
-        obj := TGLBaseSceneObject(opaques[k]);
-        if obj = nil then
-          Continue;
-
-        SetVector(silParams.SeenFrom,
-          obj.AbsoluteToLocal(lightSource.AbsolutePosition));
-
-        sil := lightCaster.GetCachedSilhouette(k);
-        if (not Assigned(sil)) or (not CompareMem(@sil.Parameters, @silParams,
-          SizeOf(silParams))) then
-        begin
-          sil := obj.GenerateSilhouette(silParams);
-          sil.Parameters := silParams;
-          // extrude vertices to infinity
-          sil.ExtrudeVerticesToInfinity(silParams.SeenFrom);
-        end;
-        if Assigned(sil) then
-          try
-            // render the silhouette
-            glPushMatrix;
-
-            glLoadMatrixf(PGLFloat(ARci.modelViewMatrix));
-            mat := obj.AbsoluteMatrix;
-            glMultMatrixf(@mat);
-
-            glVertexPointer(4, GL_FLOAT, 0, sil.Vertices.List);
-
-            if Boolean(opaqueCapping[k]) then
-            begin
-              // z-fail
-              if GL_EXT_compiled_vertex_array then
-                glLockArraysEXT(0, sil.Vertices.Count);
-
-              ARci.GLStates.CullFaceMode := cmFront;
-              ARci.GLStates.SetStencilOp(soKeep, soIncr, soKeep);
-
-              with sil do
-              begin
-                glDrawElements(GL_QUADS, Indices.Count, GL_UNSIGNED_INT,
-                  Indices.List);
-                ARci.GLStates.Enable(stPolygonOffsetFill);
-                glDrawElements(GL_TRIANGLES, CapIndices.Count, GL_UNSIGNED_INT,
-                  CapIndices.List);
-                ARci.GLStates.Disable(stPolygonOffsetFill);
-              end;
-
-              ARci.GLStates.CullFaceMode := cmBack;
-              ARci.GLStates.SetStencilOp(soKeep, soDecr, soKeep);
-
-              with sil do
-              begin
-                glDrawElements(GL_QUADS, Indices.Count, GL_UNSIGNED_INT,
-                  Indices.List);
-                ARci.GLStates.Enable(stPolygonOffsetFill);
-                glDrawElements(GL_TRIANGLES, CapIndices.Count, GL_UNSIGNED_INT,
-                  CapIndices.List);
-                ARci.GLStates.Disable(stPolygonOffsetFill);
-              end;
-
-              if GL_EXT_compiled_vertex_array then
-                glUnlockArraysEXT;
-            end
-            else
-            begin
-              // z-pass
-              ARci.GLStates.CullFaceMode := cmBack;
-              ARci.GLStates.SetStencilOp(soKeep, soKeep, soIncr);
-
-              glDrawElements(GL_QUADS, sil.Indices.Count, GL_UNSIGNED_INT,
-                sil.Indices.List);
-
-              ARci.GLStates.CullFaceMode := cmFront;
-              ARci.GLStates.SetStencilOp(soKeep, soKeep, soDecr);
-
-              glDrawElements(GL_QUADS, sil.Indices.Count, GL_UNSIGNED_INT,
-                sil.Indices.List);
-            end;
-
-            glPopMatrix;
-          finally
-            if (svoCacheSilhouettes in Options) and (not (osDirectDraw in
-              ObjectStyle)) then
-              lightCaster.StoreCachedSilhouette(k, sil)
-            else
-              sil.Free;
-          end;
-      end;
-
-      glDisableClientState(GL_VERTEX_ARRAY);
-
-      // re-enable light's diffuse and specular, but no ambient
-      glEnable(lightID);
-      glLightfv(lightID, GL_AMBIENT, @NullHmgVector);
-      glLightfv(lightID, GL_DIFFUSE, lightSource.Diffuse.AsAddress);
-      glLightfv(lightID, GL_SPECULAR, lightSource.Specular.AsAddress);
-
-      ARci.GLStates.SetGLColorWriting(True);
-      Arci.GLStates.SetStencilOp(soKeep, soKeep, soKeep);
-
-      ARci.GLStates.Enable(stBlend);
-
-      Arci.GLStates.CullFaceMode := cmBack;
 
       if Mode = svmAccurate then
       begin
-        Arci.GLStates.SetStencilFunc(cfEqual, 0, 255);
-        ARci.GLStates.DepthFunc := cfEqual;
-  {removed?}  //glEnable(GL_LIGHTING);
-        Self.RenderChildren(0, Count - 1, ARci);
-      end
-      else
+        // first turn off all the shadow casting lights diffuse and specular
+        for i := 0 to Lights.Count - 1 do
+        begin
+          lightCaster := TGLShadowVolumeLight(Lights[i]);
+          lightSource := lightCaster.LightSource;
+          if Assigned(lightSource) and (lightSource.Shining) then
+          begin
+            lightID := lightSource.LightID;
+            LightDiffuse[lightID] := NullHmgVector;
+            LightSpecular[lightID] := NullHmgVector;
+          end;
+        end;
+      end;
+      // render shadow receivers with ambient lighting
+
+      // DanB - not sure why this doesn't render properly with these statements
+      // where they were originally (after the RenderChildren call).
+
+      Self.RenderChildren(0, Count - 1, ARci);
+
+      ARci.ignoreBlendingRequests := True;
+      ARci.ignoreDepthRequests := True;
+      DepthWriteMask := False;
+      Enable(stDepthTest);
+      SetBlendFunc(bfSrcAlpha, bfOne);
+      Disable(stAlphaTest);
+      Enable(stStencilTest);
+
+      // Disable all client states
+      if GL.ARB_vertex_buffer_object then
       begin
-        ARci.GLStates.SetStencilFunc(cfNotEqual, 0, 255);
-
-        ARci.GLStates.DepthFunc := cfAlways;
-        ARci.GLStates.SetBlendFunc(bfSrcAlpha, bfOneMinusSrcAlpha);
-
-        glPushMatrix;
-        glLoadIdentity;
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix;
-        glLoadIdentity;
-        gluOrtho2D(0, 1, 1, 0);
-
-        glColor4fv(FDarkeningColor.AsAddress);
-        glBegin(GL_QUADS);
-        glVertex2f(0, 0);
-        glVertex2f(0, 1);
-        glVertex2f(1, 1);
-        glVertex2f(1, 0);
-        glEnd;
-
-        glPopMatrix;
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix;
-
-        Arci.GLStates.SetBlendFunc(bfSrcAlpha, bfOne);
+        VertexArrayBinding := 0;
+        ArrayBufferBinding := 0;
+        ElementBufferBinding := 0;
       end;
 
-      // disable light, but restore its ambient component
-      glDisable(lightID);
-      glLightfv(lightID, GL_AMBIENT, lightSource.Ambient.AsAddress);
-    end;
+      // turn off *all* lights
+      for i := 0 to TGLScene(ARci.scene).Lights.Count - 1 do
+      begin
+        lightSource := (TGLScene(ARci.scene).Lights.Items[i]) as TGLLightSource;
+        if Assigned(lightSource) and lightSource.Shining then
+          LightEnabling[lightSource.LightID] := False;
+      end;
 
-    // restore OpenGL state
-    ARci.GLStates.PopAttrib;
+      GL.LightModelfv(GL_LIGHT_MODEL_AMBIENT, @NullHmgPoint);
+      ARci.PipelineTransformation.Push;
 
-    ARci.ignoreBlendingRequests := False;
-    ARci.ignoreDepthRequests := False;
+      // render contribution of all shadow casting lights
+      for i := 0 to Lights.Count - 1 do
+      begin
+        lightCaster := TGLShadowVolumeLight(lights[i]);
+        lightSource := lightCaster.LightSource;
+
+        if (not Assigned(lightSource)) or (not lightSource.Shining) then
+          Continue;
+
+        lightID := lightSource.LightID;
+
+        SetVector(silParams.LightDirection,
+          lightSource.SpotDirection.DirectVector);
+        case lightSource.LightStyle of
+          lsParallel: silParams.Style := ssParallel
+        else
+          silParams.Style := ssOmni;
+        end;
+        silParams.CappingRequired := True;
+
+        if Assigned(pWorldAABB) or (svoScissorClips in Options) then
+        begin
+          if lightCaster.SetupScissorRect(pWorldAABB, ARci) then
+            Enable(stScissorTest)
+          else
+            Disable(stScissorTest);
+        end;
+
+        // clear the stencil and prepare for shadow volume pass
+        GL.Clear(GL_STENCIL_BUFFER_BIT);
+        SetStencilFunc(cfAlways, 0, 255);
+        DepthFunc := cfLess;
+
+        if svoShowVolumes in Options then
+        begin
+          GL.Color3f(0.05 * i, 0.1, 0);
+          Enable(stBlend);
+        end
+        else
+        begin
+          SetGLColorWriting(False);
+          Disable(stBlend);
+        end;
+        Enable(stCullFace);
+
+        Disable(stLighting);
+        GL.EnableClientState(GL_VERTEX_ARRAY);
+        SetPolygonOffset(1, 1);
+
+        // for all opaque shadow casters
+        for k := 0 to opaques.Count - 1 do
+        begin
+          obj := TGLBaseSceneObject(opaques[k]);
+          if obj = nil then
+            Continue;
+
+          SetVector(silParams.SeenFrom,
+            obj.AbsoluteToLocal(lightSource.AbsolutePosition));
+
+          sil := lightCaster.GetCachedSilhouette(k);
+          if (not Assigned(sil)) or (not CompareMem(@sil.Parameters, @silParams,
+            SizeOf(silParams))) then
+          begin
+            sil := obj.GenerateSilhouette(silParams);
+            sil.Parameters := silParams;
+            // extrude vertices to infinity
+            sil.ExtrudeVerticesToInfinity(silParams.SeenFrom);
+          end;
+          if Assigned(sil) then
+            try
+              // render the silhouette
+              ARci.PipelineTransformation.ModelMatrix := obj.AbsoluteMatrix;
+              GL.VertexPointer(4, GL_FLOAT, 0, sil.Vertices.List);
+
+              if Boolean(PtrUInt(opaqueCapping[k])) then
+              begin
+                // z-fail
+                if GL.EXT_compiled_vertex_array then
+                  GL.LockArrays(0, sil.Vertices.Count);
+
+                CullFaceMode := cmFront;
+                SetStencilOp(soKeep, soIncr, soKeep);
+
+                with sil do
+                begin
+                  GL.DrawElements(GL_QUADS, Indices.Count, GL_UNSIGNED_INT,
+                    Indices.List);
+                  Enable(stPolygonOffsetFill);
+                  GL.DrawElements(GL_TRIANGLES, CapIndices.Count,
+                    GL_UNSIGNED_INT,
+                    CapIndices.List);
+                  Disable(stPolygonOffsetFill);
+                end;
+
+                CullFaceMode := cmBack;
+                SetStencilOp(soKeep, soDecr, soKeep);
+
+                with sil do
+                begin
+                  GL.DrawElements(GL_QUADS, Indices.Count, GL_UNSIGNED_INT,
+                    Indices.List);
+                  Enable(stPolygonOffsetFill);
+                  GL.DrawElements(GL_TRIANGLES, CapIndices.Count,
+                    GL_UNSIGNED_INT,
+                    CapIndices.List);
+                  Disable(stPolygonOffsetFill);
+                end;
+
+                if GL.EXT_compiled_vertex_array then
+                  GL.UnlockArrays;
+              end
+              else
+              begin
+                // z-pass
+                CullFaceMode := cmBack;
+                SetStencilOp(soKeep, soKeep, soIncr);
+
+                GL.DrawElements(GL_QUADS, sil.Indices.Count, GL_UNSIGNED_INT,
+                  sil.Indices.List);
+
+                CullFaceMode := cmFront;
+                SetStencilOp(soKeep, soKeep, soDecr);
+
+                GL.DrawElements(GL_QUADS, sil.Indices.Count, GL_UNSIGNED_INT,
+                  sil.Indices.List);
+              end;
+
+            finally
+              if (svoCacheSilhouettes in Options) and (not (osDirectDraw in
+                ObjectStyle)) then
+                lightCaster.StoreCachedSilhouette(k, sil)
+              else
+                sil.Free;
+            end;
+        end;
+
+        GL.DisableClientState(GL_VERTEX_ARRAY);
+
+        // re-enable light's diffuse and specular, but no ambient
+        LightEnabling[LightID] := True;
+        LightAmbient[LightID] := NullHmgVector;
+        LightDiffuse[LightID] := lightSource.Diffuse.Color;
+        LightSpecular[LightID] := lightSource.Specular.Color;
+
+        SetGLColorWriting(True);
+        SetStencilOp(soKeep, soKeep, soKeep);
+
+        Enable(stBlend);
+
+        CullFaceMode := cmBack;
+
+        if Mode = svmAccurate then
+        begin
+          SetStencilFunc(cfEqual, 0, 255);
+          DepthFunc := cfEqual;
+          Self.RenderChildren(0, Count - 1, ARci);
+        end
+        else
+        begin
+          SetStencilFunc(cfNotEqual, 0, 255);
+
+          DepthFunc := cfAlways;
+          SetBlendFunc(bfSrcAlpha, bfOneMinusSrcAlpha);
+
+          GL.PushMatrix;
+          GL.LoadIdentity;
+          GL.MatrixMode(GL_PROJECTION);
+          GL.PushMatrix;
+          PM := CreateOrthoMatrix(0, 1, 1, 0, -1, 1);
+          GL.LoadMatrixf(PGLFloat(@PM));
+
+          GL.Color4fv(FDarkeningColor.AsAddress);
+          GL.Begin_(GL_QUADS);
+          GL.Vertex2f(0, 0);
+          GL.Vertex2f(0, 1);
+          GL.Vertex2f(1, 1);
+          GL.Vertex2f(1, 0);
+          GL.End_;
+
+          GL.PopMatrix;
+          GL.MatrixMode(GL_MODELVIEW);
+          GL.PopMatrix;
+
+          SetBlendFunc(bfSrcAlpha, bfOne);
+        end;
+
+        // disable light, but restore its ambient component
+        LightEnabling[lightID] := False;
+        LightAmbient[lightID] := lightSource.Ambient.Color;
+      end; // for i
+      ARci.PipelineTransformation.Pop;
+
+      // restore OpenGL state
+      GL.LightModelfv(GL_LIGHT_MODEL_AMBIENT, @ARci.sceneAmbientColor);
+      Scene.SetupLights(ARci.GLStates.MaxLights);
+      Disable(stStencilTest);
+      SetPolygonOffset(0, 0);
+      ARci.ignoreBlendingRequests := False;
+      ARci.ignoreDepthRequests := False;
+    end; // of with
   finally
     FRendering := False;
     opaques.Free;

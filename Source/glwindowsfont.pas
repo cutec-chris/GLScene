@@ -5,7 +5,13 @@
 
   TFont Import into a BitmapFont using variable width...<p>
 
-	<b>History : </b><font size=-1><ul>
+ <b>History : </b><font size=-1><ul>
+      <li>04/12/14 - PW - Corrected the usage of pixel formats for Lazarus (by Gabriel Corneanu)
+       <li>29/05/11 - Yar - Unicode support for Unix OSes (by Gabriel Corneanu)
+      <li>16/05/11 - Yar - Redesign to use multiple textures (by Gabriel Corneanu)
+      <li>13/05/11 - Yar - Adapted to unicode (by Gabriel Corneanu)
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
+      <li>06/06/10 - Yar - Added "VectorTypes.pas" unit to uses
       <li>25/01/10 - Yar - Bugfix in LoadWindowsFont with zero width of char
                           (thanks olkondr)
                           Replace Char to AnsiChar
@@ -18,94 +24,113 @@
                           fixed italics spacing, uses LUM+ALPHA texture
       <li>06/09/02 - JAJ - Fixed alot of bugs... Expecially designtime updating bugs..
       <li>12/08/02 - JAJ - Made into a standalone unit...
-	</ul></font>
+ </ul></font>
 }
 unit GLWindowsFont;
 
 interface
 
-{$include GLScene.inc}
+{$INCLUDE GLScene.inc}
 
 uses
-  GLBitmapFont, Classes, GLScene, GLTexture, Graphics, GLCrossPlatform;
+{$IFDEF MSWINDOWS}
+  Windows,
+{$ENDIF}
+{$IFDEF FPC}
+  LCLIntf, LCLType, LCLProc, LazUTF8,
+{$ENDIF}
+  GLBitmapFont,
+  GLRenderContextInfo,
+  Classes,
+  GLScene,
+  GLTexture,
+{$IFDEF GLS_DELPHI_XE2_UP}
+  VCL.Graphics, System.Types, System.UITypes,
+{$ELSE}
+  Graphics, Types,
+{$ENDIF}
+  GLVectorLists,
+  GLCrossPlatform;
 
 type
 
-   // TGLWindowsBitmapFont
-   //
-   {: A bitmap font automatically built from a TFont.<p>
-      It works like a TGLBitmapfont, you set ranges and which chars are assigned
-      to which indexes, however here you also set the Font property to any TFont
-      available to the system and it renders in GLScene as close to that font
-      as posible, on some font types this is 100% on some a slight difference
-      in spacing can occur at most 1 pixel per char on some char combinations.<p>
-      Ranges must be sorted in ascending ASCII order and should not overlap.
-      As the font texture is automatically layed out, the Ranges StartGlyphIdx
-      property is ignored and replaced appropriately. }
-   TGLWindowsBitmapFont = class (TGLCustomBitmapFont)
-      private
-	      { Private Declarations }
-         FFont : TFont;
+  // TGLWindowsBitmapFont
+  //
+  {: A bitmap font automatically built from a TFont.<p>
+     It works like a TGLBitmapfont, you set ranges and which chars are assigned
+     to which indexes, however here you also set the Font property to any TFont
+     available to the system and it renders in GLScene as close to that font
+     as posible, on some font types this is 100% on some a slight difference
+     in spacing can occur at most 1 pixel per char on some char combinations.<p>
+     Ranges must be sorted in ascending ASCII order and should not overlap.
+     As the font texture is automatically layed out, the Ranges StartGlyphIdx
+     property is ignored and replaced appropriately. }
+  TGLWindowsBitmapFont = class(TGLCustomBitmapFont)
+  private
+    { Private Declarations }
+    FFont: TFont;
+    procedure SetList(const AList : TIntegerList);
+  protected
+    { Protected Declarations }
+    procedure SetFont(value: TFont);
+    procedure LoadWindowsFont; virtual;
+    function  StoreRanges: Boolean;
 
-      protected
-	      { Protected Declarations }
-         procedure SetFont(value : TFont);
-         procedure LoadWindowsFont; virtual;
-         function StoreRanges : Boolean;
+    procedure PrepareImage(var ARci: TRenderContextInfo); override;
+    function  TextureFormat: Integer; override;
+    procedure StreamlineRanges;
+  public
+    { Public Declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
-         procedure PrepareImage; override;
-         function TextureFormat : Integer; override;
+    procedure NotifyChange(Sender: TObject); override;
 
-      public
-	      { Public Declarations }
-         constructor Create(AOwner : TComponent); override;
-         destructor  Destroy; override;
+    function FontTextureWidth: Integer;
+    function FontTextureHeight: Integer;
 
-         procedure NotifyChange(Sender : TObject); override;
+    procedure EnsureString(const s : UnicodeString); overload;
+    procedure EnsureChars(const AStart, AEnd: widechar);
 
-         function FontTextureWidth : Integer;
-         function FontTextureHeight : Integer;
+    property Glyphs;
 
-         property Glyphs;
+  published
+    { Published Declarations }
+      {: The font used to prepare the texture.<p>
+         Note: the font color is ignored. }
+    property Font: TFont read FFont write SetFont;
 
-      published
-	      { Published Declarations }
-         {: The font used to prepare the texture.<p>
-            Note: the font color is ignored. }
-         property Font : TFont read FFont write SetFont;
+    property HSpace;
+    property VSpace;
+    property MagFilter;
+    property MinFilter;
+    property Ranges stored StoreRanges;
+  end;
 
-			property MagFilter;
-			property MinFilter;
-         property Ranges stored StoreRanges;
-   end;
-
-   {: Inheritance from TGLWindowsBitmapFont which can load from file.<p>
-   }
-   TGLStoredBitmapFont = class (TGLWindowsBitmapFont)
-      private
-        FLoaded: boolean;
-      protected
-      public
-	      { Public Declarations }
-         constructor Create(AOwner : TComponent); override;
-         destructor  Destroy; override;
-         procedure NotifyChange(Sender : TObject); override;
-         procedure LoadWindowsFont; override;
-         procedure LoadFromFile(AFileName: string);
-         procedure SaveToFile(AFileName: string);
-      published
-	      { Published Declarations }
-   end;
-
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
 implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, VectorGeometry, OpenGL1x, ApplicationFileIO;
+uses
+  GLUtils,
+  Math,
+  SysUtils,
+  GLVectorGeometry,
+  OpenGLTokens,
+  GLApplicationFileIO,
+  GLVectorTypes;
+
+const
+  cDefaultLast = '}';
+
+{$IFDEF MSWINDOWS}
+Var
+  Win32PlatformIsUnicode : Boolean;
+{$ENDIF}
 
 // ------------------
 // ------------------ TGLWindowsBitmapFont ------------------
@@ -113,332 +138,350 @@ uses SysUtils, VectorGeometry, OpenGL1x, ApplicationFileIO;
 
 // Create
 //
+
 constructor TGLWindowsBitmapFont.Create(AOwner: TComponent);
 begin
-   inherited;
+  inherited;
 
-   FFont:=TFont.Create;
-   FFont.Color:=clWhite;
-   FFont.OnChange:=NotifyChange;
-   GlyphsAlpha:=tiaAlphaFromIntensity;
-
-   Ranges.Add(' ', '}');
-
-   LoadWindowsFont;   
+  FFont := TFont.Create;
+  FFont.Color := clWhite;
+  FFont.OnChange := NotifyChange;
+  GlyphsAlpha := tiaAlphaFromIntensity;
+  EnsureChars(' ', cDefaultLast);
 end;
 
 // Destroy
 //
+
 destructor TGLWindowsBitmapFont.Destroy;
 begin
-   FFont.Free;
-   inherited;
+  FFont.Free;
+  Ranges.Clear; 
+  inherited;
 end;
 
 // FontTextureWidth
 //
-function TGLWindowsBitmapFont.FontTextureWidth : Integer;
+
+function TGLWindowsBitmapFont.FontTextureWidth: Integer;
 begin
-   Result:=Glyphs.Width;
+  Result := Glyphs.Width;
 end;
 
 // FontTextureHeight
 //
-function TGLWindowsBitmapFont.FontTextureHeight : Integer;
+
+function TGLWindowsBitmapFont.FontTextureHeight: Integer;
 begin
-   Result:=Glyphs.Height;
+  Result := Glyphs.Height;
 end;
 
 // SetFont
 //
+
 procedure TGLWindowsBitmapFont.SetFont(value: TFont);
 begin
-   FFont.Assign(value);
+  FFont.Assign(value);
 end;
 
 // NotifyChange
 //
-procedure TGLWindowsBitmapFont.NotifyChange(Sender : TObject);
+
+procedure TGLWindowsBitmapFont.NotifyChange(Sender: TObject);
 begin
-   FreeTextureHandle;
-   InvalidateUsers;
-   inherited;
+  StreamlineRanges;
+  FreeTextureHandle;
+  InvalidateUsers;
+  inherited;
 end;
 
 // LoadWindowsFont
 //
+
 procedure TGLWindowsBitmapFont.LoadWindowsFont;
-var
-   textureWidth, textureHeight : Integer;
 
-   function ComputeCharRects(x, y : Integer; canvas : TCanvas) : Integer;
-   var
-      px, py, cw, n : Integer;
-      rect : TGLRect;
-   begin
-      Result:=0;
-      n:=0;
-      px:=0;
-      py:=0;
-      while n < GLS_FONT_CHARS_COUNT do begin
-         cw:=CharWidths[n];
-         if cw>0 then begin
-            Inc(cw, 2);
-            if Assigned(canvas) then begin
-               SetCharRects(n, VectorMake((px+1.05)/textureWidth,
-                                          (textureHeight-(py+0.05))/textureHeight,
-                                          (px+cw-1.05)/textureWidth,
-                                          (textureHeight-(py+CharHeight-0.05))/textureHeight));
-               rect.Left:=px;
-               rect.Top:=py;
-               rect.Right:=px+cw;
-               rect.Bottom:=py+CharHeight;
-               // Draw the Char, the trailing space is to properly handle the italics.
-               canvas.TextRect(rect, px+1, py+1, AnsiChar(n)+' ');
-            end;
-            if ((n < GLS_FONT_CHARS_COUNT - 1) and (px+cw+CharWidths[n+1]+2<=x)) or (n = GLS_FONT_CHARS_COUNT - 1) then
-               Inc(px, cw)
-            else begin
-               px:=0;
-               Inc(py, CharHeight);
-               if py+CharHeight>y then Break;
-            end;
-            Inc(Result);
-         end;
-         Inc(n);
-      end;
-   end;
-
-
-var
-   bitmap : TGLBitMap;
-   fontRange  : TBitmapFontRange;
-   ch : AnsiChar;
-   x, y, i, cw : Integer;
-   nbChars, n : Integer;
-   texMem, bestTexMem : Integer;
-begin
-   InvalidateUsers;
-   bitmap:=Glyphs.Bitmap;
-   Glyphs.OnChange:=nil;
-
-   bitmap.PixelFormat:=glpf32bit;
-   with bitmap.Canvas do begin
-      Font:=Self.Font;
-      Font.Color:=clWhite;
-      // get characters dimensions for the font
-      CharWidth:=Round(2+MaxInteger(TextWidth('M'), TextWidth('W'), TextWidth('_')));
-      CharHeight:=2+TextHeight('"_pI|,');
-      if fsItalic in Font.Style then begin
-         // italics aren't properly acknowledged in font width
-         HSpaceFix:=-(CharWidth div 3);
-         CharWidth:=CharWidth-HSpaceFix;
-      end else HSpaceFix:=0;
-   end;
-
-   nbChars:=Ranges.CharacterCount;
-
-  // Retrieve width of all characters (texture width)
-  ResetCharWidths(0);
-  for i:=0 to Ranges.Count-1 do
+  procedure ComputeCharRects(bitmap: TGLBitmap);
+  var
+    px, py, cw, n, x, y: Integer;
+    PaddedHeight : integer;
+    buffer : array[0..2] of WideChar;
+    p : PCharInfo;
+    r : TGLRect;
+{$IFNDEF MSWINDOWS}
+    utfbuffer: array[0..5] of Char;
+    i: SizeUInt;
+{$ENDIF}
   begin
-    fontRange:=Ranges.Items[i];
-    for ch:=fontRange.StartASCII to fontRange.StopASCII do
+    buffer[1] := WideChar(#32);
+    buffer[2] := WideChar(#0);
+    PaddedHeight:= CharHeight + GlyphsIntervalY;
+    x := bitmap.Width; y := bitmap.Height;
+    px := 0;
+    py := 0;
+    if y < CharHeight then px := x;
+    p  := @FChars[0];
+    for n := 0 to CharacterCount - 1 do
     begin
-      cw:=bitmap.Canvas.TextWidth(ch)-HSpaceFix;
-      SetCharWidths(Integer(ch), cw);
-      if cw=0 then
-        Dec(nbChars);
+      cw := p.w;
+      if cw > 0 then
+      begin
+        Inc(cw, GlyphsIntervalX);
+
+        if px + cw > x then
+        begin
+          px := 0;
+          Inc(py, PaddedHeight);
+          if py + PaddedHeight > y then
+          begin
+            py := bitmap.Height;
+            y  := py + TextureHeight;
+            bitmap.Height := y;
+            with bitmap.Canvas do
+            begin
+              Brush.Style := bsSolid;
+              Brush.Color := clBlack;
+              FillRect(Rect(0, py, x, y));
+            end;
+          end;
+        end;
+
+        if Assigned(bitmap) then
+        begin
+          //+1 makes right align (padding left);
+          // I prefer padding right for compatibility with bitmap font...
+          p.l := px;
+          //should make it consistent, same as above
+          p.t := py;
+
+          r.Left := px;
+          r.Top  := py;
+          r.Right  := px + cw;
+          r.Bottom := py + PaddedHeight;
+          buffer[0] := TileIndexToChar(n);
+          // Draw the Char, the trailing space is to properly handle the italics.
+{$IFDEF MSWINDOWS}
+          // credits to the Unicode version of SynEdit for this function call. GPL/MPL as GLScene
+          Windows.ExtTextOutW(bitmap.Canvas.Handle, p.l, p.t, ETO_CLIPPED, @r, buffer, 1, nil);
+{$ELSE}
+          ConvertUTF16ToUTF8(utfbuffer, 5, buffer, 1,  [toInvalidCharToSymbol], i);
+          LCLIntf.ExtTextOut(bitmap.Canvas.Handle, p.l, p.t, ETO_CLIPPED, @r, utfbuffer, i-1, nil);
+{$ENDIF}
+        end;
+        Inc(px, cw);
+      end
+      else
+      begin
+        p.l := 0;
+        p.t := 0;
+      end;
+      inc(p);
     end;
   end;
 
-   // compute texture size: look for best fill ratio
-   // and as square a texture as possible
-   bestTexMem:=MaxInt;
-   textureWidth:=0;
-   textureHeight:=0;
-   y:=64; while y<=512 do begin
-      x:=64; while x<=512 do begin
-         // compute the number of characters that fit
-         n:=ComputeCharRects(x, y, nil);
-         if n=nbChars then begin
-            texMem:=x*y;
-            if (texMem<bestTexMem) or ((texMem=bestTexMem) and (Abs(x-y)<Abs(textureWidth-textureHeight))) then begin
-               textureWidth:=x;
-               textureHeight:=y;
-               bestTexMem:=texMem;
-            end;
-         end;
-         x:=2*x;
-      end;
-      y:=y*2;
-   end;
+  // credits to the Unicode version of SynEdit for this function. GPL/MPL as GLScene
+  function GetTextSize(DC: HDC; Str: PWideChar; Count: Integer): TSize;
+    {$IFDEF FPC}
+    {$IFDEF MSWINDOWS}
+    var tm: LPTextMetric;
+    {$ELSE}
+    var LString: array[0..5] of char; //here we always have 1 char, so it's safe
+      i : SizeUInt;
+    {$ENDIF}
+    {$ELSE}
+    var tm: TTextMetricW;
+    {$ENDIF}
+  begin
+    Result.cx := 0;
+    Result.cy := 0;
+{$IFDEF MSWINDOWS}
+    GetTextExtentPoint32W(DC, Str, Count, Result);
+    if not Win32PlatformIsUnicode then
+    begin
+      GetTextMetricsW(DC, tm);
+      if tm.tmPitchAndFamily and TMPF_TRUETYPE <> 0 then
+        Result.cx := Result.cx - tm.tmOverhang
+      else
+        Result.cx := tm.tmAveCharWidth * Count;
+    end;
+{$ELSE}
+    if ConvertUTF16ToUTF8(LString, 5, Str, Count,  [toInvalidCharToSymbol], i) = trNoError then
+      GetTextExtentPoint32(DC, LString, i-1, Result);
+{$ENDIF}
+  end;
 
-   if bestTexMem=MaxInt then begin
-      Font.Size:=6;
-      raise Exception.Create('Characters are too large or too many. Unable to create font texture.');
-   end;
+var
+  bitmap: TGLBitmap;
+  ch: widechar;
+  i, cw, nbChars, n: Integer;
+begin
+  InvalidateUsers;
+  Glyphs.OnChange := nil;
+  //accessing Bitmap might trigger onchange
+  bitmap := Glyphs.Bitmap;
 
-   bitmap.Width:=textureWidth;
-   bitmap.Height:=textureHeight;
+  bitmap.Height      := 0;
+  {$IFDEF MSWINDOWS}
+   //due to lazarus doesn't properly support pixel formats
+     bitmap.PixelFormat := glpf32bit;
+  {$ENDIF}
+  with bitmap.Canvas do
+  begin
+    Font := Self.Font;
+    Font.Color := clWhite;
+    // get characters dimensions for the font
+    // character size without padding; paddings are used from GlyphsInterval
+    CharWidth  := Round(MaxInteger(TextWidth('M'), TextWidth('W'), TextWidth('_')));
+    CharHeight := TextHeight('"_pI|,');
+    // used for padding
+    GlyphsIntervalX := 1;
+    GlyphsIntervalY := 1;
+    if fsItalic in Font.Style then
+    begin
+      // italics aren't properly acknowledged in font width
+      HSpaceFix := -(CharWidth div 3);
+      CharWidth := CharWidth - HSpaceFix;
+    end
+    else
+      HSpaceFix := 0;
+  end;
 
-   with bitmap.Canvas do
-   begin
-      Brush.Style:=bsSolid;
-      Brush.Color:=clBlack;
-      FillRect(Rect(0, 0, textureWidth, textureHeight));
-   end;
+  nbChars := CharacterCount;
 
-   ComputeCharRects(textureWidth, textureHeight, bitmap.Canvas);
+  // Retrieve width of all characters (texture width)
+  ResetCharWidths(0);
+  n := 0;
+  for i := 0 to nbChars - 1 do
+  begin
+    ch := TileIndexToChar(i);
+    cw := GetTextSize(bitmap.canvas.Handle, @ch, 1).cx-HSpaceFix;
+    n  := n + cw + GlyphsIntervalX;
+    SetCharWidths(i, cw);
+  end;
+  //try to make best guess...
+  //~total pixels, including some waste (10%)
+  n := n * (CharHeight + GlyphsIntervalY) * 11 div 10;
+  TextureWidth := min(512, RoundUpToPowerOf2( round(sqrt(n)) ));
+  TextureHeight := min(512, RoundUpToPowerOf2( n div TextureWidth));
 
-   Glyphs.OnChange:=OnGlyphsChanged;
+  bitmap.Width := TextureWidth;
+
+  ComputeCharRects(bitmap);
+  FCharsLoaded := true;
+  Glyphs.OnChange := OnGlyphsChanged;
 end;
 
 // StoreRanges
 //
-function TGLWindowsBitmapFont.StoreRanges : Boolean;
+
+function TGLWindowsBitmapFont.StoreRanges: Boolean;
 begin
-   Result:=(Ranges.Count<>1) or (Ranges[0].StartASCII<>' ') or (Ranges[0].StopASCII<>'}');
+  Result := (Ranges.Count <> 1) or (Ranges[0].StartASCII[1] <> ' ') or (Ranges[0].StopASCII[1] <> cDefaultLast);
+end;
+
+type
+  TFriendlyRange = class(TBitmapFontRange);
+
+procedure TGLWindowsBitmapFont.StreamlineRanges;
+var
+  I, C: Integer;
+begin
+  C := 0;
+  for I := 0 to Ranges.Count - 1 do
+  begin
+    TFriendlyRange(Ranges[I]).FStartGlyphIdx := C;
+    Inc(C, Ranges[I].CharCount);
+    TFriendlyRange(Ranges[I]).FStopGlyphIdx := MaxInteger(C - 1, 0);
+  end;
+end;
+
+procedure TGLWindowsBitmapFont.SetList(const AList: TIntegerList);
+var
+  i : integer;
+  f, n, s : integer;
+begin
+  //add existing ranges
+  for I := 0 to Ranges.Count - 1 do
+    with Ranges.Items[I] do
+      AList.AddSerie(integer(StartASCII[1]), 1, CharCount);
+
+  AList.SortAndRemoveDuplicates;
+
+  Ranges.Clear;
+  Ranges.BeginUpdate;
+  if AList.Count > 0 then
+  begin
+    i := 0;
+    while (i < AList.Count) and (AList[i] < 32) do inc(i);
+    while i < AList.Count do
+    begin
+      f := AList[i]; n := f; s := Ranges.CharacterCount;
+      while (i < AList.Count) and (n = AList[i]) do
+      begin
+        inc(i);
+        inc(n);
+      end;
+      Ranges.Add(widechar(f), widechar(pred(n))).StartGlyphIdx := s;
+    end;
+  end;
+
+  Ranges.EndUpdate;
+  TextureChanged;
+  InvalidateUsers;
+end;
+
+//add characters to internal list
+procedure TGLWindowsBitmapFont.EnsureChars(const AStart, AEnd: widechar);
+var
+  c : widechar;
+  ACharList : TIntegerList;
+begin
+  ACharList := TIntegerList.Create;
+  for c := AStart to AEnd do
+      ACharList.Add(integer(c));
+  SetList(ACharList);
+  ACharList.Free;
+end;
+
+//add characters to internal list
+procedure TGLWindowsBitmapFont.EnsureString(const s: UnicodeString);
+var
+  i : integer;
+  ACharList : TIntegerList;
+begin
+  ACharList := TIntegerList.Create;
+  for i := 1 to length(s) do
+      ACharList.Add(integer(s[i]));
+  SetList(ACharList);
+  ACharList.Free;
 end;
 
 // PrepareImage
 //
-procedure TGLWindowsBitmapFont.PrepareImage;
+
+procedure TGLWindowsBitmapFont.PrepareImage(var ARci: TRenderContextInfo);
 begin
-   LoadWindowsFont;
-   inherited;
+  LoadWindowsFont;
+  inherited PrepareImage(ARci);
 end;
 
 // TextureFormat
 //
-function TGLWindowsBitmapFont.TextureFormat : Integer;
+
+function TGLWindowsBitmapFont.TextureFormat: Integer;
 begin
-   Result:=GL_ALPHA;
-end;
-
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-
-{ TGLStoredBitmapFont }
-
-constructor TGLStoredBitmapFont.Create(AOwner: TComponent);
-begin
-  inherited;
-end;
-
-destructor TGLStoredBitmapFont.Destroy;
-begin
-  inherited;
-end;
-
-procedure TGLStoredBitmapFont.NotifyChange(Sender: TObject);
-begin
-  inherited;
-end;
-
-procedure TGLStoredBitmapFont.LoadFromFile(AFileName: string);
-var
-  S: TStream;
-  Count, i: integer;
-  F1, F2, F3, F4: single;
-  I1: integer;
-  Bmp: TBitmap;
-begin
-  if FileStreamExists(AFileName) then
-  begin
-    S := CreateFileStream(AFileName, fmOpenRead);
-    try
-      FLoaded := true;
-      { Load Glyphs }
-      Bmp := TBitmap.Create;
-      Bmp.LoadFromStream(S);
-      Glyphs.Assign(Bmp);
-      Bmp.Free;
-
-      FreeTextureHandle;
-      InvalidateUsers;
-      { Load font settings }
-      // char props
-      S.Read(I1, SizeOf(CharWidth));
-      CharWidth := I1;
-      S.Read(I1, SizeOf(CharHeight));
-      CharHeight := I1;
-      // char rects
-      S.Read(Count, SizeOf(Count));
-      SetLength(FCharRects, Count);
-      for i := 0 to High(FCharRects) do
-      begin
-        S.Read(F1, SizeOf(FCharRects[i][0]));
-        S.Read(F2, SizeOf(FCharRects[i][1]));
-        S.Read(F3, SizeOf(FCharRects[i][2]));
-        S.Read(F4, SizeOf(FCharRects[i][3]));
-        SetCharRects(i, VectorMake(F1, F2, F3, F4));
-      end;
-      // char wds
-      S.Read(Count, SizeOf(Count));
-      for i := 0 to High(CharWidths) do
-      begin
-        S.Read(I1, SizeOf(CharWidths[i]));
-        SetCharWidths(i, I1);
-      end;
-    finally
-      S.Free;
-    end;
-  end;
-end;
-
-procedure TGLStoredBitmapFont.SaveToFile(AFileName: string);
-var
-  S: TStream;
-  i, Count: integer;
-  Bmp: TBitmap;
-begin
-  if Glyphs.Graphic = nil then Exit;
-  
-  S := CreateFileStream(AFileName, fmCreate);
-  try
-    { Save glyphs }
-    Bmp := TBitmap.Create;
-    Bmp.Assign(Glyphs.Graphic);
-    Bmp.SaveToStream(S);
-    Bmp.Free;
-    { Save settings }
-    // char props
-    S.Write(CharWidth, SizeOf(CharWidth));
-    S.Write(CharHeight, SizeOf(CharHeight));
-    // char rects
-    Count := Length(FCharRects);
-    S.Write(Count, SizeOf(Count));
-    for i := 0 to High(FCharRects) do
-    begin
-      S.Write(FCharRects[i][0], SizeOf(FCharRects[i][0]));
-      S.Write(FCharRects[i][1], SizeOf(FCharRects[i][1]));
-      S.Write(FCharRects[i][2], SizeOf(FCharRects[i][2]));
-      S.Write(FCharRects[i][3], SizeOf(FCharRects[i][3]));
-    end;
-    // char wds
-    Count := Length(CharWidths);
-    S.Write(Count, SizeOf(Count));
-    for i := 0 to High(CharWidths) do
-      S.Write(CharWidths[i], SizeOf(CharWidths[i]));
-  finally
-    S.Free;
-  end;
-end;
-
-procedure TGLStoredBitmapFont.LoadWindowsFont;
-begin
-  if not FLoaded then
-    inherited ;
+  Result := GL_ALPHA;
 end;
 
 initialization
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+{$IFDEF MSWINDOWS}
+  Win32PlatformIsUnicode := (Win32Platform = VER_PLATFORM_WIN32_NT);
+{$ENDIF}
 
-	// class registrations
-   RegisterClasses([TGLWindowsBitmapFont, TGLStoredBitmapFont]);
+   // class registrations
+  RegisterClasses([TGLWindowsBitmapFont]);
 
 end.
+

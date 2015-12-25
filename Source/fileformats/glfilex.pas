@@ -11,10 +11,7 @@
 
 
    <b>Previous version history : </b><font size=-1><ul>
-      $Log: GlFileX.pas,v $
-      Revision 1.2  2009/11/17 15:21:40  da_stranger
-      Improved Unix compatibility (BugtrackerID = 2893580)
-
+      $Log$
       Revision 1.1  2009/11/07 22:12:25  da_stranger
       Initial version (Added from the GLScene-Lazarus SVN)
 
@@ -43,8 +40,8 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLVectorFileObjects, ApplicationFileIO, VectorGeometry, GLTexture,
-  VectorLists, GLMaterial,
+  GLVectorFileObjects, GLApplicationFileIO, GLVectorGeometry, GLTexture,
+  GLVectorLists, GLMaterial,
 
   // Misc
   FileX;

@@ -3,6 +3,7 @@ program Caterpillar;
 {$MODE Delphi}
 
 uses
+  {$IFDEF UNIX}cthreads,{$ENDIF}
   Interfaces,
   Forms,
   Unit1 in 'Unit1.pas' {Form1};

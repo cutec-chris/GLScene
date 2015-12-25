@@ -1,7 +1,8 @@
 // GLShadowHDS
 {: Implements an HDS that automatically generates a terrain lightmap texture.<p>
 	<b>History : </b><font size=-1><ul>
-
+      <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to records
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
       <li>22/01/10 - Yar - Added GLTextureFormat to uses
       <li>13/11/07 - LIN - Added SkipGenerate flag. Set to true in "OnSourceDataFetched"
                            to generate a blank shadow map. Then load your cached Shadowmap during OnThreadBmp32 event.
@@ -34,8 +35,9 @@ unit GLShadowHDS;
 
 interface
 
-uses Classes, GLHeightData, GLGraphics, VectorGeometry, GLTexture, Dialogs, Forms,
-     SyncObjs, VectorTypes, GLCoordinates, GLMaterial;
+uses
+  Classes, GLHeightData, GLGraphics, GLVectorGeometry, GLTexture,
+  GLVectorTypes, GLCoordinates, GLMaterial;
 
 type
    TGLShadowHDS = class;
@@ -128,7 +130,9 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, GLUtils, VectorLists, GLTextureFormat;
+uses
+  SysUtils,
+  OpenGLTokens, GLVectorLists;
 
 // Create
 //
@@ -262,15 +266,15 @@ var L:single;
     v:TAffineVector;
 begin
   MakeVector(v,FLightVector.X/FScale.X,FLightVector.Y/FScale.Y,256*FLightVector.Z/FScale.Z);
-  L:=MaxFloat(abs(v[0]),abs(v[1]));
+  L:=MaxFloat(abs(v.V[0]),abs(v.V[1]));
   Step:=VectorScale(v,1/L);
-  step[0]:=trunc(step[0]*16384)/16384;  //round down the fraction now, to prevent rounding errors later
-  step[1]:=trunc(step[1]*16384)/16384;  //round down the fraction now, to prevent rounding errors later
+  step.V[0]:=trunc(step.V[0]*16384)/16384;  //round down the fraction now, to prevent rounding errors later
+  step.V[1]:=trunc(step.V[1]*16384)/16384;  //round down the fraction now, to prevent rounding errors later
 
   if((FLightVector.X=0)and(FLightVector.Y=0))then begin
-    step[0]:=1;
-    step[1]:=0;
-    step[2]:=-maxint;
+    step.V[0]:=1;
+    step.V[1]:=0;
+    step.V[2]:=-maxint;
   end;
 
   result:=step;
@@ -280,9 +284,9 @@ end;
 //
 function TGLShadowHDS.CalcScale:TAffineVector;
 begin
-  FScaleVec[0]:=FScale.X*256;
-  FScaleVec[1]:=FScale.Y*256;
-  FScaleVec[2]:=FScale.Z;
+  FScaleVec.V[0]:=FScale.X*256;
+  FScaleVec.V[1]:=FScale.Y*256;
+  FScaleVec.V[2]:=FScale.Z;
   result:=FScaleVec;
 end;
 
@@ -348,7 +352,7 @@ begin
       //TextureFormat:=tfLuminance;
       TextureFormat:=tfRGB16;
       //TextureFormat:=tfRGBA;
-      bmp32:=(Image as TGLBlankImage).GetBitmap32(GL_TEXTURE_2D);
+      bmp32:=(Image as TGLBlankImage).GetBitmap32;
       if not SkipGenerate then
         GenerateShadowMap(HD , bmp32, 1);
       if Assigned(FOnThreadBmp32) then FOnThreadBmp32(self,heightData,bmp32);
@@ -445,8 +449,8 @@ begin
   ShadowMap.Width :=FTileSize;
   CalcStep;
   CalcScale;
-  sx:=step[0];
-  sy:=step[1];
+  sx:=step.V[0];
+  sy:=step.V[1];
   if abs(sx)>abs(sy) then begin
     y:=0;
     if sx<0 then x:=FTileSize-1     //right to left
@@ -493,9 +497,9 @@ begin
   rh:=StartH;
   jump:=1;
   while (ctr<FScanDistance)and(tmpHD.DataState<>hdsNone) do begin
-    lx:=lx-step[0]*jump;
-    ly:=ly-step[1]*jump;
-    rh:=rh-step[2]*jump;
+    lx:=lx-step.V[0]*jump;
+    ly:=ly-step.V[1]*jump;
+    rh:=rh-step.V[2]*jump;
     //--jump to new tile--
     if (lx<0)or(lx>=FTileSize)or(ly<0)or(ly>=FTileSize) then begin
       LocalToWorld(lx,ly,tmpHD,wx,wy); //if our local coordinates are off the tile,
@@ -504,7 +508,7 @@ begin
       h:=tmpHD.InterpolatedHeight(lx,ly);
       dif:=h-rh;
       ShadowDif:=MaxFloat(dif,ShadowDif);
-      if ShadowDif>(-Step[2])+FSoftRange   //if ray is more than 1 steps above the surface
+      if ShadowDif>(-Step.V[2])+FSoftRange   //if ray is more than 1 steps above the surface
         then jump:=2                       //then take 2 steps at a time
         else jump:=1;
       inc(ctr);
@@ -584,9 +588,9 @@ var sh,h:single;
       nmRow[px].a:=255;
       //pinkMax:=MinInteger(Integer(lum+8),255);
       //if pink=true then nmRow[px].r:=pinkMax;
-      Lx:=Lx+step[0];
-      Ly:=Ly+step[1];
-      sh:=sh+step[2];
+      Lx:=Lx+step.V[0];
+      Ly:=Ly+step.V[1];
+      sh:=sh+step.V[2];
       inc(ctr);
     end;
 begin
@@ -598,20 +602,20 @@ begin
   //pink:=false;
   if wrapdst<size then begin        // check if this line will wrap before its end
     while ctr<=wrapdst do linestep; //take one exta step, to prevent gaps due to rounding errors
-    Lx:=Lx-step[0];                 //
-    Ly:=Ly-step[1];                 // step back, to compensate for the extra step
+    Lx:=Lx-step.V[0];                 //
+    Ly:=Ly-step.V[1];                 // step back, to compensate for the extra step
     ctr:=ctr-1;                     //
-    if abs(step[0])>abs(step[1]) then begin    //East or West
-      if step[1]<0 then Ly:=Ly+size;           //ESE or WSW
-      if step[1]>0 then Ly:=Ly-size;           //ENE or WNW
+    if abs(step.V[0])>abs(step.V[1]) then begin    //East or West
+      if step.V[1]<0 then Ly:=Ly+size;           //ESE or WSW
+      if step.V[1]>0 then Ly:=Ly-size;           //ENE or WNW
     end else begin                             //North or South
-      if step[0]<0 then Lx:=Lx+size;           //NNW or SSW
-      if step[0]>0 then Lx:=Lx-size;           //NNE or SSE
+      if step.V[0]<0 then Lx:=Lx+size;           //NNW or SSW
+      if step.V[0]>0 then Lx:=Lx-size;           //NNE or SSE
     end;
     cx:=ClampValue(Lx,0,size-1);
     cy:=ClampValue(Ly,0,size-1);
     sh:=RayCastShadowHeight(HD,cx,cy);
-    sh:=sh+step[2]*0.4;
+    sh:=sh+step.V[2]*0.4;
     //pink:=true;
   end;
   while ctr<size do linestep; //No wrapping
@@ -628,8 +632,8 @@ var x,y:single;
     size:integer;
     sx,sy:single;
 begin
-  sx:=step[0];
-  sy:=step[1];
+  sx:=step.V[0];
+  sy:=step.V[1];
   size:=FTileSize;
   x:=size;
   y:=size;
@@ -637,7 +641,7 @@ begin
     if sy>0 then y:=(size-Ly)/sy;
     if sy<0 then y:=-Ly/sy;
   end else begin
-    if sx>0 then x:=(size-Lx)/sx;       
+    if sx>0 then x:=(size-Lx)/sx;
     if sx<0 then x:=-Lx/sx;
   end;
   result:=Ceil(minFloat(x,y));
@@ -664,7 +668,7 @@ begin
   HD:=HeightData;
   nv:=HD.NormalAtNode(x,y,FScaleVec);
   //--Ambient Light from blue sky (directly up)--
-  ambientLight:=nv[2];
+  ambientLight:=nv.V[2];
   //--Shadows/Direct light/Soft shadow edges--
   DirectLight:=ClampValue(1-(ShadowHeight-TerrainHeight)/SoftRange,0,1);
   //--Diffuse light, when not in shadow--

@@ -591,7 +591,7 @@ begin
       FFireDamage:=FFireDamage+(Random-0.5)*deltaTime*10;
 //      ABEngine.AdjustFirePointIntensity(FDamagePoint, ClampValue(Sqrt(FFireDamage)*0.3, 1, 2));
    end else begin
-      FSEFire.Playing:=False;
+      //TODO:FSEFire.Playing:=False;
       if FDamagePoint<>nil then begin
          FDamagePoint.Free;
          FDamagePoint:=nil;
@@ -600,7 +600,7 @@ begin
    if FHullResistance<0 then Detonate:=True;
 
    if FAirBrakeUsed then begin
-      FSEAirBrake.Playing:=True;
+      //TODO:FSEAirBrake.Playing:=True;
       f:=ClampValue(Speed*0.008, 0.05, 1);
       FSEAirBrake.Source.Volume:=f;
       FSEAirBrake.Source.Frequency:=Round(Lerp(4000, 8000, f));
@@ -609,7 +609,7 @@ begin
          FSEAirBrake.PlayingSource.Frequency:=FSEAirBrake.Source.Frequency;
       end;
       FAirBrakeUsed:=False;
-   end else FSEAirBrake.Playing:=False;
+   end else //TODO:FSEAirBrake.Playing:=False;
 
    for i:=0 to EquipmentCount-1 do
       if not Equipments[i].Disabled then

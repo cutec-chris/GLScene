@@ -9,10 +9,12 @@
    http://developer.nvidia.com/object/Procedural_Tree.html<p>
 
    History:<ul>
+     <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to records
+     <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
      <li>30/03/07 - DaStr - Added $I GLScene.inc
      <li>28/03/07 - DaStr - Renamed parameters in some methods
                             (thanks Burkhard Carstens) (Bugtracker ID = 1678658)
-     <li>13/01/07 - DaStr - Added changes proposed by Tim "Sivael" Kapuï¿½ciï¿½ski [sivael@gensys.pl]
+     <li>13/01/07 - DaStr - Added changes proposed by Tim "Sivael" Kapuœciñski [sivael@gensys.pl]
                          Modified the code to create much more realistic trees -
                           added third branch for every node and modified constants
                           to make the tree look more "alive".
@@ -21,6 +23,7 @@
                           branches were much more "in order".
                          Added Center* declarations, CenterBranchConstant,
                          Added AutoRebuild flag.
+     <li>02/08/04 - LR, YHC - BCB corrections: use record instead array
      <li>14/04/04 - SG - Added AutoCenter property.
      <li>03/03/04 - SG - Added GetExtents and AxisAlignedDimensionsUnscaled.
      <li>24/11/03 - SG - Creation.
@@ -44,8 +47,11 @@ interface
 {$I GLScene.inc}
 
 uses
-   Classes, SysUtils, GLScene, GLMaterial, VectorGeometry, VectorLists,
-   OpenGL1x, GLVectorFileObjects, ApplicationFileIO, GLRenderContextInfo;
+   Classes, SysUtils,
+   //GLS
+   GLScene, GLMaterial, GLVectorGeometry, GLVectorLists,
+   OpenGLTokens, GLVectorFileObjects, GLApplicationFileIO, GLRenderContextInfo,
+   XOpenGL, GLContext , GLVectorTypes;
 
 type
    TGLTree = class;
@@ -313,8 +319,6 @@ implementation
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-uses XOpenGL, GLState;
-
 // -----------------------------------------------------------------------------
 // TGLTreeLeaves
 // -----------------------------------------------------------------------------
@@ -350,11 +354,11 @@ begin
    radius:=Owner.LeafSize;
    Inc(FCount);
 
-   pos:=matrix[3];
-   Matrix[3]:=NullHMGPoint;
+   pos:=matrix.V[3];
+   Matrix.V[3]:=NullHMGPoint;
    Matrix:=Roll(matrix, FCount/10);
    NormalizeMatrix(matrix);
-   Matrix[3]:=pos;
+   Matrix.V[3]:=pos;
 
    FVertices.Add(VectorTransform(PointMake(0, -radius, 0), matrix));
    FVertices.Add(VectorTransform(PointMake(0, radius, 0), matrix));
@@ -377,15 +381,15 @@ begin
    if Assigned(libMat) then
       libMat.Apply(rci);
 
-   glEnableClientState(GL_VERTEX_ARRAY);
-   xglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+   GL.EnableClientState(GL_VERTEX_ARRAY);
+   xgl.EnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-   glVertexPointer(3, GL_FLOAT, 0, @FVertices.List[0]);
-   xglTexCoordPointer(3, GL_FLOAT, 0, @FTexCoords.List[0]);
+   GL.VertexPointer(3, GL_FLOAT, 0, @FVertices.List[0]);
+   xgl.TexCoordPointer(3, GL_FLOAT, 0, @FTexCoords.List[0]);
 
    for i:=0 to (FVertices.Count div 4)-1 do begin
-      glNormal3fv(@FNormals.List[i]);
-      glDrawArrays(GL_QUADS, 4*i, 4);
+      GL.Normal3fv(@FNormals.List[i]);
+      GL.DrawArrays(GL_QUADS, 4*i, 4);
    end;
 
    with Owner do if LeafMaterialName<>LeafBackMaterialName then begin
@@ -399,13 +403,13 @@ begin
    rci.GLStates.InvertGLFrontFace;
    for i:=0 to (FVertices.Count div 4)-1 do begin
       n:=VectorNegate(FNormals[i]);
-      glNormal3fv(@n);
-      glDrawArrays(GL_QUADS, 4*i, 4);
+      GL.Normal3fv(@n);
+      GL.DrawArrays(GL_QUADS, 4*i, 4);
    end;
    rci.GLStates.InvertGLFrontFace;
 
-   glDisableClientState(GL_VERTEX_ARRAY);
-   xglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   GL.DisableClientState(GL_VERTEX_ARRAY);
+   xgl.DisableClientState(GL_TEXTURE_COORD_ARRAY);
 
    if Assigned(libMat) then
       libMat.UnApply(rci);
@@ -701,7 +705,7 @@ begin
       Owner.Leaves.Vertices.Translate(delta);
    end;
 
-   Owner.FAxisAlignedDimensionsCache[0]:=-1;
+   Owner.FAxisAlignedDimensionsCache.V[0]:=-1;
 end;
 
 // BuildList
@@ -717,22 +721,22 @@ begin
    if Assigned(libMat) then
       libMat.Apply(rci);
 
-   glVertexPointer(3, GL_FLOAT, 0, @FVertices.List[0]);
-   glNormalPointer(GL_FLOAT, 0, @FNormals.List[0]);
-   xglTexCoordPointer(3, GL_FLOAT, 0, @FTexCoords.List[0]);
+   GL.VertexPointer(3, GL_FLOAT, 0, @FVertices.List[0]);
+   GL.NormalPointer(GL_FLOAT, 0, @FNormals.List[0]);
+   xgl.TexCoordPointer(3, GL_FLOAT, 0, @FTexCoords.List[0]);
 
-   glEnableClientState(GL_VERTEX_ARRAY);
-   glEnableClientState(GL_NORMAL_ARRAY);
-   xglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+   GL.EnableClientState(GL_VERTEX_ARRAY);
+   GL.EnableClientState(GL_NORMAL_ARRAY);
+   xgl.EnableClientState(GL_TEXTURE_COORD_ARRAY);
 
    repeat
       for i:=0 to (FIndices.Count div stride)-1 do
-         glDrawElements(GL_TRIANGLE_STRIP, stride, GL_UNSIGNED_INT, @FIndices.List[stride*i]);
+         GL.DrawElements(GL_TRIANGLE_STRIP, stride, GL_UNSIGNED_INT, @FIndices.List[stride*i]);
    until (not Assigned(libMat)) or (not libMat.UnApply(rci));
 
-   xglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-   glDisableClientState(GL_NORMAL_ARRAY);
-   glDisableClientState(GL_VERTEX_ARRAY);
+   xgl.DisableClientState(GL_TEXTURE_COORD_ARRAY);
+   GL.DisableClientState(GL_NORMAL_ARRAY);
+   GL.DisableClientState(GL_VERTEX_ARRAY);
 end;
 
 // Clear
@@ -881,7 +885,7 @@ end;
 //
 procedure TGLTree.StructureChanged;
 begin
-  FAxisAlignedDimensionsCache[0]:=-1;
+  FAxisAlignedDimensionsCache.V[0]:=-1;
   inherited;
 end;
 
@@ -907,7 +911,7 @@ procedure TGLTree.BuildMesh(GLBaseMesh : TGLBaseMesh);
       NormalizeMatrix(mat);
       if MatrixDecompose(mat,trans) then begin
          SetVector(rot,trans[ttRotateX],trans[ttRotateY],trans[ttRotateZ]);
-         SetVector(pos,mat[3]);
+         SetVector(pos,mat.V[3]);
       end else begin
          rot:=NullVector;
         pos:=NullVector;
@@ -1366,13 +1370,13 @@ begin
      bmax:=NullVector;
    end;
 
-   min[0]:=MinFloat([lmin[0], lmax[0], bmin[0], bmax[0]]);
-   min[1]:=MinFloat([lmin[1], lmax[1], bmin[1], bmax[1]]);
-   min[2]:=MinFloat([lmin[2], lmax[2], bmin[2], bmax[2]]);
+   min.V[0]:=MinFloat([lmin.V[0], lmax.V[0], bmin.V[0], bmax.V[0]]);
+   min.V[1]:=MinFloat([lmin.V[1], lmax.V[1], bmin.V[1], bmax.V[1]]);
+   min.V[2]:=MinFloat([lmin.V[2], lmax.V[2], bmin.V[2], bmax.V[2]]);
 
-   max[0]:=MaxFloat([lmin[0], lmax[0], bmin[0], bmax[0]]);
-   max[1]:=MaxFloat([lmin[1], lmax[1], bmin[1], bmax[1]]);
-   max[2]:=MaxFloat([lmin[2], lmax[2], bmin[2], bmax[2]]);
+   max.V[0]:=MaxFloat([lmin.V[0], lmax.V[0], bmin.V[0], bmax.V[0]]);
+   max.V[1]:=MaxFloat([lmin.V[1], lmax.V[1], bmin.V[1], bmax.V[1]]);
+   max.V[2]:=MaxFloat([lmin.V[2], lmax.V[2], bmin.V[2], bmax.V[2]]);
 end;
 
 // AxisAlignedDimensionsUnscaled
@@ -1381,11 +1385,11 @@ function TGLTree.AxisAlignedDimensionsUnscaled : TVector;
 var
    dMin, dMax : TAffineVector;
 begin
-   if FAxisAlignedDimensionsCache[0]<0 then begin
+   if FAxisAlignedDimensionsCache.V[0]<0 then begin
       GetExtents(dMin, dMax);
-      FAxisAlignedDimensionsCache[0]:=MaxFloat(Abs(dMin[0]), Abs(dMax[0]));
-      FAxisAlignedDimensionsCache[1]:=MaxFloat(Abs(dMin[1]), Abs(dMax[1]));
-      FAxisAlignedDimensionsCache[2]:=MaxFloat(Abs(dMin[2]), Abs(dMax[2]));
+      FAxisAlignedDimensionsCache.V[0]:=MaxFloat(Abs(dMin.V[0]), Abs(dMax.V[0]));
+      FAxisAlignedDimensionsCache.V[1]:=MaxFloat(Abs(dMin.V[1]), Abs(dMax.V[1]));
+      FAxisAlignedDimensionsCache.V[2]:=MaxFloat(Abs(dMin.V[2]), Abs(dMax.V[2]));
    end;
    SetVector(Result, FAxisAlignedDimensionsCache);
 end;

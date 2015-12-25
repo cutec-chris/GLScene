@@ -7,6 +7,7 @@
   Based on Jason Lanford's demo. <p>
 
 	<b>History : </b><font size=-1><ul>
+        <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
         <li>03/04/07 - DaStr - Added default values to some properties
                                Added TGLTrail.AntiZFightOffset
                                Subscribed for Notification in TGLTrail.SetTrailObject
@@ -25,12 +26,15 @@ interface
 {$I GLScene.inc}
 
 uses
-  // VCL
-  Classes, SysUtils,
+  {$IFDEF GLS_DELPHI_XE2_UP}
+    System.Classes, System.SysUtils,
+  {$ELSE}
+    Classes, SysUtils,
+  {$ENDIF}
 
   // GLScene
-  GLScene, VectorTypes, MeshUtils, VectorGeometry, GLVectorFileObjects,
-  GLMesh, GLObjects, OpenGL1x, GLMaterial, GLStrings, BaseClasses;
+  GLScene, GLVectorTypes, GLMeshUtils, GLVectorGeometry, GLVectorFileObjects,
+  GLMesh, GLObjects, GLMaterial, GLStrings, GLBaseClasses;
 
 
 const cMaxVerts = 2000;
@@ -234,8 +238,8 @@ begin
 
     if distance = 0 then
     begin
-         apoint1 := AffineVectorMake(fLastp1[0],fLastp1[1],fLastp1[2]);
-         apoint2 := AffineVectorMake(fLastp2[0],fLastp2[1],fLastp2[2]);
+         apoint1 := AffineVectorMake(fLastp1.V[0],fLastp1.V[1],fLastp1.V[2]);
+         apoint2 := AffineVectorMake(fLastp2.V[0],fLastp2.V[1],fLastp2.V[2]);
     end;
 
     uvsize :=  distance / fUVScale; // scale UV's
@@ -315,16 +319,16 @@ begin
                   currentvert := (i + fVertStart);
 
               if fAlphaFade then
-                 color[3] :=  (ramp * i)
+                 color.V[3] :=  (ramp * i)
               else
-                  color[3] := fAlpha;
+                  color.V[3] := fAlpha;
               // add a tiny bit of offset to help prevent z-fighting..
               // need a better solution here
               // as this will get out of whack on really long trails
               // and is dependant on scene scale
-              TinyOffset[0] := FAntiZFightOffset * i;
-              TinyOffset[1] := FAntiZFightOffset * i;
-              TinyOffset[2] := FAntiZFightOffset * i;
+              TinyOffset.V[0] := FAntiZFightOffset * i;
+              TinyOffset.V[1] := FAntiZFightOffset * i;
+              TinyOffset.V[2] := FAntiZFightOffset * i;
               TinyOffset :=  VectorAdd( fVerts[ currentvert ],Tinyoffset);
               //TinyOffset := fVerts[ currentvert]; // bypass
               Vertices.AddVertex( TinyOffset, NullVector, Color, fUVs[currentvert]  );

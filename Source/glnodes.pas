@@ -1,147 +1,160 @@
 //
 // This unit is part of the GLScene Project, http://glscene.org
 //
-{: GLNodes<p>
+{ : GLNodes<p>
 
-   Nodes are used to describe lines, polygons + more.<p>
+  Nodes are used to describe lines, polygons + more.<p>
 
-	<b>History : </b><font size=-1><ul>
-      <li>26/11/09 - DaStr - Improved Lazarus compatibility (merged from gls4laz)
-                             (thanks Predator) (BugtrackerID = 2893580)
-      <li>22/11/09 - DaStr - Improved Unix compatibility (merged from gls4laz)
-                             (thanks Predator) (BugtrackerID = 2893580)
-      <li>14/07/09 - DaStr - Added $I GLScene.inc
-      <li>05/10/08 - DanB - Created from GLMisc.pas split
-   </ul></font>
+  <b>History : </b><font size=-1><ul>
+  <li>01/03/11 - Vincent - Fix a bug in TGLNodes.Vector
+  <li>17/10/10 - Yar - Added TagObject property to TGLNode (thanks µAlexx)
+  <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
+  <li>26/11/09 - DaStr - Improved Lazarus compatibility
+  (thanks Predator) (BugtrackerID = 2893580)
+  <li>22/11/09 - DaStr - Improved Unix compatibility
+  (thanks Predator) (BugtrackerID = 2893580)
+  <li>14/07/09 - DaStr - Added $I GLScene.inc
+  <li>05/10/08 - DanB - Created from GLMisc.pas split
+  </ul></font>
 }
 unit GLNodes;
 
 interface
 
-uses Classes, VectorGeometry, OpenGL1x, BaseClasses, GLCoordinates, Spline;
+uses
+  Classes, SysUtils,
+  //GLS
+  GLVectorGeometry, OpenGLTokens, OpenGLAdapter, GLContext, GLBaseClasses,
+  GLCoordinates, GLSpline,
+  XOpenGL
+, GLVectorTypes;
+
 
 {$I GLScene.inc}
 
 type
-	// TGLNode
-	//
-	TGLNode = class (TCollectionItem)
-	   private
-	      { Private Declarations }
-			FCoords : TVector;
-			procedure SetAsVector(const value: TVector);
-			procedure SetAsAffineVector(const value : TAffineVector);
-         function GetAsAffineVector : TAffineVector;
-			procedure SetCoordinate(AIndex: Integer; AValue: TGLFloat);
+  // TGLNode
+  //
+  TGLNode = class(TCollectionItem)
+  private
+    { Private Declarations }
+    FCoords: TVector;
+    FTagObject: TObject;
+    procedure SetAsVector(const Value: TVector);
+    procedure SetAsAffineVector(const Value: TAffineVector);
+    function GetAsAffineVector: TAffineVector;
+    procedure SetCoordinate(AIndex: Integer; AValue: TGLFloat);
+    function GetCoordinate(const Index: Integer): TGLFloat;
 
-	   protected
-	      { Protected Declarations }
-         function StoreCoordinate(AIndex: Integer) : Boolean;
+  protected
+    { Protected Declarations }
+    function StoreCoordinate(AIndex: Integer): Boolean;
 
-         function GetDisplayName : String; override;
+    function GetDisplayName: string; override;
 
-      public
-	      { Public Declarations }
-	      constructor Create(ACollection : TCollection); override;
-	      destructor Destroy; override;
-	      procedure Assign(Source: TPersistent); override;
+  public
+    { Public Declarations }
+    constructor Create(ACollection: TCollection); override;
+    destructor Destroy; override;
+    procedure Assign(Source: TPersistent); override;
 
-         function AsAddress : PGLFloat;
-         {: The coordinates viewed as a vector.<p>
-            Assigning a value to this property will trigger notification events,
-            if you don't want so, use DirectVector instead. }
-			property AsVector : TVector read FCoords write SetAsVector;
-         {: The coordinates viewed as an affine vector.<p>
-            Assigning a value to this property will trigger notification events,
-            if you don't want so, use DirectVector instead.<br>
-            The W component is automatically adjustes depending on style. }
-			property AsAffineVector : TAffineVector read GetAsAffineVector write SetAsAffineVector;
+    function AsAddress: PGLFloat;
+    { : The coordinates viewed as a vector.<p>
+      Assigning a value to this property will trigger notification events,
+      if you don't want so, use DirectVector instead. }
+    property AsVector: TVector read FCoords write SetAsVector;
+    { : The coordinates viewed as an affine vector.<p>
+      Assigning a value to this property will trigger notification events,
+      if you don't want so, use DirectVector instead.<br>
+      The W component is automatically adjustes depending on style. }
+    property AsAffineVector: TAffineVector read GetAsAffineVector
+      write SetAsAffineVector;
 
-			property W: TGLFloat index 3 read FCoords[3] write SetCoordinate stored StoreCoordinate;
+    property W: TGLFloat index 3 read GetCoordinate write SetCoordinate
+      stored StoreCoordinate;
 
-	   published
-	      { Published Declarations }
-			property X: TGLFloat index 0 read FCoords[0] write SetCoordinate stored StoreCoordinate;
-			property Y: TGLFloat index 1 read FCoords[1] write SetCoordinate stored StoreCoordinate;
-			property Z: TGLFloat index 2 read FCoords[2] write SetCoordinate stored StoreCoordinate;
-	end;
+    property TagObject: TObject read FTagObject write FTagObject;
+  published
+    { Published Declarations }
+    property X: TGLFloat index 0 read GetCoordinate write SetCoordinate
+      stored StoreCoordinate;
+    property Y: TGLFloat index 1 read GetCoordinate write SetCoordinate
+      stored StoreCoordinate;
+    property Z: TGLFloat index 2 read GetCoordinate write SetCoordinate
+      stored StoreCoordinate;
+  end;
 
+  // TGLNodes
+  //
+  TGLNodes = class(TOwnedCollection)
+  private
+    { Private Declarations }
 
-	// TGLNodes
-	//
-	TGLNodes = class (TOwnedCollection)
-	   private
-	      { Private Declarations }
+  protected
+    { Protected Declarations }
+    procedure SetItems(Index: Integer; const Val: TGLNode);
+    function GetItems(Index: Integer): TGLNode;
+    procedure Update(Item: TCollectionItem); override;
 
-	   protected
-	      { Protected Declarations }
-         procedure SetItems(index : Integer; const val : TGLNode);
-	      function GetItems(index : Integer) : TGLNode;
-         procedure Update(Item: TCollectionItem); override;
+  public
+    { Public Declarations }
+    constructor Create(AOwner: TPersistent;
+      AItemClass: TCollectionItemClass = nil);
+    function CreateCopy(AOwner: TPersistent): TGLNodes;
 
-      public
-	      { Public Declarations }
-         constructor Create(AOwner : TPersistent; AItemClass: TCollectionItemClass = nil);
-         function CreateCopy(AOwner : TPersistent) : TGLNodes;
+    function Add: TGLNode;
+    function FindItemID(ID: Integer): TGLNode;
+    property Items[index: Integer]: TGLNode read GetItems
+      write SetItems; default;
+    function First: TGLNode;
+    function Last: TGLNode;
 
-         function Add : TGLNode;
-	      function FindItemID(ID : Integer) : TGLNode;
-	      property Items[index : Integer] : TGLNode read GetItems write SetItems; default;
-         function First : TGLNode;
-         function Last : TGLNode;
+    procedure NotifyChange; virtual;
+    procedure EndUpdate; override;
 
-         procedure NotifyChange; virtual;
-         procedure EndUpdate; override;
+    procedure AddNode(const Coords: TGLCustomCoordinates); overload;
+    procedure AddNode(const X, Y, Z: TGLfloat); overload;
+    procedure AddNode(const Value: TVector); overload;
+    procedure AddNode(const Value: TAffineVector); overload;
+    procedure AddXYArc(XRadius, YRadius: Single; StartAngle, StopAngle: Single;
+      NbSegments: Integer; const Center: TAffineVector);
 
-         procedure AddNode(const coords : TGLCustomCoordinates); overload;
-         procedure AddNode(const X, Y, Z: TGLfloat); overload;
-         procedure AddNode(const value : TVector); overload;
-         procedure AddNode(const value : TAffineVector); overload;
-         procedure AddXYArc(xRadius, yRadius : Single;
-                            startAngle, stopAngle : Single;
-                            nbSegments : Integer;
-                            const center : TAffineVector);
+    // : Calculates and returns the barycenter of the nodes
+    function Barycenter: TAffineVector;
+    { : Computes normal based on the 1st three nodes.<p>
+      Returns NullVector if there are less than 3 nodes. }
+    function Normal: TAffineVector;
+    // : Returns normalized vector Nodes[i+1]-Nodes[i]
+    function Vector(I: Integer): TAffineVector;
 
-         //: Calculates and returns the barycenter of the nodes
-         function Barycenter : TAffineVector;
-         {: Computes normal based on the 1st three nodes.<p>
-            Returns NullVector if there are less than 3 nodes. }
-         function Normal : TAffineVector;
-         //: Returns normalized vector Nodes[i+1]-Nodes[i]
-         function Vector(i : Integer) : TAffineVector;
+    { : Calculates the extents of the nodes (min-max for all coordinates).<p>
+      The returned values are also the two corners of the axis-aligned
+      bounding box. }
+    procedure GetExtents(var Min, Max: TAffineVector);
+    // : Translate all nodes
+    procedure Translate(const Tv: TAffineVector);
+    // : Scale all node coordinates
+    procedure Scale(const Fv: TAffineVector); overload;
+    // : Scale all node coordinates
+    procedure Scale(F: Single); overload;
+    // : Rotate nodes around Y axis by the given angle (degrees)
+    procedure RotateAroundX(Angle: Single);
+    // : Rotate nodes around Y axis by the given angle (degrees)
+    procedure RotateAroundY(Angle: Single);
+    // : Rotate nodes around Y axis by the given angle (degrees)
+    procedure RotateAroundZ(Angle: Single);
 
-         {: Calculates the extents of the nodes (min-max for all coordinates).<p>
-            The returned values are also the two corners of the axis-aligned
-            bounding box. }
-         procedure GetExtents(var min, max : TAffineVector);
-         //: Translate all nodes
-         procedure Translate(const tv : TAffineVector);
-         //: Scale all node coordinates
-         procedure Scale(const fv : TAffineVector); overload;
-         //: Scale all node coordinates
-         procedure Scale(f : Single); overload;
-         //: Rotate nodes around Y axis by the given angle (degrees)
-         procedure RotateAroundX(angle : Single);
-         //: Rotate nodes around Y axis by the given angle (degrees)
-         procedure RotateAroundY(angle : Single);
-         //: Rotate nodes around Y axis by the given angle (degrees)
-         procedure RotateAroundZ(angle : Single);
+    procedure RenderTesselatedPolygon(ATextured: Boolean;
+      ANormal: PAffineVector = nil; ASplineDivisions: Integer = 1;
+      AInvertNormals: Boolean = False);
 
-         procedure RenderTesselatedPolygon(ATextured : Boolean;
-                                           ANormal : PAffineVector = nil;
-                                           ASplineDivisions : Integer = 1;
-                                           AInvertNormals : Boolean = False);
+    function CreateNewCubicSpline: TCubicSpline;
 
-         function CreateNewCubicSpline : TCubicSpline;
+  end;
 
-   end;
-
-   TGLNodesClass = class of TGLNodes;
-
+  TGLNodesClass = class of TGLNodes;
 
 implementation
-
-uses SysUtils, XOpenGL;
 
 // ------------------
 // ------------------ TGLNode ------------------
@@ -149,79 +162,97 @@ uses SysUtils, XOpenGL;
 
 // Create
 //
-constructor TGLNode.Create(ACollection : TCollection);
+
+constructor TGLNode.Create(ACollection: TCollection);
 begin
-	inherited Create(ACollection);
-   // nothing, yet
+  inherited Create(ACollection);
+  // nothing, yet
 end;
 
 // Destroy
 //
+
 destructor TGLNode.Destroy;
 begin
-   // nothing, yet
-	inherited Destroy;
+  // nothing, yet
+  inherited Destroy;
 end;
 
 // Assign
 //
+
 procedure TGLNode.Assign(Source: TPersistent);
 begin
-	if Source is TGLNode then begin
-      FCoords:=TGLNode(Source).FCoords;
-	end else inherited;
+  if Source is TGLNode then
+  begin
+    FCoords := TGLNode(Source).FCoords;
+  end
+  else
+    inherited;
 end;
 
 // GetDisplayName
 //
-function TGLNode.GetDisplayName : String;
+
+function TGLNode.GetDisplayName: string;
 begin
-	Result:=Format('%.4f; %.4f; %.4f', [X, Y, Z]);
+  Result := Format('%.4f; %.4f; %.4f', [X, Y, Z]);
 end;
 
 // AsAddress
 //
-function TGLNode.AsAddress : PGLFloat;
+
+function TGLNode.AsAddress: PGLFloat;
 begin
-   Result:=@FCoords;
+  Result := @FCoords;
 end;
 
 // SetAsVector
 //
-procedure TGLNode.SetAsVector(const value: TVector);
+
+procedure TGLNode.SetAsVector(const Value: TVector);
 begin
-	FCoords:=Value;
-   (Collection as TGLNodes).NotifyChange;
+  FCoords := Value;
+  (Collection as TGLNodes).NotifyChange;
 end;
 
 // SetAsAffineVector
 //
-procedure TGLNode.SetAsAffineVector(const value : TAffineVector);
+
+procedure TGLNode.SetAsAffineVector(const Value: TAffineVector);
 begin
-   VectorGeometry.SetVector(FCoords, value);
-   (Collection as TGLNodes).NotifyChange;
+  GLVectorGeometry.SetVector(FCoords, Value);
+  (Collection as TGLNodes).NotifyChange;
 end;
 
 // GetAsAffineVector
 //
-function TGLNode.GetAsAffineVector : TAffineVector;
+
+function TGLNode.GetAsAffineVector: TAffineVector;
 begin
-   VectorGeometry.SetVector(Result, FCoords);
+  GLVectorGeometry.SetVector(Result, FCoords);
+end;
+
+function TGLNode.GetCoordinate(const Index: Integer): TGLFloat;
+begin
+  Result := FCoords.V[Index];
 end;
 
 // SetCoordinate
 //
+
 procedure TGLNode.SetCoordinate(AIndex: Integer; AValue: TGLFloat);
 begin
-	FCoords[AIndex]:=AValue;
-   (Collection as TGLNodes).NotifyChange;
+  FCoords.V[AIndex] := AValue;
+  (Collection as TGLNodes).NotifyChange;
 end;
 
 // StoreCoordinate
 //
-function TGLNode.StoreCoordinate(AIndex: Integer) : Boolean;
+
+function TGLNode.StoreCoordinate(AIndex: Integer): Boolean;
 begin
-   Result:=(FCoords[AIndex]<>0);
+  Result := (FCoords.V[AIndex] <> 0);
 end;
 
 // ------------------
@@ -230,441 +261,548 @@ end;
 
 // Create
 //
-constructor TGLNodes.Create(AOwner : TPersistent; AItemClass: TCollectionItemClass = nil);
+
+constructor TGLNodes.Create(AOwner: TPersistent;
+  AItemClass: TCollectionItemClass = nil);
 begin
-   if not Assigned(AItemClass) then
-      inherited Create(AOwner, TGLNode)
-   else inherited Create(AOwner, AItemClass);
+  if not Assigned(AItemClass) then
+    inherited Create(AOwner, TGLNode)
+  else
+    inherited Create(AOwner, AItemClass);
 end;
 
 // CreateCopy
 //
-function TGLNodes.CreateCopy(AOwner : TPersistent) : TGLNodes;
+
+function TGLNodes.CreateCopy(AOwner: TPersistent): TGLNodes;
 begin
-   if Self<>nil then begin
-      Result:=TGLNodesClass(Self.ClassType).Create(AOwner);
-      Result.Assign(Self);
-   end else Result:=nil;
+  if Self <> nil then
+  begin
+    Result := TGLNodesClass(Self.ClassType).Create(AOwner);
+    Result.Assign(Self);
+  end
+  else
+    Result := nil;
 end;
 
 // SetItems
 //
-procedure TGLNodes.SetItems(index : Integer; const val : TGLNode);
+
+procedure TGLNodes.SetItems(Index: Integer; const Val: TGLNode);
 begin
-	inherited Items[index]:=val;
+  inherited Items[index] := Val;
 end;
 
 // GetItems
 //
-function TGLNodes.GetItems(index : Integer) : TGLNode;
+
+function TGLNodes.GetItems(Index: Integer): TGLNode;
 begin
-	Result:=TGLNode(inherited Items[index]);
+  Result := TGLNode(inherited Items[index]);
 end;
 
-//First
+// First
 //
-function TGLNodes.First : TGLNode;
+
+function TGLNodes.First: TGLNode;
 begin
-   if Count>0 then
-      Result:=TGLNode(inherited Items[0])
-   else Result:=nil;
+  if Count > 0 then
+    Result := TGLNode(inherited Items[0])
+  else
+    Result := nil;
 end;
 
 // Last
 //
-function TGLNodes.Last : TGLNode;
+
+function TGLNodes.Last: TGLNode;
 var
-   n : Integer;
+  N: Integer;
 begin
-   n:=Count-1;
-   if n>=0 then
-      Result:=TGLNode(inherited Items[n])
-   else Result:=nil;
+  N := Count - 1;
+  if N >= 0 then
+    Result := TGLNode(inherited Items[N])
+  else
+    Result := nil;
 end;
 
 // Update
 //
+
 procedure TGLNodes.Update(Item: TCollectionItem);
 begin
-   inherited;
-   NotifyChange;
+  inherited;
+  NotifyChange;
 end;
 
 // Add
 //
+
 function TGLNodes.Add: TGLNode;
 begin
-	Result:=(inherited Add) as TGLNode;
+  Result := (inherited Add) as TGLNode;
 end;
 
 // FindItemID
 //
+
 function TGLNodes.FindItemID(ID: Integer): TGLNode;
 begin
-	Result:=(inherited FindItemID(ID)) as TGLNode;
+  Result := (inherited FindItemID(ID)) as TGLNode;
 end;
 
 // NotifyChange
 //
+
 procedure TGLNodes.NotifyChange;
 begin
-   if (UpdateCount=0) and (GetOwner<>nil) and (GetOwner is TGLUpdateAbleComponent) then
-      TGLUpdateAbleComponent(GetOwner).NotifyChange(Self);
+  if (UpdateCount = 0) and (GetOwner <> nil) and
+    (GetOwner is TGLUpdateAbleComponent) then
+    TGLUpdateAbleComponent(GetOwner).NotifyChange(Self);
 end;
 
 // EndUpdate
 //
+
 procedure TGLNodes.EndUpdate;
 begin
-   inherited EndUpdate;
-   // Workaround for a bug in VCL's EndUpdate
-   if UpdateCount=0 then NotifyChange;
+  inherited EndUpdate;
+  // Workaround for a bug in VCL's EndUpdate
+  if UpdateCount = 0 then
+    NotifyChange;
 end;
 
 // AddNode (TGLCustomCoordinates)
 //
-procedure TGLNodes.AddNode(const coords : TGLCustomCoordinates);
+
+procedure TGLNodes.AddNode(const Coords: TGLCustomCoordinates);
 begin
-   Add.AsVector:=coords.AsVector;
+  Add.AsVector := Coords.AsVector;
 end;
 
 // AddNode (floats)
 //
-procedure TGLNodes.AddNode(const x, y, z : Single);
+
+procedure TGLNodes.AddNode(const X, Y, Z: Single);
 begin
-   Add.AsVector:=PointMake(x, y, z);
+  Add.AsVector := PointMake(X, Y, Z);
 end;
 
 // AddNode (TVector)
 //
-procedure TGLNodes.AddNode(const value : TVector);
+
+procedure TGLNodes.AddNode(const Value: TVector);
 begin
-   Add.AsVector:=value;
+  Add.AsVector := Value;
 end;
 
 // AddNode (TAffineVector)
 //
-procedure TGLNodes.AddNode(const value : TAffineVector);
+
+procedure TGLNodes.AddNode(const Value: TAffineVector);
 begin
-   Add.AsAffineVector:=value;
+  Add.AsAffineVector := Value;
 end;
 
 // AddXYArc
 //
-procedure TGLNodes.AddXYArc(xRadius, yRadius : Single;
-                            startAngle, stopAngle : Single;
-                            nbSegments : Integer;
-                            const center : TAffineVector);
+
+procedure TGLNodes.AddXYArc(XRadius, YRadius: Single;
+  StartAngle, StopAngle: Single; NbSegments: Integer;
+  const Center: TAffineVector);
 var
-   i : Integer;
-   f : Single;
-   s, c : Single;
+  I: Integer;
+  F: Single;
+  S, C: Single;
 begin
-   BeginUpdate;
-   try
-      startAngle:=DegToRad(startAngle);
-      stopAngle :=DegToRad(stopAngle);
-      f:=(stopAngle-startAngle)/nbSegments;
-      for i:=0 to nbSegments do begin
-         SinCos(i*f+startAngle, s, c);
-         SetVector(Add.FCoords, center[0]+xRadius*c, center[1]+yRadius*s, center[2], 1);
-      end;
-   finally
-      EndUpdate;
-   end;
+  BeginUpdate;
+  try
+    StartAngle := DegToRad(StartAngle);
+    StopAngle := DegToRad(StopAngle);
+    F := (StopAngle - StartAngle) / NbSegments;
+    for I := 0 to NbSegments do
+    begin
+      SinCos(I * F + StartAngle, S, C);
+      SetVector(Add.FCoords, Center.V[0] + XRadius * C,
+                             Center.V[1] + YRadius * S,
+                             Center.V[2], 1);
+    end;
+  finally
+    EndUpdate;
+  end;
 end;
 
 // Barycenter
 //
-function TGLNodes.Barycenter : TAffineVector;
+
+function TGLNodes.Barycenter: TAffineVector;
 var
-   i : Integer;
+  I: Integer;
 begin
-   Result:=NullVector;
-   if Count>0 then begin
-      for i:=0 to Count-1 do
-         AddVector(Result, PAffineVector(Items[i].AsAddress)^);
-      ScaleVector(Result, 1.0/Count);
-   end;
+  Result := NullVector;
+  if Count > 0 then
+  begin
+    for I := 0 to Count - 1 do
+      AddVector(Result, PAffineVector(Items[I].AsAddress)^);
+    ScaleVector(Result, 1.0 / Count);
+  end;
 end;
 
 // Normal
 //
-function TGLNodes.Normal : TAffineVector;
+
+function TGLNodes.Normal: TAffineVector;
 begin
-   if Count>=3 then
-      CalcPlaneNormal(Items[0].FCoords, Items[1].FCoords, Items[2].FCoords, Result)
-   else Result:=NullVector;
+  if Count >= 3 then
+    CalcPlaneNormal(Items[0].FCoords, Items[1].FCoords,
+      Items[2].FCoords, Result)
+  else
+    Result := NullVector;
 end;
 
 // Vector
 //
-function TGLNodes.Vector(i : Integer) : TAffineVector;
 
-   procedure CalcUsingPrev; forward;
+function TGLNodes.Vector(I: Integer): TAffineVector;
 
-   procedure CalcUsingNext;
-   begin
-      if i<Count-1 then
-         VectorSubtract(Items[i].AsVector, Items[i+1].AsVector, Result)
-      else CalcUsingPrev;
-   end;
+procedure CalcUsingPrev; forward;
 
-   procedure CalcUsingPrev;
-   begin
-      if i>0 then
-         VectorSubtract(Items[i-1].AsVector, Items[i].AsVector, Result)
-      else CalcUsingNext;
-   end;
+  procedure CalcUsingNext;
+  begin
+    if I < Count - 1 then
+      VectorSubtract(Items[I].AsVector, Items[I + 1].AsVector, Result)
+    else
+      CalcUsingPrev;
+  end;
 
+  procedure CalcUsingPrev;
+  begin
+    if I > 0 then
+      VectorSubtract(Items[I - 1].AsVector, Items[I].AsVector, Result)
+    else
+      CalcUsingNext;
+  end;
+
+var
+  J: Integer;
+  Vecnull: Boolean;
 begin
-   Assert((i>=0) and (i<Count));
-   if i=0 then
-      if i=Count-1 then
-         SetVector(Result, NullVector)
-      else VectorSubtract(Items[i+1].AsVector, Items[i].AsVector, Result)
-   else if i=Count-1 then
-      VectorSubtract(Items[i].AsVector, Items[i-1].AsVector, Result)
-   else VectorSubtract(Items[i+1].AsVector, Items[i-1].AsVector, Result);
-   if VectorNorm(Result)<1e-5 then
+  Assert((I >= 0) and (I < Count));
+  if I = 0 then
+    if I = Count - 1 then
       SetVector(Result, NullVector)
-   else NormalizeVector(Result);
+    else
+      VectorSubtract(Items[I + 1].AsVector, Items[I].AsVector, Result)
+  else if I = Count - 1 then
+    VectorSubtract(Items[I].AsVector, Items[I - 1].AsVector, Result)
+  else
+    VectorSubtract(Items[I + 1].AsVector, Items[I - 1].AsVector, Result);
+  if VectorNorm(Result) < 1E-5 then
+  begin
+    // avoid returning null vector which generates display bugs in geometry
+    J := 1;
+    Vecnull := True;
+    while (I + J < Count) and (Vecnull) do
+    begin
+      VectorSubtract(Items[I + J].AsVector, Items[I].AsVector, Result);
+      if (VectorNorm(Result) > 1E-5) then
+        Vecnull := False
+      else
+        Inc(J);
+    end;
+    J := 1;
+    while (I - J > 0) and (Vecnull) do
+    begin
+      VectorSubtract(Items[I].AsVector, Items[I - J].AsVector, Result);
+      if (VectorNorm(Result) > 1E-5) then
+        Vecnull := False
+      else
+        Inc(J);
+    end;
+    if Vecnull then
+      SetVector(Result, NullVector)
+    else
+      NormalizeVector(Result);
+  end
+  else
+    NormalizeVector(Result);
 end;
 
 // GetExtents
 //
-procedure TGLNodes.GetExtents(var min, max : TAffineVector);
+
+procedure TGLNodes.GetExtents(var Min, Max: TAffineVector);
 var
-   i, k : Integer;
-   f : Single;
+  I, K: Integer;
+  F: Single;
 const
-   cBigValue : Single = 1e50;
-   cSmallValue : Single = -1e50;
+  CBigValue: Single = 1E50;
+  CSmallValue: Single = -1E50;
 begin
-   SetVector(min, cBigValue, cBigValue, cBigValue);
-   SetVector(max, cSmallValue, cSmallValue, cSmallValue);
-   for i:=0 to Count-1 do begin
-      for k:=0 to 2 do begin
-         f:=PAffineVector(Items[i].AsAddress)^[k];
-         if f<min[k] then min[k]:=f;
-         if f>max[k] then max[k]:=f;
-      end;
-   end;
+  SetVector(Min, CBigValue, CBigValue, CBigValue);
+  SetVector(Max, CSmallValue, CSmallValue, CSmallValue);
+  for I := 0 to Count - 1 do
+  begin
+    for K := 0 to 2 do
+    begin
+      F := PAffineVector(Items[I].AsAddress)^.V[K];
+      if F < Min.V[K] then
+        Min.V[K] := F;
+      if F > Max.V[K] then
+        Max.V[K] := F;
+    end;
+  end;
 end;
 
 // Translate
 //
-procedure TGLNodes.Translate(const tv : TAffineVector);
+
+procedure TGLNodes.Translate(const Tv: TAffineVector);
 var
-   i : Integer;
+  I: Integer;
 begin
-   for i:=0 to Count-1 do
-      AddVector(PAffineVector(Items[i].AsAddress)^, tv);
-   NotifyChange;
+  for I := 0 to Count - 1 do
+    AddVector(PAffineVector(Items[I].AsAddress)^, Tv);
+  NotifyChange;
 end;
 
 // Scale (vector)
 //
-procedure TGLNodes.Scale(const fv : TAffineVector);
+
+procedure TGLNodes.Scale(const Fv: TAffineVector);
 var
-   i : Integer;
+  I: Integer;
 begin
-   for i:=0 to Count-1 do
-      ScaleVector(PAffineVector(Items[i].AsAddress)^, fv);
-   NotifyChange;
+  for I := 0 to Count - 1 do
+    ScaleVector(PAffineVector(Items[I].AsAddress)^, Fv);
+  NotifyChange;
 end;
 
 // Scale (single)
 //
-procedure TGLNodes.Scale(f : Single);
+
+procedure TGLNodes.Scale(F: Single);
 var
-   i : Integer;
+  I: Integer;
 begin
-   for i:=0 to Count-1 do
-      ScaleVector(PAffineVector(Items[i].AsAddress)^, f);
-   NotifyChange;
+  for I := 0 to Count - 1 do
+    ScaleVector(PAffineVector(Items[I].AsAddress)^, F);
+  NotifyChange;
 end;
 
 // RotateAroundX
 //
-procedure TGLNodes.RotateAroundX(angle : Single);
+
+procedure TGLNodes.RotateAroundX(Angle: Single);
 var
-   i : Integer;
-   c, s, v2 : Single;
-   v : PAffineVector;
+  I: Integer;
+  C, S, V2: Single;
+  V: PAffineVector;
 begin
-   SinCos(cPIDiv180*angle, s, c);
-   for i:=0 to Count-1 do begin
-      v:=PAffineVector(Items[i].AsAddress);
-      v2:=v^[2];
-      v^[1]:=c*v^[1]+s*v2;
-      v^[2]:=c*v2-s*v^[1];
-   end;
-   NotifyChange;
+  SinCos(CPIDiv180 * Angle, S, C);
+  for I := 0 to Count - 1 do
+  begin
+    V := PAffineVector(Items[I].AsAddress);
+    V2 := V^.V[2];
+    V^.V[1] := C * V^.V[1] + S * V2;
+    V^.V[2] := C * V2 - S * V^.V[1];
+  end;
+  NotifyChange;
 end;
 
 // RotateAroundY
 //
-procedure TGLNodes.RotateAroundY(angle : Single);
+
+procedure TGLNodes.RotateAroundY(Angle: Single);
 var
-   i : Integer;
-   c, s, v0 : Single;
-   v : PAffineVector;
+  I: Integer;
+  C, S, V0: Single;
+  V: PAffineVector;
 begin
-   SinCos(cPIDiv180*angle, s, c);
-   for i:=0 to Count-1 do begin
-      v:=PAffineVector(Items[i].AsAddress);
-      v0:=v^[0];
-      v^[0]:=c*v0+s*v^[2];
-      v^[2]:=c*v^[2]-s*v0;
-   end;
-   NotifyChange;
+  SinCos(CPIDiv180 * Angle, S, C);
+  for I := 0 to Count - 1 do
+  begin
+    V := PAffineVector(Items[I].AsAddress);
+    V0 := V^.V[0];
+    V^.V[0] := C * V0 + S * V^.V[2];
+    V^.V[2] := C * V^.V[2] - S * V0;
+  end;
+  NotifyChange;
 end;
 
 // RotateAroundZ
 //
-procedure TGLNodes.RotateAroundZ(angle : Single);
+
+procedure TGLNodes.RotateAroundZ(Angle: Single);
 var
-   i : Integer;
-   c, s, v1 : Single;
-   v : PAffineVector;
+  I: Integer;
+  C, S, V1: Single;
+  V: PAffineVector;
 begin
-   SinCos(cPIDiv180*angle, s, c);
-   for i:=0 to Count-1 do begin
-      v:=PAffineVector(Items[i].AsAddress);
-      v1:=v^[1];
-      v^[1]:=c*v1+s*v^[0];
-      v^[0]:=c*v^[0]-s*v1;
-   end;
-   NotifyChange;
+  SinCos(CPIDiv180 * Angle, S, C);
+  for I := 0 to Count - 1 do
+  begin
+    V := PAffineVector(Items[I].AsAddress);
+    V1 := V^.V[1];
+    V^.V[1] := C * V1 + S * V^.V[0];
+    V^.V[0] := C * V^.V[0] - S * V1;
+  end;
+  NotifyChange;
 end;
 
 // CreateNewCubicSpline
 //
-function TGLNodes.CreateNewCubicSpline : TCubicSpline;
+
+function TGLNodes.CreateNewCubicSpline: TCubicSpline;
 var
-   i : Integer;
-   xa, ya, za : PFloatArray;
+  I: Integer;
+  Xa, Ya, Za: PFloatArray;
 begin
-   GetMem(xa, SizeOf(TGLFloat)*Count);
-   GetMem(ya, SizeOf(TGLFloat)*Count);
-   GetMem(za, SizeOf(TGLFloat)*Count);
-   for i:=0 to Count-1 do with Items[i] do begin
-      xa^[i]:=X;
-      ya^[i]:=Y;
-      za^[i]:=Z;
-   end;
-   Result:=TCubicSpline.Create(xa, ya, za, nil, Count);
-   FreeMem(xa);
-   FreeMem(ya);
-   FreeMem(za);
+  GetMem(Xa, SizeOf(TGLFloat) * Count);
+  GetMem(Ya, SizeOf(TGLFloat) * Count);
+  GetMem(Za, SizeOf(TGLFloat) * Count);
+  for I := 0 to Count - 1 do
+    with Items[I] do
+    begin
+      Xa^[I] := X;
+      Ya^[I] := Y;
+      Za^[I] := Z;
+    end;
+  Result := TCubicSpline.Create(Xa, Ya, Za, nil, Count);
+  FreeMem(Xa);
+  FreeMem(Ya);
+  FreeMem(Za);
 end;
 
 // RenderTesselatedPolygon
 //
 var
-   nbExtraVertices : Integer;
-   newVertices : PAffineVectorArray;
+  NbExtraVertices: Integer;
+  NewVertices: PAffineVectorArray;
 
-  function AllocNewVertex : PAffineVector;
-  begin
-     Inc(nbExtraVertices);
-     Result:=@newVertices[nbExtraVertices-1];
-  end;
+function AllocNewVertex: PAffineVector;
+begin
+  Inc(NbExtraVertices);
+  Result := @NewVertices[NbExtraVertices - 1];
+end;
 
-  procedure tessError(errno : TGLEnum); {$IFDEF Win32} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF}
-  begin
-     Assert(False, IntToStr(errno)+': '+gluErrorString(errno));
-  end;
+procedure TessError(Errno: TGLEnum);
+{$IFDEF Win32} stdcall;
+{$ENDIF}{$IFDEF UNIX} cdecl;
+{$ENDIF}
+begin
+  Assert(False, IntToStr(Errno) + ': ' + string(GluErrorString(Errno)));
+end;
 
-  procedure tessIssueVertex(vertexData : Pointer); {$IFDEF Win32} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF}
-  begin
-     xglTexCoord2fv(vertexData);
-     glVertex3fv(vertexData);
-  end;
+procedure TessIssueVertex(VertexData: Pointer);
+{$IFDEF Win32} stdcall;
+{$ENDIF}{$IFDEF UNIX} cdecl;
+{$ENDIF}
+begin
+  Xgl.TexCoord2fv(VertexData);
+  GL.Vertex3fv(VertexData);
+end;
 
-  procedure tessCombine(coords : PDoubleVector; vertex_data : Pointer;
-                        weight : PGLFloat; var outData : Pointer); {$IFDEF Win32} stdcall; {$ENDIF} {$IFDEF UNIX} cdecl; {$ENDIF}
-  begin
-     outData:=AllocNewVertex;
-     SetVector(PAffineVector(outData)^, coords^[0], coords^[1], coords^[2]);
-  end;
+procedure TessCombine(Coords: PDoubleVector; Vertex_data: Pointer;
+  Weight: PGLFloat; var OutData: Pointer);
+{$IFDEF Win32} stdcall;
+{$ENDIF}{$IFDEF UNIX} cdecl;
+{$ENDIF}
+begin
+  OutData := AllocNewVertex;
+  SetVector(PAffineVector(OutData)^, Coords^[0], Coords^[1], Coords^[2]);
+end;
 
-procedure TGLNodes.RenderTesselatedPolygon(ATextured : Boolean;
-                                           ANormal : PAffineVector = nil;
-                                           ASplineDivisions : Integer = 1;
-                                           AInvertNormals : Boolean = False);
+procedure TGLNodes.RenderTesselatedPolygon(ATextured: Boolean;
+  ANormal: PAffineVector = nil; ASplineDivisions: Integer = 1;
+  AInvertNormals: Boolean = False);
 var
-   i : Integer;
-   tess : PGLUTesselator;
-   dblVector : TAffineDblVector;
-   spline : TCubicSpline;
-   splinePos : PAffineVector;
-   f : Single;
+  I: Integer;
+  Tess: PGLUTesselator;
+  DblVector: TAffineDblVector;
+  Spline: TCubicSpline;
+  SplinePos: PAffineVector;
+  F: Single;
 
 begin
-   if Count>2 then begin
-      // Create and initialize the GLU tesselator
-      tess:=gluNewTess;
-      gluTessCallback(tess, GLU_TESS_BEGIN, @glBegin);
-      if ATextured then
-         gluTessCallback(tess, GLU_TESS_VERTEX, @tessIssueVertex)
-      else gluTessCallback(tess, GLU_TESS_VERTEX, @glVertex3fv);
-      gluTessCallback(tess, GLU_TESS_END, @glEnd);
-      gluTessCallback(tess, GLU_TESS_ERROR, @tessError);
-      gluTessCallback(tess, GLU_TESS_COMBINE, @tessCombine);
-      nbExtraVertices:=0;
-      // Issue normal
-      if Assigned(ANormal) then begin
-         glNormal3fv(PGLFloat(ANormal));
-         gluTessNormal(tess, ANormal^[0], ANormal^[1], ANormal^[2]);
+  if Count > 2 then
+  begin
+    // Create and initialize the GLU tesselator
+    Tess := GluNewTess;
+    GluTessCallback(Tess, GLU_TESS_BEGIN, @GL.Begin_);
+    if ATextured then
+      GluTessCallback(Tess, GLU_TESS_VERTEX, @TessIssueVertex)
+    else
+      GluTessCallback(Tess, GLU_TESS_VERTEX, @GL.Vertex3fv);
+    GluTessCallback(Tess, GLU_TESS_END, @GL.End_);
+    GluTessCallback(Tess, GLU_TESS_ERROR, @TessError);
+    GluTessCallback(Tess, GLU_TESS_COMBINE, @TessCombine);
+    NbExtraVertices := 0;
+    // Issue normal
+    if Assigned(ANormal) then
+    begin
+      GL.Normal3fv(PGLFloat(ANormal));
+      GluTessNormal(Tess, ANormal^.V[0], ANormal^.V[1], ANormal^.V[2]);
+    end;
+    // Issue polygon
+    GluTessBeginPolygon(Tess, nil);
+    GluTessBeginContour(Tess);
+    if ASplineDivisions <= 1 then
+    begin
+      // no spline, use direct coordinates
+      GetMem(NewVertices, Count * SizeOf(TAffineVector));
+      if AInvertNormals then
+      begin
+        for I := Count - 1 downto 0 do
+        begin
+          SetVector(DblVector, PAffineVector(Items[I].AsAddress)^);
+          GluTessVertex(Tess, DblVector, Items[I].AsAddress);
+        end;
+      end
+      else
+      begin
+        for I := 0 to Count - 1 do
+        begin
+          SetVector(DblVector, PAffineVector(Items[I].AsAddress)^);
+          GluTessVertex(Tess, DblVector, Items[I].AsAddress);
+        end;
       end;
-      // Issue polygon
-      gluTessBeginPolygon(tess, nil);
-      gluTessBeginContour(tess);
-      if ASplineDivisions<=1 then begin
-         // no spline, use direct coordinates
-         GetMem(newVertices, Count*SizeOf(TAffineVector));
-         if AInvertNormals then begin
-            for i:=Count-1 downto 0 do begin
-               SetVector(dblVector, PAffineVector(Items[i].AsAddress)^);
-               gluTessVertex(tess, dblVector, Items[i].AsAddress);
-            end;
-         end else begin
-            for i:=0 to Count-1 do begin
-               SetVector(dblVector, PAffineVector(Items[i].AsAddress)^);
-               gluTessVertex(tess, dblVector, Items[i].AsAddress);
-            end;
-         end;
-      end else begin
-         // cubic spline
-         GetMem(newVertices, 2*ASplineDivisions*Count*SizeOf(TAffineVector));
-         spline:=CreateNewCubicSpline;
-         f:=1.0/ASplineDivisions;
-         if AInvertNormals then begin
-            for i:=ASplineDivisions*(Count-1) downto 0 do begin
-               splinePos:=AllocNewVertex;
-               spline.SplineAffineVector(i*f, splinePos^);
-               SetVector(dblVector, splinePos^);
-               gluTessVertex(tess, dblVector, splinePos);
-            end;
-         end else begin
-            for i:=0 to ASplineDivisions*(Count-1) do begin
-               splinePos:=AllocNewVertex;
-               spline.SplineAffineVector(i*f, splinePos^);
-               SetVector(dblVector, splinePos^);
-               gluTessVertex(tess, dblVector, splinePos);
-            end;
-         end;
-         spline.Free;
+    end
+    else
+    begin
+      // cubic spline
+      GetMem(NewVertices, 2 * ASplineDivisions * Count * SizeOf(TAffineVector));
+      Spline := CreateNewCubicSpline;
+      F := 1.0 / ASplineDivisions;
+      if AInvertNormals then
+      begin
+        for I := ASplineDivisions * (Count - 1) downto 0 do
+        begin
+          SplinePos := AllocNewVertex;
+          Spline.SplineAffineVector(I * F, SplinePos^);
+          SetVector(DblVector, SplinePos^);
+          GluTessVertex(Tess, DblVector, SplinePos);
+        end;
+      end
+      else
+      begin
+        for I := 0 to ASplineDivisions * (Count - 1) do
+        begin
+          SplinePos := AllocNewVertex;
+          Spline.SplineAffineVector(I * F, SplinePos^);
+          SetVector(DblVector, SplinePos^);
+          GluTessVertex(Tess, DblVector, SplinePos);
+        end;
       end;
-      gluTessEndContour(tess);
-      gluTessEndPolygon(tess);
-      // release stuff
-      if Assigned(newVertices) then
-         FreeMem(newVertices);
-      gluDeleteTess(tess);
-   end;
+      Spline.Free;
+    end;
+    GluTessEndContour(Tess);
+    GluTessEndPolygon(Tess);
+    // release stuff
+    if Assigned(NewVertices) then
+      FreeMem(NewVertices);
+    GluDeleteTess(Tess);
+  end;
 end;
 
 end.

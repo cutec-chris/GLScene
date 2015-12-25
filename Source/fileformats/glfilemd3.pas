@@ -6,16 +6,19 @@
               FreeForms and Actors.
 
   History :
-    21/08/03 - EG - Fixed GetNormalFromMD3Normal (lat/lon were inverted)
-    28/02/03 - SG - Creation
+    <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to records
+    <li>02/08/04 - LR, YHC - BCB corrections: use record instead array
+    <li>21/08/03 - EG - Fixed GetNormalFromMD3Normal (lat/lon were inverted)
+    <li>28/02/03 - SG - Creation
 }
 unit GLFileMD3;
 
 interface
 
 uses
-  Classes, SysUtils, GLVectorFileObjects, GLMaterial, ApplicationFileIO,
-  VectorGeometry, FileMD3;
+  Classes, SysUtils,
+  GLVectorFileObjects, GLMaterial, GLApplicationFileIO,
+  GLVectorGeometry, FileMD3, GLTexture;
 
 type
 
@@ -63,9 +66,9 @@ var
     // The MD3 normal is a latitude/longitude value that needs
     // to be calculated into cartesian space.
     lat:=(n[1])*(2*pi)/255; lng:=(n[0])*(2*pi)/255;
-    result[0]:=cos(lat)*sin(lng);
-    result[1]:=sin(lat)*sin(lng);
-    result[2]:=cos(lng);
+    result.X:=cos(lat)*sin(lng);
+    result.Y:=sin(lat)*sin(lng);
+    result.Z:=cos(lng);
   end;
 
   procedure AllocateMaterial(meshname:string);
@@ -88,7 +91,7 @@ begin
   try
     for i:=0 to MD3File.ModelHeader.numMeshes-1 do begin
       mesh:=TMorphableMeshObject.CreateOwned(Owner.MeshObjects);
-      mesh.Name:=trim(MD3File.MeshData[i].MeshHeader.strName);
+      mesh.Name:=trim(string(MD3File.MeshData[i].MeshHeader.strName));
       with mesh, MD3File do begin
         Mode:=momFaceGroups;
         faceGroup:=TFGIndexTexCoordList.CreateOwned(FaceGroups);
@@ -101,15 +104,15 @@ begin
           // Get the vertex indices and texture coordinates
           for j:=0 to MeshData[i].MeshHeader.numTriangles-1 do begin
             with MeshData[i].Triangles[j] do begin
-              Add(vertexIndices[0],
-                  MeshData[i].TexCoords[vertexIndices[0]].textureCoord[0],
-                  1-MeshData[i].TexCoords[vertexIndices[0]].textureCoord[1]);
-              Add(vertexIndices[2],
-                  MeshData[i].TexCoords[vertexIndices[2]].textureCoord[0],
-                  1-MeshData[i].TexCoords[vertexIndices[2]].textureCoord[1]);
-              Add(vertexIndices[1],
-                  MeshData[i].TexCoords[vertexIndices[1]].textureCoord[0],
-                  1-MeshData[i].TexCoords[vertexIndices[1]].textureCoord[1]);
+              Add(vertexIndices.X,
+                  MeshData[i].TexCoords[vertexIndices.X].textureCoord.X,
+                  1-MeshData[i].TexCoords[vertexIndices.X].textureCoord.Y);
+              Add(vertexIndices.Z,
+                  MeshData[i].TexCoords[vertexIndices.Z].textureCoord.X,
+                  1-MeshData[i].TexCoords[vertexIndices.Z].textureCoord.Y);
+              Add(vertexIndices.Y,
+                  MeshData[i].TexCoords[vertexIndices.Y].textureCoord.X,
+                  1-MeshData[i].TexCoords[vertexIndices.Y].textureCoord.Y);
             end;
           end;
         end;
@@ -117,18 +120,19 @@ begin
         // Get the mesh data for each morph frame
         for j:=0 to ModelHeader.numFrames-1 do begin
           morphTarget:=TMeshMorphTarget.CreateOwned(MorphTargets);
-          morphTarget.Name:=Trim(MeshData[i].MeshHeader.strName)+'['+IntToStr(j)+']';
+          morphTarget.Name:=Trim(string(MeshData[i].MeshHeader.strName))+'['+IntToStr(j)+']';
           numVerts:=MeshData[i].MeshHeader.numVertices;
           morphTarget.Vertices.Capacity:=numVerts;
           for k:=numVerts*j to numVerts*(j+1)-1 do begin
             morphTarget.Vertices.Add(
-              MeshData[i].Vertices[k].Vertex[0]/64,
-              MeshData[i].Vertices[k].Vertex[1]/64,
-              MeshData[i].Vertices[k].Vertex[2]/64);
+              MeshData[i].Vertices[k].Vertex.X/64,
+              MeshData[i].Vertices[k].Vertex.Y/64,
+              MeshData[i].Vertices[k].Vertex.Z/64);
             morphTarget.Normals.Add(
-              GetNormalFromMD3Normal(MeshData[i].Vertices[k].normal));
+              GetNormalFromMD3Normal(MeshData[i].Vertices[k].normal.V));
           end;
         end;
+
       end;
       if mesh.MorphTargets.Count>0 then
         mesh.MorphTo(0);

@@ -8,19 +8,23 @@ unit FMain;
 interface
 
 uses
-  LCLProc,LCLIntf,LMessages, SysUtils, Classes, Graphics, Controls, Forms, FMod,
-  Dialogs, GLScene, GLObjects, GLLCLViewer, VectorGeometry,
+  LCLProc, LCLIntf, LMessages, SysUtils, Classes, Graphics, Controls, Forms,
+  FMod, Dialogs, GLScene, GLObjects, GLLCLViewer, VectorGeometry,
   GLVectorFileObjects, GLTexture, ApplicationFileIO, UAirplane, GLCadencer,
   GLTerrainRenderer, GLHeightData, GLHeightTileFileHDS, GLSkyBox, GLFileWAV,
   GLFileMP3, GLTexCombineShader, UAirBlastEngine, UAirBlastControler,
   UABControlerUI, GLParticleFX, GLPerlinPFX, UGameEngine, GLCanvas, GLSound,
   GLSMFMOD, UABVoice, DToolBox, GLBitmapFont, GLWindowsFont, ExtCtrls,
   GLGameMenu, GLHUDObjects, GLMaterial, GLCoordinates, GLCrossPlatform,
-  BaseClasses,FileUtil,LCLType;
+  GLViewer, BaseClasses, FileUtil, LCLType,GLFileJPEG;
 
 type
+
+  { TMain }
+
   TMain = class(TForm)
     GLScene: TGLScene;
+    RadioGroup1: TRadioGroup;
     SceneViewer: TGLSceneViewerLCL;
     LSSun: TGLLightSource;
     MaterialLibrary: TGLMaterialLibrary;
@@ -60,6 +64,8 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure MaterialLibraryTextureNeeded(Sender: TObject;
+      var textureFileName: string);
     procedure TimerTimer(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
@@ -119,7 +125,7 @@ begin
   SetCurrentDirUTF8(ExtractFilePath(Application.ExeName)); { *Konvertiert von SetCurrentDir* }
   SceneViewer.Cursor := crNone;
 
-  HTF.HTFFileName := 'terrains\desert.htf';
+  HTF.HTFFileName := 'terrains'+DirectorySeparator+'desert.htf';
   HTF.MaxPoolSize := 16 * 1024 * 1024;
 
   SetTexImageName(MaterialLibrary, 'Terrain', 'Desert.jpg');
@@ -136,10 +142,10 @@ begin
   SetTexImageName(MLSkyBox, 'top', 'Top.jpg');
 
 {$WARNINGS OFF}
-  FindFirstUTF8('Sounds\*.*',faArchive,searchRec); { *Konvertiert von FindFirst* }
+  FindFirstUTF8('Sounds'+DirectorySeparator+'*.*',faArchive,searchRec); { *Konvertiert von FindFirst* }
 {$WARNINGS ON}
   repeat
-    GLSoundLibrary.Samples.AddFile('Sounds\' + searchRec.Name,
+    GLSoundLibrary.Samples.AddFile('Sounds'+DirectorySeparator + searchRec.Name,
       ChangeFileExt(searchRec.Name, ''))
   until FindNextUTF8(searchRec) { *Konvertiert von FindNext* } <> 0;
   FindCloseUTF8(searchRec); { *Konvertiert von FindClose* }
@@ -403,7 +409,7 @@ begin
   GameMenu.Visible := False;
 
   FGameEngine.Clear;
-  FGameEngine.LoadFromFile('Missions'+DirectorySeparator+fileName);
+  FGameEngine.LoadFromFile(fileName);
 
   with FGameEngine.AddViewerCam do
   begin
@@ -638,6 +644,12 @@ begin
     end;
   end;
   Key := 0;
+end;
+
+procedure TMain.MaterialLibraryTextureNeeded(Sender: TObject;
+  var textureFileName: string);
+begin
+  textureFileName:=FindInPaths(textureFileName, cPaths);
 end;
 
 procedure TMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;

@@ -21,10 +21,12 @@
   - BounceFactor: Restituition factor, 1 means that it will bounce forever
 
   <b>History : </b><font size=-1><ul>
+    <li>21/01/01 - DanB - Added "inherited" call to TGLDCEDynamic/TGLDCEStatic.WriteToFiler
+    <li>18/09/10 - YP - Moved published behaviours' events to public (they cannot be restored by the filer)
     <li>30/03/07 - DaStr - Added $I GLScene.inc
     <li>29/01/07 - DaStr - Moved registration to GLSceneRegister.pas
     <li>01/07/05 - MathX - Fixed memory leak on contactPoints (moveByDistance method)
-    <li>23/01/05 - LucasG - Code reorganized, many fixes and some new features 
+    <li>23/01/05 - LucasG - Code reorganized, many fixes and some new features
     <li>19/11/04 - GAK - Added standardised collision selection (optionally use same selection criteria as other collision system)
     <li>17/11/04 - LucasG - Added support for static box colliders
     <li>17/11/04 - LucasG - Added UseGravity property to behaviour
@@ -47,14 +49,22 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, XCollection, VectorGeometry, VectorLists, GLVectorFileObjects,
-   GeometryBB, GLCrossPlatform, GLDCEMisc, GLEllipseCollision,
-   GLTerrainRenderer, GLCoordinates, BaseClasses, GLManager;
+uses
+  {$IFDEF GLS_DELPHI_XE2_UP}
+    System.Classes, System.SysUtils,
+  {$ELSE}
+    Classes, SysUtils,
+  {$ENDIF}
+
+  GLScene, XCollection, GLVectorGeometry, GLVectorLists, GLVectorFileObjects,
+  GLCrossPlatform, GLDCEMisc, GLEllipseCollision,
+  GLTerrainRenderer, GLCoordinates, GLBaseClasses, GLManager
+  , GLVectorTypes;
 
 type
   {Only csEllipsoid can have dynamic behaviour}
   TDCEShape = (csEllipsoid, csBox, csFreeform, csTerrain);
-  
+
   {: Indicates which type of layer comparison is made when trying to detect
      collisions between 2 bodies (A and B). Possible values are: <ul>
 	 <li>ccsDCEStandard: Collides bodies if A.layer <= B.layer
@@ -161,6 +171,7 @@ type
     procedure Assign(Source: TPersistent); override;
     class function FriendlyName : String; override;
     class function FriendlyDescription : String; override;
+    property OnCollision : TDCEObjectCollisionEvent read FOnCollision write FOnCollision;
   published
     { Published Declarations }
     property Active : Boolean read FActive write FActive;
@@ -171,7 +182,6 @@ type
     property Friction : Single read FFriction write SetFriction;
     property BounceFactor : Single read FBounceFactor write SetBounceFactor;
     property Size : TGLCoordinates read FSize write SetSize;
-    property OnCollision : TDCEObjectCollisionEvent read FOnCollision write FOnCollision;
   end;
 
   TDCESlideOrBounce = (csbSlide,csbBounce);
@@ -234,6 +244,7 @@ type
     property Speed : TAffineVector read FSpeed write FSpeed;
     property InGround : Boolean read FInGround;
     property MaxRecursionDepth:byte read FMaxRecursionDepth write FMaxRecursionDepth;//gak20041119
+    property OnCollision : TDCEObjectCollisionEvent read FOnCollision write FOnCollision;
   published
     { Published Declarations }
     property Active : Boolean read FActive write FActive;
@@ -244,7 +255,6 @@ type
     property Friction : Single read FFriction write SetFriction;
     property BounceFactor : Single read FBounceFactor write SetBounceFactor;
     property Size : TGLCoordinates read FSize write SetSize;
-    property OnCollision : TDCEObjectCollisionEvent read FOnCollision write FOnCollision;
     property SlideOrBounce:TDCESlideOrBounce read FSlideOrBounce write FSlideOrBounce;//gak20041122
   end;
 
@@ -255,9 +265,6 @@ function GetOrCreateDCEDynamic(behaviours : TGLBehaviours) : TGLDCEDynamic; over
 function GetOrCreateDCEDynamic(obj : TGLBaseSceneObject) : TGLDCEDynamic; overload;
 
 implementation
-
-uses SysUtils;
-
 
 function RotateVectorByObject(Obj: TGLBaseSceneObject; v: TAffineVector): TAffineVector;
 var v2: TVector;
@@ -304,7 +311,7 @@ begin
 end;
 
 function TGLDCEManager.MoveByDistance(var Body: TGLDCEDynamic; deltaS, deltaAbsS: TAffineVector): Single;
-var NewPosition: TVector;
+var
     //Friction and bounce
     TotalFriction, bounce,f,m,restitution: Single;
     ContactList: TIntegerList;
@@ -314,7 +321,7 @@ var NewPosition: TVector;
     //Collision results
     ColInfo: TDCECollision;
     lastobj:integer;//gak:20041119
-    i,j, oi: Integer;
+    i, oi: Integer;
     MP: TECMovePack;
     CanCollide,GravCollided: boolean;
     //Vars used to calculate high velocities
@@ -578,7 +585,7 @@ var
    i : Integer;
 begin
    // Fast deregistration
-   for i:=0 to FStatics.Count-1 do
+   for i:=0 to FDynamics.Count-1 do
       TGLDCEDynamic(FDynamics[i]).FManager:=nil;
    FDynamics.Clear;
 end;
@@ -644,7 +651,9 @@ end;
 procedure TGLDCEStatic.WriteToFiler(writer: TWriter);
 begin
    with writer do begin
-      WriteInteger(0); // ArchiveVersion 0
+      // ArchiveVersion 1, added inherited call
+      WriteInteger(1);
+      inherited;
       if Assigned(FManager) then
          WriteString(FManager.GetNamePath)
       else WriteString('');
@@ -664,7 +673,9 @@ var
 begin
    with reader do begin
       archiveVersion:=ReadInteger;
-      Assert(archiveVersion in [0]);
+      Assert(archiveVersion in [0..1]);
+      if archiveVersion >=1 then
+        inherited;
       FManagerName:=ReadString;
       Manager:=nil;
       FShape := TDCEShape(ReadInteger);
@@ -947,7 +958,9 @@ end;
 procedure TGLDCEDynamic.WriteToFiler(writer: TWriter);
 begin
    with writer do begin
-      WriteInteger(0); // ArchiveVersion 0
+      // ArchiveVersion 1, added inherited call
+      WriteInteger(1);
+      inherited;
       if Assigned(FManager) then
          WriteString(FManager.GetNamePath)
       else WriteString('');
@@ -971,7 +984,9 @@ var
 begin
    with reader do begin
       archiveVersion:=ReadInteger;
-      Assert(archiveVersion in [0]);
+      Assert(archiveVersion in [0..1]);
+      if archiveVersion >=1 then
+        inherited;
       FManagerName:=ReadString;
       Manager:=nil;
       FLayer := ReadInteger;
@@ -1061,5 +1076,9 @@ initialization
 	RegisterXCollectionItemClass(TGLDCEStatic);
 	RegisterXCollectionItemClass(TGLDCEDynamic);
 
+finalization
+
+	UnregisterXCollectionItemClass(TGLDCEStatic);
+	UnregisterXCollectionItemClass(TGLDCEDynamic);
 
 end.

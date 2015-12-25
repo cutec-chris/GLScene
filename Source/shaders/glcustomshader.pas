@@ -8,7 +8,11 @@
     It also contains a procedures and function that can be used in all shaders.<p>
 
 	<b>History : </b><font size=-1><ul>
-      <li>22/01/10 - Yar   - Added to TGLCustomShaderParameter property AsTexture
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
+      <li>15/16/10 - Yar - Rewrited static procedures (InitTexture, etc.)
+      <li>04/06/10 - Yar - Added unsigned integer uniforms
+      <li>22/04/10 - Yar - Fixes after GLState revision
+      <li>22/01/10 - Yar - Added to TGLCustomShaderParameter property AsTexture
       <li>25/10/09 - DaStr - Updated TGLGeometryProgram (thanks YarUnderoaker)
       <li>24/08/09 - DaStr - Separated TGLShaderProgram into TGLVertexProgram,
                               TGLFragmentProgram and TGLGeometryProgram
@@ -107,9 +111,9 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  VectorGeometry, VectorTypes, GLTexture, GLCadencer, OpenGL1x, GLScene,
+  GLVectorGeometry, GLVectorTypes, GLTexture, GLCadencer, OpenGLTokens, GLScene,
   GLStrings, GLCrossPlatform, GLContext, GLRenderContextInfo, GLMaterial,
-  VectorLists;
+  GLVectorLists, GLTextureFormat, GLSLParameter;
 
 const
   glsShaderMaxLightSources = 8;
@@ -117,8 +121,6 @@ const
 type
   TGLShaderFogSupport = (sfsEnabled, sfsDisabled, sfsAuto);
   TGLTransformFeedBackMode = (tfbmInterleaved, tfbmSeparate);
-  TGLgsInTypes = (gsInPoints, gsInLines, gsInAdjLines, gsInTriangles, gsInAdjTriangles);
-  TGLgsOutTypes = (gsOutPoints, gsOutLineStrip, gsOutTriangleStrip);
 
   EGLCustomShaderException = class(EGLShaderException);
 
@@ -158,7 +160,8 @@ type
   IGLPostShader = interface
   ['{68A62362-AF0A-4CE8-A9E1-714FE02AFA4A}']
     {: Called on every pass. }
-    procedure DoUseTempTexture(const TempTexture: TGLTextureHandle; const TextureTarget: Cardinal);
+    procedure DoUseTempTexture(const TempTexture: TGLTextureHandle;
+      TextureTarget: TGLTextureTarget);
     {: Called to determine if it is compatible. }
     function GetTextureTarget: TGLTextureTarget;
   end;
@@ -257,22 +260,34 @@ type
   protected
     { Protected Declarations }
     function GetAsVector1f: Single; virtual; abstract;
-    function GetAsVector1i: Integer; virtual; abstract;
     function GetAsVector2f: TVector2f; virtual; abstract;
-    function GetAsVector2i: TVector2i; virtual; abstract;
     function GetAsVector3f: TVector3f; virtual; abstract;
-    function GetAsVector3i: TVector3i; virtual; abstract;
     function GetAsVector4f: TVector; virtual; abstract;
+
+    function GetAsVector1i: Integer; virtual; abstract;
+    function GetAsVector2i: TVector2i; virtual; abstract;
+    function GetAsVector3i: TVector3i; virtual; abstract;
     function GetAsVector4i: TVector4i; virtual; abstract;
 
+    function GetAsVector1ui: GLuint; virtual; abstract;
+    function GetAsVector2ui: TVector2ui; virtual; abstract;
+    function GetAsVector3ui: TVector3ui; virtual; abstract;
+    function GetAsVector4ui: TVector4ui; virtual; abstract;
+
     procedure SetAsVector1f(const Value: Single); virtual; abstract;
+    procedure SetAsVector2f(const Value: TVector2f); virtual; abstract;
+    procedure SetAsVector3f(const Value: TVector3f); virtual; abstract;
+    procedure SetAsVector4f(const Value: TVector4f); virtual; abstract;
+
     procedure SetAsVector1i(const Value: Integer); virtual; abstract;
     procedure SetAsVector2i(const Value: TVector2i); virtual; abstract;
     procedure SetAsVector3i(const Value: TVector3i); virtual; abstract;
     procedure SetAsVector4i(const Value: TVector4i); virtual; abstract;
-    procedure SetAsVector2f(const Value: TVector2f); virtual; abstract;
-    procedure SetAsVector3f(const Value: TVector3f); virtual; abstract;
-    procedure SetAsVector4f(const Value: TVector4f); virtual; abstract;
+
+    procedure SetAsVector1ui(const Value: GLuint); virtual; abstract;
+    procedure SetAsVector2ui(const Value: TVector2ui); virtual; abstract;
+    procedure SetAsVector3ui(const Value: TVector3ui); virtual; abstract;
+    procedure SetAsVector4ui(const Value: TVector4ui); virtual; abstract;
 
     function GetAsMatrix2f: TMatrix2f; virtual; abstract;
     function GetAsMatrix3f: TMatrix3f; virtual; abstract;
@@ -295,9 +310,9 @@ type
       const Value: TGLTexture);
 
     function GetAsCustomTexture(const TextureIndex: Integer;
-      const TextureTarget: Word): Cardinal; virtual; abstract;
+      TextureTarget: TGLTextureTarget): Cardinal; virtual; abstract;
     procedure SetAsCustomTexture(const TextureIndex: Integer;
-      const TextureTarget: Word; const Value: Cardinal); virtual; abstract;
+      TextureTarget: TGLTextureTarget; const Value: Cardinal); virtual; abstract;
 
     function GetAsUniformBuffer: GLenum; virtual; abstract;
     procedure SetAsUniformBuffer(UBO: GLenum); virtual; abstract;
@@ -333,6 +348,12 @@ type
     property AsVector3i: TVector3i read GetAsVector3i write SetAsVector3i;
     property AsVector4i: TVector4i read GetAsVector4i write SetAsVector4i;
 
+    //: Unsigned integer vector  types.
+    property AsVector1ui: GLuint   read GetAsVector1ui write SetAsVector1ui;
+    property AsVector2ui: TVector2ui read GetAsVector2ui write SetAsVector2ui;
+    property AsVector3ui: TVector3ui read GetAsVector3ui write SetAsVector3ui;
+    property AsVector4ui: TVector4ui read GetAsVector4ui write SetAsVector4ui;
+
     //: Matrix Types.
     property AsMatrix2f: TMatrix2f read GetAsMatrix2f write SetAsMatrix2f;
     property AsMatrix3f: TMatrix3f read GetAsMatrix3f write SetAsMatrix3f;
@@ -346,7 +367,7 @@ type
     property AsTextureRect[const TextureIndex: Integer]: TGLTexture write SetAsTextureRect;
     property AsTextureCube[const TextureIndex: Integer]: TGLTexture write SetAsTextureCube;
 
-    property AsCustomTexture[const TextureIndex: Integer; const TextureTarget: Word]: Cardinal read GetAsCustomTexture write SetAsCustomTexture;
+    property AsCustomTexture[const TextureIndex: Integer; TextureTarget: TGLTextureTarget]: Cardinal read GetAsCustomTexture write SetAsCustomTexture;
 
     property AsUniformBuffer: GLenum read GetAsUniformBuffer write SetAsUniformBuffer;
   end;
@@ -362,8 +383,10 @@ type
 // Exported procedures.
 procedure ApplyBlendingModeEx(const BlendingMode: TGLBlendingModeEx);
 procedure UnApplyBlendingModeEx;
-procedure InitTexture(const TextureHandle: Cardinal; const TextureSize: TGLSize; const TextureTarget: Word = GL_TEXTURE_2D);
-
+procedure InitTexture(
+  const TextureHandle: Cardinal;
+  const TextureSize: TGLSize;
+  const TextureTarget: TGLTextureTarget = ttTexture2D);
 // Probably need to give them proper names, instead of numbers... 
 procedure DrawTexturedScreenQuad;
 procedure DrawTexturedScreenQuad2(const ViewPortSize: TGLSize);
@@ -380,19 +403,21 @@ procedure GetActiveLightsList(const ALightIDs: TIntegerList);
 
 implementation
 
+uses
+  GLState;
+
 procedure GetActiveLightsList(const ALightIDs: TIntegerList);
 var
-  MaxLights: Integer;
   I: Integer;
-  LightEnabled: GLBoolean;
 begin
   ALightIDs.Clear;
-  glGetIntegerv(GL_MAX_LIGHTS, @maxLights);
-  for I := 0 to maxLights - 1 do
+  with CurrentGLContext.GLStates do
   begin
-    glGetBooleanv(GL_LIGHT0 + I, @lightEnabled);
-    if lightEnabled then
-      ALightIDs.Add(GL_LIGHT0 + I);
+    for I := 0 to MaxLights - 1 do
+    begin
+      if LightEnabling[I] then
+        ALightIDs.Add(I);
+    end;
   end;
 end;
 
@@ -410,156 +435,158 @@ end;
 
 procedure CopyScreentoTexture(const ViewPortSize: TGLSize; const TextureTarget: Word = GL_TEXTURE_2D);
 begin
-  glCopyTexSubImage2D(TextureTarget, 0, 0, 0, 0, 0, ViewPortSize.cx, ViewPortSize.cy);
+  GL.CopyTexSubImage2D(TextureTarget, 0, 0, 0, 0, 0, ViewPortSize.cx, ViewPortSize.cy);
 end;
 
 procedure CopyScreentoTexture2(const ViewPortSize: TGLSize; const TextureTarget: Word = GL_TEXTURE_2D);
 begin
-  glCopyTexImage2D(TextureTarget, 0, GL_RGB, 0, 0, ViewPortSize.cx, ViewPortSize.cy, 0);
+  GL.CopyTexImage2D(TextureTarget, 0, GL_RGB, 0, 0, ViewPortSize.cx, ViewPortSize.cy, 0);
 end;
 
 procedure ApplyBlendingModeEx(const BlendingMode: TGLBlendingModeEx);
 begin
-  glPushAttrib(GL_COLOR_BUFFER_BIT);
-  glEnable(GL_BLEND);
+  with CurrentGLContext.GLStates do
+  begin
+    Enable(stBlend);
 
-  case BlendingMode of
-    bmxOpaque: glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    bmxTransparency: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    bmxAdditive: glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    bmxAlphaTest50: glAlphaFunc(GL_GEQUAL, 0.5);
-    bmxAlphaTest100: glAlphaFunc(GL_GEQUAL, 1.0);
-    bmxModulate: glBlendFunc(GL_DST_COLOR, GL_ZERO);
-    bmxDestColorOne: glBlendFunc(GL_DST_COLOR, GL_ONE);
-    bmxDestAlphaOne: glBlendFunc(GL_DST_ALPHA, GL_ONE);
-    else
-      Assert(False, glsErrorEx + glsUnknownType);
+    case BlendingMode of
+      bmxOpaque: SetBlendFunc(bfSRCALPHA, bfONE);
+      bmxTransparency: SetBlendFunc(bfSRCALPHA, bfONEMINUSSRCALPHA);
+      bmxAdditive: SetBlendFunc(bfSRCALPHA, bfONE);
+      bmxAlphaTest50: SetGLAlphaFunction(cfGEQUAL, 0.5);
+      bmxAlphaTest100: SetGLAlphaFunction(cfGEQUAL, 1.0);
+      bmxModulate: SetBlendFunc(bfDSTCOLOR, bfZERO);
+      bmxDestColorOne: SetBlendFunc(bfDSTCOLOR, bfONE);
+      bmxDestAlphaOne: SetBlendFunc(bfDSTALPHA, bfONE);
+      else
+        Assert(False, glsErrorEx + glsUnknownType);
+    end;
   end;
 end;
 
 procedure UnApplyBlendingModeEx;
 begin
-  glPopAttrib;
 end;
 
 procedure DrawTexturedScreenQuad;
 begin
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix;
-  glLoadIdentity;
-  glMatrixMode(GL_PROJECTION);
-    glPushMatrix;
-    glLoadIdentity;
+  GL.MatrixMode(GL_MODELVIEW);
+  GL.PushMatrix;
+  GL.LoadIdentity;
+  GL.MatrixMode(GL_PROJECTION);
+    GL.PushMatrix;
+    GL.LoadIdentity;
 
     // drawing rectangle over screen
-    glDisable(GL_DEPTH_TEST);
+    GL.Disable(GL_DEPTH_TEST);
     DrawTexturedScreenQuad3;
-    glEnable(GL_DEPTH_TEST);
+    GL.Enable(GL_DEPTH_TEST);
 
-  glPopMatrix;
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix;
+  GL.PopMatrix;
+  GL.MatrixMode(GL_MODELVIEW);
+  GL.PopMatrix;
 end;
 
 procedure DrawTexturedScreenQuad2(const ViewPortSize: TGLSize);
-//var
-//  ProjectionMatrix: TMatrix4f;
 begin
-  glPushMatrix;
-  glMatrixMode(GL_PROJECTION);
-    glPushMatrix;
-    glLoadIdentity;
-    glOrtho(0, ViewPortSize.cx, ViewPortSize.cy, 0, 0, 1);
-    {
-          glMatrixMode(GL_MODELVIEW);
-          glGetFloatv(GL_PROJECTION_MATRIX, @ProjectionMatrix);
-          glLoadMatrixf(@ProjectionMatrix);
-          glLoadIdentity;
-    }
-    glDisable(GL_DEPTH_TEST);
-    glDepthMask(False);
-    glBegin(GL_QUADS);
-      glTexCoord2f(0.0, ViewPortSize.cy);             glVertex2f(0, 0);
-      glTexCoord2f(0.0, 0.0);                         glVertex2f(0, ViewPortSize.cy);
-      glTexCoord2f(ViewPortSize.cx, 0.0);             glVertex2f(ViewPortSize.cx, ViewPortSize.cy);
-      glTexCoord2f(ViewPortSize.cx, ViewPortSize.cy); glVertex2f(ViewPortSize.cx, 0);
-    glEnd;
-    glDepthMask(True);
-    glEnable(GL_DEPTH_TEST);
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix;
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix;
+  GL.PushMatrix;
+  GL.MatrixMode(GL_PROJECTION);
+    GL.PushMatrix;
+    GL.LoadIdentity;
+    GL.Ortho(0, ViewPortSize.cx, ViewPortSize.cy, 0, 0, 1);
+    GL.Disable(GL_DEPTH_TEST);
+    GL.DepthMask(False);
+    GL.Begin_(GL_QUADS);
+      GL.TexCoord2f(0.0, ViewPortSize.cy);             GL.Vertex2f(0, 0);
+      GL.TexCoord2f(0.0, 0.0);                         GL.Vertex2f(0, ViewPortSize.cy);
+      GL.TexCoord2f(ViewPortSize.cx, 0.0);             GL.Vertex2f(ViewPortSize.cx, ViewPortSize.cy);
+      GL.TexCoord2f(ViewPortSize.cx, ViewPortSize.cy); GL.Vertex2f(ViewPortSize.cx, 0);
+    GL.End_;
+    GL.DepthMask(True);
+    GL.Enable(GL_DEPTH_TEST);
+    GL.MatrixMode(GL_PROJECTION);
+    GL.PopMatrix;
+  GL.MatrixMode(GL_MODELVIEW);
+  GL.PopMatrix;
 end;
 
 procedure DrawTexturedScreenQuad4(const ViewPortSize: TGLSize);
 begin
-  glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);                             glVertex2f(-1, -1);
-    glTexCoord2f(ViewPortSize.cx, 0);               glVertex2f( 1, -1);
-    glTexCoord2f(ViewPortSize.cx, ViewPortSize.cy); glVertex2f( 1,  1);
-    glTexCoord2f(0, ViewPortSize.cy);               glVertex2f(-1,  1);
-  glEnd;
+  GL.Begin_(GL_QUADS);
+    GL.TexCoord2f(0, 0);                             GL.Vertex2f(-1, -1);
+    GL.TexCoord2f(ViewPortSize.cx, 0);               GL.Vertex2f( 1, -1);
+    GL.TexCoord2f(ViewPortSize.cx, ViewPortSize.cy); GL.Vertex2f( 1,  1);
+    GL.TexCoord2f(0, ViewPortSize.cy);               GL.Vertex2f(-1,  1);
+  GL.End_;
 end;
 
 procedure DrawTexturedScreenQuad5(const ViewPortSize: TGLSize);
 begin
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix;
-    glLoadIdentity;
-    glOrtho( 0, ViewPortSize.cx, ViewPortSize.cy, 0, 0, 1 );
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix;
-      glLoadIdentity;
-      glDisable(GL_DEPTH_TEST);
-      glDepthMask( FALSE );
+  GL.MatrixMode( GL_PROJECTION );
+  GL.PushMatrix;
+    GL.LoadIdentity;
+    GL.Ortho( 0, ViewPortSize.cx, ViewPortSize.cy, 0, 0, 1 );
+    GL.MatrixMode(GL_MODELVIEW);
+    GL.PushMatrix;
+      GL.LoadIdentity;
+      GL.Disable(GL_DEPTH_TEST);
+      GL.DepthMask( FALSE );
       DrawTexturedScreenQuad3;
-      glDepthMask( TRUE );
-      glEnable(GL_DEPTH_TEST);
-    glPopMatrix;
-    glMatrixMode( GL_PROJECTION );
-  glPopMatrix;
-  glMatrixMode( GL_MODELVIEW );
+      GL.DepthMask( TRUE );
+      GL.Enable(GL_DEPTH_TEST);
+    GL.PopMatrix;
+    GL.MatrixMode( GL_PROJECTION );
+  GL.PopMatrix;
+  GL.MatrixMode( GL_MODELVIEW );
 end;
 
 procedure DrawTexturedScreenQuad6(const ViewPortSize: TGLSize);
 begin
-  glMatrixMode( GL_PROJECTION );
-  glPushMatrix;
-    glLoadIdentity;
-    glOrtho( 0, ViewPortSize.cx, ViewPortSize.cy, 0, 0, 1 );
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix;
-      glLoadIdentity;
-      glDisable(GL_DEPTH_TEST);
-      glDepthMask( FALSE );
+  GL.MatrixMode( GL_PROJECTION );
+  GL.PushMatrix;
+    GL.LoadIdentity;
+    GL.Ortho( 0, ViewPortSize.cx, ViewPortSize.cy, 0, 0, 1 );
+    GL.MatrixMode(GL_MODELVIEW);
+    GL.PushMatrix;
+      GL.LoadIdentity;
+      GL.Disable(GL_DEPTH_TEST);
+      GL.DepthMask( FALSE );
       DrawTexturedScreenQuad4(ViewPortSize);;
-      glDepthMask( TRUE );
-      glEnable(GL_DEPTH_TEST);
-    glPopMatrix;
-    glMatrixMode( GL_PROJECTION );
-  glPopMatrix;
-  glMatrixMode( GL_MODELVIEW );
+      GL.DepthMask( TRUE );
+      GL.Enable(GL_DEPTH_TEST);
+    GL.PopMatrix;
+    GL.MatrixMode( GL_PROJECTION );
+  GL.PopMatrix;
+  GL.MatrixMode( GL_MODELVIEW );
 end;
 
 procedure DrawTexturedScreenQuad3;
 begin
-  glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(-1, -1);
-    glTexCoord2f(1, 0); glVertex2f(1, -1);
-    glTexCoord2f(1, 1); glVertex2f(1, 1);
-    glTexCoord2f(0, 1); glVertex2f(-1, 1);
-  glEnd;
+  GL.Begin_(GL_QUADS);
+    GL.TexCoord2f(0, 0); GL.Vertex2f(-1, -1);
+    GL.TexCoord2f(1, 0); GL.Vertex2f(1, -1);
+    GL.TexCoord2f(1, 1); GL.Vertex2f(1, 1);
+    GL.TexCoord2f(0, 1); GL.Vertex2f(-1, 1);
+  GL.End_;
 end;
 
-procedure InitTexture(const TextureHandle: Cardinal; const TextureSize: TGLSize; const TextureTarget: Word = GL_TEXTURE_2D);
+procedure InitTexture(
+  const TextureHandle: Cardinal;
+  const TextureSize: TGLSize;
+  const TextureTarget: TGLTextureTarget = ttTexture2D);
+var
+  glTarget: TGLEnum;
 begin
-  glBindTexture(TextureTarget, TextureHandle);
-  glTexParameteri(TextureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(TextureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(TextureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(TextureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glCopyTexImage2d(TextureTarget, 0, GL_RGBA8, 0, 0, TextureSize.cx, TextureSize.cy, 0);
+  with CurrentGLContext.GLStates do
+  begin
+    TextureBinding[ActiveTexture, TextureTarget] := TextureHandle;
+  end;
+  glTarget := DecodeGLTextureTarget(TextureTarget);
+  GL.TexParameteri(glTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  GL.TexParameteri(glTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  GL.TexParameteri(glTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  GL.TexParameteri(glTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  GL.CopyTexImage2D(glTarget, 0, GL_RGBA8, 0, 0, TextureSize.cx, TextureSize.cy, 0);
 end;
 
 { TGLShaderProgram }
@@ -726,37 +753,37 @@ end;
 procedure TGLCustomShaderParameter.SetAsTexture(
   const TextureIndex: Integer; const Value: TGLTexture);
 begin
-  SetAsCustomTexture(TextureIndex, Value.Image.NativeTextureTarget, Value.Handle);
+  SetAsCustomTexture(TextureIndex, Value.TextureHandle.Target, Value.Handle);
 end;
 
 procedure TGLCustomShaderParameter.SetAsTexture1D(
   const TextureIndex: Integer; const Value: TGLTexture);
 begin
-  SetAsCustomTexture(TextureIndex, GL_TEXTURE_1D, Value.Handle);
+  SetAsCustomTexture(TextureIndex, ttTexture1D, Value.Handle);
 end;
 
 procedure TGLCustomShaderParameter.SetAsTexture2D(
   const TextureIndex: Integer; const Value: TGLTexture);
 begin
-  SetAsCustomTexture(TextureIndex, GL_TEXTURE_2D, Value.Handle);
+  SetAsCustomTexture(TextureIndex, ttTexture2D, Value.Handle);
 end;
 
 procedure TGLCustomShaderParameter.SetAsTexture3D(
   const TextureIndex: Integer; const Value: TGLTexture);
 begin
-  SetAsCustomTexture(TextureIndex, GL_TEXTURE_3D, Value.Handle);
+  SetAsCustomTexture(TextureIndex, ttTexture3D, Value.Handle);
 end;
 
 procedure TGLCustomShaderParameter.SetAsTextureCube(
   const TextureIndex: Integer; const Value: TGLTexture);
 begin
-  SetAsCustomTexture(TextureIndex, GL_TEXTURE_CUBE_MAP_ARB, Value.Handle);
+  SetAsCustomTexture(TextureIndex, ttTextureCube, Value.Handle);
 end;
 
 procedure TGLCustomShaderParameter.SetAsTextureRect(
   const TextureIndex: Integer; const Value: TGLTexture);
 begin
-  SetAsCustomTexture(TextureIndex, GL_TEXTURE_RECTANGLE_ARB, Value.Handle);
+  SetAsCustomTexture(TextureIndex, ttTextureRect, Value.Handle);
 end;
 
 procedure TGLCustomShaderParameter.SetAsVectorF(const Values: array of Single);
@@ -792,15 +819,7 @@ end;
 procedure TGLCustomShaderParameter.SetToTextureOf(
   const Texture: TGLTexture; const TextureIndex: Integer);
 begin
-  case Texture.Image.NativeTextureTarget of
-    GL_TEXTURE_2D : SetAsCustomTexture(TextureIndex, GL_TEXTURE_2D, Texture.Handle);
-    GL_TEXTURE_1D : SetAsCustomTexture(TextureIndex, GL_TEXTURE_1D, Texture.Handle);
-    GL_TEXTURE_3D : SetAsCustomTexture(TextureIndex, GL_TEXTURE_3D, Texture.Handle);
-    GL_TEXTURE_CUBE_MAP_ARB : SetAsCustomTexture(TextureIndex, GL_TEXTURE_CUBE_MAP_ARB, Texture.Handle);
-    GL_TEXTURE_RECTANGLE_ARB : SetAsCustomTexture(TextureIndex, GL_TEXTURE_RECTANGLE_ARB, Texture.Handle);
-  else
-    Assert(False, glsErrorEx + glsUnknownType);
-  end;
+  SetAsCustomTexture(TextureIndex, Texture.Image.NativeTextureTarget, Texture.Handle);
 end;
 
 constructor TGLGeometryProgram.Create(const AParent: TGLCustomShader);

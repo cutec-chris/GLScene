@@ -10,7 +10,8 @@ unit GLStarRecord;
 
 interface
 
-uses VectorGeometry;
+uses
+  GLVectorGeometry;
 
 type
    TGLStarRecord = packed record
@@ -32,6 +33,9 @@ function StarRecordColor(const starRecord : TGLStarRecord; bias : Single) : TVec
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 implementation
+
+uses
+  GLVectorTypes;
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
@@ -42,9 +46,8 @@ function StarRecordPositionYUp(const starRecord : TGLStarRecord) : TAffineVector
 var
    f : Single;
 begin
-   SinCos(starRecord.DEC*(0.01*PI/180), Result[1], f);
-   SinCos(starRecord.RA*(0.01*PI/180), f,
-          Result[0], Result[2]);
+   SinCos(starRecord.DEC*(0.01*PI/180), Result.V[1], f);
+   SinCos(starRecord.RA*(0.01*PI/180), f, Result.V[0], Result.V[2]);
 end;
 
 // StarRecordPositionZUp
@@ -53,9 +56,8 @@ function StarRecordPositionZUp(const starRecord : TGLStarRecord) : TAffineVector
 var
    f : Single;
 begin
-   SinCos(starRecord.DEC*(0.01*PI/180), Result[2], f);
-   SinCos(starRecord.RA*(0.01*PI/180), f,
-          Result[0], Result[1]);
+   SinCos(starRecord.DEC*(0.01*PI/180), Result.V[2], f);
+   SinCos(starRecord.RA*(0.01*PI/180), f, Result.V[0], Result.V[1]);
 end;
 
 // StarRecordColor
@@ -63,10 +65,10 @@ end;
 function StarRecordColor(const starRecord : TGLStarRecord; bias : Single) : TVector;
 const
    // very *rough* approximation
-   cBVm035 : TVector = (0.7, 0.8, 1, 1);
-   cBV015  : TVector = (1.0, 1.0, 1.0, 1);
-   cBV060  : TVector = (1.0, 1.0, 0.7, 1);
-   cBV135  : TVector = (1.0, 0.8, 0.7, 1);
+   cBVm035 : TVector = (X:0.7; Y:0.8; Z:1.0; W:1);
+   cBV015  : TVector = (X:1.0; Y:1.0; Z:1.0; W:1);
+   cBV060  : TVector = (X:1.0; Y:1.0; Z:0.7; W:1);
+   cBV135  : TVector = (X:1.0; Y:0.8; Z:0.7; W:1);
 var
    bvIndex100 : Integer;
 begin
@@ -83,7 +85,7 @@ begin
    else Result:=cBV135;
    // compute transparency for VMag
    // the actual factor is 2.512, and not used here
-   Result[3]:=Power(1.2, -(starRecord.VMagnitude*0.1-bias));
+   Result.V[3]:=Power(1.2, -(starRecord.VMagnitude*0.1-bias));
 end;
 
 end.

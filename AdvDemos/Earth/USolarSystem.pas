@@ -16,7 +16,7 @@ unit USolarSystem;
 interface
 
 uses
-  SysUtils, Math, VectorGeometry;
+  SysUtils, Math, GLVectorGeometry;
 
 type
 
@@ -201,11 +201,11 @@ begin
    end;
 
    // xh = r * ( cos(N) * cos(v+w) - sin(N) * sin(v+w) * cos(i) )
-   Result[0]:=r*(cn*cvw-sn*svw*ci);
+   Result.X:=r*(cn*cvw-sn*svw*ci);
    // yh = r * ( sin(N) * cos(v+w) + cos(N) * sin(v+w) * cos(i) )
-   Result[1]:=r*(sn*cvw+cn*svw*ci);
+   Result.Y:=r*(sn*cvw+cn*svw*ci);
    // zh = r * ( sin(v+w) * sin(i) )
-   Result[2]:=r*(svw*si);
+   Result.Z:=r*(svw*si);
 end;
 
 // ComputePlanetPosition (data)

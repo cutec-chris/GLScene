@@ -1,11 +1,11 @@
-//
+
 // This unit is part of the GLScene Project, http://glscene.org
-//
+
 {: GLBehaviours<p>
 
-	Standard TGLBehaviour subclasses for GLScene<p>
+  Standard TGLBehaviour subclasses for GLScene<p>
 
-	<b>History : </b><font size=-1><ul>
+  <b>History : </b><font size=-1><ul>
     <li>08/05/08 - DaStr - Added a global GetInertia() function
     <li>19/12/06 - DaStr - TGLBAcceleration.Create - creates Inertia right away,
                          thus displaying it in the XCollection Editor
@@ -18,191 +18,208 @@
     <li>10/04/00 - Egg - Improved persistence logic
     <li>06/04/00 - Egg - Added Damping stuff to inertia
     <li>05/04/00 - Egg - Creation
-	</ul></font>
+  </ul></font>
 }
 unit GLBehaviours;
 
 interface
 
-uses Classes, GLScene, VectorGeometry, XCollection, BaseClasses,
-     GLCoordinates;
+{$I GLScene.inc}
+
+uses
+  {$IFDEF GLS_DELPHI_XE2_UP}
+    System.Classes, System.SysUtils
+  {$ELSE}
+    Classes, SysUtils
+  {$ENDIF}
+  ,
+  GLVectorTypes,
+  GLScene,
+  GLVectorGeometry,
+  XCollection,
+  GLBaseClasses,
+  GLCoordinates;
 
 type
 
-	// TGLDamping
-	//
-	{: Holds parameters for TGLScene basic damping model.<p>
-		Damping is modeled by calculating a force from the speed, this force
-		can then be transformed to an acceleration is you know the object's mass.<br>
-		Formulas :<ul>
-		<li>damping = constant + linear * Speed + quadratic * Speed^2
-		<li>accel = damping / Mass
-		</ul> That's just basic physics :). A note on the components :<ul>
-		<li>constant : use it for solid friction (will stop abruptly an object after
-			decreasing its speed.
-		<li>linear : linear friction damping.
-		<li>quadratic : expresses viscosity.
-		</ul>	}
-	TGLDamping = class (TGLUpdateAbleObject)
-	   private
-	      { Private Declarations }
-         FConstant : Single;
-         FLinear : Single;
-         FQuadratic : Single;
+  // TGLDamping
 
-	   protected
-	      { Protected Declarations }
+  {: Holds parameters for TGLScene basic damping model.<p>
+    Damping is modeled by calculating a force from the speed, this force
+    can then be transformed to an acceleration is you know the object's mass.<br>
+    Formulas :<ul>
+    <li>damping = constant + linear * Speed + quadratic * Speed^2
+    <li>accel = damping / Mass
+    </ul> That's just basic physics :). A note on the components :<ul>
+    <li>constant : use it for solid friction (will stop abruptly an object after
+      decreasing its speed.
+    <li>linear : linear friction damping.
+    <li>quadratic : expresses viscosity.
+    </ul>  }
+  TGLDamping = class(TGLUpdateAbleObject)
+  private
+    { Private Declarations }
+    FConstant: single;
+    FLinear: single;
+    FQuadratic: single;
 
-	   public
-	      { Public Declarations }
-	      constructor Create(aOwner: TPersistent); override;
-         destructor Destroy; override;
+  protected
+    { Protected Declarations }
 
-         procedure WriteToFiler(writer : TWriter);
-			procedure ReadFromFiler(reader : TReader);
+  public
+    { Public Declarations }
+    constructor Create(aOwner: TPersistent); override;
+    destructor Destroy; override;
 
-			procedure Assign(source : TPersistent); override;
-			{: Calculates attenuated speed over deltaTime.<p>
+    procedure WriteToFiler(writer: TWriter);
+    procedure ReadFromFiler(reader: TReader);
+
+    procedure Assign(Source: TPersistent); override;
+      {: Calculates attenuated speed over deltaTime.<p>
             Integration step is 0.01 sec, and the following formula is applied
             at each step: constant+linear*speed+quadratic*speed^2 }
-			function Calculate(speed, deltaTime : Double) : Double;
-			//: Returns a "[constant; linear; quadractic]" string
-			function AsString(const damping : TGLDamping) : String;
-			{: Sets all damping parameters in a single call. }
-			procedure SetDamping(const constant : Single = 0;
-										const linear : Single = 0;
-										const quadratic : Single = 0);
+    function Calculate(speed, deltaTime: double): double;
+    //: Returns a "[constant; linear; quadractic]" string
+    function AsString(const damping: TGLDamping): string;
+    {: Sets all damping parameters in a single call. }
+    procedure SetDamping(const constant: single = 0; const linear: single = 0;
+      const quadratic: single = 0);
 
-		published
-	      { Published Declarations }
-         property Constant : Single read FConstant write FConstant;
-         property Linear : Single read FLinear write FLinear;
-         property Quadratic : Single read FQuadratic write FQuadratic;
-	end;
+  published
+    { Published Declarations }
+    property Constant: single read FConstant write FConstant;
+    property Linear: single read FLinear write FLinear;
+    property Quadratic: single read FQuadratic write FQuadratic;
+  end;
 
-	// TGLBInertia
-	//
-	{: Simple translation and rotation Inertia behaviour.<p>
-		Stores translation and rotation speeds, to which you can apply
-		accelerations.<p>
-		Note that the rotation model is not physical, so feel free to contribute
-		a "realworld" inertia class with realistic, axis-free, rotation inertia
-		if this approximation does not suits your needs :). }
-	TGLBInertia = class (TGLBehaviour)
-		private
-			{ Private Declarations }
-			FMass : Single;
-         FTranslationSpeed : TGLCoordinates;
-			FTurnSpeed,	FRollSpeed,	FPitchSpeed : Single;
-			FTranslationDamping, FRotationDamping : TGLDamping;
-			FDampingEnabled : Boolean;
+  // TGLBInertia
 
-		protected
-			{ Protected Declarations }
-         procedure SetTranslationSpeed(const val : TGLCoordinates);
-         procedure SetTranslationDamping(const val : TGLDamping);
-			procedure SetRotationDamping(const val : TGLDamping);
+  {: Simple translation and rotation Inertia behaviour.<p>
+    Stores translation and rotation speeds, to which you can apply
+    accelerations.<p>
+    Note that the rotation model is not physical, so feel free to contribute
+    a "realworld" inertia class with realistic, axis-free, rotation inertia
+    if this approximation does not suits your needs :). }
+  TGLBInertia = class(TGLBehaviour)
+  private
+    { Private Declarations }
+    FMass: single;
+    FTranslationSpeed: TGLCoordinates;
+    FTurnSpeed, FRollSpeed, FPitchSpeed: single;
+    FTranslationDamping, FRotationDamping: TGLDamping;
+    FDampingEnabled: boolean;
 
-			procedure WriteToFiler(writer : TWriter); override;
-         procedure ReadFromFiler(reader : TReader); override;
+  protected
+    { Protected Declarations }
+    procedure SetTranslationSpeed(const val: TGLCoordinates);
+    procedure SetTranslationDamping(const val: TGLDamping);
+    procedure SetRotationDamping(const val: TGLDamping);
 
-		public
-			{ Public Declarations }
-			constructor Create(aOwner : TXCollection); override;
-			destructor Destroy; override;
+    procedure WriteToFiler(writer: TWriter); override;
+    procedure ReadFromFiler(reader: TReader); override;
 
-         procedure Assign(Source: TPersistent); override;
+  public
+    { Public Declarations }
+    constructor Create(aOwner: TXCollection); override;
+    destructor Destroy; override;
 
-			class function FriendlyName : String; override;
-			class function FriendlyDescription : String; override;
-			class function UniqueItem : Boolean; override;
+    procedure Assign(Source: TPersistent); override;
 
-			procedure DoProgress(const progressTime : TProgressTimes); override;
+    class function FriendlyName: string; override;
+    class function FriendlyDescription: string; override;
+    class function UniqueItem: boolean; override;
 
-			{: Adds time-proportionned acceleration to the speed. }
-			procedure ApplyTranslationAcceleration(const deltaTime : Double; const accel : TVector);
-			{: Applies a timed force to the inertia.<p>
-				If Mass is null, nothing is done. }
-			procedure ApplyForce(const deltaTime : Double; const force : TVector);
-			{: Applies a timed torque to the inertia (yuck!).<p>
-				This gets a "yuck!" because it is as false as the rest of the
-				rotation	model. }
-			procedure ApplyTorque(const deltaTime : Double; const turnTorque, rollTorque, pitchTorque : Single);
-			{: Inverts the translation vector.<p> }
-			procedure MirrorTranslation;
+    procedure DoProgress(const progressTime: TProgressTimes); override;
+
+    {: Adds time-proportionned acceleration to the speed. }
+    procedure ApplyTranslationAcceleration(const deltaTime: double;
+      const accel: TVector);
+      {: Applies a timed force to the inertia.<p>
+        If Mass is null, nothing is done. }
+    procedure ApplyForce(const deltaTime: double; const force: TVector);
+      {: Applies a timed torque to the inertia (yuck!).<p>
+        This gets a "yuck!" because it is as false as the rest of the
+        rotation  model. }
+    procedure ApplyTorque(const deltaTime: double;
+      const turnTorque, rollTorque, pitchTorque: single);
+    {: Inverts the translation vector.<p> }
+    procedure MirrorTranslation;
          {: Bounce speed as if hitting a surface.<p>
             restitution is the coefficient of restituted energy (1=no energy loss,
             0=no bounce). The normal is NOT assumed to be normalized. }
-         procedure SurfaceBounce(const surfaceNormal : TVector; restitution : Single);
+    procedure SurfaceBounce(const surfaceNormal: TVector; restitution: single);
 
-		published
-			{ Published Declarations }
-			property Mass : Single read FMass write FMass;
-			property TranslationSpeed : TGLCoordinates read FTranslationSpeed write SetTranslationSpeed;
-			property TurnSpeed : Single read FTurnSpeed write FTurnSpeed;
-			property RollSpeed : Single read FRollSpeed write FRollSpeed;
-			property PitchSpeed : Single read FPitchSpeed write FPitchSpeed;
+  published
+    { Published Declarations }
+    property Mass: single read FMass write FMass;
+    property TranslationSpeed: TGLCoordinates
+      read FTranslationSpeed write SetTranslationSpeed;
+    property TurnSpeed: single read FTurnSpeed write FTurnSpeed;
+    property RollSpeed: single read FRollSpeed write FRollSpeed;
+    property PitchSpeed: single read FPitchSpeed write FPitchSpeed;
 
-			{: Enable/Disable damping (damping has a high cpu-cycle cost).<p>
-				Damping is enabled by default. }
-			property DampingEnabled : Boolean read FDampingEnabled write FDampingEnabled;
-			{: Damping applied to translation speed.<br>
-				Note that it is not "exactly" applied, ie. if damping would stop
-				your object after 0.5 time unit, and your progression steps are
-				of 1 time unit, there will be an integration error of 0.5 time unit. }
-			property TranslationDamping : TGLDamping read FTranslationDamping write SetTranslationDamping;
-			{: Damping applied to rotation speed (yuck!).<br>
-				Well, this one is not "exact", like TranslationDamping, and neither
-				it is "physical" since I'm reusing the mass and... and... well don't
-				show this to your science teacher 8).<br>
-				Anyway that's easier to use than the realworld formulas, calculated
-				faster, and properly used can give a good illusion of reality. }
-			property RotationDamping : TGLDamping read FRotationDamping write SetRotationDamping;
-	end;
+      {: Enable/Disable damping (damping has a high cpu-cycle cost).<p>
+        Damping is enabled by default. }
+    property DampingEnabled: boolean read FDampingEnabled write FDampingEnabled;
+      {: Damping applied to translation speed.<br>
+        Note that it is not "exactly" applied, ie. if damping would stop
+        your object after 0.5 time unit, and your progression steps are
+        of 1 time unit, there will be an integration error of 0.5 time unit. }
+    property TranslationDamping: TGLDamping read FTranslationDamping
+      write SetTranslationDamping;
+      {: Damping applied to rotation speed (yuck!).<br>
+        Well, this one is not "exact", like TranslationDamping, and neither
+        it is "physical" since I'm reusing the mass and... and... well don't
+        show this to your science teacher 8).<br>
+        Anyway that's easier to use than the realworld formulas, calculated
+        faster, and properly used can give a good illusion of reality. }
+    property RotationDamping: TGLDamping read FRotationDamping write SetRotationDamping;
+  end;
 
-	// TGLBAcceleration
-	//
-	{: Applies a constant acceleration to a TGLBInertia.<p> }
-	TGLBAcceleration = class (TGLBehaviour)
-		private
-			{ Private Declarations }
-         FAcceleration : TGLCoordinates;
+  // TGLBAcceleration
 
-		protected
-			{ Protected Declarations }
-         procedure SetAcceleration(const val : TGLCoordinates);
+  {: Applies a constant acceleration to a TGLBInertia.<p> }
+  TGLBAcceleration = class(TGLBehaviour)
+  private
+    { Private Declarations }
+    FAcceleration: TGLCoordinates;
 
-			procedure WriteToFiler(writer : TWriter); override;
-         procedure ReadFromFiler(reader : TReader); override;
+  protected
+    { Protected Declarations }
+    procedure SetAcceleration(const val: TGLCoordinates);
 
-		public
-			{ Public Declarations }
-			constructor Create(aOwner : TXCollection); override;
-			destructor Destroy; override;
+    procedure WriteToFiler(writer: TWriter); override;
+    procedure ReadFromFiler(reader: TReader); override;
 
-         procedure Assign(Source: TPersistent); override;
+  public
+    { Public Declarations }
+    constructor Create(aOwner: TXCollection); override;
+    destructor Destroy; override;
 
-			class function FriendlyName : String; override;
-			class function FriendlyDescription : String; override;
-			class function UniqueItem : Boolean; override;
+    procedure Assign(Source: TPersistent); override;
 
-			procedure DoProgress(const progressTime : TProgressTimes); override;
+    class function FriendlyName: string; override;
+    class function FriendlyDescription: string; override;
+    class function UniqueItem: boolean; override;
 
-		published
-			{ Published Declarations }
-			property Acceleration : TGLCoordinates read FAcceleration write FAcceleration;
-	end;
+    procedure DoProgress(const progressTime: TProgressTimes); override;
+
+  published
+    { Published Declarations }
+    property Acceleration: TGLCoordinates read FAcceleration write FAcceleration;
+  end;
 
 {: Returns or creates the TGLBInertia within the given behaviours.<p>
-	This helper function is convenient way to access a TGLBInertia. }
-function GetInertia(const AGLSceneObject: TGLBaseSceneObject) : TGLBInertia;
-function GetOrCreateInertia(behaviours : TGLBehaviours) : TGLBInertia; overload;
-function GetOrCreateInertia(obj : TGLBaseSceneObject) : TGLBInertia; overload;
+  This helper function is convenient way to access a TGLBInertia. }
+function GetInertia(const AGLSceneObject: TGLBaseSceneObject): TGLBInertia;
+function GetOrCreateInertia(behaviours: TGLBehaviours): TGLBInertia; overload;
+function GetOrCreateInertia(obj: TGLBaseSceneObject): TGLBInertia; overload;
 
 {: Returns or creates the TGLBAcceleration within the given behaviours.<p>
-	This helper function is convenient way to access a TGLBAcceleration. }
-function GetOrCreateAcceleration(behaviours : TGLBehaviours) : TGLBAcceleration; overload;
-function GetOrCreateAcceleration(obj : TGLBaseSceneObject) : TGLBAcceleration; overload;
+  This helper function is convenient way to access a TGLBAcceleration. }
+function GetOrCreateAcceleration(behaviours: TGLBehaviours): TGLBAcceleration;
+  overload;
+function GetOrCreateAcceleration(obj: TGLBaseSceneObject): TGLBAcceleration; overload;
 
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
@@ -212,56 +229,57 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils;
-
 // GetInertia
-//
-function GetInertia(const AGLSceneObject: TGLBaseSceneObject) : TGLBInertia;
+
+function GetInertia(const AGLSceneObject: TGLBaseSceneObject): TGLBInertia;
 var
-	i : Integer;
+  i: integer;
 begin
-	i:=AGLSceneObject.behaviours.IndexOfClass(TGLBInertia);
-	if i>=0 then
-		Result:=TGLBInertia(AGLSceneObject.behaviours[i])
-	else Result:=nil;
+  i := AGLSceneObject.behaviours.IndexOfClass(TGLBInertia);
+  if i >= 0 then
+    Result := TGLBInertia(AGLSceneObject.behaviours[i])
+  else
+    Result := nil;
 end;
 
 // GetOrCreateInertia (TGLBehaviours)
-//
-function GetOrCreateInertia(behaviours : TGLBehaviours) : TGLBInertia;
+
+function GetOrCreateInertia(behaviours: TGLBehaviours): TGLBInertia;
 var
-	i : Integer;
+  i: integer;
 begin
-	i:=behaviours.IndexOfClass(TGLBInertia);
-	if i>=0 then
-		Result:=TGLBInertia(behaviours[i])
-	else Result:=TGLBInertia.Create(behaviours);
+  i := behaviours.IndexOfClass(TGLBInertia);
+  if i >= 0 then
+    Result := TGLBInertia(behaviours[i])
+  else
+    Result := TGLBInertia.Create(behaviours);
 end;
 
 // GetOrCreateInertia (TGLBaseSceneObject)
-//
-function GetOrCreateInertia(obj : TGLBaseSceneObject) : TGLBInertia;
+
+function GetOrCreateInertia(obj: TGLBaseSceneObject): TGLBInertia;
 begin
-	Result:=GetOrCreateInertia(obj.Behaviours);
+  Result := GetOrCreateInertia(obj.Behaviours);
 end;
 
 // GetOrCreateAcceleration (TGLBehaviours)
-//
-function GetOrCreateAcceleration(behaviours : TGLBehaviours) : TGLBAcceleration;
+
+function GetOrCreateAcceleration(behaviours: TGLBehaviours): TGLBAcceleration;
 var
-	i : Integer;
+  i: integer;
 begin
-	i:=behaviours.IndexOfClass(TGLBAcceleration);
-	if i>=0 then
-		Result:=TGLBAcceleration(behaviours[i])
-	else Result:=TGLBAcceleration.Create(behaviours);
+  i := behaviours.IndexOfClass(TGLBAcceleration);
+  if i >= 0 then
+    Result := TGLBAcceleration(behaviours[i])
+  else
+    Result := TGLBAcceleration.Create(behaviours);
 end;
 
 // GetOrCreateAcceleration (TGLBaseSceneObject)
-//
-function GetOrCreateAcceleration(obj : TGLBaseSceneObject) : TGLBAcceleration;
+
+function GetOrCreateAcceleration(obj: TGLBaseSceneObject): TGLBAcceleration;
 begin
-	Result:=GetOrCreateAcceleration(obj.Behaviours);
+  Result := GetOrCreateAcceleration(obj.Behaviours);
 end;
 
 // ------------------
@@ -269,98 +287,111 @@ end;
 // ------------------
 
 // Create
-//
-constructor TGLDamping.Create(aOwner : TPersistent);
+
+constructor TGLDamping.Create(aOwner: TPersistent);
 begin
-	inherited Create(AOwner);
+  inherited Create(AOwner);
 end;
 
 destructor TGLDamping.Destroy;
 begin
-	inherited Destroy;
+  inherited Destroy;
 end;
 
 // Assign
-//
+
 procedure TGLDamping.Assign(Source: TPersistent);
 begin
-   if Source is TGLDamping then begin
-      FConstant:=TGLDamping(Source).Constant;
-      FLinear:=TGLDamping(Source).Linear;
-      FQuadratic:=TGLDamping(Source).Quadratic;
-   end else inherited Assign(Source);
+  if Source is TGLDamping then
+  begin
+    FConstant := TGLDamping(Source).Constant;
+    FLinear := TGLDamping(Source).Linear;
+    FQuadratic := TGLDamping(Source).Quadratic;
+  end
+  else
+    inherited Assign(Source);
 end;
 
 // WriteToFiler
-//
-procedure TGLDamping.WriteToFiler(writer : TWriter);
+
+procedure TGLDamping.WriteToFiler(writer: TWriter);
 var
-   writeStuff : Boolean;
+  writeStuff: boolean;
 begin
-   with writer do begin
-      WriteInteger(0); // Archive Version 0
-      writeStuff:=(FConstant<>0) or (FLinear<>0) or (FQuadratic<>0);
-      WriteBoolean(writeStuff);
-      if writeStuff then begin
-         WriteFloat(FConstant);
-         WriteFloat(FLinear);
-         WriteFloat(FQuadratic);
-      end;
-   end;
+  with writer do
+  begin
+    WriteInteger(0); // Archive Version 0
+    writeStuff := (FConstant <> 0) or (FLinear <> 0) or (FQuadratic <> 0);
+    WriteBoolean(writeStuff);
+    if writeStuff then
+    begin
+      WriteFloat(FConstant);
+      WriteFloat(FLinear);
+      WriteFloat(FQuadratic);
+    end;
+  end;
 end;
 
 // ReadFromFiler
-//
-procedure TGLDamping.ReadFromFiler(reader : TReader);
+
+procedure TGLDamping.ReadFromFiler(reader: TReader);
 begin
-   with reader do begin
-      ReadInteger; // ignore Archive Version
-      if ReadBoolean then begin
-         FConstant:=ReadFloat;
-         FLinear:=ReadFloat;
-         FQuadratic:=ReadFloat;
-      end else begin
-         FConstant:=0;
-         FLinear:=0;
-         FQuadratic:=0;
-      end;
-   end;
+  with reader do
+  begin
+    ReadInteger; // ignore Archive Version
+    if ReadBoolean then
+    begin
+      FConstant := ReadFloat;
+      FLinear := ReadFloat;
+      FQuadratic := ReadFloat;
+    end
+    else
+    begin
+      FConstant := 0;
+      FLinear := 0;
+      FQuadratic := 0;
+    end;
+  end;
 end;
 
 // Calculate
-//
-function TGLDamping.Calculate(speed, deltaTime : Double) : Double;
+
+function TGLDamping.Calculate(speed, deltaTime: double): double;
 var
-   dt : Double;
+  dt: double;
 begin
-   while deltaTime>0 do begin
-      if deltaTime>0.01 then begin
-         dt:=0.01;
-         deltaTime:=deltaTime-0.01;
-      end else begin
-         dt:=deltaTime;
-         deltaTime:=0;
-      end;
-      speed:=speed-dt*((FQuadratic*speed+FLinear)*speed+FConstant);
-   end;
-   Result:=speed;
+  while deltaTime > 0 do
+  begin
+    if deltaTime > 0.01 then
+    begin
+      dt := 0.01;
+      deltaTime := deltaTime - 0.01;
+    end
+    else
+    begin
+      dt := deltaTime;
+      deltaTime := 0;
+    end;
+    speed := speed - dt * ((FQuadratic * speed + FLinear) * speed + FConstant);
+  end;
+  Result := speed;
 end;
 
 // DampingAsString
-//
-function TGLDamping.AsString(const damping : TGLDamping) : String;
+
+function TGLDamping.AsString(const damping: TGLDamping): string;
 begin
-	Result:=Format('[%f; %f; %f]', [Constant, Linear, Quadratic]);
+  Result := Format('[%f; %f; %f]', [Constant, Linear, Quadratic]);
 end;
 
 // SetDamping
-//
-procedure TGLDamping.SetDamping(const constant : Single = 0;
-							const linear : Single = 0;	const quadratic : Single = 0);
+
+procedure TGLDamping.SetDamping(const constant: single = 0;
+  const linear: single = 0; const quadratic: single = 0);
 begin
-	FConstant:=constant;
-	FLinear:=linear;
-	FQuadratic:=quadratic;
+  FConstant := constant;
+  FLinear := linear;
+  FQuadratic := quadratic;
 end;
 
 // ------------------
@@ -368,220 +399,243 @@ end;
 // ------------------
 
 // Create
-//
-constructor TGLBInertia.Create(aOwner : TXCollection);
+
+constructor TGLBInertia.Create(aOwner: TXCollection);
 begin
-	inherited Create(aOwner);
-	FTranslationSpeed:=TGLCoordinates.CreateInitialized(Self, NullHmgVector, csVector);
-	FMass:=1;
-	FDampingEnabled:=True;
-	FTranslationDamping:=TGLDamping.Create(Self);
-   FRotationDamping:=TGLDamping.Create(Self);
+  inherited Create(aOwner);
+  FTranslationSpeed := TGLCoordinates.CreateInitialized(Self, NullHmgVector, csVector);
+  FMass := 1;
+  FDampingEnabled := True;
+  FTranslationDamping := TGLDamping.Create(Self);
+  FRotationDamping := TGLDamping.Create(Self);
 end;
 
 // Destroy
-//
+
 destructor TGLBInertia.Destroy;
 begin
-   FRotationDamping.Free;
-   FTranslationDamping.Free;
-   FTranslationSpeed.Free;
-	inherited Destroy;
+  FRotationDamping.Free;
+  FTranslationDamping.Free;
+  FTranslationSpeed.Free;
+  inherited Destroy;
 end;
 
 // Assign
-//
+
 procedure TGLBInertia.Assign(Source: TPersistent);
 begin
-   if Source.ClassType=Self.ClassType then begin
-		FMass:=TGLBInertia(Source).Mass;
-		FTranslationSpeed.Assign(TGLBInertia(Source).FTranslationSpeed);
-		FTurnSpeed:=TGLBInertia(Source).TurnSpeed;
-		FRollSpeed:=TGLBInertia(Source).RollSpeed;
-		FPitchSpeed:=TGLBInertia(Source).PitchSpeed;
-		FDampingEnabled:=TGLBInertia(Source).DampingEnabled;
-		FTranslationDamping.Assign(TGLBInertia(Source).TranslationDamping);
-		FRotationDamping.Assign(TGLBInertia(Source).RotationDamping);
-   end;
-   inherited Assign(Source);
+  if Source.ClassType = Self.ClassType then
+  begin
+    FMass := TGLBInertia(Source).Mass;
+    FTranslationSpeed.Assign(TGLBInertia(Source).FTranslationSpeed);
+    FTurnSpeed := TGLBInertia(Source).TurnSpeed;
+    FRollSpeed := TGLBInertia(Source).RollSpeed;
+    FPitchSpeed := TGLBInertia(Source).PitchSpeed;
+    FDampingEnabled := TGLBInertia(Source).DampingEnabled;
+    FTranslationDamping.Assign(TGLBInertia(Source).TranslationDamping);
+    FRotationDamping.Assign(TGLBInertia(Source).RotationDamping);
+  end;
+  inherited Assign(Source);
 end;
 
 // WriteToFiler
-//
-procedure TGLBInertia.WriteToFiler(writer : TWriter);
+
+procedure TGLBInertia.WriteToFiler(writer: TWriter);
 begin
-   inherited;
-   with writer do begin
-      WriteInteger(0); // Archive Version 0
-      WriteFloat(FMass);
-      FTranslationSpeed.WriteToFiler(writer);
-      WriteFloat(FTurnSpeed);
-      WriteFloat(FRollSpeed);
-      WriteFloat(FPitchSpeed);
-      WriteBoolean(FDampingEnabled);
-      FTranslationDamping.WriteToFiler(writer);
-      FRotationDamping.WriteToFiler(writer);
-   end;
+  inherited;
+  with writer do
+  begin
+    WriteInteger(0); // Archive Version 0
+    WriteFloat(FMass);
+    FTranslationSpeed.WriteToFiler(writer);
+    WriteFloat(FTurnSpeed);
+    WriteFloat(FRollSpeed);
+    WriteFloat(FPitchSpeed);
+    WriteBoolean(FDampingEnabled);
+    FTranslationDamping.WriteToFiler(writer);
+    FRotationDamping.WriteToFiler(writer);
+  end;
 end;
 
 // ReadFromFiler
-//
-procedure TGLBInertia.ReadFromFiler(reader : TReader);
+
+procedure TGLBInertia.ReadFromFiler(reader: TReader);
 begin
-   inherited;
-   with reader do begin
-      ReadInteger; // ignore archiveVersion
-      FMass:=ReadFloat;
-      FTranslationSpeed.ReadFromFiler(reader);
-      FTurnSpeed:=ReadFloat;
-      FRollSpeed:=ReadFloat;
-      FPitchSpeed:=ReadFloat;
-      FDampingEnabled:=ReadBoolean;
-      FTranslationDamping.ReadFromFiler(reader);
-      FRotationDamping.ReadFromFiler(reader);
-   end;
+  inherited;
+  with reader do
+  begin
+    ReadInteger; // ignore archiveVersion
+    FMass := ReadFloat;
+    FTranslationSpeed.ReadFromFiler(reader);
+    FTurnSpeed := ReadFloat;
+    FRollSpeed := ReadFloat;
+    FPitchSpeed := ReadFloat;
+    FDampingEnabled := ReadBoolean;
+    FTranslationDamping.ReadFromFiler(reader);
+    FRotationDamping.ReadFromFiler(reader);
+  end;
 end;
 
 // SetTranslationSpeed
-//
-procedure TGLBInertia.SetTranslationSpeed(const val : TGLCoordinates);
+
+procedure TGLBInertia.SetTranslationSpeed(const val: TGLCoordinates);
 begin
-   FTranslationSpeed.Assign(val);
+  FTranslationSpeed.Assign(val);
 end;
 
 // SetTranslationDamping
-//
-procedure TGLBInertia.SetTranslationDamping(const val : TGLDamping);
+
+procedure TGLBInertia.SetTranslationDamping(const val: TGLDamping);
 begin
-   FTranslationDamping.Assign(val);
+  FTranslationDamping.Assign(val);
 end;
 
 // SetRotationDamping
-//
-procedure TGLBInertia.SetRotationDamping(const val : TGLDamping);
+
+procedure TGLBInertia.SetRotationDamping(const val: TGLDamping);
 begin
-   FRotationDamping.Assign(val);
+  FRotationDamping.Assign(val);
 end;
 
 // FriendlyName
-//
-class function TGLBInertia.FriendlyName : String;
+
+class function TGLBInertia.FriendlyName: string;
 begin
-	Result:='Simple Inertia';
+  Result := 'Simple Inertia';
 end;
 
 // FriendlyDescription
-//
-class function TGLBInertia.FriendlyDescription : String;
+
+class function TGLBInertia.FriendlyDescription: string;
 begin
-	Result:='A simple translation and rotation inertia'; 
+  Result := 'A simple translation and rotation inertia';
 end;
 
 // UniqueBehaviour
-//
-class function TGLBInertia.UniqueItem : Boolean;
+
+class function TGLBInertia.UniqueItem: boolean;
 begin
-	Result:=True;
+  Result := True;
 end;
 
 // DoProgress
-//
-procedure TGLBInertia.DoProgress(const progressTime : TProgressTimes);
-var
-	trnVector : TVector;
-	speed, newSpeed : Double;
 
-	procedure ApplyRotationDamping(var rotationSpeed : Single);
-	begin
-      if rotationSpeed>0 then begin
-   		rotationSpeed:=RotationDamping.Calculate(rotationSpeed, progressTime.deltaTime);
-	   	if rotationSpeed<=0 then
-		   	rotationSpeed:=0;
-      end else begin
-   		rotationSpeed:=-RotationDamping.Calculate(-rotationSpeed, progressTime.deltaTime);
-	   	if rotationSpeed>=0 then
-		   	rotationSpeed:=0;
-      end;
-	end;
+procedure TGLBInertia.DoProgress(const progressTime: TProgressTimes);
+var
+  trnVector: TVector;
+  speed, newSpeed: double;
+
+  procedure ApplyRotationDamping(var rotationSpeed: single);
+  begin
+    if rotationSpeed > 0 then
+    begin
+      rotationSpeed := RotationDamping.Calculate(rotationSpeed, progressTime.deltaTime);
+      if rotationSpeed <= 0 then
+        rotationSpeed := 0;
+    end
+    else
+    begin
+      rotationSpeed := -RotationDamping.Calculate(-rotationSpeed, progressTime.deltaTime);
+      if rotationSpeed >= 0 then
+        rotationSpeed := 0;
+    end;
+  end;
 
 begin
-	// Apply damping to speed
-	if DampingEnabled then begin
-		// Translation damping
-		speed:=TranslationSpeed.VectorLength;
-      if speed>0 then begin
-   		newSpeed:=TranslationDamping.Calculate(speed, progressTime.deltaTime);
-	   	if newSpeed<=0 then begin
-            trnVector:=NullHmgVector;
-			   TranslationSpeed.AsVector:=trnVector;
-   		end else begin
-            TranslationSpeed.Scale(newSpeed/Speed);
-            SetVector(trnVector, TranslationSpeed.AsVector);
-         end;
-      end else SetVector(trnVector, NullHmgVector);
-		// Rotation damping (yuck!)
-		ApplyRotationDamping(FTurnSpeed);
-		ApplyRotationDamping(FRollSpeed);
-		ApplyRotationDamping(FPitchSpeed);
-	end else SetVector(trnVector, TranslationSpeed.AsVector);
-	// Apply speed to object
-	with OwnerBaseSceneObject do with progressTime do begin
-		Position.AddScaledVector(deltaTime, trnVector);
-		TurnAngle:=TurnAngle+TurnSpeed*deltaTime;
-		RollAngle:=RollAngle+RollSpeed*deltaTime;
-		PitchAngle:=PitchAngle+PitchSpeed*deltaTime;
-	end;
+  // Apply damping to speed
+  if DampingEnabled then
+  begin
+    // Translation damping
+    speed := TranslationSpeed.VectorLength;
+    if speed > 0 then
+    begin
+      newSpeed := TranslationDamping.Calculate(speed, progressTime.deltaTime);
+      if newSpeed <= 0 then
+      begin
+        trnVector := NullHmgVector;
+        TranslationSpeed.AsVector := trnVector;
+      end
+      else
+      begin
+        TranslationSpeed.Scale(newSpeed / Speed);
+        SetVector(trnVector, TranslationSpeed.AsVector);
+      end;
+    end
+    else
+      SetVector(trnVector, NullHmgVector);
+    // Rotation damping (yuck!)
+    ApplyRotationDamping(FTurnSpeed);
+    ApplyRotationDamping(FRollSpeed);
+    ApplyRotationDamping(FPitchSpeed);
+  end
+  else
+    SetVector(trnVector, TranslationSpeed.AsVector);
+  // Apply speed to object
+  with OwnerBaseSceneObject do
+    with progressTime do
+    begin
+      Position.AddScaledVector(deltaTime, trnVector);
+      TurnAngle := TurnAngle + TurnSpeed * deltaTime;
+      RollAngle := RollAngle + RollSpeed * deltaTime;
+      PitchAngle := PitchAngle + PitchSpeed * deltaTime;
+    end;
 end;
 
 // ApplyTranslationAcceleration
-//
-procedure TGLBInertia.ApplyTranslationAcceleration(const deltaTime : Double; const accel : TVector);
+
+procedure TGLBInertia.ApplyTranslationAcceleration(const deltaTime: double;
+  const accel: TVector);
 begin
-	FTranslationSpeed.AsVector:=VectorCombine(FTranslationSpeed.AsVector, accel, 1, deltaTime);
+  FTranslationSpeed.AsVector := VectorCombine(FTranslationSpeed.AsVector,
+    accel, 1, deltaTime);
 end;
 
 // ApplyForce
-//
-procedure TGLBInertia.ApplyForce(const deltaTime : Double; const force : TVector);
+
+procedure TGLBInertia.ApplyForce(const deltaTime: double; const force: TVector);
 begin
-	if Mass<>0 then
-		FTranslationSpeed.AsVector:=VectorCombine(FTranslationSpeed.AsVector, force, 1, deltaTime/Mass);
+  if Mass <> 0 then
+    FTranslationSpeed.AsVector :=
+      VectorCombine(FTranslationSpeed.AsVector, force, 1, deltaTime / Mass);
 end;
 
 // ApplyTorque
-//
-procedure TGLBInertia.ApplyTorque(const deltaTime : Double;
-											 const turnTorque, rollTorque, pitchTorque : Single);
+
+procedure TGLBInertia.ApplyTorque(const deltaTime: double;
+  const turnTorque, rollTorque, pitchTorque: single);
 var
-	factor : Double;
+  factor: double;
 begin
-	if Mass<>0 then begin
-		factor:=deltaTime/Mass;
-		FTurnSpeed:=FTurnSpeed+turnTorque*factor;
-		FRollSpeed:=FRollSpeed+rollTorque*factor;
-		FPitchSpeed:=FPitchSpeed+pitchTorque*factor;
-	end;
+  if Mass <> 0 then
+  begin
+    factor := deltaTime / Mass;
+    FTurnSpeed := FTurnSpeed + turnTorque * factor;
+    FRollSpeed := FRollSpeed + rollTorque * factor;
+    FPitchSpeed := FPitchSpeed + pitchTorque * factor;
+  end;
 end;
 
 // MirrorTranslation
-//
+
 procedure TGLBInertia.MirrorTranslation;
 begin
-	FTranslationSpeed.Invert;
+  FTranslationSpeed.Invert;
 end;
 
 // SurfaceBounce
-//
-procedure TGLBInertia.SurfaceBounce(const surfaceNormal : TVector; restitution : Single);
+
+procedure TGLBInertia.SurfaceBounce(const surfaceNormal: TVector; restitution: single);
 var
-   f : Single;
+  f: single;
 begin
-   // does the current speed vector comply?
-   f:=VectorDotProduct(FTranslationSpeed.AsVector, surfaceNormal);
-   if f<0 then begin
-      // remove the non-complying part of the speed vector
-      FTranslationSpeed.AddScaledVector(-f/VectorNorm(surfaceNormal)*(1+restitution), surfaceNormal);
-   end;
+  // does the current speed vector comply?
+  f := VectorDotProduct(FTranslationSpeed.AsVector, surfaceNormal);
+  if f < 0 then
+  begin
+    // remove the non-complying part of the speed vector
+    FTranslationSpeed.AddScaledVector(-f / VectorNorm(surfaceNormal) *
+      (1 + restitution), surfaceNormal);
+  end;
 end;
 
 // ------------------
@@ -589,102 +643,107 @@ end;
 // ------------------
 
 // Create
-//
-constructor TGLBAcceleration.Create(aOwner : TXCollection);
+
+constructor TGLBAcceleration.Create(aOwner: TXCollection);
 begin
-   inherited;
-     if aOwner <> nil then
-       if not (csReading in TComponent(aOwner.Owner).ComponentState) then
-         GetOrCreateInertia(TGLBehaviours(aOwner));
-   FAcceleration:=TGLCoordinates.CreateInitialized(Self, NullHmgVector, csVector);
+  inherited;
+  if aOwner <> nil then
+    if not (csReading in TComponent(aOwner.Owner).ComponentState) then
+      GetOrCreateInertia(TGLBehaviours(aOwner));
+  FAcceleration := TGLCoordinates.CreateInitialized(Self, NullHmgVector, csVector);
 end;
 
 // Destroy
-//
+
 destructor TGLBAcceleration.Destroy;
 begin
-   inherited;
-   FAcceleration.Free;
+  inherited;
+  FAcceleration.Free;
 end;
 
 // Assign
-//
+
 procedure TGLBAcceleration.Assign(Source: TPersistent);
 begin
-   if Source.ClassType=Self.ClassType then begin
-		FAcceleration.Assign(TGLBAcceleration(Source).FAcceleration);
-   end;
-   inherited Assign(Source);
+  if Source.ClassType = Self.ClassType then
+  begin
+    FAcceleration.Assign(TGLBAcceleration(Source).FAcceleration);
+  end;
+  inherited Assign(Source);
 end;
 
 // WriteToFiler
-//
-procedure TGLBAcceleration.WriteToFiler(writer : TWriter);
+
+procedure TGLBAcceleration.WriteToFiler(writer: TWriter);
 begin
-   inherited;
-   with writer do begin
-      WriteInteger(0); // Archive Version 0
-      FAcceleration.WriteToFiler(writer);
-   end;
+  inherited;
+  with writer do
+  begin
+    WriteInteger(0); // Archive Version 0
+    FAcceleration.WriteToFiler(writer);
+  end;
 end;
 
 // ReadFromFiler
-//
-procedure TGLBAcceleration.ReadFromFiler(reader : TReader);
+
+procedure TGLBAcceleration.ReadFromFiler(reader: TReader);
 begin
-   inherited;
-   with reader do begin
-      ReadInteger; // ignore archiveVersion
-      FAcceleration.ReadFromFiler(reader);
-   end;
+  inherited;
+  with reader do
+  begin
+    ReadInteger; // ignore archiveVersion
+    FAcceleration.ReadFromFiler(reader);
+  end;
 end;
 
 // SetAcceleration
-//
-procedure TGLBAcceleration.SetAcceleration(const val : TGLCoordinates);
+
+procedure TGLBAcceleration.SetAcceleration(const val: TGLCoordinates);
 begin
-   FAcceleration.Assign(val);
+  FAcceleration.Assign(val);
 end;
 
 // FriendlyName
-//
-class function TGLBAcceleration.FriendlyName : String;
+
+class function TGLBAcceleration.FriendlyName: string;
 begin
-	Result:='Simple Acceleration';
+  Result := 'Simple Acceleration';
 end;
 
 // FriendlyDescription
-//
-class function TGLBAcceleration.FriendlyDescription : String;
+
+class function TGLBAcceleration.FriendlyDescription: string;
 begin
-	Result:='A simple and constant acceleration';
+  Result := 'A simple and constant acceleration';
 end;
 
 // UniqueBehaviour
-//
-class function TGLBAcceleration.UniqueItem : Boolean;
+
+class function TGLBAcceleration.UniqueItem: boolean;
 begin
-	Result:=False;
+  Result := False;
 end;
 
 // DoProgress
-//
-procedure TGLBAcceleration.DoProgress(const progressTime : TProgressTimes);
+
+procedure TGLBAcceleration.DoProgress(const progressTime: TProgressTimes);
 var
-	i : Integer;
+  i: integer;
   Inertia: TGLBInertia;
 begin
-	i:=Owner.IndexOfClass(TGLBInertia);
-	if i>=0 then
+  i := Owner.IndexOfClass(TGLBInertia);
+  if i >= 0 then
   begin
-		Inertia:=TGLBInertia(Owner[i]);
-    Inertia.ApplyTranslationAcceleration(progressTime.deltaTime, FAcceleration.DirectVector);
+    Inertia := TGLBInertia(Owner[i]);
+    Inertia.ApplyTranslationAcceleration(progressTime.deltaTime,
+      FAcceleration.DirectVector);
   end
-	else
+  else
   begin
     TGLBInertia.Create(Owner);
     //on next progress event this exception won't be raised, because TGLBInertia will be created again
-    raise Exception.Create(ClassName + ' requires ' + TGLBInertia.ClassName + '! (' + TGLBInertia.ClassName + ' was added to the Behaviours again)');
+    raise Exception.Create(ClassName + ' requires ' + TGLBInertia.ClassName +
+      '! (' + TGLBInertia.ClassName + ' was added to the Behaviours again)');
   end;
 end;
 
@@ -692,13 +751,18 @@ end;
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 initialization
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
 
-	// class registrations
-	RegisterXCollectionItemClass(TGLBInertia);
-	RegisterXCollectionItemClass(TGLBAcceleration);
+  // class registrations
+  RegisterXCollectionItemClass(TGLBInertia);
+  RegisterXCollectionItemClass(TGLBAcceleration);
+
+finalization
+
+  UnregisterXCollectionItemClass(TGLBInertia);
+  UnregisterXCollectionItemClass(TGLBAcceleration);
 
 end.
 

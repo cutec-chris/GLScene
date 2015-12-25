@@ -3,10 +3,13 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="5">
+    <Units Count="6">
       <Unit0>
         <Filename Value="Christmas.lpr"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="12"/>
+        <CursorPos Y="26"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -18,8 +21,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="98"/>
-        <CursorPos Y="116"/>
+        <TopLine Value="42"/>
+        <CursorPos X="44" Y="42"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -36,7 +39,7 @@
       <Unit3>
         <Filename Value="../../Source/base/applicationfileio.pas"/>
         <UnitName Value="ApplicationFileIO"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="158"/>
         <CursorPos X="58" Y="170"/>
         <UsageCount Value="10"/>
@@ -46,16 +49,25 @@
       <Unit4>
         <Filename Value="../../Source/gltexture.pas"/>
         <UnitName Value="GLTexture"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="1899"/>
         <CursorPos Y="1913"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="../../Source/glcadencer.pas"/>
+        <UnitName Value="GLCadencer"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="352"/>
+        <CursorPos Y="367"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit5>
     </Units>
-    <JumpHistory Count="19" HistoryIndex="18">
+    <JumpHistory Count="22" HistoryIndex="21">
       <Position1>
         <Filename Value="FMain.pas"/>
         <Caret Line="8" Column="8"/>
@@ -132,6 +144,29 @@
         <Filename Value="FMain.pas"/>
         <Caret Line="116" TopLine="98"/>
       </Position19>
+      <Position20>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="15" Column="53"/>
+      </Position20>
+      <Position21>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="18" Column="20" TopLine="4"/>
+      </Position21>
+      <Position22>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="24" Column="27" TopLine="10"/>
+      </Position22>
     </JumpHistory>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="FMain.pas"/>
+        <Line Value="114"/>
+      </Item1>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

@@ -6,6 +6,7 @@
 	Types and structures for the MS3D file format.<p>
 
 	<b>Historique : </b><font size=-1><ul>
+      <li>27/04/10 - Yar - Added more types (by TL)
       <li>24/07/09 - DaStr - TMS3DGroup.MaterialIndex is now Shortint
                               (BugtrackerID = 2353633)
       <li>16/10/08 - UweR  - Compatibility fix for Delphi 2009
@@ -23,7 +24,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, VectorTypes, GLColor;
+  Classes, GLVectorTypes, GLColor;
 
 const
   MAX_MS3D_VERTICES  = 8192;
@@ -31,7 +32,7 @@ const
   MAX_MS3D_GROUPS    = 128;
   MAX_MS3D_MATERIALS = 128;
   MAX_MS3D_JOINTS    = 128;
-  MAX_MS3D_KEYFRAMES = 216;
+  MAX_MS3D_KEYFRAMES = 5000;
 
 type
   // typedef struct
@@ -107,6 +108,8 @@ type
 
   PMS3DTriangleArray = ^TMS3DTriangleArray;
   TMS3DTriangleArray = array[0..MAX_MS3D_TRIANGLES - 1] of TMS3DTriangle;
+
+
 
   // typedef struct
   // {
@@ -195,6 +198,51 @@ type
   PMS3DJointArray = ^TMS3DJointArray;
   TMS3DJointArray = array[0..MAX_MS3D_JOINTS - 1] of TMS3DJoint;
 
+
+
+  TMS3DComment=record
+      index: Integer;
+      commentLength: integer;
+      comment: array of AnsiChar;
+  end;
+  pMS3DComment=^TMS3DComment;
+
+  TMS3DCommentList=class(TList)
+  private
+  protected
+  public
+    destructor Destroy; override;
+    function NewComment: pMS3DComment;
+  end;
+
+
+
+  TMS3D_vertex_ex_t=record
+    boneIds: array[0..2] of byte;
+    weights: array[0..2] of byte;
+    extra: cardinal;
+    unknown: cardinal;
+  end;
+  pMS3D_vertex_ex_t=^TMS3D_vertex_ex_t;
+
+
+  TVertexWeightList=class(TList)
+  private
+    FsubVersion: Integer;
+    function GetWeight(idx: Integer): pMS3D_vertex_ex_t;
+    procedure SetsubVersion(const Value: Integer);
+  protected
+  public
+    function newWeight: pMS3D_vertex_ex_t;
+    procedure Clear; override;
+    destructor Destroy; override;
+    property Weight[idx: Integer]: pMS3D_vertex_ex_t read GetWeight;
+    property subVersion: Integer read FsubVersion write SetsubVersion;
+
+  end;
+
+
+
   {$A+}
 
 implementation
@@ -214,6 +262,64 @@ destructor TMS3DGroup.Destroy;
 begin
   TriangleIndices.Free;
   inherited;
+end;
+
+{ TMS3DCommentList }
+
+destructor TMS3DCommentList.destroy;
+var
+    i: integer;
+    comment: pMS3DComment;
+begin
+    for i:=0 to count-1 do begin
+        comment:=items[i];
+        comment^.comment:=nil;
+        dispose(comment);
+    end;
+    inherited;
+end;
+
+function TMS3DCommentList.NewComment: pMS3DComment;
+begin
+    new(result);
+    add(result);
+end;
+
+{ TVertexWeightList }
+
+procedure TVertexWeightList.clear;
+var
+    i: integer;
+begin
+    for i:=0 to count-1 do Dispose(Weight[i]);
+    inherited;
+end;
+
+destructor TVertexWeightList.destroy;
+begin
+    clear;
+    inherited;
+end;
+
+function TVertexWeightList.GetWeight(idx: Integer): pMS3D_vertex_ex_t;
+begin
+    result:=pMS3D_vertex_ex_t(items[idx]);
+end;
+
+function TVertexWeightList.newWeight: pMS3D_vertex_ex_t;
+var
+    p: pMS3D_vertex_ex_t;
+begin
+    new(p);
+    add(p);
+    result:=p;
+
+end;
+
+
+procedure TVertexWeightList.SetsubVersion(const Value: Integer);
+begin
+  FsubVersion := Value;
 end;
 
 end.

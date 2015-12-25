@@ -7,6 +7,9 @@
    Allows assign a unique material for each proxy master.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>30/08/10 - Yar - Fixed transformation in TGLMaterialMultiProxy.DoRender
+      <li>23/08/10 - Yar - Added OpenGLTokens to uses, replaced OpenGL1x functions to OpenGLAdapter
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>10/04/08 - DaStr - Added a Delpi 5 interface bug work-around to
                               TGLMaterialMultiProxyMaster (BugTracker ID = 1938988)
       <li>25/03/07 - Added GLCrossPlatform to uses for Delphi5 compatibility
@@ -41,12 +44,16 @@ interface
 {$I GLScene.inc}
 
 uses
-  // VCL
-  Classes,
+  {$IFDEF GLS_DELPHI_XE2_UP}
+    System.Classes, System.SysUtils,
+  {$ELSE}
+    Classes, SysUtils,
+  {$ENDIF}
 
   // GLScene
-  GLScene, VectorGeometry, GLTexture, GLMaterial, GLSilhouette, GLStrings,
-  GLCrossPlatform, PersistentClasses, GLRenderContextInfo, BaseClasses;
+  GLScene, GLVectorGeometry, GLTexture, GLMaterial, GLSilhouette, GLStrings,
+  GLCrossPlatform, GLPersistentClasses, GLRenderContextInfo, GLBaseClasses,
+  GLContext , GLVectorTypes;
 
 type
 
@@ -67,7 +74,7 @@ type
     function GetMasterLibMaterialName: TGLLibMaterialName;
 
     // Implementing IGLMaterialLibrarySupported.
-    function GetMaterialLibrary: TGLMaterialLibrary;
+    function GetMaterialLibrary: TGLAbstractMaterialLibrary;
   protected
     { Protected Declarations }
     function GetDisplayName: string; override;
@@ -191,8 +198,6 @@ implementation
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 
-uses SysUtils, OpenGL1x;
-
 // ------------------
 // ------------------ TGLMaterialMultiProxyMaster ------------------
 // ------------------
@@ -302,7 +307,7 @@ end;
 
 // GetMaterialLibrary
 //
-function TGLMaterialMultiProxyMaster.GetMaterialLibrary: TGLMaterialLibrary;
+function TGLMaterialMultiProxyMaster.GetMaterialLibrary: TGLAbstractMaterialLibrary;
 begin
   if OwnerObject = nil then
     Result := nil
@@ -461,7 +466,7 @@ end;
 constructor TGLMaterialMultiProxy.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  ObjectStyle := ObjectStyle + [osDoesTemperWithColorsOrFaceWinding, osDirectDraw];
+  ObjectStyle := ObjectStyle + [osDirectDraw];
   FMasterObjects := TGLMaterialMultiProxyMasters.Create(Self);
 end;
 
@@ -524,7 +529,8 @@ begin
       begin
         oldProxySubObject := rci.proxySubObject;
         rci.proxySubObject := True;
-        glMultMatrixf(PGLFloat(mpMaster.MasterObject.MatrixAsAddress));
+        with rci.PipelineTransformation do
+          ModelMatrix := MatrixMultiply(mpMaster.MasterObject.Matrix, ModelMatrix);
         if (mpMaster.MasterObject is TGLCustomSceneObject) and (FMaterialLibrary <> nil) then
         begin
           TGLCustomSceneObject(mpMaster.MasterObject).Material.QuickAssignMaterial(
