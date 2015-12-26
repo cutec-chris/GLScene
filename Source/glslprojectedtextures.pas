@@ -51,7 +51,7 @@ uses
     GLScene,
     GLTexture,
     OpenGL1x,
-    VectorGeometry,
+    GLVectorGeometry,
     GLContext,
     sysutils,
     GLColor,

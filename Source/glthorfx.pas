@@ -25,8 +25,8 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, XCollection, VectorGeometry,
-    GLCadencer, GLColor, BaseClasses, GLCoordinates, GLRenderContextInfo,
+uses Classes, GLScene, XCollection, GLVectorGeometry,
+    GLCadencer, GLColor, GLBaseClasses, GLCoordinates, GLRenderContextInfo,
     GLManager, GLState;
 
 type
@@ -141,7 +141,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, VectorLists;
+uses SysUtils, OpenGL1x, GLVectorLists;
 
 
 // ------------------

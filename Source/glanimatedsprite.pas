@@ -27,9 +27,9 @@ unit GLAnimatedSprite;
 interface
 
 uses
-  Classes, SysUtils, GLScene, VectorGeometry, OpenGL1x, GLMaterial, GLUtils,
-  PersistentClasses, XCollection, GLCrossPlatform, GLRenderContextInfo,
-  BaseClasses, GLState;
+  Classes, SysUtils, GLScene, GLVectorGeometry, OpenGL1x, GLMaterial, GLUtils,
+  GLPersistentClasses, XCollection, GLCrossPlatform, GLRenderContextInfo,
+  GLBaseClasses, GLState;
 
 type
   TSpriteAnimFrame = class;

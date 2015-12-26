@@ -33,7 +33,7 @@ uses
   Classes, SysUtils, Graphics, Controls,
 
   // GLScene
-  VectorGeometry, GLCrossPlatform;
+  GLVectorGeometry, GLCrossPlatform;
 
 {$i GLScene.inc}
 

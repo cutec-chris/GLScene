@@ -32,7 +32,7 @@ interface
 
 uses
   Classes, SysUtils,
-  GLVectorFileObjects, ApplicationFileIO, VectorGeometry, VectorLists,
+  GLVectorFileObjects, ApplicationFileIO, GLVectorGeometry, GLVectorLists,
   GLCrossPlatform, GLTexture, GLMaterial;
 
 const

@@ -36,7 +36,7 @@ unit GLState;
 
 interface
 
-uses Classes, VectorGeometry, SysUtils, OpenGL1x;
+uses Classes, GLVectorGeometry, SysUtils, OpenGL1x;
 
 {$I GLScene.inc}
 

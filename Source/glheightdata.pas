@@ -64,7 +64,7 @@ interface
 
 {$i GLScene.inc}
 
-uses Classes, VectorGeometry, GLCrossPlatform, GLMaterial, BaseClasses
+uses Classes, GLVectorGeometry, GLCrossPlatform, GLMaterial, GLBaseClasses
      {$ifdef fpc}
      ,glgraphics
      {$endif}

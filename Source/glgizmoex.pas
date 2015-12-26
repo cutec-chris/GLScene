@@ -71,10 +71,10 @@ uses
   {$IFDEF MSWINDOWS}Windows,{$ENDIF} Classes, SysUtils,
 
   // GLScene
-  OpenGL1x, GLScene, GLColor, GLObjects, VectorGeometry, GLMaterial, GLStrings,
+  OpenGL1x, GLScene, GLColor, GLObjects, GLVectorGeometry, GLMaterial, GLStrings,
   GLGeomObjects, GLBitmapFont, GLViewer, GLVectorFileObjects, GLCrossPlatform,
-  GLCoordinates, GLRenderContextInfo, GeometryBB, VectorTypes, GLCanvas,
-  PersistentClasses, GLScreen, GLState;
+  GLCoordinates, GLRenderContextInfo, GeometryBB, GLVectorTypes, GLCanvas,
+  GLPersistentClasses, GLScreen, GLState;
 
 type
   TGLGizmoExObjectCollection = class;

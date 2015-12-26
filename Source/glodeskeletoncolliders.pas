@@ -11,7 +11,7 @@ unit GLODESkeletonColliders;
 interface
 
 uses
-  Classes, PersistentClasses, VectorGeometry, GLVectorFileObjects,
+  Classes, GLPersistentClasses, GLVectorGeometry, GLVectorFileObjects,
   dynode;
 
 type

@@ -19,7 +19,7 @@ interface
 
 uses
   Classes, SysUtils, GLVectorFileObjects, GLUtils, ApplicationFileIO,
-  VectorGeometry, VectorLists;
+  GLVectorGeometry, GLVectorLists;
 
 type
 

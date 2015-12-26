@@ -23,7 +23,7 @@ interface
 {$include GLScene.inc}
 
 uses
-  GLBitmapFont, Classes, GLScene, GLTexture, GLCrossPlatform, VectorGeometry,
+  GLBitmapFont, Classes, GLScene, GLTexture, GLCrossPlatform, GLVectorGeometry,
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF}

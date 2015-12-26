@@ -30,8 +30,8 @@ unit GLExplosionFx;
 interface
 
 uses
-  OpenGL1x, VectorGeometry, GLScene, GLVectorFileObjects,
-  VectorLists, XCollection, GLCoordinates, GLRenderContextInfo;
+  OpenGL1x, GLVectorGeometry, GLScene, GLVectorFileObjects,
+  GLVectorLists, XCollection, GLCoordinates, GLRenderContextInfo;
 
 type
   TGLBExplosionFX = class(TGLObjectPreEffect)

@@ -34,7 +34,7 @@ interface
 
 {$i GLScene.inc}
 
-uses Classes, Graphics, VectorGeometry, GLColor, GLCrossPlatform;
+uses Classes, Graphics, GLVectorGeometry, GLColor, GLCrossPlatform;
 
 type
 	// TGLCanvas

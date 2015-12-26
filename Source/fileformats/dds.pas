@@ -34,7 +34,7 @@ interface
 
 {$i GLScene.inc}
 
-uses Classes, SysUtils, GLCrossPlatform, VectorGeometry, DXTC;
+uses Classes, SysUtils, GLCrossPlatform, GLVectorGeometry, DXTC;
 
 type
 

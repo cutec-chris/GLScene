@@ -33,7 +33,7 @@ interface
 {$i GLScene.inc}
 
 uses
-  VectorGeometry;
+  GLVectorGeometry;
 
 type
 

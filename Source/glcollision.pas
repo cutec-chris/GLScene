@@ -24,7 +24,7 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, XCollection, VectorGeometry, VectorLists, GLVectorFileObjects,
+uses Classes, GLScene, XCollection, GLVectorGeometry, GLVectorLists, GLVectorFileObjects,
    GeometryBB, GLCrossPlatform, GLManager;
 
 type

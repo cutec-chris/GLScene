@@ -23,7 +23,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, SysUtils, VectorGeometry, GLPerlinBase, GLHeightData, GLCrossPlatform;
+  Classes, SysUtils, GLVectorGeometry, GLPerlinBase, GLHeightData, GLCrossPlatform;
 
 Type
   TGLPerlinInterpolation = (pi_none, pi_simple, pi_linear,pi_Smoothed, pi_Cosine, pi_cubic);

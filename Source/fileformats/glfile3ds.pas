@@ -39,8 +39,8 @@ uses
 
   // GLScene
   GLScene,  GLObjects,  GLVectorFileObjects, GLTexture, ApplicationFileIO,
-  VectorGeometry, File3DS, Types3DS, OpenGL1x, PersistentClasses,
-  GLStrings, GLFile3DSSceneObjects, GLCrossPlatform, VectorLists,
+  GLVectorGeometry, File3DS, Types3DS, OpenGL1x, GLPersistentClasses,
+  GLStrings, GLFile3DSSceneObjects, GLCrossPlatform, GLVectorLists,
   GLRenderContextInfo, GLMaterial;
 
 type

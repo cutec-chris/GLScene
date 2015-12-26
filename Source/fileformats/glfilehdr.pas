@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  RGBE, VectorTypes, VectorGeometry;
+  RGBE, GLVectorTypes, GLVectorGeometry;
 
 // ------------------
 // ------------------ TGLHDRImage ------------------

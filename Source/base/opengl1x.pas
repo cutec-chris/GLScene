@@ -104,7 +104,7 @@ interface
 
 
 uses
-  VectorTypes, SysUtils
+  GLVectorTypes, SysUtils
   {$IFDEF MSWINDOWS}
     ,Windows
   {$ENDIF }

@@ -134,7 +134,7 @@
       <li>19/06/01 - EG - StrToFloat outlawed and replaced by StrToFloatDef
       <li>25/03/01 - EG - Added TGLAnimationControler
       <li>18/03/01 - EG - Added basic Skeleton structures & SMD importer
-      <li>16/03/01 - EG - Introduced new PersistentClasses
+      <li>16/03/01 - EG - Introduced new GLPersistentClasses
       <li>15/03/01 - EG - Fix in TActorAnimation.SetEndFrame (thx David Costa)
       <li>08/03/01 - EG - TGL3DSVectorFile now loads materials for TGLBaseMesh
       <li>26/02/01 - EG - Added TBaseMeshObject & BuildNormals, MD2 normals auto-builded
@@ -181,10 +181,10 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, OpenGL1x, VectorGeometry, SysUtils, GLTexture, GLMaterial,
-   GLMesh, VectorLists, PersistentClasses, Octree, GeometryBB,
+uses Classes, GLScene, OpenGL1x, GLVectorGeometry, SysUtils, GLTexture, GLMaterial,
+   GLMesh, GLVectorLists, GLPersistentClasses, Octree, GeometryBB,
    ApplicationFileIO, GLSilhouette, GLContext, GLColor, GLRenderContextInfo,
-   GLCoordinates, BaseClasses;
+   GLCoordinates, GLBaseClasses;
 
 type
 
@@ -7595,9 +7595,9 @@ begin
       end else begin
          baseDelta:=anim.EndFrame-anim.StartFrame;
          lerpFactor:=anim.StartFrame+baseDelta*Ratio;
-         frameIndex1:=VectorGeometry.Trunc(lerpFactor);
+         frameIndex1:=GLVectorGeometry.Trunc(lerpFactor);
          frameIndex2:=frameIndex1+1;
-         lerpFactor:=VectorGeometry.Frac(lerpFactor);
+         lerpFactor:=GLVectorGeometry.Frac(lerpFactor);
       end;
       weight:=1;
       externalRotations:=nil;

@@ -30,7 +30,7 @@ uses
   sysutils, classes, graphics, controls, forms, dialogs,
   StdCtrls, ComCtrls, ExtCtrls, GLTexture, GLScene, GLObjects, GLWindows, GLHUDObjects,
   glviewer, glgui, glgraphics, glutils, menus, GLCrossPlatform
-  , GLCoordinates, BaseClasses, GLMaterial 
+  , GLCoordinates, GLBaseClasses, GLMaterial 
   {$ifdef lcl}
   ,lresources,lclintf,messages,lmessages,buttons;
 {$ENDIF}

@@ -89,8 +89,8 @@
         <UnitName Value="PerlinNoise"/>
       </Item15>
       <Item16>
-        <Filename Value="../Source/base/persistentclasses.pas"/>
-        <UnitName Value="PersistentClasses"/>
+        <Filename Value="../Source/base/glpersistentclasses.pas"/>
+        <UnitName Value="glpersistentclasses"/>
       </Item16>
       <Item17>
         <Filename Value="../Source/base/pictureregisteredformats.pas"/>
@@ -109,16 +109,16 @@
         <UnitName Value="Spline"/>
       </Item20>
       <Item21>
-        <Filename Value="../Source/base/vectorgeometry.pas"/>
-        <UnitName Value="VectorGeometry"/>
+        <Filename Value="../Source/base/glvectorgeometry.pas"/>
+        <UnitName Value="GLVectorGeometry"/>
       </Item21>
       <Item22>
-        <Filename Value="../Source/base/vectorlists.pas"/>
-        <UnitName Value="VectorLists"/>
+        <Filename Value="../Source/base/glvectorlists.pas"/>
+        <UnitName Value="GLVectorLists"/>
       </Item22>
       <Item23>
-        <Filename Value="../Source/base/vectortypes.pas"/>
-        <UnitName Value="VectorTypes"/>
+        <Filename Value="../Source/base/glvectortypes.pas"/>
+        <UnitName Value="GLVectorTypes"/>
       </Item23>
       <Item24>
         <Filename Value="../Source/base/verletclasses.pas"/>
@@ -725,8 +725,8 @@
         <UnitName Value="GLSLShader"/>
       </Item170>
       <Item171>
-        <Filename Value="../Source/base/baseclasses.pas"/>
-        <UnitName Value="BaseClasses"/>
+        <Filename Value="../Source/base/glbaseclasses.pas"/>
+        <UnitName Value="glbaseclasses"/>
       </Item171>
       <Item172>
         <Filename Value="../Source/base/glcoordinates.pas"/>

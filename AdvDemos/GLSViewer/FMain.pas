@@ -12,9 +12,9 @@ interface
 uses
   LCLIntf,LCLProc, LMessages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ActnList, Menus, ImgList, ToolWin, ComCtrls, GLMaterial,
-  GLScene, GLLCLViewer, GLVectorFileObjects, GLObjects, VectorGeometry,
-  GLTexture, OpenGL1x, GLContext, ExtDlgs, VectorLists, GLCadencer,
-  ExtCtrls, GLCoordinates, GLCrossPlatform, BaseClasses, Types;
+  GLScene, GLLCLViewer, GLVectorFileObjects, GLObjects, GLVectorGeometry,
+  GLTexture, OpenGL1x, GLContext, ExtDlgs, GLVectorLists, GLCadencer,
+  ExtCtrls, GLCoordinates, GLCrossPlatform, GLBaseClasses, Types;
 
 type
 
@@ -195,7 +195,7 @@ implementation
 
 {$R *.dfm}
 
-uses GLColor, GLKeyBoard, GLGraphics, Registry, PersistentClasses, MeshUtils,
+uses GLColor, GLKeyBoard, GLGraphics, Registry, GLPersistentClasses, MeshUtils,
    GLFileOBJ, GLFileSTL, GLFileLWO, GLFileQ3BSP,  GLFileMS3D,
    GLFileNMF, GLFileMD3, GLFile3DS, GLFileMD2, GLFileSMD, GLFileTIN,
    GLFilePLY, GLFileGTS, GLFileVRML, GLFileMD5, GLMeshOptimizer, GLState,

@@ -65,8 +65,8 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, PersistentClasses, GLScene, VectorGeometry, XCollection, GLMaterial,
-     GLCadencer, VectorLists, GLGraphics, GLContext, GLColor, BaseClasses,
+uses Classes, GLPersistentClasses, GLScene, GLVectorGeometry, XCollection, GLMaterial,
+     GLCadencer, GLVectorLists, GLGraphics, GLContext, GLColor, GLBaseClasses,
      GLCoordinates, GLRenderContextInfo, GLManager;
 
 const

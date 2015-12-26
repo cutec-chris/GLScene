@@ -27,7 +27,7 @@ interface
 
 uses classes,sysutils,
      applicationfileio,
-     vectorgeometry, vectorlists,
+     GLVectorGeometry, GLVectorLists,
      glscene, gltexture, glvectorfileObjects;
 
 type

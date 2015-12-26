@@ -25,7 +25,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  VectorGeometry, VectorLists;
+  GLVectorGeometry, GLVectorLists;
 
 type
   TBSplineContinuity = (bscUniformNonPeriodic, bscUniformPeriodic);

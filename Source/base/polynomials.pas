@@ -37,7 +37,7 @@ interface
 
 {$I GLScene.inc}
 
-uses VectorGeometry;
+uses GLVectorGeometry;
 
 type
    TDoubleArray = array of Double;

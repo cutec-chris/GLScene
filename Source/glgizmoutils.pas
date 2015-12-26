@@ -3,7 +3,7 @@ unit glgizmoutils;
 interface
 
 uses
-  opengl1x, glscene, vectorgeometry, contnrs;
+  opengl1x, glscene, GLVectorGeometry, contnrs;
 
 (* 
 

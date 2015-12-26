@@ -48,7 +48,7 @@ uses
   Classes, Forms, Controls, ExtCtrls, SysUtils, TypInfo,
 
   // GLSCene
-  VectorGeometry, GLScene, GLViewer, GLStrings, GLCrossPlatform;
+  GLVectorGeometry, GLScene, GLViewer, GLStrings, GLCrossPlatform;
 
 type
   TGLSimpleNavigationOption = (

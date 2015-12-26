@@ -14,7 +14,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, VectorTypes, VectorGeometry;
+  Classes, GLVectorTypes, GLVectorGeometry;
 
 procedure float2rgbe(var rgbe: TVector4b; const red, green, blue: Single);
 procedure rgbe2float(var red, green, blue: Single; const rgbe: TVector4b);

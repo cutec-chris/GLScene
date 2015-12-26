@@ -81,7 +81,7 @@ uses
 
   // GLScene
   GLScene, GLObjects, GLHUDObjects, GLViewer, GLBitmapFont, GLKeyboard,
-  VectorTypes, PersistentClasses, GLContext, GLTexture, GLUtils, GLStrings,
+  GLVectorTypes, GLPersistentClasses, GLContext, GLTexture, GLUtils, GLStrings,
   GLCrossPlatform, GLMaterial;
 
 const

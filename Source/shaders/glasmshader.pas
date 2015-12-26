@@ -34,7 +34,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  VectorGeometry, VectorTypes, GLTexture, OpenGL1x, ARBProgram, GLCustomShader,
+  GLVectorGeometry, GLVectorTypes, GLTexture, OpenGL1x, ARBProgram, GLCustomShader,
   GLRenderContextInfo;
 
 type

@@ -26,7 +26,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLTexture, ARBProgram, VectorGeometry, VectorLists, OpenGL1x, GLAsmShader,
+  GLTexture, ARBProgram, GLVectorGeometry, GLVectorLists, OpenGL1x, GLAsmShader,
   GLRenderContextInfo, GLCustomShader, GLState;
 
 type

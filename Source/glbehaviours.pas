@@ -24,7 +24,7 @@ unit GLBehaviours;
 
 interface
 
-uses Classes, GLScene, VectorGeometry, XCollection, BaseClasses,
+uses Classes, GLScene, GLVectorGeometry, XCollection, GLBaseClasses,
      GLCoordinates;
 
 type

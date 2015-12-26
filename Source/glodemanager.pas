@@ -105,8 +105,8 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, dynode, dynodegl, odegl, odeimport, GLScene, VectorGeometry, GLTexture, OpenGL1x,
-  XOpenGL, SysUtils, GLObjects, XCollection, PersistentClasses, VectorLists,
+  Classes, dynode, dynodegl, odegl, odeimport, GLScene, GLVectorGeometry, GLTexture, OpenGL1x,
+  XOpenGL, SysUtils, GLObjects, XCollection, GLPersistentClasses, GLVectorLists,
   GLColor, GLCoordinates, GLRenderContextInfo, GLManager;
 
 type

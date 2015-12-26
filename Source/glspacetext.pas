@@ -49,7 +49,7 @@ uses
   Windows, Messages, Dialogs, Classes, Graphics,
 
   // GLScene
-  GLScene, OpenGL1x, GLTexture, GLContext, VectorGeometry, GLStrings,
+  GLScene, OpenGL1x, GLTexture, GLContext, GLVectorGeometry, GLStrings,
   GLRenderContextInfo, GLState;
 
 type

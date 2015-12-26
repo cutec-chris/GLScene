@@ -27,7 +27,7 @@ interface
 
 uses
    Classes, SysUtils, GLTexture, GLContext, GLGraphics, GLUtils,
-   VectorGeometry, OpenGL1x, ARBProgram, GLColor, GLRenderContextInfo,
+   GLVectorGeometry, OpenGL1x, ARBProgram, GLColor, GLRenderContextInfo,
    GLMaterial, GLState;
 
 type

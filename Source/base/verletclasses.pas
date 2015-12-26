@@ -51,7 +51,7 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, VectorGeometry, SysUtils, VectorLists, SpatialPartitioning,
+uses Classes, GLVectorGeometry, SysUtils, GLVectorLists, SpatialPartitioning,
   GeometryBB;
 
 const

@@ -48,7 +48,7 @@ uses
 
   // GLScene
   GLScene, GLTexture, OpenGL1x, GLGraphics, GLStrings, GLCustomShader, GLContext,
-  VectorGeometry, GLRenderContextInfo, GLMaterial;
+  GLVectorGeometry, GLRenderContextInfo, GLMaterial;
 
 type
   EGLPostShaderHolderException = class(Exception);

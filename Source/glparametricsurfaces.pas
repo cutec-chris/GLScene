@@ -41,8 +41,8 @@ interface
 {$I GLScene.inc}
 
 uses
-  GLVectorFileObjects, CurvesAndSurfaces, VectorGeometry, VectorLists,
-  PersistentClasses, GLTexture, OpenGL1x, GLState, GLRenderContextInfo;
+  GLVectorFileObjects, CurvesAndSurfaces, GLVectorGeometry, GLVectorLists,
+  GLPersistentClasses, GLTexture, OpenGL1x, GLState, GLRenderContextInfo;
 
 type
 

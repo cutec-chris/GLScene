@@ -22,8 +22,8 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, VectorGeometry, OpenGL1x, GLMaterial, GLObjects,
-   GLCrossPlatform, PersistentClasses, VectorLists, GLRenderContextInfo;
+uses Classes, GLScene, GLVectorGeometry, OpenGL1x, GLMaterial, GLObjects,
+   GLCrossPlatform, GLPersistentClasses, GLVectorLists, GLRenderContextInfo;
 
 type
 

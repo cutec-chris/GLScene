@@ -29,7 +29,7 @@ interface
 
 uses
   Classes, SysUtils, GLVectorFileObjects, GLMaterial, ApplicationFileIO,
-  VectorGeometry, TypesMDC;
+  GLVectorGeometry, TypesMDC;
 
 type
 

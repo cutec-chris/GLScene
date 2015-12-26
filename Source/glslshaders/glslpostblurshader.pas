@@ -27,7 +27,7 @@ uses
   Classes,
 
   // GLScene
-  GLTexture, GLScene, VectorGeometry, GLContext,
+  GLTexture, GLScene, GLVectorGeometry, GLContext,
   GLSLShader, GLCustomShader, GLRenderContextInfo;
 
 type

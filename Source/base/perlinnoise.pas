@@ -21,7 +21,7 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, VectorGeometry;
+uses Classes, GLVectorGeometry;
 
 const
    cPERLIN_TABLE_SIZE = 256; // must be a power of two

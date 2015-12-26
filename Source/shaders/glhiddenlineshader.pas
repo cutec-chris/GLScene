@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, GLMaterial, OpenGL1x, GLCrossPlatform, GLScene, GLColor,
-  BaseClasses, GLRenderContextInfo, GLState;
+  GLBaseClasses, GLRenderContextInfo, GLState;
 
 type
   TGLLineSettings = class(TGLUpdateAbleObject)

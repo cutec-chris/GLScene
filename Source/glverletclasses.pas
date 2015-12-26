@@ -16,7 +16,7 @@ unit GLVerletClasses;
 interface
 
 uses
-  VerletClasses, VectorGeometry, GLScene, GLObjects;
+  VerletClasses, GLVectorGeometry, GLScene, GLObjects;
 
 type
   // TGLVerletNode

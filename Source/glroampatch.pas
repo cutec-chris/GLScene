@@ -28,7 +28,7 @@ interface
 
 {$I GLScene.inc}
 
-uses VectorGeometry, GLHeightData, VectorLists, GLCrossPlatform, GLContext;
+uses GLVectorGeometry, GLHeightData, GLVectorLists, GLCrossPlatform, GLContext;
 
 type
 

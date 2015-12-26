@@ -73,7 +73,7 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, PersistentClasses, Graphics, ApplicationFileIO, SysUtils,
+uses Classes, GLPersistentClasses, Graphics, ApplicationFileIO, SysUtils,
 {$IFDEF GLS_Graphics32_SUPPORT}
   GR32,
 {$ENDIF}
@@ -407,7 +407,7 @@ implementation
 // ------------------------------------------------------------------
 
 uses
-  VectorGeometry, GLStrings;
+  GLVectorGeometry, GLStrings;
 
 var
   vRasterFileFormats: TRasterFileFormatsList;

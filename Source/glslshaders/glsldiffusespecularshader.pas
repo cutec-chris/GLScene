@@ -60,7 +60,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLTexture, GLScene, VectorGeometry, OpenGL1x, GLStrings, GLCustomShader,
+  GLTexture, GLScene, GLVectorGeometry, OpenGL1x, GLStrings, GLCustomShader,
   GLSLShader, GLColor, GLRenderContextInfo, GLMaterial;
 
 type

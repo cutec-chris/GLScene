@@ -64,7 +64,7 @@ interface
 
 uses
    Classes, SysUtils, GLMaterial, GLContext, GLGraphics, GLUtils,
-   VectorGeometry, OpenGL1x, VectorLists, ARBProgram, GLColor,
+   GLVectorGeometry, OpenGL1x, GLVectorLists, ARBProgram, GLColor,
    GLRenderContextInfo, GLState;
 
 type

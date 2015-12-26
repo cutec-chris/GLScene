@@ -105,7 +105,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, VectorGeometry, OpenGL1x, ApplicationFileIO;
+uses SysUtils, GLVectorGeometry, OpenGL1x, ApplicationFileIO;
 
 // ------------------
 // ------------------ TGLWindowsBitmapFont ------------------

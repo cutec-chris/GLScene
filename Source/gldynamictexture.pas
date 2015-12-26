@@ -103,7 +103,7 @@ type
 implementation
 
 uses
-  VectorGeometry;
+  GLVectorGeometry;
 
 { TGLDynamicTextureImage }
 

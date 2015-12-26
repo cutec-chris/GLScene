@@ -50,7 +50,7 @@ uses
   Classes,
 
   // GLScene
-  GLNavigator, VectorGeometry, GLScene, GLCrossPlatform, GLCoordinates, GLScreen;
+  GLNavigator, GLVectorGeometry, GLScene, GLCrossPlatform, GLCoordinates, GLScreen;
 
 type
 	{: TGLNavigatorAdjustDistanceParameters is wrapper for all parameters that
@@ -886,13 +886,13 @@ begin
 
   if Value > 1 then
   begin
-    FMovementInertia := FMovementInertia * VectorGeometry.Power(2, 1 / Value);
-    FTurnInertia := FTurnInertia * VectorGeometry.Power(2, 1 / Value);
+    FMovementInertia := FMovementInertia * GLVectorGeometry.Power(2, 1 / Value);
+    FTurnInertia := FTurnInertia * GLVectorGeometry.Power(2, 1 / Value);
   end
   else
   begin
-    FMovementInertia := FMovementInertia / VectorGeometry.Power(2, Value);
-    FTurnInertia := FTurnInertia / VectorGeometry.Power(2, Value);
+    FMovementInertia := FMovementInertia / GLVectorGeometry.Power(2, Value);
+    FTurnInertia := FTurnInertia / GLVectorGeometry.Power(2, Value);
   end;
   FTurnMaxAngle := FTurnMaxAngle / Value;
   FTurnSpeed := FTurnSpeed * Value;
@@ -1005,9 +1005,9 @@ begin
   Assert(Value > 0);
 
   if Value < 1 then
-    FInertia := FInertia / VectorGeometry.Power(2, Value)
+    FInertia := FInertia / GLVectorGeometry.Power(2, Value)
   else
-    FInertia := FInertia * VectorGeometry.Power(2, 1 / Value);
+    FInertia := FInertia * GLVectorGeometry.Power(2, 1 / Value);
 
   FMaxAngle := FMaxAngle / Value;
   FPitchSpeed := FPitchSpeed * Value;
@@ -1089,9 +1089,9 @@ begin
   Assert(Value > 0);
 
   if Value < 1 then
-    FInertia := FInertia / VectorGeometry.Power(2, Value)
+    FInertia := FInertia / GLVectorGeometry.Power(2, Value)
   else
-    FInertia := FInertia * VectorGeometry.Power(2, 1 / Value);
+    FInertia := FInertia * GLVectorGeometry.Power(2, 1 / Value);
 
   FImpulseSpeed := FImpulseSpeed / Value;
 end;

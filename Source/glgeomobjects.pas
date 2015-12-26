@@ -30,8 +30,8 @@ unit GLGeomObjects;
 
 interface
 
-uses Classes, GLScene, VectorGeometry, OpenGL1x, GLObjects,
-  GLSilhouette, VectorTypes, GeometryBB, GLRenderContextInfo;
+uses Classes, GLScene, GLVectorGeometry, OpenGL1x, GLObjects,
+  GLSilhouette, GLVectorTypes, GeometryBB, GLRenderContextInfo;
 
 type
 

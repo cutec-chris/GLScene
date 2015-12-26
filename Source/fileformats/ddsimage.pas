@@ -25,7 +25,7 @@ interface
 
 uses
   {$IFDEF MSWINDOWS} Windows, GLPBuffer, {$ENDIF}
-  Classes, SysUtils, GLCrossPlatform, VectorGeometry, GLGraphics,
+  Classes, SysUtils, GLCrossPlatform, GLVectorGeometry, GLGraphics,
   OpenGL1x;
 
 type

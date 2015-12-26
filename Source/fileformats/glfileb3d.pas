@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  GLTexture, GLTextureFormat, GLMaterial, VectorGeometry, VectorLists;
+  GLTexture, GLTextureFormat, GLMaterial, GLVectorGeometry, GLVectorLists;
 
 
 //------------------------------ TGLB3DVectorFile ------------------------------

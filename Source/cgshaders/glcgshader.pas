@@ -70,8 +70,8 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  VectorGeometry, VectorLists, VectorTypes, GLTexture, GLStrings,
-  GLCadencer, OpenGL1x, GLCrossPlatform, GLContext, BaseClasses,
+  GLVectorGeometry, GLVectorLists, GLVectorTypes, GLTexture, GLStrings,
+  GLCadencer, OpenGL1x, GLCrossPlatform, GLContext, GLBaseClasses,
   GLRenderContextInfo, GLMaterial,
 
   // CG

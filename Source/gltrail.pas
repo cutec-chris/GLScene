@@ -29,8 +29,8 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLScene, VectorTypes, MeshUtils, VectorGeometry, GLVectorFileObjects,
-  GLMesh, GLObjects, OpenGL1x, GLMaterial, GLStrings, BaseClasses;
+  GLScene, GLVectorTypes, MeshUtils, GLVectorGeometry, GLVectorFileObjects,
+  GLMesh, GLObjects, OpenGL1x, GLMaterial, GLStrings, GLBaseClasses;
 
 
 const cMaxVerts = 2000;

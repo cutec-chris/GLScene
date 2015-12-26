@@ -33,8 +33,8 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, VectorGeometry, OpenGL1x, GLState,
-     GLColor, BaseClasses, GLRenderContextInfo;
+uses Classes, GLScene, GLVectorGeometry, OpenGL1x, GLState,
+     GLColor, GLBaseClasses, GLRenderContextInfo;
 
 type
    TMeshMode = (mmTriangleStrip, mmTriangleFan, mmTriangles,

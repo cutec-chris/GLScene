@@ -18,7 +18,7 @@ unit GLNodes;
 
 interface
 
-uses Classes, VectorGeometry, OpenGL1x, BaseClasses, GLCoordinates, Spline;
+uses Classes, GLVectorGeometry, OpenGL1x, GLBaseClasses, GLCoordinates, Spline;
 
 {$I GLScene.inc}
 
@@ -198,7 +198,7 @@ end;
 //
 procedure TGLNode.SetAsAffineVector(const value : TAffineVector);
 begin
-   VectorGeometry.SetVector(FCoords, value);
+   GLVectorGeometry.SetVector(FCoords, value);
    (Collection as TGLNodes).NotifyChange;
 end;
 
@@ -206,7 +206,7 @@ end;
 //
 function TGLNode.GetAsAffineVector : TAffineVector;
 begin
-   VectorGeometry.SetVector(Result, FCoords);
+   GLVectorGeometry.SetVector(Result, FCoords);
 end;
 
 // SetCoordinate

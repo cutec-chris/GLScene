@@ -22,8 +22,8 @@ uses
   Classes, SysUtils, Math,
 
   // GLScene
-  VectorGeometry, OpenGL1x, GLScene, GLVectorFileObjects,
-  PersistentClasses, GLCrossPlatform, GLCoordinates, GLRenderContextInfo,
+  GLVectorGeometry, OpenGL1x, GLScene, GLVectorFileObjects,
+  GLPersistentClasses, GLCrossPlatform, GLCoordinates, GLRenderContextInfo,
   GLState;
 
 type
@@ -280,7 +280,7 @@ begin
 
   v1 := AffineVectorMake(v[0], v[1], 0);
   NormalizeVector(v1);
-  ang := VectorGeometry.arccos(VectorDotProduct(v, v1));
+  ang := GLVectorGeometry.arccos(VectorDotProduct(v, v1));
 
   rci.GLStates.PolygonMode := pmLines;
 

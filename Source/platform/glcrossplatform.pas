@@ -63,7 +63,7 @@ uses
   {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
-  Classes, SysUtils, Graphics, Controls, Forms, VectorTypes,
+  Classes, SysUtils, Graphics, Controls, Forms, GLVectorTypes,
   Dialogs, StdCtrls, ExtDlgs, Math, strutils, LCLType, LCLIntf, types, ComponentEditors
   {$IFDEF UNIX}
   , Buttons, unix
@@ -78,7 +78,7 @@ uses
 {$IFNDEF FPC} //Not FPC
 
 uses
-  Windows, Classes, SysUtils, Graphics, Controls, Forms, VectorTypes,
+  Windows, Classes, SysUtils, Graphics, Controls, Forms, GLVectorTypes,
   Dialogs, StdCtrls, ExtDlgs, Consts
   {$IFDEF GLS_COMPILER_6_UP}, Math, StrUtils{$ENDIF}
   ;

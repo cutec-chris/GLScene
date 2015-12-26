@@ -107,9 +107,9 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  VectorGeometry, VectorTypes, GLTexture, GLCadencer, OpenGL1x, GLScene,
+  GLVectorGeometry, GLVectorTypes, GLTexture, GLCadencer, OpenGL1x, GLScene,
   GLStrings, GLCrossPlatform, GLContext, GLRenderContextInfo, GLMaterial,
-  VectorLists;
+  GLVectorLists;
 
 const
   glsShaderMaxLightSources = 8;

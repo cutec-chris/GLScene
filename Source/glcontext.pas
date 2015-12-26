@@ -69,7 +69,7 @@ uses
 Windows,
 {$ENDIF} {$ENDIF}
 
-Classes, SysUtils, GLCrossPlatform, OpenGL1x, VectorGeometry, VectorTypes, GLState;
+Classes, SysUtils, GLCrossPlatform, OpenGL1x, GLVectorGeometry, GLVectorTypes, GLState;
 
 // Buffer ID's for Multiple-Render-Targets (using GL_ATI_draw_buffers)
 const

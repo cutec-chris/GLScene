@@ -47,8 +47,8 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, GLHeightData, GLMaterial, VectorGeometry, GLContext,
-   GLROAMPatch, VectorLists, GLRenderContextInfo;
+uses Classes, GLScene, GLHeightData, GLMaterial, GLVectorGeometry, GLContext,
+   GLROAMPatch, GLVectorLists, GLRenderContextInfo;
 
 const
    cTilesHashSize = 255;

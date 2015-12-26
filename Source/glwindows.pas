@@ -47,8 +47,8 @@ interface
 
 uses
    SysUtils, Classes, GLScene, GLHUDObjects,
-   GLMaterial, OpenGL1x, GLBitmapFont, GLWindowsFont, VectorGeometry,
-   GLGui, GLCrossPlatform, GLColor, GLRenderContextInfo, BaseClasses;
+   GLMaterial, OpenGL1x, GLBitmapFont, GLWindowsFont, GLVectorGeometry,
+   GLGui, GLCrossPlatform, GLColor, GLRenderContextInfo, GLBaseClasses;
 
 type
 

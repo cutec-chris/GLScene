@@ -38,8 +38,8 @@ unit GLMaterial;
 
 interface
 
-uses Classes, GLRenderContextInfo, BaseClasses, GLContext, GLTexture, GLColor,
-  GLCoordinates, VectorGeometry, PersistentClasses, OpenGL1x, GLCrossPlatform,
+uses Classes, GLRenderContextInfo, GLBaseClasses, GLContext, GLTexture, GLColor,
+  GLCoordinates, GLVectorGeometry, GLPersistentClasses, OpenGL1x, GLCrossPlatform,
   GLState;
 
 {$I GLScene.inc}

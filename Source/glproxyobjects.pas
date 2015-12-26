@@ -55,8 +55,8 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLScene, VectorGeometry, GLTexture, GLSilhouette, GLVectorFileObjects,
-  GLStrings, GLRenderContextInfo, BaseClasses, GLMaterial;
+  GLScene, GLVectorGeometry, GLTexture, GLSilhouette, GLVectorFileObjects,
+  GLStrings, GLRenderContextInfo, GLBaseClasses, GLMaterial;
 
 type
   EGLProxyException = class(Exception);

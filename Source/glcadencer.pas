@@ -39,7 +39,7 @@ interface
 
 {$i GLScene.inc}
 
-uses GLScene, Classes, GLCrossPlatform, BaseClasses, cadencerasap, Forms
+uses GLScene, Classes, GLCrossPlatform, GLBaseClasses, cadencerasap, Forms
    {$ifdef WINDOWS}
    , Windows, Controls, Messages, StdCtrls
    {$endif}

@@ -105,7 +105,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses PerlinNoise, OpenGL1x, VectorGeometry;
+uses PerlinNoise, OpenGL1x, GLVectorGeometry;
 
 // ------------------
 // ------------------ TGLPerlinPFXManager ------------------

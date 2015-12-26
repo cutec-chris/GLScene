@@ -27,7 +27,7 @@ unit XCollection;
 
 interface
 
-uses Classes, SysUtils, PersistentClasses{$IFDEF DEBUG_XCOLLECTION}, typinfo {$ENDIF};
+uses Classes, SysUtils, GLPersistentClasses{$IFDEF DEBUG_XCOLLECTION}, typinfo {$ENDIF};
 
 {$i GLScene.inc}
 

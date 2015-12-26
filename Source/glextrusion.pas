@@ -42,7 +42,7 @@ interface
 {$I GLScene.inc}
 
 uses Classes, OpenGL1x, GLObjects, GLScene, GLMultiPolygon,
-     GLColor, VectorTypes, VectorGeometry, GLRenderContextInfo, GLNodes,
+     GLColor, GLVectorTypes, GLVectorGeometry, GLRenderContextInfo, GLNodes,
      GLState;
 
 type
@@ -285,7 +285,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, Spline, VectorLists, XOpenGL;
+uses SysUtils, Spline, GLVectorLists, XOpenGL;
 
 // ------------------
 // ------------------ TGLRevolutionSolid ------------------

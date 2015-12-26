@@ -19,7 +19,7 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, PersistentClasses, VectorGeometry, GLParticleFX, GLTexture,
+uses Classes, GLPersistentClasses, GLVectorGeometry, GLParticleFX, GLTexture,
      GLColor, GLRenderContextInfo;
 
 type

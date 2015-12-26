@@ -37,7 +37,7 @@ interface
 {$I GLScene.inc}
 
 uses
-   Classes, GLScene, VectorGeometry, GLObjects, GLBitmapFont,
+   Classes, GLScene, GLVectorGeometry, GLObjects, GLBitmapFont,
    GLCrossPlatform, GLColor, GLRenderContextInfo, GLState;
 
 type

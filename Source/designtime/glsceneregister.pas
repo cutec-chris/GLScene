@@ -332,7 +332,7 @@ implementation
 // ------------------------------------------------------------------
 
 uses
-   Dialogs, TypInfo, VectorGeometry, GLTexture, SysUtils, GLStrings,
+   Dialogs, TypInfo, GLVectorGeometry, GLTexture, SysUtils, GLStrings,
    GLObjects, GLVectorFileObjects, GLExtrusion, GLMultiPolygon, GLMesh, GLPortal,
    GLGraph, GLParticles, GLHUDObjects, GLSkydome, GLBitmapFont, GLLensFlare,
    GLMirror, GLParticleFX, GLShadowPlane, GLTerrainRenderer, GLShadowVolume,
@@ -352,7 +352,7 @@ uses
    GLBumpShader, GLHiddenLineShader, GLUserShader, GLShadowHDS, GLSLProjectedTextures,
    GLViewer, GLGizmo, GLTextureSharingShader, GLGraphics, GLCoordinates,
    GLRenderContextInfo, GLNodes,
-   GLMaterial, GLDynamicTexture, GLSLPostBlurShader, BaseClasses, GLExplosionFx,
+   GLMaterial, GLDynamicTexture, GLSLPostBlurShader, GLBaseClasses, GLExplosionFx,
    GLCameraController, GLFBORenderer,
    GLSound, GLSoundFileObjects,
    {}

@@ -43,8 +43,8 @@ uses
   Classes, Graphics,
 
   // GLSCene
-  GLScene, VectorGeometry, GLGraphics, GLCrossPlatform,
-  VectorTypes, GLColor, GLRenderContextInfo;
+  GLScene, GLVectorGeometry, GLGraphics, GLCrossPlatform,
+  GLVectorTypes, GLColor, GLRenderContextInfo;
 
 type
 

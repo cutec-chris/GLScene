@@ -26,7 +26,7 @@ interface
 {$I GLScene.inc}
 
 Uses
-  GLVectorFileObjects, VectorLists, VectorGeometry;
+  GLVectorFileObjects, GLVectorLists, GLVectorGeometry;
 
 {: Tesselates the polygon outlined by the Vertexes. And addeds them to the first facegroup of the Mesh. }
 Procedure DoTesselate(Vertexes : TAffineVectorList; Mesh : TGLBaseMesh; normal : PAffineVector = Nil; invertNormals : Boolean = False);

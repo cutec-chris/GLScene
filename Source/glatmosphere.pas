@@ -67,7 +67,7 @@ uses
   SysUtils, Classes,
 
   // GLScene
-  GLScene, GLObjects, GLCadencer, OpenGL1x, VectorGeometry,
+  GLScene, GLObjects, GLCadencer, OpenGL1x, GLVectorGeometry,
   GLContext, GLStrings, GLColor, GLRenderContextInfo, GLState;
 
 type

@@ -21,7 +21,7 @@ interface
 
 uses
   Classes, SysUtils, GLVectorFileObjects, GLTexture, ApplicationFileIO,
-  VectorGeometry, GLMaterial;
+  GLVectorGeometry, GLMaterial;
 
 type
    // TGLSMDVectorFile

@@ -33,8 +33,8 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, VectorGeometry, OpenGL1x, GLSilhouette,
-  GLCrossPlatform, PersistentClasses, GeometryBB, GLColor, GLRenderContextInfo;
+uses Classes, GLScene, GLVectorGeometry, OpenGL1x, GLSilhouette,
+  GLCrossPlatform, GLPersistentClasses, GeometryBB, GLColor, GLRenderContextInfo;
 
 type
 
@@ -305,7 +305,7 @@ implementation
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 
-uses SysUtils, VectorLists, GLState;
+uses SysUtils, GLVectorLists, GLState;
 
 // ------------------
 // ------------------ TGLShadowVolumeCaster ------------------

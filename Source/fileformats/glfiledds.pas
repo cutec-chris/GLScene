@@ -76,7 +76,7 @@ var
 implementation
 
 uses
-  DXTC, VectorGeometry, GLStrings;
+  DXTC, GLVectorGeometry, GLStrings;
 
 // ------------------
 // ------------------ TGLDDSImage ------------------

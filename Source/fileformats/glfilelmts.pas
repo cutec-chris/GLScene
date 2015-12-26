@@ -36,8 +36,8 @@ interface
 {$I GLScene.inc}
 
 uses Graphics, Classes, SysUtils,
-     GLVectorFileObjects, ApplicationFileIO, VectorLists, VectorGeometry,
-     GLTexture, PersistentClasses, GLGraphics, GLMaterial;
+     GLVectorFileObjects, ApplicationFileIO, GLVectorLists, GLVectorGeometry,
+     GLTexture, GLPersistentClasses, GLGraphics, GLMaterial;
 
 const
     C_LMTS_ID = $53544D4C;

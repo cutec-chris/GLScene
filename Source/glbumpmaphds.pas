@@ -34,7 +34,7 @@ unit GLBumpmapHDS;
 
 interface
 
-uses Classes, GLHeightData, GLGraphics, VectorGeometry, GLTexture, Dialogs, Forms,
+uses Classes, GLHeightData, GLGraphics, GLVectorGeometry, GLTexture, Dialogs, Forms,
      SyncObjs, GLMaterial, GLTextureFormat;
 
 type

@@ -50,8 +50,8 @@ uses
   Classes, SysUtils,
 
   // GLscene
-  GLODEManager, dynode, odegl,dynodegl, ODEImport, VectorGeometry,
-  VectorLists, GLScene, GLTerrainRenderer, GLGraph, XCollection,
+  GLODEManager, dynode, odegl,dynodegl, ODEImport, GLVectorGeometry,
+  GLVectorLists, GLScene, GLTerrainRenderer, GLGraph, XCollection,
   OpenGL1x, GLTexture, GLColor, GLRenderContextInfo;
 
 type

@@ -68,7 +68,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLScene, GLColor, GLObjects, VectorGeometry, GLMaterial, GLStrings,
+  GLScene, GLColor, GLObjects, GLVectorGeometry, GLMaterial, GLStrings,
   GLGeomObjects, GLBitmapFont, GLViewer, GLVectorFileObjects, GLCrossPlatform,
   GLCoordinates, GLRenderContextInfo, GLState;
 

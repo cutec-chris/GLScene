@@ -211,8 +211,8 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  OpenGL1x, VectorGeometry, GLGraphics, GLContext, GLColor,
-  GLCrossPlatform, BaseClasses, GLCoordinates, GLRenderContextInfo,
+  OpenGL1x, GLVectorGeometry, GLGraphics, GLContext, GLColor,
+  GLCrossPlatform, GLBaseClasses, GLCoordinates, GLRenderContextInfo,
   GLTextureFormat, GLState;
 
 const

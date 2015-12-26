@@ -28,7 +28,7 @@ interface
 uses
   Classes,
   SysUtils,
-  BaseClasses
+  GLBaseClasses
   {$IFDEF FPC}
   ,
   LResources

@@ -69,7 +69,7 @@ unit GLFileObj;
 interface
 
 uses GLCrossPlatform, Classes, SysUtils, GLScene, ApplicationFileIO,
-     VectorGeometry, GLVectorFileObjects, VectorLists, GLTexture,
+     GLVectorGeometry, GLVectorFileObjects, GLVectorLists, GLTexture,
      GLColor, GLRenderContextInfo, GLMaterial;
 
 const

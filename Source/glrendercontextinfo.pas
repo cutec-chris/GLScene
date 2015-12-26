@@ -9,9 +9,9 @@
 
       <li>22/02/10 - Yar - Added bufferLighting, bufferFog, bufferDepthTest to TRenderContextInfo
       <li>14/03/09 - DanB - Removed IsVolumeClipped functions, instead replaced with
-                            IsVolumeClipped functions in VectorGeometry.pas that use TFrustrum
+                            IsVolumeClipped functions in GLVectorGeometry.pas that use TFrustrum
       <li>09/10/08 - DanB - Added TRenderContextClippingInfo + IsVolumeClipped
-                            functions from VectorGeometry.pas, added nearClippingDistance
+                            functions from GLVectorGeometry.pas, added nearClippingDistance
       <li>05/10/08 - DanB - Created from GLTexture.pas split
    </ul></font>
 }
@@ -19,7 +19,7 @@ unit GLRenderContextInfo;
 
 interface
 
-uses PersistentClasses, VectorGeometry, GLState, GLColor;
+uses GLPersistentClasses, GLVectorGeometry, GLState, GLColor;
 
 type
 

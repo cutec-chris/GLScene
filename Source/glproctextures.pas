@@ -95,7 +95,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses VectorGeometry, GLUtils;
+uses GLVectorGeometry, GLUtils;
 
 constructor TGLProcTextureNoise.Create(AOwner: TPersistent);
   { PERM array Borrowed from Darwyn Peachey.

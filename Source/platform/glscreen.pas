@@ -40,7 +40,7 @@ uses
 {$IFDEF MSWINDOWS} Windows, {$ENDIF}
 {$IFDEF LINUX} x, xlib, xf86vmode, {$ENDIF}
 {$IFDEF FPC} LCLVersion, {$ENDIF}
-  Classes, VectorGeometry, GLCrossPlatform;
+  Classes, GLVectorGeometry, GLCrossPlatform;
 
 const
   MaxVideoModes = 200;

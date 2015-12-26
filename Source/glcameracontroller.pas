@@ -112,7 +112,7 @@ type
 
 implementation
 
-uses SysUtils, Forms, VectorTypes, VectorGeometry{, Dialogs};
+uses SysUtils, Forms, GLVectorTypes, GLVectorGeometry{, Dialogs};
 
 //---TGLCameraMover
 

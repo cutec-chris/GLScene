@@ -27,7 +27,7 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes,PersistentClasses, VectorLists, VectorGeometry;
+uses Classes,GLPersistentClasses, GLVectorLists, GLVectorGeometry;
 
 {: Converts a triangle strips into a triangle list.<p>
    Vertices are added to list, based on the content of strip. Both non-indexed

@@ -18,7 +18,7 @@ unit Spline;
 
 interface
 
-uses VectorGeometry;
+uses GLVectorGeometry;
 
 {$i GLScene.inc}
 

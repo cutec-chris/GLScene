@@ -26,7 +26,7 @@ interface
 
 {$i GLScene.inc}
 
-uses Classes, VectorGeometry, VectorLists;
+uses Classes, GLVectorGeometry, GLVectorLists;
 
 type
    // TGLSilhouetteStyle
