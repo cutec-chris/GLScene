@@ -51,6 +51,10 @@
       {$DEFINE GLS_WIN16}
       {$DEFINE MSWINDOWS}
     {$endif}
+  {$ELSE}
+    {$UNDEF SUPPORT_WGL}
+    {$DEFINE SUPPORT_GLX}
+    {$DEFINE GLS_X11_SUPPORT}
   {$ENDIF LINUX}
 {$ENDIF}
 
