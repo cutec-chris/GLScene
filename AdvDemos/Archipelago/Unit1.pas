@@ -28,15 +28,15 @@ interface
 uses
   LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLScene, GLTerrainRenderer, GLObjects, GLHeightData,
-  ExtCtrls, GLCadencer, StdCtrls, GLTexture, GLHUDObjects, VectorLists,
-  GLSkydome, GLLCLViewer, VectorGeometry, GLHeightTileFileHDS, GLWindowsFont,
+  ExtCtrls, GLCadencer, StdCtrls, GLTexture, GLHUDObjects, GLVectorLists,
+  GLSkydome, GLLCLViewer, GLVectorGeometry, GLHeightTileFileHDS, GLWindowsFont,
   GLBitmapFont, ComCtrls, FileUtil, GLRoamPatch, GLVectorFileObjects,
-  GLMaterial, GLCoordinates, GLCrossPlatform, BaseClasses, GLRenderContextInfo,
+  GLMaterial, GLCoordinates, GLCrossPlatform, GLBaseClasses, GLRenderContextInfo,
   GLColor;
 
 type
   TForm1 = class(TForm)
-    GLSceneViewer: TGLSceneViewerLCL;
+    GLSceneViewer: TGLSceneViewer;
     GLScene1: TGLScene;
     GLCamera: TGLCamera;
     DCCamera: TGLDummyCube;
@@ -303,17 +303,16 @@ begin
    case Key of
       'w', 'W' : begin
          with MaterialLibrary do begin
-            if Materials[0].Material.FrontProperties.PolygonMode=pmLines then
+            if Materials[0].Material.PolygonMode=pmLines then
                pm:=pmFill
             else pm:=pmLines;
             for i:=0 to Materials.Count-1 do
                begin
-                 Materials[i].Material.FrontProperties.PolygonMode:=pm;
-                 Materials[i].Material.BackProperties.PolygonMode:=pm;
+                 Materials[i].Material.PolygonMode:=pm;
                end;
          end;
          with MLSailBoat do for i:=0 to Materials.Count-1 do
-            Materials[i].Material.FrontProperties.PolygonMode:=pm;
+            Materials[i].Material.PolygonMode:=pm;
          FFSailBoat.StructureChanged;
       end;
       's', 'S' : WaterPlane:=not WaterPlane;

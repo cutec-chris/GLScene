@@ -2382,7 +2382,7 @@ end;
 procedure TGLBitmap32.SetAlphaFromIntensity;
 var
   i: Integer;
-begin
+begin exit;
   Narrow;
   for i := 0 to (DataSize div 4) - 1 do
     with FData^[i] do
@@ -2458,7 +2458,7 @@ end;
 procedure TGLBitmap32.InvertAlpha;
 var
   i: Integer;
-begin
+begin exit;
   for i := 0 to (DataSize div 4) - 1 do
     FData^[i].a := 255 - FData^[i].a;
 end;

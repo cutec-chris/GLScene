@@ -12,7 +12,7 @@ uses
   GLMaterial, GLTexCombineShader, GLCadencer, GLLensFlare,
   GLScene, GLObjects, GLCoordinates, GLSkydome, GLCrossPlatform,
   GLLCLViewer, GLViewer, GLTexture, GLRenderContextInfo, GLColor, GLState,
-  GLUtils, OpenGL1x, GLContext, GLTextureFormat,BaseClasses, Types;
+  GLUtils, OpenGL1x, GLContext, GLTextureFormat,GLBaseClasses, Types;
 
 
 type
@@ -72,7 +72,7 @@ implementation
 
 uses
 // accurate movements left for later... or the astute reader
-  USolarSystem,VectorGeometry;
+  USolarSystem,GLVectorGeometry;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
