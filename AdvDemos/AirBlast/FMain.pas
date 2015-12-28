@@ -8,7 +8,7 @@ unit FMain;
 interface
 
 uses
-  LCLProc,LCLIntf,LMessages, SysUtils, Classes, Graphics, Controls, Forms, FMod,
+  LCLProc,LCLIntf,LMessages, SysUtils, Classes, Graphics, Controls, Forms, fmoddyn,
   Dialogs, GLScene, GLObjects, GLLCLViewer, GLVectorGeometry,
   GLVectorFileObjects, GLTexture, ApplicationFileIO, UAirplane, GLCadencer,
   GLTerrainRenderer, GLHeightData, GLHeightTileFileHDS, GLSkyBox, GLFileWAV,
@@ -144,7 +144,7 @@ begin
   until FindNextUTF8(searchRec) { *Konvertiert von FindNext* } <> 0;
   FindCloseUTF8(searchRec); { *Konvertiert von FindClose* }
 
-  //GLSMFMOD.Active := True;
+  GLSMFMOD.Active := True;
 
   FGameEngine := TAirBlastEngine.Create;
   FGameEngine.SoundLibrary := GLSoundLibrary;

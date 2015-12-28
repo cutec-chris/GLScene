@@ -7,7 +7,7 @@ unit UABVoice;
 
 interface
 
-uses Classes, FMod;//, FModTypes;
+uses Classes, fmoddyn, FModTypes;
 
 type
 

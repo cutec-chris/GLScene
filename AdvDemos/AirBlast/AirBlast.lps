@@ -3,13 +3,13 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="41">
+    <Units Count="60">
       <Unit0>
         <Filename Value="AirBlast.lpr"/>
         <IsPartOfProject Value="True"/>
         <TopLine Value="11"/>
         <CursorPos Y="39"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
@@ -19,10 +19,9 @@
         <ComponentName Value="Main"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos X="5" Y="147"/>
-        <UsageCount Value="22"/>
+        <CursorPos X="83" Y="11"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -30,38 +29,37 @@
       <Unit2>
         <Filename Value="UAirplane.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="2"/>
         <CursorPos X="30" Y="15"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="UAirBlastEngine.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="6"/>
-        <TopLine Value="1374"/>
-        <CursorPos X="77" Y="1388"/>
-        <UsageCount Value="22"/>
+        <EditorIndex Value="3"/>
+        <CursorPos X="36" Y="13"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
         <Filename Value="UAirBlastControler.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="2"/>
         <CursorPos X="6" Y="16"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
         <Filename Value="UABControlerUI.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="7"/>
         <CursorPos X="62" Y="10"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
@@ -72,7 +70,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="144"/>
         <CursorPos X="16" Y="161"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
@@ -81,53 +79,52 @@
         <HasResources Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="21" Y="8"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
         <Filename Value="FOptionsDlg.pas"/>
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="58" Y="9"/>
-        <UsageCount Value="22"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="24"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
         <Filename Value="UGameEngine.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="13"/>
-        <TopLine Value="540"/>
-        <CursorPos Y="562"/>
-        <UsageCount Value="22"/>
+        <EditorIndex Value="14"/>
+        <TopLine Value="382"/>
+        <CursorPos X="66" Y="3"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
         <Filename Value="UABUtils.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="14"/>
+        <EditorIndex Value="15"/>
         <CursorPos X="19" Y="10"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
         <Filename Value="UABEquipments.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="15"/>
+        <EditorIndex Value="16"/>
         <CursorPos X="65" Y="10"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
       <Unit12>
         <Filename Value="UABVoice.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="16"/>
-        <CursorPos X="22" Y="10"/>
-        <UsageCount Value="22"/>
+        <EditorIndex Value="17"/>
+        <CursorPos X="19" Y="10"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
@@ -135,45 +132,45 @@
         <Filename Value="DToolBox.pas"/>
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
-        <EditorIndex Value="17"/>
+        <EditorIndex Value="18"/>
         <CursorPos X="37" Y="12"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit13>
       <Unit14>
         <Filename Value="UABEvents.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="18"/>
+        <EditorIndex Value="19"/>
         <CursorPos X="47" Y="10"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit14>
       <Unit15>
         <Filename Value="UABConditions.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="19"/>
+        <EditorIndex Value="20"/>
         <TopLine Value="150"/>
         <CursorPos X="15" Y="164"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
         <Filename Value="UABActions.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="20"/>
-        <UsageCount Value="22"/>
+        <EditorIndex Value="21"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
         <Filename Value="UABMobiles.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="21"/>
+        <EditorIndex Value="22"/>
         <CursorPos X="6" Y="11"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit17>
@@ -246,7 +243,7 @@
       <Unit26>
         <Filename Value="../../Source/platform/glscreen.pas"/>
         <UnitName Value="GLScreen"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="184"/>
         <CursorPos Y="201"/>
         <UsageCount Value="10"/>
@@ -265,11 +262,10 @@
       <Unit28>
         <Filename Value="../../Source/platform/gllclfullscreenviewer.pas"/>
         <UnitName Value="GLLCLFullscreenViewer"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="375"/>
         <CursorPos X="11" Y="388"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit28>
       <Unit29>
@@ -317,20 +313,18 @@
       </Unit33>
       <Unit34>
         <Filename Value="../../../../../lazarus/lcl/include/customform.inc"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="3058"/>
         <CursorPos Y="3073"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit34>
       <Unit35>
         <Filename Value="../../Source/glscene.pas"/>
         <UnitName Value="GLScene"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="5501"/>
         <CursorPos Y="5525"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit35>
       <Unit36>
@@ -350,11 +344,10 @@
       <Unit38>
         <Filename Value="../../../../../lazarus/lcl/lcltype.pp"/>
         <UnitName Value="LCLType"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="198"/>
         <CursorPos X="3" Y="212"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit38>
       <Unit39>
         <Filename Value="../../Source/glstate.pas"/>
@@ -368,135 +361,304 @@
       <Unit40>
         <Filename Value="../../Source/glsound.pas"/>
         <UnitName Value="GLSound"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="1165"/>
         <CursorPos Y="1186"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit40>
+      <Unit41>
+        <Filename Value="../../Source/soundapis/fmoddyn.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="53"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit41>
+      <Unit42>
+        <Filename Value="../../Source/glsmfmod.pas"/>
+        <UnitName Value="GLSMFMOD"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="356"/>
+        <CursorPos X="9" Y="45"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="../../Source/soundapis/fmod.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="13"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit43>
+      <Unit44>
+        <Filename Value="../../Source/soundapis/fmoderrors.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="13"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="../../Source/soundapis/fmodpresets.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="67"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit45>
+      <Unit46>
+        <Filename Value="../../Source/soundapis/fmodtypes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="238"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="../../Lazarus/glscene_designtime.lpk"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="49"/>
+        <CursorPos X="46" Y="73"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="XML"/>
+      </Unit47>
+      <Unit48>
+        <Filename Value="../../Source/platform/glcrossplatform.pas"/>
+        <UnitName Value="GLCrossPlatform"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="59"/>
+        <CursorPos X="22" Y="79"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit48>
+      <Unit49>
+        <Filename Value="../../Source/globjectmanager.pas"/>
+        <UnitName Value="GLObjectManager"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="18"/>
+        <CursorPos X="39" Y="32"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit49>
+      <Unit50>
+        <Filename Value="../../Source/designtime/flibmaterialpickerlcl.pas"/>
+        <ComponentName Value="LibMaterialPicker"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="FLibMaterialPickerLCL"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="6"/>
+        <CursorPos X="7" Y="20"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit50>
+      <Unit51>
+        <Filename Value="../../../../../lazarus/lcl/interfaces/carbon/agl.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="49"/>
+        <UsageCount Value="10"/>
+      </Unit51>
+      <Unit52>
+        <Filename Value="/home/chris/glscene-code-laz/Source/glviewer.pas"/>
+        <UnitName Value="GLViewer"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="22"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit52>
+      <Unit53>
+        <Filename Value="../../Lazarus/glscene_runtime.lpk"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="43" Y="722"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="XML"/>
+      </Unit53>
+      <Unit54>
+        <Filename Value="../../Source/fileformats/fileoct.pas"/>
+        <UnitName Value="FileOCT"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="86"/>
+        <CursorPos X="18" Y="101"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit54>
+      <Unit55>
+        <Filename Value="../../Lazarus/glscene_runtime.pas"/>
+        <UnitName Value="GLScene_RunTime"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="6"/>
+        <CursorPos X="57" Y="20"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit55>
+      <Unit56>
+        <Filename Value="../../Source/fileformats/glfilepak.pas"/>
+        <UnitName Value="GLFilePAK"/>
+        <EditorIndex Value="12"/>
+        <TopLine Value="4"/>
+        <CursorPos X="22" Y="19"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="../../Source/glsarchivemanager.pas"/>
+        <UnitName Value="GLSArchiveManager"/>
+        <EditorIndex Value="13"/>
+        <TopLine Value="3"/>
+        <CursorPos X="45" Y="18"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="../../Source/glfilezlib.pas"/>
+        <UnitName Value="GLFileZLIB"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="5"/>
+        <CursorPos X="41" Y="20"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit58>
+      <Unit59>
+        <Filename Value="../../Source/fileformats/hdrimage.pas"/>
+        <UnitName Value="HDRImage"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="11"/>
+        <TopLine Value="6"/>
+        <CursorPos X="38" Y="20"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit59>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="AirBlast.lpr"/>
-        <Caret Line="39" TopLine="11"/>
+        <Filename Value="UGameEngine.pas"/>
+        <Caret Line="558" TopLine="540"/>
       </Position1>
       <Position2>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="400" TopLine="386"/>
+        <Filename Value="UGameEngine.pas"/>
+        <Caret Line="559" TopLine="540"/>
       </Position2>
       <Position3>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="405" TopLine="391"/>
+        <Filename Value="UGameEngine.pas"/>
+        <Caret Line="561" TopLine="540"/>
       </Position3>
       <Position4>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="400" TopLine="400"/>
+        <Filename Value="UGameEngine.pas"/>
+        <Caret Line="562" TopLine="540"/>
       </Position4>
       <Position5>
         <Filename Value="FMain.pas"/>
-        <Caret Line="430" Column="3" TopLine="427"/>
+        <Caret Line="419" TopLine="406"/>
       </Position5>
       <Position6>
         <Filename Value="FMain.pas"/>
-        <Caret Line="436" Column="3" TopLine="433"/>
+        <Caret Line="189" TopLine="175"/>
       </Position6>
       <Position7>
         <Filename Value="FMain.pas"/>
-        <Caret Line="400" TopLine="386"/>
+        <Caret Line="320" Column="28" TopLine="307"/>
       </Position7>
       <Position8>
         <Filename Value="FMain.pas"/>
-        <Caret Line="401" TopLine="386"/>
+        <Caret Line="492" Column="3" TopLine="488"/>
       </Position8>
       <Position9>
         <Filename Value="FMain.pas"/>
-        <Caret Line="402" TopLine="386"/>
+        <Caret Line="149" Column="12" TopLine="125"/>
       </Position9>
       <Position10>
         <Filename Value="FMain.pas"/>
-        <Caret Line="403" TopLine="386"/>
+        <Caret Line="147" TopLine="125"/>
       </Position10>
       <Position11>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="405" TopLine="386"/>
+        <Filename Value="UABVoice.pas"/>
+        <Caret Line="10" Column="22"/>
       </Position11>
       <Position12>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="406" TopLine="386"/>
+        <Filename Value="UAirBlastEngine.pas"/>
+        <Caret Line="1388" Column="77" TopLine="1374"/>
       </Position12>
       <Position13>
-        <Filename Value="UGameEngine.pas"/>
-        <Caret Line="554" TopLine="540"/>
+        <Filename Value="AirBlast.lpr"/>
+        <Caret Line="39" TopLine="11"/>
       </Position13>
       <Position14>
-        <Filename Value="UGameEngine.pas"/>
-        <Caret Line="555" TopLine="540"/>
+        <Filename Value="AirBlast.lpr"/>
+        <Caret Line="39" TopLine="11"/>
       </Position14>
       <Position15>
-        <Filename Value="UGameEngine.pas"/>
-        <Caret Line="556" TopLine="540"/>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="147" Column="8" TopLine="132"/>
       </Position15>
       <Position16>
-        <Filename Value="UGameEngine.pas"/>
-        <Caret Line="557" TopLine="540"/>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="38" Column="21" TopLine="24"/>
       </Position16>
       <Position17>
-        <Filename Value="UGameEngine.pas"/>
-        <Caret Line="558" TopLine="540"/>
+        <Filename Value="UABVoice.pas"/>
+        <Caret Line="10" Column="19"/>
       </Position17>
       <Position18>
-        <Filename Value="UGameEngine.pas"/>
-        <Caret Line="559" TopLine="540"/>
+        <Filename Value="AirBlast.lpr"/>
+        <Caret Line="39"/>
       </Position18>
       <Position19>
-        <Filename Value="UGameEngine.pas"/>
-        <Caret Line="561" TopLine="540"/>
+        <Filename Value="FMain.pas"/>
+        <Caret Line="38" Column="21" TopLine="24"/>
       </Position19>
       <Position20>
-        <Filename Value="UGameEngine.pas"/>
-        <Caret Line="562" TopLine="540"/>
+        <Filename Value="AirBlast.lpr"/>
+        <Caret Line="39" TopLine="11"/>
       </Position20>
       <Position21>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="419" TopLine="406"/>
+        <Filename Value="../../Source/designtime/flibmaterialpickerlcl.pas"/>
       </Position21>
       <Position22>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="189" TopLine="175"/>
+        <Filename Value="../../Source/designtime/flibmaterialpickerlcl.pas"/>
+        <Caret Line="20" Column="7" TopLine="6"/>
       </Position22>
       <Position23>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="320" Column="28" TopLine="307"/>
+        <Filename Value="../../Source/fileformats/fileoct.pas"/>
       </Position23>
       <Position24>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="492" Column="3" TopLine="488"/>
+        <Filename Value="../../Lazarus/glscene_runtime.pas"/>
       </Position24>
       <Position25>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="149" Column="12" TopLine="125"/>
+        <Filename Value="../../Source/fileformats/glfilepak.pas"/>
       </Position25>
       <Position26>
-        <Filename Value="FMain.pas"/>
-        <Caret Line="147" TopLine="125"/>
+        <Filename Value="../../Source/glsarchivemanager.pas"/>
       </Position26>
       <Position27>
-        <Filename Value="../../Source/glsound.pas"/>
-        <Caret Line="1180" TopLine="1165"/>
+        <Filename Value="../../Lazarus/glscene_runtime.pas"/>
+        <Caret Line="19" Column="39" TopLine="4"/>
       </Position27>
       <Position28>
-        <Filename Value="../../Source/glsound.pas"/>
-        <Caret Line="1182" TopLine="1165"/>
+        <Filename Value="../../Source/glfilezlib.pas"/>
       </Position28>
       <Position29>
-        <Filename Value="../../Source/glsound.pas"/>
-        <Caret Line="1183" TopLine="1165"/>
+        <Filename Value="../../Source/fileformats/hdrimage.pas"/>
       </Position29>
       <Position30>
-        <Filename Value="../../Source/glsound.pas"/>
-        <Caret Line="1184" TopLine="1165"/>
+        <Filename Value="../../Source/fileformats/hdrimage.pas"/>
+        <Caret Line="20" Column="39"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="FMain.pas"/>
+        <Line Value="147"/>
+      </Item1>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

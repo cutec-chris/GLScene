@@ -17,7 +17,7 @@ interface
 {$i GLScene.inc}
 
 uses
-  {$IFDEF LCL}LCLProc,LCLIntf,{$ELSE}Windows,{$ENDIF}Classes, SysUtils, GLCrossPlatform, GLVectorGeometry, GLGraphics,
+  {$IFDEF LCL}LCLProc,LCLIntf,LCLType,{$ELSE}Windows,{$ENDIF}Classes, SysUtils, GLCrossPlatform, GLVectorGeometry, GLGraphics,
   OpenGL1x, GLPBuffer;
 
 type

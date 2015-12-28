@@ -33,10 +33,10 @@
     </RunParams>
     <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="GLSS_FMODLaz"/>
+        <PackageName Value="GLScene_RunTime"/>
       </Item1>
       <Item2>
-        <PackageName Value="glscenelazarus"/>
+        <PackageName Value="GLSS_FMODLaz"/>
       </Item2>
       <Item3>
         <PackageName Value="LCL"/>

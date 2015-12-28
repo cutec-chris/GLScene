@@ -25,16 +25,28 @@
     </CompilerOptions>
     <Description Value="GLScene FMOD support"/>
     <Version Major="1" Build="3"/>
-    <Files Count="2">
+    <Files Count="5">
       <Item1>
         <Filename Value="../Source/glsmfmod.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="GLSMFMOD"/>
       </Item1>
       <Item2>
-        <Filename Value="../Source/soundapis/fmod.pas"/>
-        <UnitName Value="FMod"/>
+        <Filename Value="../Source/soundapis/fmoderrors.pas"/>
+        <UnitName Value="fmoderrors"/>
       </Item2>
+      <Item3>
+        <Filename Value="../Source/soundapis/fmodpresets.pas"/>
+        <UnitName Value="fmodpresets"/>
+      </Item3>
+      <Item4>
+        <Filename Value="../Source/soundapis/fmodtypes.pas"/>
+        <UnitName Value="fmodtypes"/>
+      </Item4>
+      <Item5>
+        <Filename Value="../Source/soundapis/fmoddyn.pas"/>
+        <UnitName Value="fmoddyn"/>
+      </Item5>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>

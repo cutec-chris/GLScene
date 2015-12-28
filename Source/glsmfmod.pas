@@ -12,6 +12,10 @@
    </ul><p>
 
 	<b>History : </b><font size=-1><ul>
+      <li>07/01/10 - DaStr - Fixed a bug with an initial Paused or Muted state of
+                              sound source and with sscSample in aSource.Changes
+      <li>17/03/08 - mrqzzz - Fixed "Consant cannot be pased as var parameter" in NotifyEnvironmentChanged
+      <li>15/03/08 - DaStr - Updated to Fmod v3.7.4 (thanks Chen, Pei)
       <li>07/06/07 - DaStr - Added $I GLScene.inc
       <li>18/10/03 - EG - Dynamic support is back
       <li>18/09/03 - ARH - updated for fmod 3.7
@@ -85,7 +89,7 @@ implementation
 // ---------------------------------------------------------------------
 
 
-uses SysUtils, FMod, GLVectorGeometry;
+uses SysUtils, FMod, fmodtypes, fmodpresets, GLVectorGeometry;
 
 type
    TFMODInfo =  record
@@ -133,7 +137,7 @@ function TGLSMFMOD.DoActivate : Boolean;
 var
    cap : Cardinal;
 begin
-   FMOD_Load;
+   FMOD_Load(nil);
    if not FSOUND_SetOutput(FSOUND_OUTPUT_DSOUND) then begin
       Result:=False;
       Exit;
@@ -188,38 +192,41 @@ end;
 // NotifyEnvironmentChanged
 //
 procedure TGLSMFMOD.NotifyEnvironmentChanged;
+var
+   SoundRevProps:TFSoundReverbProperties;
 begin
    if FActivated and EAXSupported then begin
       case Environment of
-         seDefault :          FSOUND_Reverb_SetProperties(FSOUND_PRESET_GENERIC);
-         sePaddedCell :       FSOUND_Reverb_SetProperties(FSOUND_PRESET_PADDEDCELL);
-         seRoom :             FSOUND_Reverb_SetProperties(FSOUND_PRESET_ROOM);
-         seBathroom :         FSOUND_Reverb_SetProperties(FSOUND_PRESET_BATHROOM);
-         seLivingRoom :       FSOUND_Reverb_SetProperties(FSOUND_PRESET_LIVINGROOM);
-         seStoneroom :        FSOUND_Reverb_SetProperties(FSOUND_PRESET_STONEROOM);
-         seAuditorium :       FSOUND_Reverb_SetProperties(FSOUND_PRESET_AUDITORIUM);
-         seConcertHall :      FSOUND_Reverb_SetProperties(FSOUND_PRESET_CONCERTHALL);
-         seCave :             FSOUND_Reverb_SetProperties(FSOUND_PRESET_CAVE);
-         seArena :            FSOUND_Reverb_SetProperties(FSOUND_PRESET_ARENA);
-         seHangar :           FSOUND_Reverb_SetProperties(FSOUND_PRESET_HANGAR);
-         seCarpetedHallway :  FSOUND_Reverb_SetProperties(FSOUND_PRESET_CARPETTEDHALLWAY);
-         seHallway :          FSOUND_Reverb_SetProperties(FSOUND_PRESET_HALLWAY);
-         seStoneCorridor :    FSOUND_Reverb_SetProperties(FSOUND_PRESET_STONECORRIDOR);
-         seAlley :            FSOUND_Reverb_SetProperties(FSOUND_PRESET_ALLEY);
-         seForest :           FSOUND_Reverb_SetProperties(FSOUND_PRESET_FOREST);
-         seCity :             FSOUND_Reverb_SetProperties(FSOUND_PRESET_CITY);
-         seMountains :        FSOUND_Reverb_SetProperties(FSOUND_PRESET_MOUNTAINS);
-         seQuarry :           FSOUND_Reverb_SetProperties(FSOUND_PRESET_QUARRY);
-         sePlain :            FSOUND_Reverb_SetProperties(FSOUND_PRESET_PLAIN);
-         seParkingLot :       FSOUND_Reverb_SetProperties(FSOUND_PRESET_PARKINGLOT);
-         seSewerPipe :        FSOUND_Reverb_SetProperties(FSOUND_PRESET_SEWERPIPE);
-         seUnderWater :       FSOUND_Reverb_SetProperties(FSOUND_PRESET_UNDERWATER);
-         seDrugged :          FSOUND_Reverb_SetProperties(FSOUND_PRESET_DRUGGED);
-         seDizzy :            FSOUND_Reverb_SetProperties(FSOUND_PRESET_DIZZY);
-         sePsychotic :        FSOUND_Reverb_SetProperties(FSOUND_PRESET_PSYCHOTIC);
+         seDefault :          SoundRevProps := FSOUND_PRESET_GENERIC;
+         sePaddedCell :       SoundRevProps := FSOUND_PRESET_PADDEDCELL;
+         seRoom :             SoundRevProps := FSOUND_PRESET_ROOM;
+         seBathroom :         SoundRevProps := FSOUND_PRESET_BATHROOM;
+         seLivingRoom :       SoundRevProps := FSOUND_PRESET_LIVINGROOM;
+         seStoneroom :        SoundRevProps := FSOUND_PRESET_STONEROOM;
+         seAuditorium :       SoundRevProps := FSOUND_PRESET_AUDITORIUM;
+         seConcertHall :      SoundRevProps := FSOUND_PRESET_CONCERTHALL;
+         seCave :             SoundRevProps := FSOUND_PRESET_CAVE;
+         seArena :            SoundRevProps := FSOUND_PRESET_ARENA;
+         seHangar :           SoundRevProps := FSOUND_PRESET_HANGAR;
+         seCarpetedHallway :  SoundRevProps := FSOUND_PRESET_CARPETTEDHALLWAY;
+         seHallway :          SoundRevProps := FSOUND_PRESET_HALLWAY;
+         seStoneCorridor :    SoundRevProps := FSOUND_PRESET_STONECORRIDOR;
+         seAlley :            SoundRevProps := FSOUND_PRESET_ALLEY;
+         seForest :           SoundRevProps := FSOUND_PRESET_FOREST;
+         seCity :             SoundRevProps := FSOUND_PRESET_CITY;
+         seMountains :        SoundRevProps := FSOUND_PRESET_MOUNTAINS;
+         seQuarry :           SoundRevProps := FSOUND_PRESET_QUARRY;
+         sePlain :            SoundRevProps := FSOUND_PRESET_PLAIN;
+         seParkingLot :       SoundRevProps := FSOUND_PRESET_PARKINGLOT;
+         seSewerPipe :        SoundRevProps := FSOUND_PRESET_SEWERPIPE;
+         seUnderWater :       SoundRevProps := FSOUND_PRESET_UNDERWATER;
+         seDrugged :          SoundRevProps := FSOUND_PRESET_DRUGGED;
+         seDizzy :            SoundRevProps := FSOUND_PRESET_DIZZY;
+         sePsychotic :        SoundRevProps := FSOUND_PRESET_PSYCHOTIC;
       else
          Assert(False);
       end;
+      FSOUND_Reverb_SetProperties(SoundRevProps);
    end;
 end;
 
@@ -248,7 +255,13 @@ var
    objPos, objVel : TVector;
    position, velocity : TFSoundVector;
 begin
-   if (aSource.Sample=nil) or (aSource.Sample.Data.WAVDataSize=0) then Exit;
+   if (sscSample in aSource.Changes) then
+   begin
+     KillSource(aSource);
+   end;
+
+   if (aSource.Sample=nil) or (aSource.Sample.Data=nil) or
+      (aSource.Sample.Data.WAVDataSize=0) then Exit;
    if aSource.ManagerTag<>0 then begin
       p:=PFMODInfo(aSource.ManagerTag);
       if not FSOUND_IsPlaying(p.channel) then begin
@@ -282,10 +295,14 @@ begin
    if p.channel<>-1 then begin
       FSOUND_3D_SetAttributes(p.channel, @position, @velocity);
       FSOUND_SetVolume(p.channel, Round(aSource.Volume*255));
+      FSOUND_SetMute(p.channel, aSource.Mute);
+      FSOUND_SetPaused(p.channel, aSource.Pause);
       FSOUND_SetPriority(p.channel, aSource.Priority);
       if aSource.Frequency>0 then
          FSOUND_SetFrequency(p.channel, aSource.Frequency);
    end else aSource.Free;
+
+   inherited UpdateSource(aSource);
 end;
 
 // MuteSource

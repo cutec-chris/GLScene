@@ -567,7 +567,7 @@ type
     latency: DWORD;     // delay (in ms) before start of playback (requires BASS_DEVICE_LATENCY)
     initflags: DWORD;   // "flags" parameter of BASS_Init call
     speakers: DWORD;    // number of speakers available
-    driver: PChar;      // driver
+    driver: PAnsiChar;  // driver
     freq: DWORD;        // current output rate (OSX only)
   end;
 
@@ -576,7 +576,7 @@ type
     formats: DWORD;     // supported standard formats (WAVE_FORMAT_xxx flags)
     inputs: DWORD;      // number of inputs
     singlein: BOOL;     // only 1 input can be set at a time
-    driver: PChar;      // driver
+    driver: PAnsiChar;  // driver
     freq: DWORD;        // current input rate (OSX only)
   end;
 
@@ -591,8 +591,8 @@ type
 
   BASS_PLUGINFORM = record
 	ctype: DWORD;       // channel type
-	name: PChar;        // format description
-	exts: PChar;	    // file extension filter (*.ext1;*.ext2;etc...)
+	name: PAnsiChar;    // format description
+	exts: PAnsiChar;    // file extension filter (*.ext1;*.ext2;etc...)
   end;
   PBASS_PLUGINFORMS = ^TBASS_PLUGINFORMS;
   TBASS_PLUGINFORMS = array[0..maxInt div sizeOf(BASS_PLUGINFORM) - 1] of BASS_PLUGINFORM;
@@ -793,7 +793,7 @@ var
 BASS_SetConfig: function(option, value: DWORD): DWORD; stdcall;
 BASS_GetConfig: function(option: DWORD): DWORD; stdcall;
 BASS_GetVersion: function(): DWORD; stdcall;
-BASS_GetDeviceDescription: function(device: DWORD): PChar; stdcall;
+BASS_GetDeviceDescription: function(device: DWORD): PAnsiChar; stdcall;
 BASS_ErrorGetCode: function(): Integer; stdcall;
 BASS_Init: function(device: Integer; freq, flags: DWORD; win: HWND; clsid: PGUID): BOOL; stdcall;
 BASS_SetDevice: function(device: DWORD): BOOL; stdcall;
@@ -809,7 +809,7 @@ BASS_Pause: function(): BOOL; stdcall;
 BASS_SetVolume: function(volume: DWORD): BOOL; stdcall;
 BASS_GetVolume: function(): Integer; stdcall;
 
-BASS_PluginLoad: function(filename: PChar; flags: DWORD): HPLUGIN; stdcall;
+BASS_PluginLoad: function(filename: PAnsiChar; flags: DWORD): HPLUGIN; stdcall;
 BASS_PluginFree: function(handle: HPLUGIN): BOOL; stdcall;
 BASS_PluginGetInfo: function(handle: HPLUGIN): PBASS_PLUGININFO; stdcall;
 
@@ -840,18 +840,18 @@ BASS_SampleStop: function(handle: HSAMPLE): BOOL; stdcall;
 
 BASS_StreamCreate: function(freq, chans, flags: DWORD; proc: Pointer; user: DWORD): HSTREAM; stdcall;
 BASS_StreamCreateFile: function(mem: BOOL; f: Pointer; offset, length, flags: DWORD): HSTREAM; stdcall;
-BASS_StreamCreateURL: function(url: PChar; offset: DWORD; flags: DWORD; proc: DOWNLOADPROC; user: DWORD):HSTREAM; stdcall;
+BASS_StreamCreateURL: function(url: PAnsiChar; offset: DWORD; flags: DWORD; proc: DOWNLOADPROC; user: DWORD):HSTREAM; stdcall;
 BASS_StreamCreateFileUser: function(buffered: BOOL; flags: DWORD; proc: STREAMFILEPROC; user: DWORD): HSTREAM; stdcall;
 BASS_StreamFree: function(handle: HSTREAM): BOOL; stdcall;
 BASS_StreamGetFilePosition: function(handle:HSTREAM; mode:DWORD) : DWORD;stdcall;
 
-BASS_RecordGetDeviceDescription: function(devnum: DWORD):PChar;stdcall;
+BASS_RecordGetDeviceDescription: function(devnum: DWORD):PAnsiChar;stdcall;
 BASS_RecordInit: function(device: Integer):BOOL;stdcall;
 BASS_RecordSetDevice: function(device: DWORD): BOOL; stdcall;
 BASS_RecordGetDevice: function(): DWORD; stdcall;
 BASS_RecordFree: function():BOOL;stdcall;
 BASS_RecordGetInfo: function(var info:BASS_RECORDINFO):BOOL;stdcall;
-BASS_RecordGetInputName: function(input:Integer):PChar;stdcall;
+BASS_RecordGetInputName: function(input:Integer):PAnsiChar;stdcall;
 BASS_RecordSetInput: function(input:Integer; setting:DWORD):BOOL;stdcall;
 BASS_RecordGetInput: function(input:Integer):DWORD;stdcall;
 BASS_RecordStart: function(freq,chans,flags:DWORD; proc:RECORDPROC; user:DWORD):HRECORD;stdcall;
@@ -862,7 +862,7 @@ BASS_ChannelGetDevice: function(handle: DWORD): DWORD; stdcall;
 BASS_ChannelSetDevice: function(handle, device: DWORD): BOOL; stdcall;
 BASS_ChannelIsActive: function(handle: DWORD): DWORD; stdcall;
 BASS_ChannelGetInfo: function(handle: DWORD; var info:BASS_CHANNELINFO):BOOL;stdcall;
-BASS_ChannelGetTags: function(handle: HSTREAM; tags : DWORD): PChar; stdcall;
+BASS_ChannelGetTags: function(handle: HSTREAM; tags : DWORD): PAnsiChar; stdcall;
 BASS_ChannelSetFlags: function(handle, flags: DWORD): BOOL; stdcall;
 BASS_ChannelPreBuf: function(handle, length: DWORD): BOOL; stdcall;
 BASS_ChannelPlay: function(handle: DWORD; restart: BOOL): BOOL; stdcall;

@@ -10,7 +10,7 @@ interface
 uses Classes, UGameEngine, UAirplane, GLScene, GLVectorGeometry, GLVectorFileObjects,
    GLPersistentClasses, GLParticleFX, GLPerlinPFX, GLCadencer, GLTexture, GLCanvas,
    GLTerrainRenderer, GLSound, UABVoice, GLObjects, GLScreen, GLContext, Graphics,
-   GLWindowsFont, FMod,{ FModTypes, }GLRenderContextInfo, GLMaterial, GLColor,
+   GLWindowsFont, FMod, FModTypes, GLRenderContextInfo, GLMaterial, GLColor,
    GLState;
 
 type
