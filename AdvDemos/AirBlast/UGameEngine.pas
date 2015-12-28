@@ -7,7 +7,7 @@ unit UGameEngine;
 
 interface
 
-uses Classes, PersistentClasses, VectorGeometry;
+uses Classes, GLPersistentClasses, GLVectorGeometry;
 
 type
 

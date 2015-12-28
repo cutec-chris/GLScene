@@ -7,7 +7,7 @@ unit UABEquipments;
 
 interface
 
-uses Classes, UGameEngine, UAirBlastEngine, VectorGeometry, PersistentClasses,
+uses Classes, UGameEngine, UAirBlastEngine, GLVectorGeometry, GLPersistentClasses,
    GLObjects, GLScene, GLTexture, GLCanvas, Graphics, GLSound,
    GLRenderContextInfo, GLColor, GLMaterial;
 

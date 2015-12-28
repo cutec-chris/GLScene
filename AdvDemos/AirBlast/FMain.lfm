@@ -1,7 +1,7 @@
 object Main: TMain
-  Left = 309
+  Left = 340
   Height = 395
-  Top = 228
+  Top = 240
   Width = 600
   Caption = 'AirBlast'
   ClientHeight = 395
@@ -399,7 +399,7 @@ object Main: TMain
         Tag = 0
       end    
       item
-        Name = 'west'
+        Name = 'top'
         Material.FrontProperties.Diffuse.Color = {
           0000803F0000803F0000803F0000803F
         }
@@ -414,7 +414,7 @@ object Main: TMain
         Tag = 0
       end    
       item
-        Name = 'top'
+        Name = 'west'
         Material.FrontProperties.Diffuse.Color = {
           0000803F0000803F0000803F0000803F
         }

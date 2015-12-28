@@ -12,7 +12,7 @@ unit UAirplane;
 
 interface
 
-uses Classes, UGameEngine, VectorGeometry;
+uses Classes, UGameEngine, GLVectorGeometry;
 
 type
 

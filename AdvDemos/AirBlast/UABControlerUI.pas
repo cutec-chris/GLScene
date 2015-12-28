@@ -7,7 +7,7 @@ unit UABControlerUI;
 
 interface
 
-uses LCLProc,LCLIntf,LCLType, Classes, UAirBlastControler, VectorGeometry, UGameEngine;
+uses LCLProc,LCLIntf,LCLType, Classes, UAirBlastControler, GLVectorGeometry, UGameEngine;
 
 type
 

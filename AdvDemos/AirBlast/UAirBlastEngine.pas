@@ -7,8 +7,8 @@ unit UAirBlastEngine;
 
 interface
 
-uses Classes, UGameEngine, UAirplane, GLScene, VectorGeometry, GLVectorFileObjects,
-   PersistentClasses, GLParticleFX, GLPerlinPFX, GLCadencer, GLTexture, GLCanvas,
+uses Classes, UGameEngine, UAirplane, GLScene, GLVectorGeometry, GLVectorFileObjects,
+   GLPersistentClasses, GLParticleFX, GLPerlinPFX, GLCadencer, GLTexture, GLCanvas,
    GLTerrainRenderer, GLSound, UABVoice, GLObjects, GLScreen, GLContext, Graphics,
    GLWindowsFont, FMod,{ FModTypes, }GLRenderContextInfo, GLMaterial, GLColor,
    GLState;
@@ -1377,7 +1377,7 @@ begin
       scissorRect.Width := Round((textRect.Right-textRect.Left-6)*f);
       scissorRect.Height := TGLSceneBuffer(rci.buffer).Height;
 
-      rci.GLStates.ScissorBox := scissorRect;
+      //rci.GLStates.ScissorBox := scissorRect;
       rci.GLStates.Enable(stScissorTest);
 
       //canvas.PenColor:=clYellow; canvas.FillRect(0, 0, 1024, 768); canvas.StopPrimitive;
@@ -1385,7 +1385,7 @@ begin
       for i:=0 to sl.Count-1 do begin
          pMess:=PGameMessage(sl.Objects[i]);
          f:=pMess.Ticks*0.01;
-         buf:=Format('%.2d:%.2d - %s', [VectorGeometry.Trunc(f*(1/60)), VectorGeometry.Trunc(Frac(f*(1/60))*60), sl[i]]);
+         buf:=Format('%.2d:%.2d - %s', [GLVectorGeometry.Trunc(f*(1/60)), GLVectorGeometry.Trunc(Frac(f*(1/60))*60), sl[i]]);
          if (pMess.FromMobile=nil) then
             color:=clWhite
          else if pMess.FromMobile.Team=Team then

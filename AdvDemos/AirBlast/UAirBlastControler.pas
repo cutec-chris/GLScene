@@ -12,8 +12,8 @@ unit UAirBlastControler;
 
 interface
 
-uses Classes, UAirplane, UGameEngine, UAirBlastEngine, VectorGeometry, GLScene,
-   PersistentClasses, UABEquipments, GLObjects;
+uses Classes, UAirplane, UGameEngine, UAirBlastEngine, GLVectorGeometry, GLScene,
+   GLPersistentClasses, UABEquipments, GLObjects;
 
 type
 

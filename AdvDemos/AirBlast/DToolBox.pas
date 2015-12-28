@@ -9,7 +9,7 @@ interface
 
 uses
   SysUtils, Classes, GLVectorFileObjects, GLScene, Graphics,
-  GLCoordinates, GLCrossPlatform, BaseClasses;
+  GLCoordinates, GLCrossPlatform, GLBaseClasses;
 
 type
   TDMToolBox = class(TDataModule)

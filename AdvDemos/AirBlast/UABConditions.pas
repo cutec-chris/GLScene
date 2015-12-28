@@ -7,8 +7,8 @@ unit UABConditions;
 
 interface
 
-uses Classes, UAirBlastEngine, UGameEngine, UABEvents, PersistentClasses,
-     VectorGeometry, GLMaterial, GLState;
+uses Classes, UAirBlastEngine, UGameEngine, UABEvents, GLPersistentClasses,
+     GLVectorGeometry, GLMaterial, GLState;
 
 type
 
@@ -161,7 +161,7 @@ begin
       Radius:=FBumpRadius;
       Slices:=9;
       Stacks:=7;
-      Material.FrontProperties.PolygonMode:=pmLines;
+      Material.PolygonMode:=pmLines;
    end;
 end;
 

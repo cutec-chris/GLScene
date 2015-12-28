@@ -9,19 +9,19 @@ interface
 
 uses
   LCLProc,LCLIntf,LMessages, SysUtils, Classes, Graphics, Controls, Forms, FMod,
-  Dialogs, GLScene, GLObjects, GLLCLViewer, VectorGeometry,
+  Dialogs, GLScene, GLObjects, GLLCLViewer, GLVectorGeometry,
   GLVectorFileObjects, GLTexture, ApplicationFileIO, UAirplane, GLCadencer,
   GLTerrainRenderer, GLHeightData, GLHeightTileFileHDS, GLSkyBox, GLFileWAV,
   GLFileMP3, GLTexCombineShader, UAirBlastEngine, UAirBlastControler,
   UABControlerUI, GLParticleFX, GLPerlinPFX, UGameEngine, GLCanvas, GLSound,
   GLSMFMOD, UABVoice, DToolBox, GLBitmapFont, GLWindowsFont, ExtCtrls,
   GLGameMenu, GLHUDObjects, GLMaterial, GLCoordinates, GLCrossPlatform,
-  BaseClasses,FileUtil,LCLType;
+  GLBaseClasses,FileUtil,LCLType;
 
 type
   TMain = class(TForm)
     GLScene: TGLScene;
-    SceneViewer: TGLSceneViewerLCL;
+    SceneViewer: TGLSceneViewer;
     LSSun: TGLLightSource;
     MaterialLibrary: TGLMaterialLibrary;
     ApplicationFileIO: TApplicationFileIO;
@@ -119,7 +119,7 @@ begin
   SetCurrentDirUTF8(ExtractFilePath(Application.ExeName)); { *Konvertiert von SetCurrentDir* }
   SceneViewer.Cursor := crNone;
 
-  HTF.HTFFileName := 'terrains\desert.htf';
+  HTF.HTFFileName := 'terrains'+DirectorySeparator+'desert.htf';
   HTF.MaxPoolSize := 16 * 1024 * 1024;
 
   SetTexImageName(MaterialLibrary, 'Terrain', 'Desert.jpg');
@@ -136,10 +136,10 @@ begin
   SetTexImageName(MLSkyBox, 'top', 'Top.jpg');
 
 {$WARNINGS OFF}
-  FindFirstUTF8('Sounds\*.*',faArchive,searchRec); { *Konvertiert von FindFirst* }
+  FindFirstUTF8('Sounds'+DirectorySeparator+'*.*',faArchive,searchRec); { *Konvertiert von FindFirst* }
 {$WARNINGS ON}
   repeat
-    GLSoundLibrary.Samples.AddFile('Sounds\' + searchRec.Name,
+    GLSoundLibrary.Samples.AddFile('Sounds'+DirectorySeparator + searchRec.Name,
       ChangeFileExt(searchRec.Name, ''))
   until FindNextUTF8(searchRec) { *Konvertiert von FindNext* } <> 0;
   FindCloseUTF8(searchRec); { *Konvertiert von FindClose* }

@@ -7,7 +7,7 @@ unit UABEvents;
 
 interface
 
-uses Classes, UAirBlastEngine, UGameEngine, PersistentClasses;
+uses Classes, UAirBlastEngine, UGameEngine, GLPersistentClasses;
 
 type
 
