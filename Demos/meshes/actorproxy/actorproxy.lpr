@@ -1,10 +1,10 @@
-program smoking;
+program actorproxy;
 
 {$MODE Delphi}
 
 uses
   Forms, Interfaces,
-  Unit1 in 'Unit1.pas' {Form1};
+  unit1, glscene_runtime, glscene_designtime;
 
 {$R *.res}
 

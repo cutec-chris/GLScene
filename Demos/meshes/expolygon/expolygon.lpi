@@ -1,0 +1,263 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <PathDelim Value="\"/>
+    <Version Value="7"/>
+    <General>
+      <MainUnit Value="0"/>
+      <TargetFileExt Value=".exe"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <VersionInfo>
+      <Language Value=""/>
+      <CharSet Value=""/>
+      <StringTable Comments="" CompanyName="" FileDescription="" FileVersion="" InternalName="" LegalCopyright="" LegalTrademarks="" OriginalFilename="" ProductName="" ProductVersion=""/>
+    </VersionInfo>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="\usr\X11R6\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="3">
+      <Item1>
+        <PackageName Value="GLScene_RunTime"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="GLScene_DesignTime"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
+    </RequiredPackages>
+    <Units Count="6">
+      <Unit0>
+        <Filename Value="expolygon.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="9" Y="7"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="expolygon1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="expolygon1"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="55" Y="13"/>
+        <SyntaxHighlighter Value="FreePascal"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Text"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <UnitName Value="PersistentClasses"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="238"/>
+        <CursorPos X="78" Y="261"/>
+        <SyntaxHighlighter Value="Delphi"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Text"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\..\..\Source\GLMultiPolygon.pas"/>
+        <UnitName Value="GLMultiPolygon"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="85"/>
+        <CursorPos X="4" Y="105"/>
+        <SyntaxHighlighter Value="Delphi"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Text"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\..\..\..\..\..\usr\share\fpcsrc\2.4.0\rtl\inc\objpash.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="289"/>
+        <CursorPos X="53" Y="324"/>
+        <SyntaxHighlighter Value="FreePascal"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Text"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\..\..\Source\GLScene.pas"/>
+        <UnitName Value="GLScene"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2783"/>
+        <CursorPos X="1" Y="2803"/>
+        <SyntaxHighlighter Value="Delphi"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Text"/>
+      </Unit5>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="1243" Column="60" TopLine="1226"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="1258" Column="1" TopLine="818"/>
+      </Position2>
+      <Position3>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="836" Column="75" TopLine="818"/>
+      </Position3>
+      <Position4>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="837" Column="1" TopLine="818"/>
+      </Position4>
+      <Position5>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="888" Column="1" TopLine="868"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="889" Column="1" TopLine="868"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="890" Column="1" TopLine="868"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="892" Column="1" TopLine="868"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="838" Column="1" TopLine="818"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="839" Column="1" TopLine="818"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\..\..\Source\GLScene.pas"/>
+        <Caret Line="7390" Column="1" TopLine="7370"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\..\..\Source\GLScene.pas"/>
+        <Caret Line="7391" Column="1" TopLine="7370"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\..\..\Source\GLScene.pas"/>
+        <Caret Line="7400" Column="1" TopLine="7370"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="837" Column="1" TopLine="818"/>
+      </Position14>
+      <Position15>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="838" Column="1" TopLine="818"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="839" Column="1" TopLine="818"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\..\..\Source\GLScene.pas"/>
+        <Caret Line="2803" Column="1" TopLine="2783"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="837" Column="1" TopLine="818"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="838" Column="1" TopLine="818"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="839" Column="1" TopLine="818"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="1255" Column="39" TopLine="1238"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\..\..\Source\GLMultiPolygon.pas"/>
+        <Caret Line="455" Column="1" TopLine="426"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="837" Column="1" TopLine="817"/>
+      </Position23>
+      <Position24>
+        <Filename Value="..\..\..\Source\Base\PersistentClasses.pas"/>
+        <Caret Line="835" Column="27" TopLine="817"/>
+      </Position24>
+      <Position25>
+        <Filename Value="..\..\..\Source\GLMultiPolygon.pas"/>
+        <Caret Line="446" Column="13" TopLine="426"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\..\..\Source\GLMultiPolygon.pas"/>
+        <Caret Line="455" Column="59" TopLine="426"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\..\..\Source\GLMultiPolygon.pas"/>
+        <Caret Line="504" Column="13" TopLine="484"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\..\..\Source\GLMultiPolygon.pas"/>
+        <Caret Line="650" Column="79" TopLine="630"/>
+      </Position28>
+      <Position29>
+        <Filename Value="..\..\..\Source\GLMultiPolygon.pas"/>
+        <Caret Line="66" Column="89" TopLine="51"/>
+      </Position29>
+      <Position30>
+        <Filename Value="..\..\..\Source\GLMultiPolygon.pas"/>
+        <Caret Line="152" Column="28" TopLine="132"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="8"/>
+    <PathDelim Value="\"/>
+    <Parsing>
+      <SyntaxOptions>
+        <UseAnsiStrings Value="True"/>
+      </SyntaxOptions>
+    </Parsing>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

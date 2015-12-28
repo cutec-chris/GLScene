@@ -1,10 +1,10 @@
-program smoking;
+program ocean;
 
 {$MODE Delphi}
 
 uses
   Forms, Interfaces,
-  Unit1 in 'Unit1.pas' {Form1};
+  unit1, glscene_designtime, glscene_runtime;
 
 {$R *.res}
 

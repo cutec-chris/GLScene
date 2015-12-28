@@ -13,12 +13,19 @@ unit Unit1;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLParticleFX, GLPerlinPFX, GLScene, GLObjects,
-  GLViewer, ExtCtrls, LResources, GLCadencer;
+  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLCadencer, GLParticleFX, GLPerlinPFX, GLScene, GLObjects,
+  GLLCLViewer, ExtCtrls, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
+
+  { TForm1 }
+
   TForm1 = class(TForm)
+    DCFire2: TGLDummyCube;
+    DCFire3: TGLDummyCube;
+    DCFire4: TGLDummyCube;
+    DCFire5: TGLDummyCube;
     GLSceneViewer: TGLSceneViewer;
     GLScene: TGLScene;
     GLCamera: TGLCamera;
@@ -43,6 +50,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.GLCadencerProgress(Sender: TObject; const deltaTime,
   newTime: Double);
@@ -59,8 +67,5 @@ begin
                      ParticleFXRenderer.LastSortTime]);
    GLSceneViewer.ResetPerformanceMonitor;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

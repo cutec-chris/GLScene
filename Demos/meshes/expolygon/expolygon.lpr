@@ -1,10 +1,10 @@
-program smoking;
+program ExPolygon;
 
 {$MODE Delphi}
 
 uses
   Forms, Interfaces,
-  Unit1 in 'Unit1.pas' {Form1};
+  expolygon1, glscene_designtime, glscene_runtime;
 
 {$R *.res}
 

@@ -1,10 +1,10 @@
-program smoking;
+program csgdemo;
 
 {$MODE Delphi}
 
 uses
   Forms, Interfaces,
-  Unit1 in 'Unit1.pas' {Form1};
+  mainformunit, glscene_designtime, glscene_runtime {Form1};
 
 {$R *.res}
 
