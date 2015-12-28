@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <Name Value="GLSS_FMOD"/>
+    <Type Value="RunAndDesignTime"/>
+    <AddToProjectUsesSection Value="True"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <IncludeFiles Value="../Source"/>
+        <OtherUnitFiles Value="../Source/soundapis;../Source;../Source/Base;../Source/Platform"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <SyntaxMode Value="Delphi"/>
+          <UseAnsiStrings Value="False"/>
+        </SyntaxOptions>
+      </Parsing>
+      <CodeGeneration>
+        <SmartLinkUnit Value="True"/>
+      </CodeGeneration>
+      <Linking>
+        <Debugging>
+          <DebugInfoType Value="dsStabs"/>
+          <UseHeaptrc Value="True"/>
+        </Debugging>
+      </Linking>
+    </CompilerOptions>
+    <Description Value="GLScene FMOD support"/>
+    <Version Major="1" Build="3"/>
+    <Files Count="5">
+      <Item1>
+        <Filename Value="../Source/glsmfmod.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="GLSMFMOD"/>
+      </Item1>
+      <Item2>
+        <Filename Value="../Source/soundapis/fmodpresets.pas"/>
+        <UnitName Value="fmodpresets"/>
+      </Item2>
+      <Item3>
+        <Filename Value="../Source/soundapis/fmodtypes.pas"/>
+        <UnitName Value="fmodtypes"/>
+      </Item3>
+      <Item4>
+        <Filename Value="../Source/soundapis/fmoderrors.pas"/>
+        <UnitName Value="fmoderrors"/>
+      </Item4>
+      <Item5>
+        <Filename Value="../Source/soundapis/fmoddyn.pas"/>
+        <UnitName Value="fmoddyn"/>
+      </Item5>
+    </Files>
+    <RequiredPkgs Count="2">
+      <Item1>
+        <PackageName Value="GLScene_DesignTime"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="FCL"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item2>
+    </RequiredPkgs>
+    <UsageOptions>
+      <CustomOptions Value="-dUseCThreads
+"/>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
