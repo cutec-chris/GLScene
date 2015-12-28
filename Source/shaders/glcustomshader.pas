@@ -110,7 +110,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLVectorGeometry, GLVectorTypes, GLTexture, GLCadencer, OpenGL1x, GLScene,
+  GLVectorGeometry, GLVectorTypes, GLTexture, GLCadencer, OpenGL1x, OpenGLTokens, GLScene,
   GLStrings, GLCrossPlatform, GLContext, GLRenderContextInfo, GLMaterial,
   GLVectorLists, GLTextureFormat;
 

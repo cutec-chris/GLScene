@@ -33,7 +33,7 @@ unit GLProcTextures;
 
 interface
 
-uses Classes, GLTexture, GLGraphics, OpenGL1x, GLCrossPlatform, SysUtils,
+uses Classes, GLTexture, GLGraphics, OpenGL1x, OpenGLTokens, GLCrossPlatform, SysUtils,
   GLTextureFormat;
 
 const

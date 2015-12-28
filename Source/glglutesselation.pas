@@ -34,7 +34,7 @@ Procedure DoTesselate(Vertexes : TAffineVectorList; Mesh : TGLBaseMesh; normal :
 implementation
 
 uses
-  SysUtils, OpenGL1x;
+  SysUtils, OpenGL1x, OpenGLTokens;
 
 Var
   TessMesh : TMeshObject;

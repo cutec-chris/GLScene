@@ -36,7 +36,7 @@ uses
 
   // GLScene
   GLScene, GLVectorGeometry, GLObjects, GLBitmapFont, GLTexture, GLMaterial,
-  GLHudObjects, GLStrings, GLColor, GLGraphics, OpenGL1x, GLBaseClasses,
+  GLHudObjects, GLStrings, GLColor, GLGraphics, OpenGL1x, OpenGLTokens, GLBaseClasses,
   GLRenderContextInfo;
 
 type

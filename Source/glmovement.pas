@@ -43,7 +43,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLScene, GLVectorGeometry, XCollection, OpenGL1x, Spline, GLObjects,
+  GLScene, GLVectorGeometry, XCollection, OpenGL1x, OpenGLTokens, Spline, GLObjects,
   GLCrossPlatform, GLStrings, GLBaseClasses;
 
 type

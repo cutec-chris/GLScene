@@ -83,7 +83,7 @@ uses
   LCLType,
 {$ENDIF}
   GLCrossPlatform,
-  OpenGL1x,
+  OpenGL1x,OpenGLTokens,
   OpenGLAdapter,
   GLVectorGeometry,
   GLVectorTypes,

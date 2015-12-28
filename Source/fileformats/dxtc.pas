@@ -23,7 +23,7 @@ interface
 {$Z4}  // Minimum enum size = dword
 
 uses
-   SysUtils, GLVectorGeometry, OpenGL1x, GLTextureFormat;
+   SysUtils, GLVectorGeometry, OpenGL1x,OpenGLTokens, GLTextureFormat;
 
 const
    DDSD_CAPS        = $00000001;

@@ -344,8 +344,8 @@ uses
 {$ENDIF}
 
   // GLScene
-  GLVectorGeometry, XCollection, GLSilhouette, GLPersistentClasses, OpenGL1x, GLState,
-  GLGraphics, GeometryBB, GLContext, GLCrossPlatform, GLVectorLists, GLTexture,
+  GLVectorGeometry, XCollection, GLSilhouette, GLPersistentClasses, OpenGL1x,OpenGLTokens,
+  GLState, GLGraphics, GeometryBB, GLContext, GLCrossPlatform, GLVectorLists, GLTexture,
   GLColor, GLBaseClasses, GLCoordinates, GLRenderContextInfo, GLMaterial,
   GLTextureFormat
 {$IFDEF GLS_EXPERIMENTAL}

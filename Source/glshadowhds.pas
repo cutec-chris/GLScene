@@ -128,7 +128,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, GLUtils, GLVectorLists, GLTextureFormat;
+uses SysUtils, OpenGL1x, OpenGLTokens, GLUtils, GLVectorLists, GLTextureFormat;
 
 // Create
 //

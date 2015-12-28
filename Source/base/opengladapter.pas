@@ -18,7 +18,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  OpenGL1x,
+  OpenGL1x,OpenGLTokens,
   SysUtils
 {$IFDEF unix}
   ,

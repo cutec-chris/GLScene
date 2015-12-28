@@ -50,7 +50,7 @@ uses
     Classes,
     GLScene,
     GLTexture,
-    OpenGL1x,
+    OpenGL1x, OpenGLTokens,
     GLVectorGeometry,
     GLContext,
     sysutils,

@@ -111,7 +111,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, GLUtils;
+uses SysUtils, OpenGL1x, OpenGLTokens, GLUtils;
 
 const
    cDefaultBumpScale = 0.01;

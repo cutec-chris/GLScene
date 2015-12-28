@@ -26,7 +26,7 @@ interface
 
 uses
   Classes,  GLVectorFileObjects, VerletClasses, GLVectorTypes, GLVectorLists,
-  GLVectorGeometry, GLTexture, OpenGL1x, SysUtils, GLRenderContextInfo,
+  GLVectorGeometry, GLTexture, OpenGL1x, OpenGLTokens, SysUtils, GLRenderContextInfo,
   GLState;
 
 type

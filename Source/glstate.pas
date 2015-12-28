@@ -51,7 +51,7 @@ uses
   GLVectorTypes,
   GLVectorGeometry,
   SysUtils,
-  OpenGL1x,
+  OpenGL1x,OpenGLTokens,
   GLTextureFormat,
   GLSLog;
 

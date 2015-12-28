@@ -20,7 +20,7 @@ interface
 uses
   // GLScene
   Classes, GLVectorTypes, GLVectorGeometry, Graphics, GLCrossPlatform,
-  GLPersistentClasses, GLBaseClasses, OpenGL1x;
+  GLPersistentClasses, GLBaseClasses, OpenGL1x,OpenGLTokens;
 
 type
   PColorVector = ^TColorVector;

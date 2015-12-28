@@ -219,7 +219,7 @@ uses
   // GLScene
   GLCrossPlatform,
   GLBaseClasses,
-  OpenGL1x,
+  OpenGL1x,OpenGLTokens,
   GLVectorGeometry,
   GLGraphics,
   GLContext,

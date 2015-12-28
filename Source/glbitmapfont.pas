@@ -327,7 +327,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, XOpenGL, GLVectorTypes;
+uses SysUtils, OpenGL1x, OpenGLTokens, XOpenGL, GLVectorTypes;
 
 // ------------------
 // ------------------ TBitmapFontRange ------------------

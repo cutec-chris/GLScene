@@ -41,7 +41,7 @@ interface
 
 {.$define MULTITHREADOPENGL}
 
-uses OpenGL1x;
+uses OpenGL1x,OpenGLTokens;
 
 type
    TMapTexCoordMode = (mtcmUndefined, mtcmNull, mtcmMain, mtcmDual, mtcmSecond,

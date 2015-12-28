@@ -142,7 +142,7 @@ interface
 uses Classes,
   GLVectorGeometry,
   GLScene,
-  OpenGL1x,
+  OpenGL1x,OpenGLTokens,
   SysUtils,
   GLVectorLists,
   GLCrossPlatform,

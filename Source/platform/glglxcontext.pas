@@ -27,7 +27,7 @@ interface
 
 uses
   Classes, SysUtils, LCLType,
-  GLCrossPlatform, GLContext, OpenGL1x,
+  GLCrossPlatform, GLContext, OpenGL1x, OpenGLTokens,
   x, xlib, xutil;
 
 type

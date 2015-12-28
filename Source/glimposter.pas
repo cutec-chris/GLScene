@@ -467,7 +467,7 @@ implementation
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, GLUtils;
+uses SysUtils, OpenGL1x, OpenGLTokens, GLUtils;
 
 const
   cReferenceToPos: array[Low(TImposterReference)..High(TImposterReference)] of

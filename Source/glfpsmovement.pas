@@ -199,7 +199,7 @@ function GetOrCreateFPSMovement(obj: TGLBaseSceneObject): TGLBFPSMovement; overl
 
 implementation
 
-uses SysUtils, OpenGL1x, GLCrossPlatform;
+uses SysUtils, OpenGL1x, OpenGLTokens, GLCrossPlatform;
 
 function GetFPSMovement(behaviours: TGLBehaviours): TGLBFPSMovement; overload;
 var

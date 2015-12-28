@@ -152,7 +152,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses OpenGL1x, GLMeshUtils, XOpenGL, GLUtils;
+uses OpenGL1x, OpenGLTokens, GLMeshUtils, XOpenGL, GLUtils;
 
 // StreamEOF
 //

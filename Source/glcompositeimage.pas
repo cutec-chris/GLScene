@@ -19,7 +19,7 @@ unit GLCompositeImage;
 interface
 
 uses
-  Classes, OpenGL1x, GLGraphics, GLTexture, GLTextureFormat;
+  Classes, OpenGL1x, OpenGLTokens, GLGraphics, GLTexture, GLTextureFormat;
 
 type
 

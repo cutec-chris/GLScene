@@ -216,7 +216,7 @@ implementation
 
 uses
   SysUtils,
-  OpenGL1x,
+  OpenGL1x, OpenGLTokens,
   GLVectorTypes,
   GLMultisampleImage;
 

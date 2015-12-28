@@ -192,7 +192,7 @@ implementation
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, GLVectorTypes;
+uses SysUtils, OpenGL1x, OpenGLTokens, GLVectorTypes;
 
 // ------------------
 // ------------------ TGLMaterialMultiProxyMaster ------------------

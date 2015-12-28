@@ -16,7 +16,7 @@ unit GLTextureFormat;
 interface
 
 uses
-  OpenGL1x;
+  OpenGL1x,OpenGLTokens;
 
 type
 

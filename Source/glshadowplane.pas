@@ -34,7 +34,7 @@ interface
 uses Classes,
   GLScene,
   GLVectorGeometry,
-  OpenGL1x,
+  OpenGL1x, OpenGLTokens,
   GLObjects,
   GLCrossPlatform,
   GLColor,

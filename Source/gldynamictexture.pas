@@ -28,7 +28,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  Classes, SysUtils, OpenGL1x, GLContext, GLTexture, GLTextureFormat,
+  Classes, SysUtils, OpenGL1x, OpenGLTokens, GLContext, GLTexture, GLTextureFormat,
   GLGraphics, GLCrossPlatform;
 
 type

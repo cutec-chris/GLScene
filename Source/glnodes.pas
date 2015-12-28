@@ -18,7 +18,7 @@ unit GLNodes;
 
 interface
 
-uses Classes, GLVectorGeometry, OpenGL1x, GLBaseClasses, GLCoordinates, Spline;
+uses Classes, GLVectorGeometry, OpenGL1x, OpenGLTokens, GLBaseClasses, GLCoordinates, Spline;
 
 {$I GLScene.inc}
 

@@ -311,7 +311,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, GLStarRecord, GLState;
+uses SysUtils, OpenGL1x, OpenGLTokens, GLStarRecord, GLState;
 
 // ------------------
 // ------------------ TSkyDomeBand ------------------

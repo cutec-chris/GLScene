@@ -159,7 +159,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses OpenGL1x, XOpenGL, SysUtils;
+uses OpenGL1x, OpenGLTokens, XOpenGL, SysUtils;
 
 var
    FVBOVertHandle, FVBOTexHandle : TGLVBOArrayBufferHandle;

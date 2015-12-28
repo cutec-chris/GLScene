@@ -48,7 +48,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLScene, GLTexture, OpenGL1x, GLGraphics, GLStrings, GLCustomShader, GLContext,
+  GLScene, GLTexture, OpenGL1x, OpenGLTokens, GLGraphics, GLStrings, GLCustomShader, GLContext,
   GLVectorGeometry, GLRenderContextInfo, GLMaterial, GLTextureFormat;
 
 type

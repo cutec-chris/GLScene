@@ -28,7 +28,7 @@ interface
 
 uses
   SysUtils,
-  OpenGL1x,
+  OpenGL1x, OpenGLTokens,
   GLScene,
   GLContext,
   GLState,

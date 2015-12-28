@@ -30,7 +30,7 @@ uses
 
   // GLScene
   GLScene, GLBitmapFont, GLMaterial, GLCrossPlatform,
-  OpenGL1x, GLPersistentClasses, GLVectorGeometry, GLCoordinates, GLBaseClasses;
+  OpenGL1x, OpenGLTokens, GLPersistentClasses, GLVectorGeometry, GLCoordinates, GLBaseClasses;
 
 Type
 

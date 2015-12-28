@@ -29,7 +29,7 @@ interface
 uses
   {$IFDEF MSWINDOWS} Windows,  {$ENDIF}
   Classes, SysUtils, GLCrossPlatform, GLVectorGeometry, GLGraphics,
-  OpenGL1x, GLPBuffer;
+  OpenGL1x,OpenGLTokens, GLPBuffer;
 
 type
 

@@ -22,7 +22,7 @@ uses
   Classes, SysUtils, Math,
 
   // GLScene
-  GLVectorGeometry, OpenGL1x, GLScene, GLVectorFileObjects,
+  GLVectorGeometry, OpenGL1x, OpenGLTokens, GLScene, GLVectorFileObjects,
   GLPersistentClasses, GLCrossPlatform, GLCoordinates, GLRenderContextInfo,
   GLState;
 

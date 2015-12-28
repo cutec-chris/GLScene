@@ -24,7 +24,7 @@ unit GLSpatialPartitioning;
 interface
 
 uses
-  GLViewer, SpatialPartitioning, GLScene, GLVectorGeometry, OpenGL1x,
+  GLViewer, SpatialPartitioning, GLScene, GLVectorGeometry, OpenGL1x, OpenGLTokens,
   GeometryBB, GLRenderContextInfo, GLState;
 
 type

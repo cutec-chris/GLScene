@@ -25,7 +25,7 @@ uses
   Classes,
   SysUtils,
   GLCrossPlatform,
-  OpenGL1x,
+  OpenGL1x,OpenGLTokens,
   GLContext,
   GLGraphics,
   GLTextureFormat,

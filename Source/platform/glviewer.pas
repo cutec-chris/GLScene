@@ -28,7 +28,7 @@ interface
 {$I GLScene.inc}
 
 uses
-  OpenGL1x,
+  OpenGL1x, OpenGLTokens,
   {$IFDEF GLS_DELPHI_OR_CPPB} GLWin32Viewer; {$ENDIF}
   {$IFDEF FPC}                GLLCLViewer;   {$ENDIF}
 

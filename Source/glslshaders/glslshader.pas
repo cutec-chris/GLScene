@@ -72,7 +72,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLVectorGeometry, GLVectorTypes, GLTexture, GLContext, OpenGL1x, GLCustomShader,
+  GLVectorGeometry, GLVectorTypes, GLTexture, GLContext, OpenGL1x, OpenGLTokens, GLCustomShader,
   GLRenderContextInfo, GLTextureFormat;
 
 type

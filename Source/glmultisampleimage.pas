@@ -10,7 +10,7 @@
 
    <b>History : </b><font size=-1><ul>
       <li>22/08/10 - DaStr - Added $I GLScene.inc   
-      <li>06/06/10 - Yar - Replaced OpenGL1x function to OpenGLAdapter
+      <li>06/06/10 - Yar - Replaced OpenGL1x, OpenGLTokens function to OpenGLAdapter
       <li>16/05/10 - Yar - Creation (thanks to C4)
    </ul></font>
 }
@@ -22,7 +22,7 @@ interface
 
 uses
   Classes,
-  OpenGL1x,
+  OpenGL1x, OpenGLTokens,
   GLContext,
   GLTexture,
   GLGraphics,

@@ -45,7 +45,7 @@ uses
   Classes,
 {$ENDIF}
   SysUtils,
-  OpenGL1x;
+  OpenGL1x,OpenGLTokens;
 
 type
 

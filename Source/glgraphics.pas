@@ -98,7 +98,7 @@ uses
 {$IFDEF FPC}
   fpimage, intfgraphics, GraphType,
 {$ENDIF}
-  OpenGL1x, GLUtils, GLCrossPlatform, GLContext, GLColor, GLTextureFormat;
+  OpenGL1x,OpenGLTokens, GLUtils, GLCrossPlatform, GLContext, GLColor, GLTextureFormat;
 
 type
   TGLMinFilter = (miNearest, miLinear, miNearestMipmapNearest,

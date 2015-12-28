@@ -33,7 +33,7 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLScene, GLVectorGeometry, OpenGL1x, GLSilhouette,
+uses Classes, GLScene, GLVectorGeometry, OpenGL1x, OpenGLTokens, GLSilhouette,
   GLCrossPlatform, GLPersistentClasses, GeometryBB, GLColor, GLRenderContextInfo;
 
 type

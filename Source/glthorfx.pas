@@ -141,7 +141,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, GLVectorLists;
+uses SysUtils, OpenGL1x, OpenGLTokens, GLVectorLists;
 
 
 // ------------------
