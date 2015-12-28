@@ -364,7 +364,7 @@ var
    vzHandle: HINST;//Pointer;
    {$ENDIF}
    {$IFDEF UNIX}
-   vzHandle: TLibHandle = 0;//Pointer;
+   vzHandle: TLibHandle = INVALID_MODULEHANDLE;//Pointer;
    {$ENDIF}
 
 function Initzlib: Boolean;
@@ -390,7 +390,7 @@ end;
 procedure Closezlib;
 begin
    if vzHandle<>INVALID_MODULEHANDLE then begin
-      FreeLibrary(Cardinal(vzHandle));
+      FreeLibrary(vzHandle);
       vzHandle:=INVALID_MODULEHANDLE;
    end;
 end;
