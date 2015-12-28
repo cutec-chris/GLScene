@@ -1,8 +1,9 @@
-{: glcarboncontext<p>
+{: GLCarbonContext<p>
 
    Carbon specific Context.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>10/06/09 - DanB - Added to main GLScene CVS repository (from GLScene-Lazarus).
       <li>14/11/08 - Creation
    </ul></font>
 }
@@ -38,8 +39,8 @@ type
          procedure ChangeIAttrib(attrib, newValue : Integer);
          procedure DropIAttrib(attrib : Integer);
 
-         procedure DoCreateContext(outputDevice : HDC); override;
-         procedure DoCreateMemoryContext(outputDevice : HDC;width, height : Integer; BufferCount : integer); override;
+         procedure DoCreateContext(outputDevice : Cardinal); override;
+         procedure DoCreateMemoryContext(outputDevice : Cardinal;width, height : Integer; BufferCount : integer); override;
          procedure DoShareLists(aContext : TGLContext); override;
          procedure DoDestroyContext; override;
          procedure DoActivate; override;
@@ -153,7 +154,7 @@ begin
   end;
 end;
 
-procedure TGLCarbonContext.DoCreateContext(outputDevice: HDC);
+procedure TGLCarbonContext.DoCreateContext(outputDevice: Cardinal);
 var
   DC: TCarbonDeviceContext absolute outputDevice;
   Window: WindowRef;
@@ -229,7 +230,7 @@ begin
     raise EGLContext.Create('Created bad context!');
 end;
 
-procedure TGLCarbonContext.DoCreateMemoryContext(outputDevice: HDC; width,
+procedure TGLCarbonContext.DoCreateMemoryContext(outputDevice: Cardinal; width,
   height: Integer; BufferCount: integer);
 begin
   {$MESSAGE Warn 'DoCreateMemoryContext: Needs to be implemented'}
