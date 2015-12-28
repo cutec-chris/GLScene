@@ -10,6 +10,7 @@
    fire and smoke particle systems for instance).<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>22/01/10 - Yar  - Added bmp32.Blank:=false for memory allocation
                             and fix RegisterAsOpenGLTexture
@@ -67,7 +68,7 @@ interface
 
 uses Classes, GLPersistentClasses, GLScene, GLVectorGeometry, XCollection, GLMaterial,
      GLCadencer, GLVectorLists, GLGraphics, GLContext, GLColor, GLBaseClasses,
-     GLCoordinates, GLRenderContextInfo, GLManager;
+     GLCoordinates, GLRenderContextInfo, GLManager, GLTextureFormat;
 
 const
    cPFXNbRegions = 128;     // number of distance regions
@@ -107,7 +108,7 @@ type
          procedure ReadFromFiler(reader : TVirtualReader); override;
 
          property Manager : TGLParticleFXManager read FManager write FManager;
-         
+
          {: Particle's ID, given at birth.<p>
             ID is a value unique per manager. }
          property ID : Integer read FID;
@@ -413,7 +414,7 @@ type
          property ZCull : Boolean read FZCull write FZCull default True;
          {: If true particles will be accurately sorted back to front.<p>
             When false, only a rough ordering is used, which can result in
-            visual glitches but may be faster. } 
+            visual glitches but may be faster. }
          property ZSortAccuracy : TPFXSortAccuracy read FZSortAccuracy write FZSortAccuracy default saHigh;
          {: Maximum distance for rendering PFX particles.<p>
             If zero, camera's DepthOfView is used. }
@@ -514,9 +515,9 @@ type
          FAcceleration : TGLCoordinates;
          FFriction : Single;
          FCurrentTime : Double;
-         
+
          //FRotationCenter: TAffineVector;
-         
+
 
       protected
          { Protected Declarations }
@@ -559,9 +560,9 @@ type
          FSizeScale : Single;
          FDoScale : Boolean;
          FDoRotate: boolean;
-         
+
          FRotateAngle: Single;
-         
+
 	   protected
 	      { Protected Declarations }
          function GetDisplayName : String; override;
@@ -589,7 +590,7 @@ type
          property ColorOuter : TGLColor read FColorOuter write SetColorOuter;
          property LifeTime : Single read FLifeTime write SetLifeTime;
          property SizeScale : Single read FSizeScale write SetSizeScale;
-         
+
          property RotateAngle : Single read FRotateAngle write SetRotateAngle;
 
 	end;
@@ -647,7 +648,7 @@ type
          procedure ComputeOuterColor(var lifeTime : Single; var outer : TColorVector);
          function  ComputeSizeScale(var lifeTime : Single; var sizeScale : Single) : Boolean;
          function  ComputeRotateAngle(var lifeTime, rotateAngle: Single): Boolean;
-         
+
          procedure RotateVertexBuf(buf : TAffineVectorList; lifeTime : Single;
                                    const axis : TAffineVector; offsetAngle: Single);
 
@@ -717,7 +718,7 @@ type
          property OnFinalizeRendering : TDirectRenderEvent read FOnFinalizeRendering write FOnFinalizeRendering;
          property OnProgress : TPFXProgressEvent read FOnProgress write FOnProgress;
          property OnParticleProgress : TPFXParticleProgress read FOnParticleProgress write FOnParticleProgress;
-         property OnGetParticleCountEvent : TPFXGetParticleCountEvent read FOnGetParticleCountEvent write FOnGetParticleCountEvent; 
+         property OnGetParticleCountEvent : TPFXGetParticleCountEvent read FOnGetParticleCountEvent write FOnGetParticleCountEvent;
 
          property ParticleSize;
          property ColorInner;
@@ -932,7 +933,9 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses SysUtils, OpenGL1x, GLCrossPlatform, GLState, GLUtils, PerlinNoise;
+uses
+  SysUtils, OpenGL1x, GLCrossPlatform, GLState, GLUtils, PerlinNoise,
+  GLVectorTypes;
 
 // GetOrCreateSourcePFX
 //
@@ -1584,7 +1587,6 @@ var
    curParticleOrder : PPointerArray;
    cameraPos, cameraVector : TAffineVector;
    timer : Int64;
-   oldDepthMask : TGLboolean;
    currentTexturingMode : Cardinal;
 begin
    if csDesigning in ComponentState then Exit;
@@ -1662,10 +1664,8 @@ begin
       glPushMatrix;
       glLoadMatrixf(@TGLSceneBuffer(rci.buffer).ViewMatrix);
 
-      rci.GLStates.PushAttrib(cAllAttribBits);
-
       rci.GLStates.Disable(stCullFace);
-      rci.GLStates.Disable(stTexture2D);
+      rci.GLStates.ActiveTextureEnabled[ttTexture2D] := True;
       currentTexturingMode:=0;
       rci.GLStates.Disable(stLighting);
       rci.GLStates.PolygonMode := pmFill;
@@ -1684,8 +1684,6 @@ begin
       end;
       rci.GLStates.DepthFunc := cfLEqual;
       if not FZWrite then begin
-         glGetBooleanv(GL_DEPTH_WRITEMASK, @oldDepthMask);
-         //oldDepthMask := rci.GLStates.DepthWriteMask;
          rci.GLStates.DepthWriteMask := False;
       end;
       if not FZTest then
@@ -1729,11 +1727,10 @@ begin
                TGLParticleFXManager(FManagerList.List^[managerIdx]).FinalizeRendering(rci);
          end;
       finally
-         if FZWrite then
-            rci.GLStates.DepthWriteMask := oldDepthMask;
          glPopMatrix;
-         rci.GLStates.PopAttrib;
       end;
+      rci.GLStates.ActiveTextureEnabled[ttTexture2D] := False;
+      rci.GLStates.DepthWriteMask := True;
    finally
       // cleanup
       for regionIdx:=cPFXNbRegions-1 downto 0 do
@@ -2910,7 +2907,8 @@ begin
             bmp32.Free;
          end;
       end else begin
-         rci.GLStates.SetGLCurrentTexture(0, GL_TEXTURE_2D, FTexHandle.Handle);
+
+         rci.GLStates.TextureBinding[0, ttTexture2D] :=  FTexHandle.Handle;
       end;
    end;
 end;

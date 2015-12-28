@@ -34,7 +34,7 @@ type
     Exit1: TMenuItem;
     ToolButton1: TToolButton;
     StatusBar: TStatusBar;
-    GLSceneViewer: TGLSceneViewerLCL;
+    GLSceneViewer: TGLSceneViewer;
     GLScene: TGLScene;
     MIOptions: TMenuItem;
     MIAntiAlias: TMenuItem;
@@ -195,7 +195,7 @@ implementation
 
 {$R *.dfm}
 
-uses GLColor, GLKeyBoard, GLGraphics, Registry, GLPersistentClasses, MeshUtils,
+uses GLColor, GLKeyBoard, GLGraphics, Registry, GLPersistentClasses, glmeshutils,
    GLFileOBJ, GLFileSTL, GLFileLWO, GLFileQ3BSP,  GLFileMS3D,
    GLFileNMF, GLFileMD3, GLFile3DS, GLFileMD2, GLFileSMD, GLFileTIN,
    GLFilePLY, GLFileGTS, GLFileVRML, GLFileMD5, GLMeshOptimizer, GLState,
@@ -379,23 +379,23 @@ begin
       if ACShadeSmooth.Checked then begin
          GLSceneViewer.Buffer.Lighting:=True;
          GLSceneViewer.Buffer.ShadeModel:=smSmooth;
-         aMaterial.FrontProperties.PolygonMode:=pmFill;
+         aMaterial.PolygonMode:=pmFill;
       end else if ACFlatShading.Checked then begin
          GLSceneViewer.Buffer.Lighting:=True;
          GLSceneViewer.Buffer.ShadeModel:=smFlat;
-         aMaterial.FrontProperties.PolygonMode:=pmFill;
+         aMaterial.PolygonMode:=pmFill;
       end else if ACFlatLined.Checked then begin
          GLSceneViewer.Buffer.Lighting:=True;
          GLSceneViewer.Buffer.ShadeModel:=smFlat;
-         aMaterial.FrontProperties.PolygonMode:=pmLines;
+         aMaterial.PolygonMode:=pmLines;
       end else if ACHiddenLines.Checked then begin
          GLSceneViewer.Buffer.Lighting:=False;
          GLSceneViewer.Buffer.ShadeModel:=smSmooth;
-         aMaterial.FrontProperties.PolygonMode:=pmLines;
+         aMaterial.PolygonMode:=pmLines;
       end else if ACWireframe.Checked then begin
          GLSceneViewer.Buffer.Lighting:=False;
          GLSceneViewer.Buffer.ShadeModel:=smSmooth;
-         aMaterial.FrontProperties.PolygonMode:=pmLines;
+         aMaterial.PolygonMode:=pmLines;
       end;
    end;
 end;

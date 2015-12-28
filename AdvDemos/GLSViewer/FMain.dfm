@@ -1,7 +1,7 @@
 object Main: TMain
-  Left = 331
+  Left = 348
   Height = 479
-  Top = 207
+  Top = 215
   Width = 588
   Caption = 'Main'
   ClientHeight = 458
@@ -1392,18 +1392,17 @@ object Main: TMain
           0000000000000000000000000000803F
         }
         Material.BackProperties.Diffuse.Color = {
-          0C026B3F0C026B3F0000803F0000803F
+          EBEA6A3FEBEA6A3F0000803F0000803F
         }
-        Material.BackProperties.PolygonMode = pmLines
         Material.FrontProperties.Ambient.Color = {
           0000000000000000000000000000803F
         }
         Material.FrontProperties.Diffuse.Color = {
-          0C026B3F0C026B3F0000803F0000803F
+          EBEA6A3FEBEA6A3F0000803F0000803F
         }
-        Material.FrontProperties.PolygonMode = pmLines
         Material.MaterialOptions = [moNoLighting]
         Material.FaceCulling = fcNoCull
+        Material.PolygonMode = pmLines
         PitchAngle = 0
         RollAngle = 0
         TurnAngle = 0

@@ -6,6 +6,8 @@
  Handles all the material + material library stuff.<p>
 
  <b>History : </b><font size=-1><ul>
+      <li>07/05/10 - Yar - Fixed TGLMaterial.Assign (BugTracker ID = 2998153)
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>06/03/10 - Yar - Added to TGLDepthProperties DepthClamp property
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>21/02/10 - Yar - Added TGLDepthProperties,
@@ -215,7 +217,6 @@ type
   private
     { Private Declarations }
     FAmbient, FDiffuse, FSpecular, FEmission: TGLColor;
-    FPolygonMode: TPolygonMode;
     FShininess: TShininess;
 
   protected
@@ -224,7 +225,6 @@ type
     procedure SetDiffuse(AValue: TGLColor);
     procedure SetEmission(AValue: TGLColor);
     procedure SetSpecular(AValue: TGLColor);
-    procedure SetPolygonMode(AValue: TPolygonMode);
     procedure SetShininess(AValue: TShininess);
 
   public
@@ -243,8 +243,6 @@ type
     property Diffuse: TGLColor read FDiffuse write SetDiffuse;
     property Emission: TGLColor read FEmission write SetEmission;
     property Shininess: TShininess read FShininess write SetShininess default 0;
-    property PolygonMode: TPolygonMode read FPolygonMode write SetPolygonMode
-      default pmFill;
     property Specular: TGLColor read FSpecular write SetSpecular;
   end;
 
@@ -402,6 +400,7 @@ type
     FLibMaterialName: TGLLibMaterialName;
     FMaterialOptions: TMaterialOptions;
     FFaceCulling: TFaceCulling;
+    FPolygonMode: TPolygonMode;
     currentLibMaterial: TGLLibMaterial;
 
     // Implementing IGLMaterialLibrarySupported.
@@ -419,6 +418,7 @@ type
     procedure SetMaterialLibrary(const val: TGLMaterialLibrary);
     procedure SetLibMaterialName(const val: TGLLibMaterialName);
     procedure SetFaceCulling(const val: TFaceCulling);
+    procedure SetPolygonMode(AValue: TPolygonMode);
     function GetTextureEx: TGLTextureEx;
     procedure SetTextureEx(const value: TGLTextureEx);
     function StoreTextureEx: Boolean;
@@ -493,6 +493,8 @@ type
       SetLibMaterialName;
     property TextureEx: TGLTextureEx read GetTextureEx write SetTextureEx stored
       StoreTextureEx;
+    property PolygonMode: TPolygonMode read FPolygonMode write SetPolygonMode
+      default pmFill;
   end;
 
   // TGLLibMaterial
@@ -757,17 +759,6 @@ implementation
 
 uses SysUtils, GLStrings, XOpenGL, ApplicationFileIO, GLGraphics;
 
-//const
-//  cTGlAlphaFuncValues: array[TGlAlphaFunc] of TGLEnum =
-//    (GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL,
-//    GL_ALWAYS);
-//
-//  cTGLBlendFuncFactorValues: array[TGLBlendFuncFactor] of TGLEnum =
-//    (GL_ZERO, GL_ONE, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_SRC_ALPHA,
-//    GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA,
-//    GL_SRC_ALPHA_SATURATE, GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR,
-//    GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-
   // ------------------
   // ------------------ TGLFaceProperties ------------------
   // ------------------
@@ -804,9 +795,11 @@ end;
 procedure TGLFaceProperties.Apply(var rci: TRenderContextInfo;
   aFace: TCullFaceMode);
 begin
-  rci.GLStates.SetGLMaterialColors(aFace,
+  with rci.GLStates do
+  begin
+    SetGLMaterialColors(aFace,
     Emission.Color, Ambient.Color, Diffuse.Color, Specular.Color, FShininess);
-  rci.GLStates.SetGLPolygonMode(aFace, FPolygonMode);
+  end;
 end;
 
 // ApplyNoLighting
@@ -816,7 +809,6 @@ procedure TGLFaceProperties.ApplyNoLighting(var rci: TRenderContextInfo;
   aFace: TCullFaceMode);
 begin
   glColor4fv(@Diffuse.Color);
-  rci.GLStates.SetGLPolygonMode(aFace, FPolygonMode);
 end;
 
 // Assign
@@ -831,7 +823,6 @@ begin
     FEmission.DirectColor := TGLFaceProperties(Source).Emission.Color;
     FSpecular.DirectColor := TGLFaceProperties(Source).Specular.Color;
     FShininess := TGLFaceProperties(Source).Shininess;
-    FPolygonMode := TGLFaceProperties(Source).PolygonMode;
     NotifyChange(Self);
   end;
 end;
@@ -872,18 +863,6 @@ begin
   NotifyChange(Self);
 end;
 
-// SetPolygonMode
-//
-
-procedure TGLFaceProperties.SetPolygonMode(AValue: TPolygonMode);
-begin
-  if AValue <> FPolygonMode then
-  begin
-    FPolygonMode := AValue;
-    NotifyChange(Self);
-  end;
-end;
-
 // SetShininess
 //
 
@@ -913,18 +892,21 @@ end;
 
 procedure TGLDepthProperties.Apply(var rci: TRenderContextInfo);
 begin
-  if FDepthTest and rci.bufferDepthTest then
-    rci.GLStates.Enable(stDepthTest)
-  else
-    rci.GLStates.Disable(stDepthTest);
-  rci.GLStates.DepthWriteMask := FDepthWrite;
-  rci.GLStates.DepthFunc := FCompareFunc;
-  rci.GLStates.SetDepthRange(FZNear, FZFar);
-  if GL_ARB_depth_clamp then
-    if FDepthClamp then
-      rci.GLStates.Enable(stDepthClamp)
+  with rci.GLStates do
+  begin
+    if FDepthTest and rci.bufferDepthTest then
+      Enable(stDepthTest)
     else
-      rci.GLStates.Disable(stDepthClamp);
+      Disable(stDepthTest);
+    DepthWriteMask := FDepthWrite;
+    DepthFunc := FCompareFunc;
+    SetDepthRange(FZNear, FZFar);
+    if GL_ARB_depth_clamp then
+      if FDepthClamp then
+        Enable(stDepthClamp)
+      else
+        Disable(stDepthClamp);
+  end;
 end;
 
 procedure TGLDepthProperties.Assign(Source: TPersistent);
@@ -1118,7 +1100,7 @@ end;
 // FinalizeShader
 //
 
-procedure TGLShader.FinalizeShader;
+ procedure TGLShader.FinalizeShader;
 var
   activateContext: Boolean;
 begin
@@ -1312,6 +1294,7 @@ begin
   FFrontProperties := TGLFaceProperties.Create(Self);
   FTexture := nil; // AutoCreate
   FFaceCulling := fcBufferDefault;
+  FPolygonMode := pmFill;
   FBlendingParams := TGLBlendingParameters.Create(Self);
   FDepthProperties := TGLDepthProperties.Create(Self)
 end;
@@ -1574,7 +1557,13 @@ begin
   if Assigned(currentLibMaterial) then
     currentLibMaterial.Apply(rci)
   else
+  with rci.GLStates do
   begin
+    Disable(stColorMaterial);
+    PolygonMode := FPolygonMode;
+    if FPolygonMode = pmLines then
+      Disable(stLineStipple);
+
     // Lighting switch
     if (moNoLighting in MaterialOptions) or not rci.bufferLighting then
     begin
@@ -1710,6 +1699,7 @@ begin
     else
       FreeAndNil(FGLBackProperties);
     FFrontProperties.Assign(TGLMaterial(Source).FFrontProperties);
+    FPolygonMode := TGLMaterial(Source).FPolygonMode;
     FBlendingMode := TGLMaterial(Source).FBlendingMode;
     FMaterialOptions := TGLMaterial(Source).FMaterialOptions;
     if Assigned(TGLMaterial(Source).FTexture) then
@@ -1841,6 +1831,18 @@ begin
   end;
 end;
 
+// SetPolygonMode
+//
+
+procedure TGLMaterial.SetPolygonMode(AValue: TPolygonMode);
+begin
+  if AValue <> FPolygonMode then
+  begin
+    FPolygonMode := AValue;
+    NotifyChange(Self);
+  end;
+end;
+
 // ------------------
 // ------------------ TGLLibMaterial ------------------
 // ------------------
@@ -1907,8 +1909,8 @@ end;
 // QueryInterface
 //
 
-function TGLLibMaterial.QueryInterface(
-  {$IFDEF FPC_HAS_CONSTREF}constref{$ELSE}const{$ENDIF} iid : tguid;out obj) : longint;{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF};
+function TGLLibMaterial.QueryInterface(constref iid: tguid; out obj): longint;
+  cdecl;
 begin
   if GetInterface(IID, Obj) then
     Result := S_OK
@@ -1919,7 +1921,7 @@ end;
 // _AddRef
 //
 
-function TGLLibMaterial._AddRef: Integer; {$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF};
+function TGLLibMaterial._AddRef: longint; cdecl;
 begin
   Result := -1; //ignore
 end;
@@ -1927,7 +1929,7 @@ end;
 // _Release
 //
 
-function TGLLibMaterial._Release: Integer;  {$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF};
+function TGLLibMaterial._Release: longint; cdecl;
 begin
   Result := -1; //ignore
 end;
@@ -2001,8 +2003,7 @@ begin
   if not multitextured then
   begin
     // no multitexturing ("standard" mode)
-    if not Material.Texture.Disabled then
-      if not FTextureMatrixIsIdentity then
+    if not FTextureMatrixIsIdentity then
         rci.GLStates.SetGLTextureMatrix(FTextureMatrix);
     Material.Apply(rci);
   end
@@ -2096,7 +2097,7 @@ end;
 // UnregisterUser
 //
 
-procedure TGLLibMaterial.UnRegisterUser(obj: TGLUpdateAbleObject);
+procedure TGLLibMaterial.UnregisterUser(obj: TGLUpdateAbleObject);
 begin
   userList.Remove(obj);
 end;
@@ -2113,7 +2114,7 @@ end;
 // UnregisterUser
 //
 
-procedure TGLLibMaterial.UnRegisterUser(comp: TGLUpdateAbleComponent);
+procedure TGLLibMaterial.UnregisterUser(comp: TGLUpdateAbleComponent);
 begin
   userList.Remove(comp);
 end;
@@ -2130,7 +2131,7 @@ end;
 // UnregisterUser
 //
 
-procedure TGLLibMaterial.UnRegisterUser(libMaterial: TGLLibMaterial);
+procedure TGLLibMaterial.UnregisterUser(libMaterial: TGLLibMaterial);
 begin
   userList.Remove(libMaterial);
 end;
@@ -2839,7 +2840,7 @@ begin
       with libMat.Material.FrontProperties do
       begin
         Write(FShininess, 1);
-        WriteInteger(Integer(PolygonMode));
+        WriteInteger(Integer(libMat.Material.PolygonMode));
       end;
       with libMat.Material.BackProperties do
       begin
@@ -2848,7 +2849,7 @@ begin
         Write(Emission.AsAddress^, SizeOf(Single) * 3);
         Write(Specular.AsAddress^, SizeOf(Single) * 3);
         Write(Byte(FShininess), 1);
-        WriteInteger(Integer(PolygonMode));
+        WriteInteger(Integer(libMat.Material.PolygonMode));
       end;
       WriteInteger(Integer(libMat.Material.BlendingMode));
 
@@ -3016,7 +3017,7 @@ begin
           with libMat.Material.FrontProperties do
           begin
             Read(FShininess, 1);
-            PolygonMode := TPolygonMode(ReadInteger);
+            libMat.Material.PolygonMode := TPolygonMode(ReadInteger);
           end;
           with libMat.Material.BackProperties do
           begin
@@ -3025,7 +3026,7 @@ begin
             Read(Emission.AsAddress^, SizeOf(Single) * 3);
             Read(Specular.AsAddress^, SizeOf(Single) * 3);
             Read(FShininess, 1);
-            PolygonMode := TPolygonMode(ReadInteger);
+            {: PolygonMode := TPolygonMode(} ReadInteger;
           end;
           libMat.Material.BlendingMode := TBlendingMode(ReadInteger);
 

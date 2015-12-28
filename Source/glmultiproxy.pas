@@ -13,7 +13,7 @@ unit GLMultiProxy;
 interface
 
 uses Classes, GLScene, GLVectorGeometry, GLSilhouette,
-     GLRenderContextInfo, GLBaseClasses;
+     GLRenderContextInfo, GLBaseClasses, GLVectorTypes;
 
 type
 
@@ -83,7 +83,7 @@ type
 	      property Items[index : Integer] : TGLMultiProxyMaster read GetItems write SetItems; default;
 
          procedure Notification(AComponent: TComponent);
-         
+
          procedure NotifyChange;
          procedure EndUpdate; override;
    end;
@@ -118,7 +118,7 @@ type
 	      procedure Assign(Source: TPersistent); override;
          procedure DoRender(var rci : TRenderContextInfo;
                             renderSelf, renderChildren : Boolean); override;
-                            
+
          function AxisAlignedDimensionsUnscaled : TVector; override;
          function RayCastIntersect(const rayStart, rayVector : TVector;
                                  intersectPoint : PVector = nil;
@@ -128,7 +128,7 @@ type
       published
          { Published Declarations }
          property MasterObjects : TGLMultiProxyMasters read FMasterObjects write SetMasterObjects;
-         
+
          property ObjectsSorting;
          property Direction;
          property PitchAngle;
@@ -348,7 +348,7 @@ end;
 constructor TGLMultiProxy.Create(AOwner: TComponent);
 begin
    inherited Create(AOwner);
-   ObjectStyle:=ObjectStyle+[osDoesTemperWithColorsOrFaceWinding, osDirectDraw];
+   ObjectStyle:=ObjectStyle+[osDirectDraw];
    FMasterObjects:=TGLMultiProxyMasters.Create(Self);
 end;
 

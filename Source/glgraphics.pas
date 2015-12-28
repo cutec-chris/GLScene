@@ -10,7 +10,18 @@
    (http://www.g32.org), just make sure the GLS_Graphics32_SUPPORT conditionnal
    is active in GLScene.inc and recompile.<p>
 
+   Note: TGLBitmap32 has support for Alex Denissov's Graphics32 library
+   (http://www.g32.org), just make sure the GLS_Graphics32_SUPPORT conditionnal
+   is active in GLScene.inc and recompile.<p>
+
+
  <b>Historique : </b><font size=-1><ul>
+      <li>20/06/10 - Yar - Added in TRasterFileFormatsList.FindFromStream JPG singnature
+      <li>14/06/10 - YP  - PngImage support added (thanks to Sergio Alexandre Gianezini)
+      <li>20/05/10 - Yar - Fixes for Linux x64
+                           Replace OpenGL1x functions to OpenGLAdapter
+      <li>22/04/10 - Yar - Fixes after GLState revision
+      <li>28/03/10 - Yar - Added glGenerateMipmap when used forward context
       <li>08/03/10 - Yar - Added in TRasterFileFormatsList.FindFromStream PNG singnature
                            Added forward context cheking to circumvent deprecations
       <li>01/03/10 - Yar - Bugfix when texture, which has lower mip-levels than the standard number is not rendered
@@ -31,7 +42,7 @@
                              remake RegisterAsOpenGLTexture
       <li>10/11/09 - DaStr - Updated TGLBitmap32.RegisterAsOpenGLTexture() - fixed
                                TextureFormat and ColorFormat (thanks YarUnderoaker)
-                             Improved FPC compatibility by merging from gls4laz
+                             Improved FPC compatibility
                               (BugtrackerID = 2893580) (thanks Predator)
       <li>24/03/07 - DaStr - Moved TGLMinFilter and TGLMagFilter from GLUtils.pas
                               to GLGraphics.pas (BugTracker ID = 1923844)
@@ -73,9 +84,16 @@ interface
 
 {$I GLScene.inc}
 
-uses Classes, GLPersistentClasses, Graphics, ApplicationFileIO, SysUtils,
+uses
+{$IFDEF MSWINDOWS}
+  Windows,
+{$ENDIF}
+  Classes, GLPersistentClasses, Graphics, ApplicationFileIO, SysUtils,
 {$IFDEF GLS_Graphics32_SUPPORT}
   GR32,
+{$ENDIF}
+{$IFDEF GLS_PngImage_SUPPORT}
+  PngImage,
 {$ENDIF}
 {$IFDEF FPC}
   fpimage, intfgraphics, GraphType,
@@ -129,10 +147,10 @@ type
     destructor Destroy; override;
     {: Assigns from any Texture.}
     procedure AssignFromTexture(textureContext: TGLContext;
-      const textureHandle: TGLenum;
-      textureTarget: TGLenum;
+      const textureHandle: TGLuint;
+      textureTarget: TGLTextureTarget;
       const CurrentFormat: Boolean;
-      const intFormat: TGLInternalFormat); virtual; abstract;
+      const intFormat: TGLInternalFormat); virtual;
 
     procedure Assign(Source: TPersistent); override;
     {: Convert vertical cross format of non compressed, non mipmaped image
@@ -197,6 +215,9 @@ type
 {$IFDEF GLS_Graphics32_SUPPORT}
     procedure AssignFromBitmap32(aBitmap32: TBitmap32);
 {$ENDIF}
+{$IFDEF GLS_PngImage_SUPPORT}
+    Procedure AssignFromPngImage(aPngImage: TPngImage);
+{$ENDIF}
 
   public
     { Public Declarations }
@@ -220,8 +241,8 @@ type
     procedure AssignFromTexture2D(textureHandle: TGLTextureHandle); overload;
     {: Assigns from any Texture.}
     procedure AssignFromTexture(textureContext: TGLContext;
-      const textureHandle: TGLenum;
-      textureTarget: TGLenum;
+      const textureHandle: TGLuint;
+      textureTarget: TGLTextureTarget;
       const CurrentFormat: Boolean;
       const intFormat: TGLInternalFormat = tfRGBA8;
       const colorFormat: TGLenum = 0;
@@ -524,6 +545,8 @@ var
   ext: string;
   magic: array[0..1] of LongWord;
 begin
+  magic[0]:=0;
+  magic[1]:=1;
   AStream.ReadBuffer(magic, 2*SizeOf(Longword));
   AStream.Seek(-2*SizeOf(Longword), 1);
 
@@ -534,7 +557,9 @@ begin
   else if (magic[0] and $0000FFFF)=$00003F23 then
     ext := 'HDR'
   else if (magic[0] = $474E5089) and (magic[1] = $0A1A0A0D) then
-    ext := 'PNG';
+    ext := 'PNG'
+  else if (magic[0] = $E0FFD8FF) and (magic[1] = $464A1000) then
+    ext := 'JPG';
 
   Result := FindExt(ext);
   if not Assigned(Result) then
@@ -665,12 +690,11 @@ end;
 
 procedure GammaCorrectRGBArray(base: Pointer; pixelCount: Integer;
   gamma: Single);
-type
-  PByte = ^Byte;
 var
   vGammaLUT: array[0..255] of Byte;
   invGamma: Single;
-   i : PtrUInt;
+  i : Integer;
+  ptr: PByte;
 begin
   if pixelCount < 1 then
     Exit;
@@ -683,8 +707,12 @@ begin
   for i := 0 to 255 do
     vGammaLUT[i] := Round(255 * Power(i * (1 / 255), InvGamma));
   // perform correction
-  for i := PtrUInt(base) to PtrUInt(base) + longword(pixelCount * 3 - 1) do
-    PByte(i)^ := vGammaLUT[PByte(i)^];
+  ptr := base;
+  for i := 0 to pixelCount * 3 - 1 do
+  begin
+    ptr^ := vGammaLUT[ptr^];
+    Inc(ptr);
+  end;
 end;
 
 // GammaCorrectRGBAArray
@@ -692,13 +720,12 @@ end;
 
 procedure GammaCorrectRGBAArray(base: Pointer; pixelCount: Integer;
   gamma: Single);
-type
-  PByte = ^Byte;
 var
   vGammaLUT: array[0..255] of Byte;
   pLUT: PByteArray;
   invGamma: Single;
-   i, n : PtrUInt;
+  i: Integer;
+  ptr : PByte;
 begin
   if pixelCount < 1 then
     Exit;
@@ -711,17 +738,16 @@ begin
   for i := 0 to 255 do
     vGammaLUT[i] := Round(255 * Power(i * (1 / 255), InvGamma));
   // perform correction
-  n := PtrUInt(base) + longword(pixelCount * 4);
-  i := PtrUInt(base);
+  ptr := base;
   pLUT := @vGammaLUT[0];
-  while i < n do
+  for i := 0 to pixelCount - 1 do
   begin
-    PByte(i)^ := pLUT^[PByte(i)^];
-    Inc(i);
-    PByte(i)^ := pLUT^[PByte(i)^];
-    Inc(i);
-    PByte(i)^ := pLUT^[PByte(i)^];
-    Inc(i, 2);
+    ptr^ := pLUT^[ptr^];
+    Inc(ptr);
+    ptr^ := pLUT^[ptr^];
+    Inc(ptr);
+    ptr^ := pLUT^[ptr^];
+    Inc(ptr, 2);
   end;
 end;
 
@@ -730,12 +756,10 @@ end;
 
 procedure BrightenRGBArray(base: Pointer; pixelCount: Integer;
   factor: Single);
-type
-  PByte = ^Byte;
 var
   vBrightnessLUT: array[0..255] of Byte;
-   i : PtrUint;
-   k : Integer;
+  i, k : Integer;
+  ptr: PByte;
 begin
   if pixelCount < 1 then
     Exit;
@@ -749,8 +773,12 @@ begin
     vBrightnessLUT[i] := Byte(k);
   end;
   // perform correction
-  for i := PtrUInt(base) to PtrUInt(base) + longword(pixelCount * 3 - 1) do
-    PByte(i)^ := vBrightnessLUT[PByte(i)^];
+  ptr := base;
+  for i := 0 to pixelCount * 3 - 1 do
+  begin
+    ptr^ := vBrightnessLUT[ptr^];
+    Inc(ptr);
+  end;
 end;
 
 // BrightenRGBAArray
@@ -758,12 +786,11 @@ end;
 
 procedure BrightenRGBAArray(base: Pointer; pixelCount: Integer;
   factor: Single);
-type
-  PByte = ^Byte;
 var
   vBrightnessLUT: array[0..255] of Byte;
   pLUT: PByteArray;
-  i, n : PtrUInt;
+  i: Integer;
+  ptr : PByte;
   k : Integer;
 begin
   if pixelCount < 1 then
@@ -778,17 +805,16 @@ begin
     vBrightnessLUT[i] := k;
   end;
   // perform correction
-  n := PtrUInt(base) + longword(pixelCount * 4);
-  i := PtrUInt(base);
+  ptr := base;
   pLUT := @vBrightnessLUT[0];
-  while i < n do
+  for i := 0 to pixelCount - 1 do
   begin
-    PByte(i)^ := pLUT^[PByte(i)^];
-    Inc(i);
-    PByte(i)^ := pLUT^[PByte(i)^];
-    Inc(i);
-    PByte(i)^ := pLUT^[PByte(i)^];
-    Inc(i, 2);
+    ptr^ := pLUT^[ptr^];
+    Inc(ptr);
+    ptr^ := pLUT^[ptr^];
+    Inc(ptr);
+    ptr^ := pLUT^[ptr^];
+    Inc(ptr, 2);
   end;
 end;
 
@@ -802,15 +828,16 @@ begin
     PAnsiChar(dest)[0] := PAnsiChar(src)[2];
     PAnsiChar(dest)[1] := PAnsiChar(src)[1];
     PAnsiChar(dest)[2] := PAnsiChar(src)[0];
-    dest := Pointer(PtrUInt(dest) + 3);
-    src := Pointer(PtrUInt(src) + 3);
+    Inc(PAnsiChar(dest), 3);
+    Inc(PAnsiChar(src), 3);
     Dec(pixelCount);
   end;
 end;
 
 // BGR24ToRGBA32
 //
-{$ifNdef NO_ASM}
+{$IFNDEF GEOMETRY_NO_ASM}
+
 procedure BGR24ToRGBA32(src, dest: Pointer; pixelCount: Integer); register;
 // EAX stores src
 // EDX stores dest
@@ -854,8 +881,8 @@ begin
     PAnsiChar(dest)[1] := PAnsiChar(src)[1];
     PAnsiChar(dest)[2] := PAnsiChar(src)[0];
     PAnsiChar(dest)[3] := #255;
-    dest := Pointer(PtrUInt(dest) + 4);
-    src := Pointer(PtrUInt(src) + 3);
+    Inc(PAnsiChar(dest), 4);
+    Inc(PAnsiChar(src), 3);
     Dec(pixelCount);
   end;
 end;
@@ -863,7 +890,8 @@ end;
 
 // RGB24ToRGBA32
 //
-{$ifNdef NO_ASM}
+{$IFNDEF GEOMETRY_NO_ASM}
+
 procedure RGB24ToRGBA32(src, dest: Pointer; pixelCount: Integer); register;
 // EAX stores src
 // EDX stores dest
@@ -902,8 +930,8 @@ begin
     PAnsiChar(dest)[1] := PAnsiChar(src)[1];
     PAnsiChar(dest)[2] := PAnsiChar(src)[2];
     PAnsiChar(dest)[3] := #255;
-    dest := Pointer(PtrUInt(dest) + 4);
-    src := Pointer(PtrUInt(src) + 3);
+    Inc(PAnsiChar(dest), 4);
+    Inc(PAnsiChar(src), 3);
     Dec(pixelCount);
   end;
 end;
@@ -911,7 +939,8 @@ end;
 
 // BGRA32ToRGBA32
 //
-{$ifNdef NO_ASM}
+{$IFNDEF GEOMETRY_NO_ASM}
+
 procedure BGRA32ToRGBA32(src, dest: Pointer; pixelCount: Integer); register;
 // EAX stores src
 // EDX stores dest
@@ -944,8 +973,8 @@ begin
     PAnsiChar(dest)[1] := PAnsiChar(src)[1];
     PAnsiChar(dest)[2] := PAnsiChar(src)[0];
     PAnsiChar(dest)[3] := PAnsiChar(src)[3];
-    dest := Pointer(PtrUInt(dest) + 4);
-    src := Pointer(PtrUInt(src) + 4);
+    Inc(PAnsiChar(dest), 4);
+    Inc(PAnsiChar(src), 4);
     Dec(pixelCount);
   end;
 end;
@@ -1054,10 +1083,7 @@ begin
   size := bw * bh * d * fElementSize;
   // Align to Double Word
   if (size and 3) <> 0 then
-  begin
-    size := size and MaxInt - 3;
-    Inc(size, 4);
-  end;
+    size := 4*(1+size div 4);
   Result := size;
 end;
 
@@ -1092,8 +1118,7 @@ begin
   Assert((face >= 0) and (face < 6));
   // Add level offset
   if (face * fMipLevels + level) < fLevels.Count then
-    Result := PGLPixel32Array(PtrUInt(Result) + PtrUInt(fLevels.Items[face *
-      fMipLevels + level]));
+    Inc(PByte(Result), PtrUInt(fLevels.Items[face * fMipLevels + level]));
 end;
 
 // IsEmpty
@@ -1127,7 +1152,7 @@ function TGLBaseImage.ConvertCrossToCubemap: boolean;
 var
   fW, fH, pW, pH: integer;
   lData: PByteArray;
-  ptr: PGLubyte;
+  ptr, lvl: PGLubyte;
   i, j: integer;
 begin
   Result := false;
@@ -1161,7 +1186,9 @@ begin
   // Extract the faces
   ptr := PGLubyte(fData);
   // positive X
-  fLevels.Add(Pointer(PtrInt(ptr) - PtrInt(fData)));
+  lvl := ptr;
+  Dec(lvl, PtrUInt(fData));
+  fLevels.Add(lvl);
   for j := 0 to pH - 1 do
   begin
     Move(lData[((fH - (pH + j + 1)) * fW + 2 * pW) * fElementSize],
@@ -1169,7 +1196,9 @@ begin
     Inc(ptr, pW * fElementSize);
   end;
   // negative X
-  fLevels.Add(Pointer(PtrInt(ptr) - PtrInt(fData)));
+  lvl := ptr;
+  Dec(lvl, PtrUInt(fData));
+  fLevels.Add(lvl);
   for j := 0 to pH - 1 do
   begin
     Move(lData[(fH - (pH + j + 1)) * fW * fElementSize],
@@ -1177,7 +1206,9 @@ begin
     Inc(ptr, pW * fElementSize);
   end;
   // positive Y
-  fLevels.Add(Pointer(PtrInt(ptr) - PtrInt(fData)));
+  lvl := ptr;
+  Dec(lvl, PtrUInt(fData));
+  fLevels.Add(lvl);
   for j := 0 to pH - 1 do
   begin
     Move(lData[((4 * pH - j - 1) * fW + pW) * fElementSize],
@@ -1185,7 +1216,9 @@ begin
     Inc(ptr, pW * fElementSize);
   end;
   // negative Y
-  fLevels.Add(Pointer(PtrInt(ptr) - PtrInt(fData)));
+  lvl := ptr;
+  Dec(lvl, PtrUInt(fData));
+  fLevels.Add(lvl);
   for j := 0 to pH - 1 do
   begin
     Move(lData[((2 * pH - j - 1) * fW + pW) * fElementSize],
@@ -1193,7 +1226,9 @@ begin
     Inc(ptr, pW * fElementSize);
   end;
   // positive Z
-  fLevels.Add(Pointer(PtrInt(ptr) - PtrInt(fData)));
+  lvl := ptr;
+  Dec(lvl, PtrUInt(fData));
+  fLevels.Add(lvl);
   for j := 0 to pH - 1 do
   begin
     Move(lData[((fH - (pH + j + 1)) * fW + pW) * fElementSize],
@@ -1201,7 +1236,9 @@ begin
     Inc(ptr, pW * fElementSize);
   end;
   // negative Z
-  fLevels.Add(Pointer(PtrInt(ptr) - PtrInt(fData)));
+  lvl := ptr;
+  Dec(lvl, PtrUInt(fData));
+  fLevels.Add(lvl);
   for j := 0 to pH - 1 do
     for i := 0 to pW - 1 do
     begin
@@ -1303,6 +1340,9 @@ end;
 //
 
 procedure TGLBaseImage.Narrow;
+var
+  size: integer;
+  tempTex: GLuint;
 begin
   // Check for already norrow
   if (fColorFormat = GL_RGBA)
@@ -1313,14 +1353,47 @@ begin
     Exit;
 
   UnMipmap;
-    fDepth := 0;
-    fColorFormat := GL_RGBA;
-    fInternalFormat := tfRGBA8;
-    fDataType := GL_UNSIGNED_BYTE;
-    fElementSize := 4;
-    fCubeMap := false;
-    fTextureArray := false;
-    ReallocMem(fData, DataSize);
+  if CurrentGLContext <> nil then
+  begin
+    GL.PushAttrib(GL_TEXTURE_BIT);
+    GL.GenTextures(1, @tempTex);
+
+    if IsFormatSupported(fInternalFormat) then
+    begin
+      // Setup texture
+      GL.Enable(GL_TEXTURE_2D);
+      GL.BindTexture(GL_TEXTURE_2D, tempTex);
+      // copy texture to video memory
+      if IsCompressedFormat(fInternalFormat) then
+      begin
+        size := ((fWidth + 3) div 4) * ((fHeight + 3) div 4) * fElementSize;
+        GL.CompressedTexImage2D(
+          GL_TEXTURE_2D, 0,
+          InternalFormatToOpenGLFormat(fInternalFormat),
+          fWidth, fHeight, 0, size, fData);
+      end
+      else
+        GL.TexImage2D(
+          GL_TEXTURE_2D,
+          0,
+          InternalFormatToOpenGLFormat(fInternalFormat),
+          fWidth, fHeight, 0, fColorFormat, fDataType, fData);
+
+      fDepth := 0;
+      fColorFormat := GL_RGBA;
+      fInternalFormat := tfRGBA8;
+      fDataType := GL_UNSIGNED_BYTE;
+      fElementSize := 4;
+      fCubeMap := false;
+      fTextureArray := false;
+      ReallocMem(fData, DataSize);
+
+      // get texture from video memory in simple format
+      GL.GetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, fData);
+      GL.DeleteTextures(1, @tempTex);
+      GL.PopAttrib;
+    end;
+  end;
 end;
 
 // UnMipmap
@@ -1335,6 +1408,17 @@ end;
 function TGLBaseImage.GetData: PGLPixel32Array;
 begin
   Result := fData;
+end;
+
+// AssignFromTexture
+//
+
+procedure TGLBaseImage.AssignFromTexture(textureContext: TGLContext;
+  const textureHandle: TGLuint;
+  textureTarget: TGLTextureTarget;
+  const CurrentFormat: Boolean;
+  const intFormat: TGLInternalFormat);
+begin
 end;
 
 {$IFDEF GLS_COMPILER_2005_UP}{$ENDREGION}{$ENDIF}
@@ -1379,36 +1463,38 @@ begin
   else if (Source is TGLBitmap32) or (Source is TGLBaseImage) then
   begin
     // duplicate the data
-    if (Source is TGLBitmap32) then
+    if Source is TGLBitmap32 then
       FBlank := TGLBitmap32(Source).fBlank
     else
       FBlank := false;
-    FWidth := (Source as TGLBaseImage).fWidth;
-    FHeight := (Source as TGLBaseImage).fHeight;
-    FDepth := (Source as TGLBaseImage).fDepth;
-    fMipLevels := (Source as TGLBaseImage).fMipLevels;
-    fCubeMap := (Source as TGLBaseImage).fCubeMap;
-    fColorFormat := (Source as TGLBaseImage).fColorFormat;
-    fInternalFormat := (Source as TGLBaseImage).fInternalFormat;
-    fDataType := (Source as TGLBaseImage).fDataType;
-    fElementSize := (Source as TGLBaseImage).fElementSize;
+    FWidth := TGLBitmap32(Source).fWidth;
+    FHeight := TGLBitmap32(Source).fHeight;
+    FDepth := TGLBitmap32(Source).fDepth;
+    fMipLevels := TGLBitmap32(Source).fMipLevels;
+    fCubeMap := TGLBitmap32(Source).fCubeMap;
+    fColorFormat := TGLBitmap32(Source).fColorFormat;
+    fInternalFormat := TGLBitmap32(Source).fInternalFormat;
+    fDataType := TGLBitmap32(Source).fDataType;
+    fElementSize := TGLBitmap32(Source).fElementSize;
     fLevels.Clear;
-    fLevels.Assign((Source as TGLBaseImage).fLevels);
-    fTextureArray := (Source as TGLBaseImage).fTextureArray;
-    ResourceName := (Source as TGLBaseImage).ResourceName;
-
+    fLevels.Assign(TGLBitmap32(Source).fLevels);
+    fTextureArray := TGLBitmap32(Source).fTextureArray;
     if not FBlank then
     begin
       ReallocMem(FData, DataSize);
       Move(TGLBaseImage(Source).Data^, Data^, DataSize);
     end;
+    inherited; // TDataFile Assign
   end
   else if Source is TGLGraphic then
   begin
     if (Source is TGLBitmap)
-         {$ifNdef FPC}  and  (TGLBitmap(Source).PixelFormat in [glpf24bit, glpf32bit]){$ENDIF}
-                        and ((TGLBitmap(Source).Width and 3)=0) then begin
-{$ifdef FPC}
+{$IFNDEF FPC}
+      and (TGLBitmap(Source).PixelFormat in [glpf24bit, glpf32bit])
+{$ENDIF}
+      and (((TGLBitmap(Source).Width and 3) = 0) or GL.EXT_bgra) then
+    begin
+{$IFDEF FPC}
       // in FPC this is pixel wize and reads all pixelFormats.
       AssignFrom24BitsBitmap(TGLBitmap(Source));
 {$ELSE}
@@ -1418,6 +1504,10 @@ begin
         AssignFrom32BitsBitmap(TGLBitmap(Source))
 {$ENDIF}
     end
+{$IFDEF GLS_PngImage_SUPPORT}
+    else if Source is TPngImage then
+      AssignFromPngImage(TPngImage(Source))
+{$ENDIF}
     else
     begin
       graphic := TGLGraphic(Source);
@@ -1431,11 +1521,11 @@ begin
         // bmp.Height:=graphic.Height;
         // crossbuilder: using setsize because setting width or height while
         // the other one is zero results in not setting with/hight
-        bmp.SetSize(graphic.Width,graphic.Height);
         bmp.PixelFormat := glpf24bit;
+        bmp.Height := graphic.Height;
         if (graphic.Width and 3) = 0 then
         begin
-          //bmp.Width:=graphic.Width;
+          bmp.Width := graphic.Width;
           bmp.Canvas.Draw(0, 0, graphic);
         end
         else
@@ -1528,8 +1618,8 @@ end;
 
 procedure TGLBitmap32.AssignFrom24BitsBitmap(aBitmap: TGLBitmap);
 var
-   y           : Integer;
-   rowOffset   : PtrInt;
+  y: Integer;
+  rowOffset: Int64;
   pSrc, pDest: PAnsiChar;
 begin
   Assert(aBitmap.PixelFormat = glpf24bit);
@@ -1537,7 +1627,7 @@ begin
   FHeight := aBitmap.Height;
   FDepth := 0;
   fMipLevels := 1;
-  if GL_EXT_bgra then
+  if GL.EXT_bgra then
   begin
     fColorFormat := GL_BGR;
     fElementSize := 3;
@@ -1559,7 +1649,7 @@ begin
     pDest := @PAnsiChar(FData)[Width * fElementSize * (Height - 1)];
     if Height = 1 then
     begin
-      if GL_EXT_bgra then
+      if GL.EXT_bgra then
       begin
         pSrc := BitmapScanLine(aBitmap, 0);
         Move(pSrc^, pDest^, Width*fElementSize);
@@ -1572,15 +1662,15 @@ begin
       if VerticalReverseOnAssignFromBitmap then
       begin
         pSrc := BitmapScanLine(aBitmap, Height - 1);
-        rowOffset := PtrInt(BitmapScanLine(aBitmap, Height - 2)) -
-          PtrInt(pSrc);
+        rowOffset := Integer(BitmapScanLine(aBitmap, Height - 2)) -
+          Integer(pSrc);
       end
       else
       begin
         pSrc := BitmapScanLine(aBitmap, 0);
-        rowOffset := PtrInt(BitmapScanLine(aBitmap, 1)) - PtrInt(pSrc);
+        rowOffset := Integer(BitmapScanLine(aBitmap, 1)) - Integer(pSrc);
       end;
-      if GL_EXT_bgra then
+      if GL.EXT_bgra then
       begin
         for y := 0 to Height - 1 do
         begin
@@ -1607,8 +1697,8 @@ end;
 
 procedure TGLBitmap32.AssignFromBitmap24WithoutRGBSwap(aBitmap: TGLBitmap);
 var
-   y           : Integer;
-   rowOffset   : PtrInt;
+  y: Integer;
+  rowOffset: Int64;
   pSrc, pDest: PAnsiChar;
 begin
   Assert(aBitmap.PixelFormat = glpf24bit);
@@ -1638,12 +1728,14 @@ begin
       if VerticalReverseOnAssignFromBitmap then
       begin
         pSrc := BitmapScanLine(aBitmap, Height - 1);
-        rowOffset := PtrInt(BitmapScanLine(aBitmap, Height - 2)) - PtrInt(pSrc);
+        rowOffset := PtrUInt(BitmapScanLine(aBitmap, Height - 2));
+        Dec(rowOffset, PtrUInt(pSrc));
       end
       else
       begin
         pSrc := BitmapScanLine(aBitmap, 0);
-        rowOffset := PtrInt(BitmapScanLine(aBitmap, 1)) - PtrInt(pSrc);
+        rowOffset := PtrUInt(BitmapScanLine(aBitmap, 1));
+        Dec(rowOffset, PtrUInt(pSrc));
       end;
       for y := 0 to Height - 1 do
       begin
@@ -1660,8 +1752,8 @@ end;
 
 procedure TGLBitmap32.AssignFrom32BitsBitmap(aBitmap: TGLBitmap);
 var
-   y           : Integer;
-   rowOffset   : PtrInt;
+  y: Integer;
+  rowOffset : Int64;
   pSrc, pDest: PAnsiChar;
 begin
   Assert(aBitmap.PixelFormat = glpf32bit);
@@ -1669,7 +1761,7 @@ begin
   FHeight := aBitmap.Height;
   FDepth := 0;
   fMipLevels := 1;
-  if GL_EXT_bgra then
+  if GL.EXT_bgra then
     fColorFormat := GL_BGRA
   else begin
     Assert((aBitmap.Width and 3) = 0);
@@ -1690,7 +1782,10 @@ begin
     begin
       pSrc := BitmapScanLine(aBitmap, Height - 1);
       if Height > 1 then
-        rowOffset := PtrInt(BitmapScanLine(aBitmap, Height - 2)) - PtrInt(pSrc)
+      begin
+        rowOffset := PtrUInt(BitmapScanLine(aBitmap, Height - 2));
+        Dec(rowOffset, PtrUInt(pSrc));
+      end
       else
         rowOffset := 0;
     end
@@ -1698,11 +1793,14 @@ begin
     begin
       pSrc := BitmapScanLine(aBitmap, 0);
       if Height > 1 then
-        rowOffset := PtrInt(BitmapScanLine(aBitmap, 1)) - PtrInt(pSrc)
+      begin
+        rowOffset := PtrUInt(BitmapScanLine(aBitmap, 1));
+        Dec(rowOffset, PtrUInt(pSrc));
+      end
       else
         rowOffset := 0;
     end;
-    if GL_EXT_bgra then
+    if GL.EXT_bgra then
     begin
       for y := 0 to Height - 1 do
       begin
@@ -1761,17 +1859,24 @@ begin
 end;
 {$ENDIF}
 
-// AssignFromTexture2D
-//
 
-procedure TGLBitmap32.AssignFromTexture2D(textureHandle: Cardinal);
+{$IFDEF GLS_PngImage_SUPPORT}
+// AlphaChannel Support
+
+procedure TGLBitmap32.AssignFromPngImage(aPngImage: TPngImage);
 var
-  oldTex: Cardinal;
+  i, j: Integer;
+  SourceScan: PRGBLine;
+  DestScan: PGLPixel32Array;
+  AlphaScan: pngimage.pByteArray;
+  Pixel: Integer;
 begin
-  glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, @oldTex);
-  glBindTexture(GL_TEXTURE_2D, textureHandle);
-  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, @FWidth);
-  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, @FHeight);
+{$IFDEF GLS_PngImage_RESIZENEAREST}
+  if (aPngImage.Width and 3) > 0 then
+    aPngImage.Resize((aPngImage.Width and $FFFC) + 4, aPngImage.Height);
+{$ENDIF}
+  FWidth := aPngImage.Width;
+  FHeight := aPngImage.Height;
   FDepth := 0;
   fMipLevels := 1;
   fColorFormat := GL_RGBA;
@@ -1782,9 +1887,76 @@ begin
   fCubeMap := false;
   fTextureArray := false;
   ReallocMem(FData, DataSize);
-  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, FData);
-  FBlank := false;
-  glBindTexture(GL_TEXTURE_2D, oldTex);
+  FBlank := False;
+  case aPngImage.Header.ColorType of
+    { Direct ScanLine (24 Bits) }
+    COLOR_RGB, COLOR_RGBALPHA: for j := 1 To aPngImage.Height do
+    begin
+        SourceScan := aPngImage.Scanline[aPngImage.Height - j];
+        AlphaScan := aPngImage.AlphaScanline[aPngImage.Height - j];
+        DestScan := ScanLine[Pred(j)];
+        for i := 0 To Pred(aPngImage.Width) do
+        begin
+          DestScan^[i].r := SourceScan^[i].rgbtRed;
+          DestScan^[i].g := SourceScan^[i].rgbtGreen;
+          DestScan^[i].b := SourceScan^[i].rgbtBlue;
+          if Assigned(AlphaScan) then
+            DestScan^[i].a := AlphaScan^[i]
+          else
+            DestScan^[i].a := $FF;
+        end;
+      end;
+  else
+    { Internal Decode TColor - Palette }
+    for j := 1 To aPngImage.Height do
+    begin
+      AlphaScan := aPngImage.AlphaScanline[aPngImage.Height - j];
+      DestScan := ScanLine[Pred(j)];
+      for i := 0 To Pred(aPngImage.Width) do
+      begin
+        Pixel := aPngImage.Pixels[i, aPngImage.Height - j];
+        DestScan^[i].r := Pixel and $FF;
+        DestScan^[i].g := (Pixel shr 8) and $FF;
+        DestScan^[i].b := (Pixel shr 16) and $FF;
+        if Assigned(AlphaScan) then
+          DestScan^[i].a := AlphaScan^[i]
+        else
+          DestScan^[i].a := $FF;
+      end;
+    end;
+  end;
+end;
+{$ENDIF}
+
+// AssignFromTexture2D
+//
+
+procedure TGLBitmap32.AssignFromTexture2D(textureHandle: Cardinal);
+var
+  oldTex: Cardinal;
+begin
+  with CurrentGLContext.GLStates do
+  begin
+    oldTex := TextureBinding[ActiveTexture, ttTexture2D];
+    TextureBinding[ActiveTexture, ttTexture2D] := textureHandle;
+
+    GL.GetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, @FWidth);
+    GL.GetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, @FHeight);
+    FDepth := 0;
+    fMipLevels := 1;
+    fColorFormat := GL_RGBA;
+    fInternalFormat := tfRGBA8;
+    fDataType := GL_UNSIGNED_BYTE;
+    fElementSize := 4;
+    fLevels.Clear;
+    fCubeMap := false;
+    fTextureArray := false;
+    ReallocMem(FData, DataSize);
+    GL.GetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, FData);
+    FBlank := false;
+
+    TextureBinding[ActiveTexture, ttTexture2D] := oldTex;
+  end;
 end;
 
 // AssignFromTexture2D
@@ -1839,8 +2011,8 @@ end;
 //
 
 procedure TGLBitmap32.AssignFromTexture(textureContext: TGLContext;
-  const textureHandle: TGLenum;
-  textureTarget: TGLenum;
+  const textureHandle: TGLuint;
+  textureTarget: TGLTextureTarget;
   const CurrentFormat: Boolean;
   const intFormat: TGLInternalFormat = tfRGBA8;
   const colorFormat: TGLenum = 0;
@@ -1848,12 +2020,13 @@ procedure TGLBitmap32.AssignFromTexture(textureContext: TGLContext;
 var
   oldContext: TGLContext;
   contextActivate: Boolean;
-  texFormat, texLod, texResident, optLod: Cardinal;
+  texFormat, texLod, optLod: Cardinal;
+  glTarget: TGLEnum;
   level, faceCount, face: Integer;
   lData: PGLubyte;
   residentFormat: TGLInternalFormat;
   bCompressed: Boolean;
-  vtcBuffer, top, bottom: PGLubyte;
+  vtcBuffer, top, bottom, ptr: PGLubyte;
   i, j, k: Integer;
   w, d, h, cw, ch: Integer;
 
@@ -1877,30 +2050,31 @@ begin
       oldContext.Deactivate;
     textureContext.Activate;
   end;
+  glTarget := DecodeGLTextureTarget(textureTarget);
 
   try
-    textureContext.GLStates.SetGLCurrentTexture(0, textureTarget, textureHandle);
+    textureContext.GLStates.TextureBinding[0, textureTarget] := textureHandle;
 
     fMipLevels := 0;
-    glGetTexParameteriv(textureTarget, GL_TEXTURE_MAX_LEVEL, @texLod);
-    if textureTarget = GL_TEXTURE_CUBE_MAP then
+    GL.GetTexParameteriv(glTarget, GL_TEXTURE_MAX_LEVEL, @texLod);
+    if glTarget = GL_TEXTURE_CUBE_MAP then
     begin
       fCubeMap := true;
       faceCount := 6;
-      textureTarget := GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+      glTarget := GL_TEXTURE_CUBE_MAP_POSITIVE_X;
     end
     else
     begin
       fCubeMap := false;
       faceCount := 1;
     end;
-    fTextureArray := (textureTarget = GL_TEXTURE_1D_ARRAY)
-      or (textureTarget = GL_TEXTURE_2D_ARRAY)
-      or (textureTarget = GL_TEXTURE_CUBE_MAP_ARRAY);
+    fTextureArray := (glTarget = GL_TEXTURE_1D_ARRAY)
+      or (glTarget = GL_TEXTURE_2D_ARRAY)
+      or (glTarget = GL_TEXTURE_CUBE_MAP_ARRAY);
 
     repeat
       // Check level existence
-      glGetTexLevelParameteriv(textureTarget, fMipLevels,
+      GL.GetTexLevelParameteriv(glTarget, fMipLevels,
         GL_TEXTURE_INTERNAL_FORMAT,
         @texFormat);
       if texFormat = 1 then
@@ -1908,14 +2082,14 @@ begin
       Inc(fMipLevels);
       if fMipLevels = 1 then
       begin
-        glGetTexLevelParameteriv(textureTarget, 0, GL_TEXTURE_WIDTH, @fWidth);
-        glGetTexLevelParameteriv(textureTarget, 0, GL_TEXTURE_HEIGHT,
+        GL.GetTexLevelParameteriv(glTarget, 0, GL_TEXTURE_WIDTH, @fWidth);
+        GL.GetTexLevelParameteriv(glTarget, 0, GL_TEXTURE_HEIGHT,
           @fHeight);
         fDepth := 0;
-        if (textureTarget = GL_TEXTURE_3D)
-          or (textureTarget = GL_TEXTURE_2D_ARRAY)
-          or (textureTarget = GL_TEXTURE_CUBE_MAP_ARRAY) then
-          glGetTexLevelParameteriv(textureTarget, 0, GL_TEXTURE_DEPTH,
+        if (glTarget = GL_TEXTURE_3D)
+          or (glTarget = GL_TEXTURE_2D_ARRAY)
+          or (glTarget = GL_TEXTURE_CUBE_MAP_ARRAY) then
+          GL.GetTexLevelParameteriv(glTarget, 0, GL_TEXTURE_DEPTH,
             @fDepth);
         residentFormat := OpenGLFormatToInternalFormat(texFormat);
         if CurrentFormat then
@@ -1954,19 +2128,21 @@ begin
       for face := 0 to faceCount - 1 do
       begin
         if fCubeMap then
-          textureTarget := face + GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+          glTarget := face + GL_TEXTURE_CUBE_MAP_POSITIVE_X;
         for level := 0 to fMipLevels - 1 do
         begin
-          fLevels.Add(Pointer(PtrInt(lData) - PtrInt(fData)));
+          ptr := lData;
+          Dec(ptr, PtrUInt(fData));
+          fLevels.Add(ptr);
           if bCompressed then
           begin
 
-            if GL_NV_texture_compression_vtc and (d > 1) and not fTextureArray
+            if GL.NV_texture_compression_vtc and (d > 1) and not fTextureArray
               then
             begin
               if level = 0 then
                 GetMem(vtcBuffer, LevelSize(0));
-              glGetCompressedTexImage(textureTarget, level, vtcBuffer);
+              GL.GetCompressedTexImage(glTarget, level, vtcBuffer);
               // Shufle blocks from VTC to S3TC
               cw := (w + 3) div 4;
               ch := (h + 3) div 4;
@@ -1994,10 +2170,10 @@ begin
                 d := 1;
             end
             else
-              glGetCompressedTexImage(textureTarget, level, lData);
+              GL.GetCompressedTexImage(glTarget, level, lData);
           end
           else
-            glGetTexImage(textureTarget, level, fColorFormat, fDataType,
+            GL.GetTexImage(glTarget, level, fColorFormat, fDataType,
               lData);
 
           Inc(lData, LevelSize(level));
@@ -2016,7 +2192,7 @@ begin
       FreeMem(fData);
       fData := nil;
     end;
-    CheckOpenGLError;
+    GL.CheckError;
   finally
     if contextActivate then
     begin
@@ -2031,15 +2207,69 @@ end;
 //
 
 function TGLBitmap32.Create32BitsBitmap: TGLBitmap;
+var
+{$IFDEF FPC}
+  RIMG: TRawImage;
+{$ELSE}
+  y, x, x4: Integer;
+  pSrc, pDest: PAnsiChar;
+{$ENDIF}
 begin
   if FBlank then
   begin
     Result := nil;
     exit;
   end;
+  Narrow;
 
   Result := TGLBitmap.Create;
-  AssignToBitmap(Result);
+  Result.PixelFormat := glpf32bit;
+  Result.Width := Width;
+  Result.Height := Height;
+
+  if Height > 0 then
+  begin
+{$IFDEF FPC}
+    RIMG.Init;
+    rimg.Description.Init_BPP32_B8G8R8A8_BIO_TTB(Width, Height);
+    rimg.Description.RedShift := 0;
+    rimg.Description.BlueShift := 16;
+    rimg.Description.LineOrder := riloBottomToTop;
+    RIMG.DataSize := DataSize;
+    rimg.Data := PByte(FData);
+    { READ THIS PLEASE: !!!!!!!!!!!!  }
+    { If you get a compile time error on the following line, you could either
+      A) update your lazarus to >= 0.9.27-r18329, or
+      B) comment the next line and un-comment the "Workaround for older Lazarus "
+         part after the next line }
+
+    result.LoadFromRawImage(rimg, false);
+
+    { -- "Workaround for older Lazarus "
+        LIntfImg:=TLazIntfImage.Create(rimg,False);
+        try
+          result.LoadFromIntfImage(LIntfImg);
+        finally
+          FreeAndNil(LIntfImg);
+        end;
+      -- End of "Workaround for older Lazarus " }
+{$ELSE}
+    pSrc := @PAnsiChar(FData)[Width * 4 * (Height - 1)];
+    for y := 0 to Height - 1 do
+    begin
+      pDest := BitmapScanLine(Result, y);
+      for x := 0 to Width - 1 do
+      begin
+        x4 := x * 4;
+        pDest[x4 + 0] := pSrc[x4 + 2];
+        pDest[x4 + 1] := pSrc[x4 + 1];
+        pDest[x4 + 2] := pSrc[x4 + 0];
+        pDest[x4 + 3] := pSrc[x4 + 3];
+      end;
+      Dec(pSrc, Width * 4);
+    end;
+{$ENDIF}
+  end;
 end;
 
 // SetWidth
@@ -2279,8 +2509,9 @@ type
   T2Pixel32 = packed array[0..1] of TGLPixel32;
   P2Pixel32 = ^T2Pixel32;
 
-{$ifNdef NO_ASM}
-  procedure ProcessRow3DNow(pDest: PGLPixel32; pLineA, pLineB: P2Pixel32; n: Integer);
+{$IFNDEF GEOMETRY_NO_ASM}
+  procedure ProcessRow3DNow(pDest: PGLPixel32; pLineA, pLineB: P2Pixel32; n:
+    Integer);
   asm     // 3DNow! version 30% faster
       db $0F,$EF,$C0           /// pxor        mm0, mm0          // set mm0 to [0, 0, 0, 0]
 
@@ -2318,16 +2549,25 @@ type
   end;
 {$ENDIF}
 
-  procedure ProcessRowPascal(pDest: PGLPixel32; pLineA, pLineB: P2Pixel32; n: Integer);
+  procedure ProcessRowPascal(pDest: PGLPixel32; pLineA, pLineB: P2Pixel32; n:
+    Integer);
   var
     i: Integer;
   begin
     for i := 0 to n - 1 do
     begin
-       pDest^.r:=(pLineA^[0].r+pLineA^[1].r+pLineB^[0].r+pLineB^[1].r) shr 2;
-       pDest^.g:=(pLineA^[0].g+pLineA^[1].g+pLineB^[0].g+pLineB^[1].g) shr 2;
-       pDest^.b:=(pLineA^[0].b+pLineA^[1].b+pLineB^[0].b+pLineB^[1].b) shr 2;
-       pDest^.a:=(pLineA^[0].a+pLineA^[1].a+pLineB^[0].a+pLineB^[1].a) shr 2;
+      pDest^.r := (pLineA^[0].r + pLineA^[1].r + pLineB^[0].r + pLineB^[1].r)
+        shr
+        2;
+      pDest^.g := (pLineA^[0].g + pLineA^[1].g + pLineB^[0].g + pLineB^[1].g)
+        shr
+        2;
+      pDest^.b := (pLineA^[0].b + pLineA^[1].b + pLineB^[0].b + pLineB^[1].b)
+        shr
+        2;
+      pDest^.a := (pLineA^[0].a + pLineA^[1].a + pLineB^[0].a + pLineB^[1].a)
+        shr
+        2;
       Inc(pLineA);
       Inc(pLineB);
       Inc(pDest);
@@ -2347,7 +2587,7 @@ begin
   pDest := @FData[0];
   pLineA := @FData[0];
   pLineB := @FData[Width];
-{$ifNdef NO_ASM}
+{$IFNDEF GEOMETRY_NO_ASM}
   if vSIMD = 1 then
   begin
     for y := 0 to h2 - 1 do
@@ -2419,7 +2659,7 @@ var
 
 begin
   // Check for Non-power-of-two
-  if not GL_ARB_texture_non_power_of_two then
+  if not GL.ARB_texture_non_power_of_two then
   begin
     w := RoundUpToPowerOf2(Width);
     h := RoundUpToPowerOf2(Height);
@@ -2435,7 +2675,7 @@ begin
   end;
 
   // Check maximum dimension
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, @maxSize);
+  GL.GetIntegerv(GL_MAX_TEXTURE_SIZE, @maxSize);
   if w > maxSize then
     w := maxSize;
   if h > maxSize then
@@ -2466,23 +2706,24 @@ begin
   end;
 
   // Hardware mipmap autogeneration
-  if GL_SGIS_generate_mipmap and (target <> GL_TEXTURE_RECTANGLE) then
+  bMipmapGen := False;
+  if GL.SGIS_generate_mipmap and IsTargetSupportMipmap(target) then
   begin
     bMipmapGen := (ml = 1) and not (minFilter in [miNearest, miLinear]);
     if (target >= GL_TEXTURE_CUBE_MAP_POSITIVE_X)
       and (target <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z) then
     begin
       if not CurrentGLContext.GLStates.ForwardContext then
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP_SGIS,
+        GL.TexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP_SGIS,
           Integer(bMipmapGen));
       if ml>1 then
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL_SGIS, ml);
+        GL.TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL_SGIS, ml);
     end
     else begin
       if not CurrentGLContext.GLStates.ForwardContext then
-        glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, Integer(bMipmapGen));
+        GL.TexParameteri(target, GL_GENERATE_MIPMAP_SGIS, Integer(bMipmapGen));
       if ml>1 then
-        glTexParameteri(target, GL_TEXTURE_MAX_LEVEL_SGIS, ml-1);
+        GL.TexParameteri(target, GL_TEXTURE_MAX_LEVEL_SGIS, ml-1);
     end;
   end;
 
@@ -2500,10 +2741,10 @@ begin
           else
             p := GetLevelData(Level);
         if bCompress then
-          glCompressedTexImage1DARB(target, Level, texFormat, w, 0,
+          GL.CompressedTexImage1D(target, Level, texFormat, w, 0,
             LevelSize(Level), p)
         else
-          glTexImage1D(target, Level, texFormat, w, 0, ColorFormat, DataType,
+          GL.TexImage1D(target, Level, texFormat, w, 0, ColorFormat, DataType,
             p);
         if w > 1 then
           w := w div 2
@@ -2520,10 +2761,10 @@ begin
           else
             p := GetLevelData(Level);
         if bCompress then
-          glCompressedTexImage2DARB(target, Level, texFormat, w, h, 0,
+          GL.CompressedTexImage2D(target, Level, texFormat, w, h, 0,
             LevelSize(Level), p)
         else
-          glTexImage2D(target, Level, texFormat, w, h, 0, ColorFormat, DataType,
+          GL.TexImage2D(target, Level, texFormat, w, h, 0, ColorFormat, DataType,
             p);
         if w > 1 then
           w := w div 2
@@ -2543,10 +2784,10 @@ begin
           else
             p := GetLevelData(0);
         if bCompress then
-          glCompressedTexImage2DARB(target, 0, texFormat, w, h, 0, LevelSize(0),
+          GL.CompressedTexImage2D(target, 0, texFormat, w, h, 0, LevelSize(0),
             p)
         else
-          glTexImage2D(target, 0, texFormat, w, h, 0, ColorFormat, DataType, p);
+          GL.TexImage2D(target, 0, texFormat, w, h, 0, ColorFormat, DataType, p);
       end;
 
     GL_TEXTURE_3D:
@@ -2558,7 +2799,7 @@ begin
           else
             p := GetLevelData(Level);
 
-        if GL_NV_texture_compression_vtc and bCompress then
+        if GL.NV_texture_compression_vtc and bCompress then
         begin
           // Shufle blocks for Volume Texture Compression
           if Assigned(p) then
@@ -2578,17 +2819,17 @@ begin
                   Inc(top, fElementSize);
                 end;
           end;
-          glCompressedTexImage3DARB(target, Level, texFormat, w, h, d, 0,
+          Gl.CompressedTexImage3D(target, Level, texFormat, w, h, d, 0,
             LevelSize(Level), vtcBuffer);
         end
         else
         begin
           // Normal compression
           if bCompress then
-            glCompressedTexImage3DARB(target, Level, texFormat, w, h, d, 0,
+            GL.CompressedTexImage3D(target, Level, texFormat, w, h, d, 0,
               LevelSize(Level), p)
           else
-            glTexImage3D(target, Level, texFormat, w, h, d, 0, ColorFormat,
+            GL.TexImage3D(target, Level, texFormat, w, h, d, 0, ColorFormat,
               DataType, p);
         end;
         if w > 1 then
@@ -2617,10 +2858,10 @@ begin
             else
               p := GetLevelData(Level, face);
           if bCompress then
-            glCompressedTexImage2DARB(face, Level, texFormat, w, h, 0,
+            GL.CompressedTexImage2D(face, Level, texFormat, w, h, 0,
               LevelSize(Level), p)
           else
-            glTexImage2D(face, Level, texFormat, w, h, 0, ColorFormat, DataType,
+            GL.TexImage2D(face, Level, texFormat, w, h, 0, ColorFormat, DataType,
               p);
         end;
         if w > 1 then
@@ -2647,10 +2888,10 @@ begin
           else
             p := GetLevelData(Level, target);
         if bCompress then
-          glCompressedTexImage2DARB(target, Level, texFormat, w, h, 0,
+          GL.CompressedTexImage2D(target, Level, texFormat, w, h, 0,
             LevelSize(Level), p)
         else
-          glTexImage2D(target, Level, texFormat, w, h, 0, ColorFormat, DataType,
+          GL.TexImage2D(target, Level, texFormat, w, h, 0, ColorFormat, DataType,
             p);
         if w > 1 then
           w := w div 2
@@ -2671,10 +2912,10 @@ begin
           else
             p := GetLevelData(Level);
         if bCompress then
-          glCompressedTexImage2DARB(target, Level, texFormat, w, h, 0,
+          GL.CompressedTexImage2D(target, Level, texFormat, w, h, 0,
             LevelSize(Level), p)
         else
-          glTexImage2D(target, Level, texFormat, w, h, 0, ColorFormat, DataType,
+          GL.TexImage2D(target, Level, texFormat, w, h, 0, ColorFormat, DataType,
             p);
         if w > 1 then
           w := w div 2
@@ -2691,10 +2932,10 @@ begin
           else
             p := GetLevelData(Level);
         if bCompress then
-          glCompressedTexImage3DARB(target, Level, texFormat, w, h, d, 0,
+          GL.CompressedTexImage3D(target, Level, texFormat, w, h, d, 0,
             LevelSize(Level), p)
         else
-          glTexImage3D(target, Level, texFormat, w, h, d, 0, ColorFormat,
+          GL.TexImage3D(target, Level, texFormat, w, h, d, 0, ColorFormat,
             DataType, p);
         if w > 1 then
           w := w div 2
@@ -2708,6 +2949,11 @@ begin
     GL_TEXTURE_CUBE_MAP_ARRAY: ;
 
   end; // of case
+
+  // Hardware mipmap generation with forward context
+  if CurrentGLContext.GLStates.ForwardContext and bMipmapGen then
+    GL.GenerateMipmap(target);
+
   if Assigned(buffer) then
     FreeMem(buffer);
   if Assigned(vtcBuffer) then
@@ -2732,7 +2978,7 @@ begin
   fTextureArray := false;
   fBlank := false;
   ReallocMem(FData, DataSize);
-  glReadPixels(0, 0, FWidth, FHeight, GL_RGBA, GL_UNSIGNED_BYTE, FData);
+  GL.ReadPixels(0, 0, FWidth, FHeight, GL_RGBA, GL_UNSIGNED_BYTE, FData);
 end;
 
 // DrawPixels
@@ -2743,8 +2989,8 @@ begin
   if fBlank or IsEmpty then
     Exit;
   Assert(not CurrentGLContext.GLStates.ForwardContext);
-  glRasterPos2f(x, y);
-  glDrawPixels(Width, Height, fColorFormat, fDataType, FData);
+  GL.RasterPos2f(x, y);
+  GL.DrawPixels(Width, Height, fColorFormat, fDataType, FData);
 end;
 
 // TGLBitmap32
@@ -2857,7 +3103,7 @@ end;
 
 procedure TGLBitmap32.SetBlank(const Value: boolean);
 begin
-  if FBlank and not IsEmpty then
+  if not Value and not IsEmpty then
     ReallocMem(FData, DataSize);
   FBlank := Value;
 end;
@@ -2869,34 +3115,20 @@ procedure TGLBitmap32.AssignToBitmap(aBitmap: TGLBitmap); //TGLBitmap = TBitmap
 var
   y: integer;
   pSrc, pDest: PAnsiChar;
-{$IFDEF FPC}
-  RIMG: TRawImage;
-{$ENDIF}
-
 begin
   Narrow;
   aBitmap.Width := FWidth;
   aBitmap.Height := FHeight;
   aBitmap.PixelFormat := glpf32bit;
-  if Height > 0 then
+  for y := 0 to FHeight - 1 do
   begin
-{$IFDEF FPC}
-    RIMG.Init;
-    rimg.Description.Init_BPP32_B8G8R8A8_BIO_TTB(FWidth, FHeight);
-    rimg.Description.RedShift := 0;
-    rimg.Description.BlueShift := 16;
-    rimg.Description.LineOrder := riloBottomToTop;
-    RIMG.DataSize := DataSize;
-    rimg.Data := PByte(FData);
-    aBitmap.LoadFromRawImage(rimg, false);
-{$ELSE}
-    for y := 0 to FHeight - 1 do
-    begin
-      pSrc := @PAnsiChar(FData)[y * (FWidth * 4)];
-      pDest := BitmapScanLine(aBitmap, FHeight - 1 - y);
-      BGRA32ToRGBA32(pSrc, pDest, FWidth);
-    end;
+    pSrc := @PAnsiChar(FData)[y * (FWidth * 4)];
+{$IFDEF fpc}
+{$WARNING Crossbuilder: cvs version uses the above line instead of the following, but our TBitmap doesn't support Scanline}
+{$NOTE BitmapScanline will generate an Assertion in FPC }
 {$ENDIF}
+    pDest := BitmapScanLine(aBitmap, FHeight - 1 - y);
+    BGRA32ToRGBA32(pSrc, pDest, FWidth);
   end;
 end;
 
@@ -2918,4 +3150,3 @@ finalization
   FreeAndNil(vRasterFileFormats);
 
 end.
-

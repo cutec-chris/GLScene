@@ -29,7 +29,7 @@ uses
   Classes, SysUtils,
 
   // GLScene
-  GLScene, GLVectorTypes, MeshUtils, GLVectorGeometry, GLVectorFileObjects,
+  GLScene, GLVectorTypes, GLMeshUtils, GLVectorGeometry, GLVectorFileObjects,
   GLMesh, GLObjects, OpenGL1x, GLMaterial, GLStrings, GLBaseClasses;
 
 

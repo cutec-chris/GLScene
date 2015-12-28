@@ -1,7 +1,7 @@
 //
 // This unit is part of the GLScene Project, http://glscene.org
 //
-{: GLVectorTypes<p>
+{: VectorTypes<p>
 
    Defines base vector types for use in Geometry.pas and OpenGL1x.pas.<p>
 
@@ -37,6 +37,7 @@ type
   TVector2d = array[0..1] of double;
   TVector2f = array[0..1] of single;
   TVector2i = array[0..1] of longint;
+  TVector2ui = array[0..1] of longWord;
   TVector2s = array[0..1] of smallint;
   TVector2b = array[0..1] of byte;
   TVector2e = array[0..1] of Extended;
@@ -46,6 +47,7 @@ type
   TVector3d = array[0..2] of double;
   TVector3f = array[0..2] of single;
   TVector3i = array[0..2] of longint;
+  TVector3ui = array[0..2] of longWord;
   TVector3s = array[0..2] of smallint;
   TVector3b = array[0..2] of byte;
   TVector3e = array[0..2] of Extended;
@@ -55,6 +57,7 @@ type
   TVector4d = array[0..3] of double;
   TVector4f = array[0..3] of single;
   TVector4i = array[0..3] of longint;
+  TVector4ui = array[0..3] of longWord;
   TVector4s = array[0..3] of smallint;
   TVector4b = array[0..3] of byte;
   TVector4e = array[0..3] of Extended;

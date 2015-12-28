@@ -256,9 +256,9 @@ begin
     Result := B
   else
   begin
-    V.X := V.X * T;
-    V.Y := V.Y * T;
-    V.Z := V.Z * T;
+    V[0] := V[0] * T;
+    V[1] := V[1] * T;
+    V[2] := V[2] * T;
     Result := VectorAdd(A, V);
   end;
 end;
@@ -365,16 +365,16 @@ begin
   // rays cast all from the eye(assume perpsective view)
   for I := 0 to NUMDIM do
   begin
-    if (Origin.V[I] < MinB.V[I]) then
+    if (Origin[I] < MinB[I]) then
     begin
       Quadrant[I] := LEFT;
-      CandidatePlane[I] := MinB.V[I];
+      CandidatePlane[I] := MinB[I];
       Inside := FALSE;
     end
-    else if (Origin.V[I] > MaxB.V[I]) then
+    else if (Origin[I] > MaxB[I]) then
     begin
       Quadrant[I] := RIGHT;
-      CandidatePlane[I] := MaxB.V[I];
+      CandidatePlane[I] := MaxB[I];
       Inside := FALSE;
     end
     else
@@ -392,8 +392,8 @@ begin
   // * Calculate T distances to candidate planes */
   for I := 0 to NUMDIM do
   begin
-    if (Quadrant[I] <> MIDDLE) AND (Dir.V[I] <> 0) then
-      MaxT[I] := (CandidatePlane[I] - Origin.V[I]) / Dir.V[I]
+    if (Quadrant[I] <> MIDDLE) AND (Dir[I] <> 0) then
+      MaxT[I] := (CandidatePlane[I] - Origin[I]) / Dir[I]
     else
       MaxT[I] := -1;
   end;
@@ -415,8 +415,8 @@ begin
   begin
     if WhichPlane <> I then
     begin
-      Coord.V[I] := Origin.V[I] + MaxT[WhichPlane] * Dir.V[I];
-      if (Coord.V[I] < MinB.V[I]) OR (Coord.V[I] > MaxB.V[I])
+      Coord[I] := Origin[I] + MaxT[WhichPlane] * Dir[I];
+      if (Coord[I] < MinB[I]) OR (Coord[I] > MaxB[I])
       then
       begin
         Result := FALSE;
@@ -424,7 +424,7 @@ begin
       end;
     end
     else
-      Coord.V[I] := CandidatePlane[I];
+      Coord[I] := CandidatePlane[I];
   end;
 
   Result := TRUE; // * ray hits box */
@@ -454,10 +454,10 @@ var
     function EDGE_EDGE_TEST(const V0, U0, U1: TAffineFLTVector): Integer;
     begin
       Result := 0;
-      Bx := U0.V[I0] - U1.V[I0];
-      By := U0.V[I1] - U1.V[I1];
-      Cx := V0.V[I0] - U0.V[I0];
-      Cy := V0.V[I1] - U0.V[I1];
+      Bx := U0[I0] - U1[I0];
+      By := U0[I1] - U1[I1];
+      Cx := V0[I0] - U0[I0];
+      Cy := V0[I1] - U0[I1];
       F := Ay * Bx - Ax * By;
       D := By * Cx - Bx * Cy;
       if ((F > 0) and (D >= 0) and (D <= F)) or
@@ -475,8 +475,8 @@ var
     end;
 
   begin
-    Ax := V1.V[I0] - V0.V[I0];
-    Ay := V1.V[I1] - V0.V[I1];
+    Ax := V1[I0] - V0[I0];
+    Ay := V1[I1] - V0[I1];
     // * test edge U0,U1 against V0,V1 */
     Result := EDGE_EDGE_TEST(V0, U0, U1);
     if Result = 1 then
@@ -496,20 +496,20 @@ var
     Result := 0;
     // * is T1 completly inside T2? */
     // * check if V0 is inside tri(U0,U1,U2) */
-    A := U1.V[I1] - U0.V[I1];
-    B := -(U1.V[I0] - U0.V[I0]);
-    C := -A * U0.V[I0] - B * U0.V[I1];
-    D0 := A * V0.V[I0] + B * V0.V[I1] + C;
+    A := U1[I1] - U0[I1];
+    B := -(U1[I0] - U0[I0]);
+    C := -A * U0[I0] - B * U0[I1];
+    D0 := A * V0[I0] + B * V0[I1] + C;
 
-    A := U2.V[I1] - U1.V[I1];
-    B := -(U2.V[I0] - U1.V[I0]);
-    C := -A * U1.V[I0] - B * U1.V[I1];
-    D1 := A * V0.V[I0] + B * V0.V[I1] + C;
+    A := U2[I1] - U1[I1];
+    B := -(U2[I0] - U1[I0]);
+    C := -A * U1[I0] - B * U1[I1];
+    D1 := A * V0[I0] + B * V0[I1] + C;
 
-    A := U0.V[I1] - U2.V[I1];
-    B := -(U0.V[I0] - U2.V[I0]);
-    C := -A * U2.V[I0] - B * U2.V[I1];
-    D2 := A * V0.V[I0] + B * V0.V[I1] + C;
+    A := U0[I1] - U2[I1];
+    B := -(U0[I0] - U2[I0]);
+    C := -A * U2[I0] - B * U2[I1];
+    D2 := A * V0[I0] + B * V0[I1] + C;
     if (D0 * D1 > 0.0) then
       if (D0 * D2 > 0.0) then
         Result := 1;
@@ -519,12 +519,12 @@ var
 begin
   // * first project onto an axis-aligned plane, that maximizes the area */
   // * of the triangles, compute indices: i0,i1. */
-  A.V[0] := Abs(N.V[0]);
-  A.V[1] := Abs(N.V[1]);
-  A.V[2] := Abs(N.V[2]);
-  if (A.V[0] > A.V[1]) then
+  A[0] := Abs(N[0]);
+  A[1] := Abs(N[1]);
+  A[2] := Abs(N[2]);
+  if (A[0] > A[1]) then
   begin
-    if (A.V[0] > A.V[2]) then
+    if (A[0] > A[2]) then
     begin
       I0 := 1; // * A[0] is greatest */
       I1 := 2;
@@ -537,7 +537,7 @@ begin
   end
   else
   begin // * A[0]<=A[1] */
-    if (A.V[2] > A.V[1]) then
+    if (A[2] > A[1]) then
     begin
       I0 := 0; // * A[2] is greatest */
       I1 := 1;
@@ -695,10 +695,10 @@ begin
   D := VectorCrossProduct(N1, N2);
 
   // * compute and index to the largest component of D */
-  Max := Abs(D.V[0]);
+  Max := Abs(D[0]);
   index := 0;
-  B := Abs(D.V[1]);
-  C := Abs(D.V[2]);
+  B := Abs(D[1]);
+  C := Abs(D[2]);
   if (B > Max) then
   begin
     Max := B;
@@ -710,13 +710,13 @@ begin
     index := 2;
   end;
   // * this is the simplified projection onto L*/
-  Vp0 := V0.V[index];
-  Vp1 := V1.V[index];
-  Vp2 := V2.V[index];
+  Vp0 := V0[index];
+  Vp1 := V1[index];
+  Vp2 := V2[index];
 
-  Up0 := U0.V[index];
-  Up1 := U1.V[index];
-  Up2 := U2.V[index];
+  Up0 := U0[index];
+  Up1 := U1[index];
+  Up2 := U2[index];
 
   // * compute interval for triangle 1 */
   COMPUTE_INTERVALS(Vp0, Vp1, Vp2, Dv0, Dv1, Dv2, Dv0dv1, Dv0dv2, Isect1[0],
@@ -959,11 +959,11 @@ begin
   begin
     case Flags[N] of
       MIN:
-        Result.V[N] := Emin.V[N];
+        Result[N] := Emin[N];
       MID:
-        Result.V[N] := GetMidPoint(Emin.V[N], Emax.V[N]);
+        Result[N] := GetMidPoint(Emin[N], Emax[N]);
       MAX:
-        Result.V[N] := Emax.V[N];
+        Result[N] := Emax[N];
     end;
   end;
 end;
@@ -1055,10 +1055,10 @@ end;
 //
 function TOctree.PointInNode(const Min, Max, APoint: TAffineFLTVector): BOOLEAN;
 begin
-  Result := (APoint.V[0] >= Min.V[0]) and
-    (APoint.V[1] >= Min.V[1]) and (APoint.V[2] >= Min.V[2]) and
-    (APoint.V[0] <= Max.V[0]) and (APoint.V[1] <= Max.V[1]) and
-    (APoint.V[2] <= Max.V[2]);
+  Result := (APoint[0] >= Min[0]) and
+    (APoint[1] >= Min[1]) and (APoint[2] >= Min[2]) and
+    (APoint[0] <= Max[0]) and (APoint[1] <= Max[1]) and
+    (APoint[2] <= Max[2]);
 end;
 
 // WalkPointToLeaf
@@ -1102,14 +1102,14 @@ begin
   D := 0;
   for I := 0 to 2 do
   begin
-    if (C.V[I] < MinExtent.V[I]) then
+    if (C[I] < MinExtent[I]) then
     begin
-      S := C.V[I] - MinExtent.V[I];
+      S := C[I] - MinExtent[I];
       D := D + S * S;
     end
-    else if (C.V[I] > MaxExtent.V[I]) then
+    else if (C[I] > MaxExtent[I]) then
     begin
-      S := C.V[I] - MaxExtent.V[I];
+      S := C[I] - MaxExtent[I];
       D := D + S * S;
     end;
   end; // end for
@@ -1193,9 +1193,9 @@ begin
       for P := 0 to 2 do
       begin // Do x,y,z for each vertex.
         if FlagFaces[O + N * 4, P] = MIN then
-          AFace[O].V[P] := MinExtent.V[P]
+          AFace[O][P] := MinExtent[P]
         else
-          AFace[O].V[P] := MaxExtent.V[P];
+          AFace[O][P] := MaxExtent[P];
       end; // end for o
     end; // end for p
     F0 := AFace[0];

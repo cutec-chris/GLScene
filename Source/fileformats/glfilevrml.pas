@@ -21,7 +21,7 @@ interface
 
 uses
   Classes, SysUtils, GLVectorFileObjects, GLMaterial, ApplicationFileIO,
-  GLVectorGeometry, GLVectorLists, VRMLParser, MeshUtils;
+  GLVectorGeometry, GLVectorLists, VRMLParser, GLMeshUtils;
 
 type
 

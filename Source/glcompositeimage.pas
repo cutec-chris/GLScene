@@ -7,6 +7,7 @@
     TGLO3TCImage, TGLHDRImage etc.
 
  <b>History : </b><font size=-1><ul>
+        <li>22/04/10 - Yar - Fixes after GLState revision
         <li>22/02/10 - Yar - Added LoadFromStream (thanks to mif)
         <li>23/01/10 - Yar - Replaced TextureFormat to TextureFormatEx
         <li>21/01/10 - Yar - Creation
@@ -18,7 +19,7 @@ unit GLCompositeImage;
 interface
 
 uses
-  Classes, OpenGL1x, GLGraphics, GLTexture;
+  Classes, OpenGL1x, GLGraphics, GLTexture, GLTextureFormat;
 
 type
 
@@ -36,7 +37,7 @@ type
     function GetWidth: Integer; override;
     function GetHeight: Integer; override;
     function GetDepth: Integer; override;
-    function GetTextureTarget: GLenum; override;
+    function GetTextureTarget: TGLTextureTarget; override;
   public
 
     constructor Create(AOwner: TPersistent); override;
@@ -64,7 +65,7 @@ type
 implementation
 
 uses
-  ApplicationFileIO, GLTextureFormat;
+  ApplicationFileIO, GLContext;
 
 // ------------------
 // ------------------ TGLCompositeImage ------------------
@@ -231,7 +232,7 @@ begin
   if Assigned(FOwnerTexture) then
   begin
     if FOwnerTexture.IsHandleAllocated then
-      tempImage.AssignFromTexture(FOwnerTexture.RenderingContext,
+      tempImage.AssignFromTexture(CurrentGLContext,
         FOwnerTexture.Handle,
         NativeTextureTarget,
         false,
@@ -326,31 +327,31 @@ end;
 // GetTextureTarget
 //
 
-function TGLCompositeImage.GetTextureTarget: GLenum;
+function TGLCompositeImage.GetTextureTarget: TGLTextureTarget;
 begin
   if Assigned(fBitmap) then
   begin
-    Result := GL_TEXTURE_2D;
+    Result := ttTexture2D;
     // Choose a texture target
     if fBitmap.Height = 1 then
-      Result := GL_TEXTURE_1D;
+      Result := ttTexture1D;
     if fBitmap.CubeMap then
-      Result := GL_TEXTURE_CUBE_MAP;
+      Result := ttTextureCube;
     if fBitmap.IsVolume then
-      Result := GL_TEXTURE_3D;
+      Result := ttTexture3D;
     if fBitmap.TextureArray then
     begin
       if (fBitmap.Depth < 2) then
-        Result := GL_TEXTURE_1D_ARRAY
+        Result := ttTexture1Darray
       else
-        Result := GL_TEXTURE_2D_ARRAY;
+        Result := ttTexture2DArray;
       if fBitmap.CubeMap then
-        Result := GL_TEXTURE_CUBE_MAP_ARRAY;
+        Result := ttTextureCube;
     end;
 
     if ((fBitmap.InternalFormat >= tfFLOAT_R16)
       and (fBitmap.InternalFormat <= tfFLOAT_RGBA32)) then
-      Result := GL_TEXTURE_RECTANGLE;
+      Result := ttTextureRect;
 
     if Result = fPreviousTarget then
       Exit;

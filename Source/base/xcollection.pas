@@ -6,7 +6,7 @@
 	A polymorphism-enabled TCollection-like set of classes<p>
 
 	<b>History : </b><font size=-1><ul>
-      <li>07/11/09 - DaStr - merged DEBUG_XCOLLECTION option from gls4laz
+      <li>07/11/09 - DaStr - Added DEBUG_XCOLLECTION option
       <li>10/04/08 - DaStr - TXCollectionItem now descends from
                               TGLInterfacedPersistent (BugTracker ID = 1938988)
       <li>08/12/04 - SG - Added TXCollectionItem.CanAddTo class function
@@ -55,7 +55,7 @@ type
 
 		protected
 			{ Protected Declarations }
-         procedure SetName(const val : String); virtual; 
+         procedure SetName(const val : String); virtual;
          function GetOwner : TPersistent; override;
 
          {: Override this function to write subclass data. }
@@ -129,8 +129,10 @@ type
 			{ Private Declarations }
 			FOwner : TPersistent;
 			FList : TList;
-         FCount : Integer;
+      FCount : Integer;
 
+      {: Archive Version is used to update the way data items is loaded. }
+      FArchiveVersion : integer;
 		protected
 			{ Protected Declarations }
 			function GetItems(index : Integer) : TXCollectionItem;
@@ -173,6 +175,8 @@ type
 			{: Indicates if an object of the given class can be added.<p>
           	This function is used to enforce Unique XCollection. }
 			function CanAdd(aClass : TXCollectionItemClass) : Boolean; virtual;
+
+      property ArchiveVersion : integer read FArchiveVersion;
 	end;
 
 resourcestring
@@ -193,6 +197,7 @@ function FindXCollectionItemClass(const className : String) : TXCollectionItemCl
 	Returned list should be freed by caller, the parameter defines an ancestor
    class filter. If baseClass is left nil, TXCollectionItem is used as ancestor. }
 function GetXCollectionItemClassesList(baseClass : TXCollectionItemClass = nil) : TList;
+procedure GetXCollectionClassesList(var ClassesList : TList; baseClass : TXCollectionItemClass = nil);
 
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
@@ -201,6 +206,12 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
+
+const
+  {: Magic is a workaround that will allow us to know when the archive
+    version is 0 (equivalent to : there is no ArchiveVersion stored in
+    the DFM file) }
+  MAGIC: array[0..3] of AnsiChar = 'XCOL';
 
 var
   vXCollectionItemClasses : TList;
@@ -262,16 +273,22 @@ end;
 // GetXCollectionItemClassesList
 //
 function GetXCollectionItemClassesList(baseClass : TXCollectionItemClass = nil) : TList;
+begin
+   Result:=TList.Create;
+   GetXCollectionClassesList(Result, baseClass);
+end;
+
+procedure GetXCollectionClassesList(var ClassesList: TList;
+  baseClass: TXCollectionItemClass = nil);
 var
 	i : Integer;
 begin
-	Result:=TList.Create;
-   if not Assigned(baseClass) then
-      baseClass:=TXCollectionItem;
-	if Assigned(vXCollectionItemClasses) then
-		for i:=0 to vXCollectionItemClasses.Count-1 do
-         if TXCollectionItemClass(vXCollectionItemClasses[i]).InheritsFrom(baseClass) then
-   			Result.Add(vXCollectionItemClasses[i]);
+        if not Assigned(baseClass) then
+           baseClass:=TXCollectionItem;
+     	if Assigned(vXCollectionItemClasses) then
+     		for i:=0 to vXCollectionItemClasses.Count-1 do
+              if TXCollectionItemClass(vXCollectionItemClasses[i]).InheritsFrom(baseClass) then
+        			ClassesList.Add(vXCollectionItemClasses[i]);
 end;
 
 // ------------------
@@ -498,73 +515,116 @@ var
 	classList : TList;
 	XCollectionItem : TXCollectionItem;
 begin
-  // Here, we write all listed XCollection through their WriteToFiler methods,
-  // but to be able to restore them, we also write their classname, and to
-  // avoid wasting space if the same class appears multiple times we build up
-  // a lookup table while writing them, if the class is anew, the name is
-  // written, otherwise, only the index in the table is written.
-  // Using a global lookup table (instead of a "per-WriteData" one) could save
-  // more space, but would also increase dependencies, and this I don't want 8)
-  classList:=TList.Create;
-  try
-    with writer do begin
-      WriteInteger(FList.Count);
-      for i:=0 to FList.Count-1 do begin
-        XCollectionItem:=TXCollectionItem(FList[i]);
-        n:=classList.IndexOf(XCollectionItem.ClassType);
-        if n<0 then begin
-          WriteString(XCollectionItem.ClassName);
-          classList.Add(XCollectionItem.ClassType);
-        end
-        else
-          WriteInteger(n);
-        XCollectionItem.WriteToFiler(writer);
-      end;
-    end;
-  finally
-    classList.Free;
-  end;
+	// Here, we write all listed XCollection through their WriteToFiler methods,
+	// but to be able to restore them, we also write their classname, and to
+	// avoid wasting space if the same class appears multiple times we build up
+	// a lookup table while writing them, if the class is anew, the name is
+	// written, otherwise, only the index in the table is written.
+	// Using a global lookup table (instead of a "per-WriteData" one) could save
+	// more space, but would also increase dependencies, and this I don't want 8)
+  FArchiveVersion := 1;
+	classList:=TList.Create;
+	try
+		with writer do
+    begin
+      // Magic header and archive version are always written now
+      Write(MAGIC[0], Length(MAGIC));
+      WriteInteger(FArchiveVersion);
+
+			WriteInteger(FList.Count);
+			for i:=0 to FList.Count-1 do
+      begin
+				XCollectionItem:=TXCollectionItem(FList[i]);
+				n:=classList.IndexOf(XCollectionItem.ClassType);
+				if n<0 then begin
+					WriteString(XCollectionItem.ClassName);
+					classList.Add(XCollectionItem.ClassType);
+				end else WriteInteger(n);
+            XCollectionItem.WriteToFiler(writer);
+			end;
+		end;
+	finally
+		classList.Free;
+	end;
 end;
 
-// ReadFromFiler
-//
-procedure TXCollection.ReadFromFiler(reader : TReader);
+procedure TXCollection.ReadFromFiler(reader: TReader);
 var
-	n,lc,lcnum : Integer;
-	classList : TList;
-	cName : String;
-	XCollectionItemClass : TXCollectionItemClass;
-	XCollectionItem : TXCollectionItem;
+  {$IFNDEF FPC}
+  InitialPosition : integer;
+  {$ENDIF}
+  Header : array[0..3] of AnsiChar;
+  n, lc, lcnum: Integer;
+  classList: TList;
+  cName: string;
+  XCollectionItemClass: TXCollectionItemClass;
+  XCollectionItem: TXCollectionItem;
 begin
   // see WriteData for a description of what is going on here
   Clear;
-  classList:=TList.Create;
+  classList := TList.Create;
   try
-    with reader do begin
-      lc:=ReadInteger;
-      for n:=1 to lc do begin
-        if NextValue in [vaString, vaLString] then begin
-          cName:=ReadString;
+    with reader do
+    begin
+      // save current reader position, it will be used to rewind the reader if the DFM is too old
+      try
+        {$IFNDEF FPC}
+        InitialPosition := Position;
+        {$ENDIF}
+        Read(Header[0], Length(Header));
+      except
+        Header[0] := #0;
+        Header[1] := #0;
+        Header[2] := #0;
+        Header[3] := #0;
+        {$IFNDEF FPC}
+        InitialPosition := 0;
+        {$ENDIF}
+      end;
+
+      // after reading the header, we need to compare it with the MAGIC reference
+      if  (Header[0] = MAGIC[0]) and (Header[1] = MAGIC[1])
+      and (Header[2] = MAGIC[2]) and (Header[3] = MAGIC[3]) then
+      begin
+        // if its ok we can just read the archive version
+        FArchiveVersion := ReadInteger;
+      end
+        else
+      begin
+        // if the header is invalid (old DFM) just assume archive version is 0 and rewind reader
+        FArchiveVersion := 0;
+        {$IFNDEF FPC}
+        Position := InitialPosition;
+        {$ENDIF}
+      end;
+
+      lc := ReadInteger;
+      for n := 1 to lc do
+      begin
+        if NextValue in [vaString, vaLString] then
+        begin
+          cName := ReadString;
           {$IFDEF DEBUG_XCOLLECTION}
           writeln('TXCollection.ReadFromFiler create class entry: ',cname);
           {$ENDIF}
-          XCollectionItemClass:=FindXCollectionItemClass(cName);
-          Assert(Assigned(XCollectionItemClass),'Class '+cName+' unknown. Add the relevant unit to your "uses".');
+          XCollectionItemClass := FindXCollectionItemClass(cName);
+          Assert(Assigned(XCollectionItemClass), 'Class ' + cName + ' unknown. Add the relevant unit to your "uses".');
           classList.Add(XCollectionItemClass);
         end
-        else begin
+        else
+        begin
           {$IFDEF DEBUG_XCOLLECTION}
           assert(NextValue in [vaInt8,vaInt16,vaInt32],'Non-Integer ValueType: '+ GetEnumName(TypeInfo(TValueType),ord(NextValue)));
           {$ENDIF}
-          lcnum:=ReadInteger;
+          lcnum := ReadInteger;
           Assert((lcnum >= 0) and (lcnum < classlist.Count), 'Inavlid classlistIndex: ' + IntToStr(lcnum));
-          XCollectionItemClass:=TXCollectionItemClass(classList[lcnum]);
+          XCollectionItemClass := TXCollectionItemClass(classList[lcnum]);
           {$IFDEF DEBUG_XCOLLECTION}
           writeln('TXCollection.ReadFromFiler create by number: ',lcnum,' -> ',XCollectionItemClass.ClassName);
           {$ENDIF}
         end;
 
-        XCollectionItem:=XCollectionItemClass.Create(Self);
+        XCollectionItem := XCollectionItemClass.Create(Self);
 
         XCollectionItem.ReadFromFiler(reader);
       end;
@@ -572,7 +632,7 @@ begin
   finally
     classList.Free;
   end;
-  FCount:=FList.Count;
+  FCount := FList.Count;
 end;
 
 // ItemsClass
@@ -739,8 +799,8 @@ begin
   if not aClass.CanAddTo(Self) then begin
     Result:=False;
     Exit;
-  end;  
-  
+  end;
+
 	// is the given class compatible with owned ones ?
 	if aClass.UniqueItem then for i:=0 to Count-1 do begin
 		if Items[i] is aClass then begin
@@ -767,6 +827,7 @@ initialization
 // ------------------------------------------------------------------
 
 finalization
+
 	vXCollectionItemClasses.Free;
 
 end.

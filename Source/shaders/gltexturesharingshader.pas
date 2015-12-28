@@ -13,6 +13,7 @@
     </p>
 
   <b>History : </b><font size=-1><ul>
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>05/03/10 - DanB - More state added to TGLStateCache
       <li>10/04/08 - DaStr - Added a Delpi 5 interface bug work-around
                               (BugTracker ID = 1938988).
@@ -179,7 +180,7 @@ begin
   begin
     rci.GLStates.SetGLMaterialColors(cmFront,
       Emission.Color, Ambient.Color, Diffuse.Color, Specular.Color, Shininess);
-    rci.GLStates.PolygonMode :=FLibMaterial.Material.FrontProperties.PolygonMode;
+    rci.GLStates.PolygonMode :=FLibMaterial.Material.PolygonMode;
   end
   else
     FLibMaterial.Material.FrontProperties.ApplyNoLighting(rci, cmFront);
@@ -355,7 +356,7 @@ begin
     begin
       FTextureMatrixIsUnitary := False;
       FTextureMatrix := CreateScaleAndTranslationMatrix(TexScale.AsVector, TexOffset.AsVector)
-    end  
+    end
     else
       FTextureMatrixIsUnitary := True;
     FNeedToUpdateTextureMatrix := False;

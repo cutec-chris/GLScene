@@ -7,6 +7,7 @@
    under GLScene (usefull for an Editor).<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>14/07/09 - DaStr - Bugfixed object selection from code (thanks Predator)
       <li>20/01/08 - DaStr - Cleaned up uses section for proper FPC support
                              (thanks Lukasz Sokol)
@@ -330,6 +331,9 @@ type
 
 implementation
 
+uses
+  GLVectorTypes;
+
 procedure RotateAroundArbitraryAxis(const anObject: TGLBaseSceneObject;
   const Axis, Origin: TAffineVector; const angle: Single);
 var
@@ -408,8 +412,7 @@ begin
   with _GZOBoundingcube.material do
   begin
     FaceCulling := fcNoCull;
-    FrontProperties.PolygonMode := pmLines;
-    BackProperties.PolygonMode := pmLines;
+    PolygonMode := pmLines;
     with FrontProperties do
     begin
       Diffuse.Color := FBoundingBoxColor.Color;
@@ -575,7 +578,7 @@ begin
     with material do
     begin
       //FaceCulling:= fcNoCull;
-      FrontProperties.PolygonMode := pmFill;
+      PolygonMode := pmFill;
       //BackProperties.PolygonMode:= pmFill;
       FrontProperties.Emission.Color := clrBlue;
     end;
@@ -592,7 +595,7 @@ begin
     with material do
     begin
       //FaceCulling:= fcNoCull;
-      FrontProperties.PolygonMode := pmFill;
+      PolygonMode := pmFill;
       //BackProperties.PolygonMode:= pmFill;
       FrontProperties.Emission.Color := clrRed;
     end;
@@ -608,7 +611,7 @@ begin
     with material do
     begin
       //FaceCulling:= fcNoCull;
-      FrontProperties.PolygonMode := pmFill;
+      PolygonMode := pmFill;
       //BackProperties.PolygonMode:= pmFill;
       FrontProperties.Emission.Color := clrLime;
     end;
@@ -624,8 +627,7 @@ begin
     with material do
     begin
       FaceCulling := fcNoCull;
-      FrontProperties.PolygonMode := pmFill;
-      BackProperties.PolygonMode := pmFill;
+      PolygonMode := pmFill;
       FrontProperties.Emission.Color := clrRed;
     end;
   end;
@@ -640,8 +642,7 @@ begin
     with material do
     begin
       FaceCulling := fcNoCull;
-      FrontProperties.PolygonMode := pmFill;
-      BackProperties.PolygonMode := pmFill;
+      PolygonMode := pmFill;
       FrontProperties.Emission.Color := clrLime;
     end;
   end;
@@ -656,8 +657,7 @@ begin
     with material do
     begin
       FaceCulling := fcNoCull;
-      FrontProperties.PolygonMode := pmFill;
-      BackProperties.PolygonMode := pmFill;
+      PolygonMode := pmFill;
       FrontProperties.Emission.Color := clrBlue;
     end;
   end;
@@ -1514,7 +1514,7 @@ begin
   case FPickMode of
     pmGetPickedObjects:
     begin
-      //primeiro, ver se � uma das linhas/planos
+      //primeiro, ver se é uma das linhas/planos
       for I := 0 to pick.Count - 1 do
         if (_GZOrootLines.IndexOfChild(pick.hit[I]) > -1) or (_GZOrootTorus.IndexOfChild(pick.hit[I]) > -1) or (_GZOrootCubes.IndexOfChild(pick.hit[I]) > -1) then
           gotPick := True;

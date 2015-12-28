@@ -6,7 +6,6 @@
 	String constants that are used in many GLScene units<p>
 
 	<b>History :</b><font size=-1><ul>
-      22/01/10 - Yar - Added glsFailedApplyWrap
       23/02/07 - DaStr - Added glsDot, glsUnsupportedType, glsUncompatibleTypes,
                          glsUnknownType, glsShaderNeedsAtLeastOneLightSource(Ex),
                          glsCadencerNotDefined(Ex), glsSceneViewerNotDefined
@@ -67,6 +66,7 @@ resourcestring
   // common messages
   glsOutOfMemory = 'Fatal: Out of memory';
   glsFailedOpenFile = 'Could not open file: %s';
+  glsFailedOpenFileFromCurrentDir = 'Could not open file: %s'#13#10'(Current directory is %s)';
   glsNoDescriptionAvailable = 'No description available';
   glsUnBalancedBeginEndUpdate = 'Unbalanced Begin/EndUpdate';
   glsUnknownExtension = 'Unknown file extension (%s), maybe you forgot to add the support '
@@ -88,7 +88,7 @@ resourcestring
   glsOCHUDObjects = 'HUD objects';
   glsOCGuiObjects = 'GUI objects';
   glsOCProxyObjects = 'Proxy objects';
-  glsFailedApplyWrap = 'Unsupported texture wrapping mode.';
+  glsOCExperimental = 'Experimental objects';
 
 implementation
 

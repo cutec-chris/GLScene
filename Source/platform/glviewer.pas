@@ -6,7 +6,8 @@
    Platform independant viewer.<p>
 
     History:
-      <li>17/09/07 - DaStr - Replaced $IFNDEF KYLIX to $IFDEF MSWINDOWS in 
+      <li>30/04/10 - Yar - Added vertical synchronization cntrol for Linux (by Rustam Asmandiarov aka Predato)
+      <li>17/09/07 - DaStr - Replaced $IFNDEF KYLIX to $IFDEF MSWINDOWS in
                               SetupVSync() because wgl* functions are Windows-specific
       <li>12/09/07 - DaStr - Fixed SetupVSync() function (Bugtracker ID = 1786279)
                              Made cross-platform code easier to read
@@ -27,24 +28,19 @@ interface
 {$I GLScene.inc}
 
 uses
-  classes,
-  forms,
-  controls,
   OpenGL1x,
   {$IFDEF GLS_DELPHI_OR_CPPB} GLWin32Viewer; {$ENDIF}
   {$IFDEF FPC}                GLLCLViewer;   {$ENDIF}
 
 type
-{$IFDEF FPC}  //For FPC, always use LCLViewer
-  TGLSceneViewer = class(TGLSceneViewerLCL)
-  end;
+{$IFDEF FPC}
+  TGLSceneViewer = GLLCLViewer.TGLSceneViewer;
   TVSyncMode = GLLCLViewer.TVSyncMode;
 {$ENDIF FPC}
 
 {$IFDEF GLS_DELPHI_OR_CPPB}
-  TGLSceneViewer = class(TGLSceneViewerWin32)
-  end;
-  TVSyncMode = GLWin32Viewer.TVSyncMode;
+    TGLSceneViewer = GLWin32Viewer.TGLSceneViewer;
+    TVSyncMode = GLWin32Viewer.TVSyncMode;
 {$ENDIF GLS_DELPHI_OR_CPPB}
 
 const
@@ -82,17 +78,23 @@ begin
   end;
 end;
 {$ELSE}
+{$IFDEF Linux}
 begin
-   Assert(False, 'SetupVSync only implemented for Windows!')
+  if GLX_SGI_swap_control then
+  begin
+    case AVSyncMode of
+      vsmSync  : glXSwapIntervalSGI(GL_True);
+      vsmNoSync: glXSwapIntervalSGI(GL_False);
+    else
+       Assert(False);
+    end;
+  end;
+end;
+{$ELSE}
+begin
+   Assert(False, 'Not implemented for UNIX!')
 end;
 {$ENDIF}
-
-
-initialization
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-
-   RegisterClass(TGLSceneViewer);
+{$ENDIF}
 
 end.

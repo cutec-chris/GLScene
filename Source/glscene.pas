@@ -6,6 +6,12 @@
    Base classes and structures for GLScene.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>18/06/10 - Yar - Replaced OpenGL1x functions to OpenGLAdapter. Changed AddBuffer to improved GLX context sharing.
+      <li>31/05/10 - Yar - Fixes for Linux x64
+      <li>31/05/10 - Yar - Added roSoftwareMode Buffer.ContextOptions
+      <li>22/04/10 - Yar - Fixes after GLState revision
+      <li>11/04/10 - Yar - Replaced glNewList to GLState.NewList in TGLBaseSceneObject.GetHandle
+      <li>06/04/10 - Yar - Removed double camera freeing in TGLSceneBuffer.Destroy (thanks to Rustam Asmandiarov aka Predator)
       <li>06/03/10 - Yar - Renamed ModelViewMatrix to ViewMatrix, added ModelMatrix
                            All function working with ModelViewMatrix now deprecated
                            Added roForwardContext to buffer options
@@ -22,7 +28,7 @@
                             changed PChar to Pointer where possible
       <li>12/10/08 - DanB - added nearClippingDistance to RCI
       <li>09/10/08 - DanB - removed TGLScene.RenderedObject, moved TGLProgressEvent
-                            to GLBaseClasses
+                            to BaseClasses
       <li>20/04/08 - DaStr - Added a AABB cauching mechanism to TGLBaseSceneObject
                              TGLDirectOpenGL's dimentions are now all all zeros
                              (all above changes were made by Pascal)
@@ -193,7 +199,7 @@
                            leaks related in TGLSceneViewer), dropped the TCanvas,
                            Added PixelRayToWorld (by Rene Lindsay)
       <li>06/07/01 - Egg - Fixed Turn/Roll/Pitch Angle Normalization issue
-      <li>04/07/01 - Egg - Minor GLVectorTypes related changes
+      <li>04/07/01 - Egg - Minor VectorTypes related changes
       <li>25/06/01 - Egg - Added osIgnoreDepthBuffer to TObjectStyles
       <li>20/03/01 - Egg - LoadFromFile & LoadFromStream fixes by Uwe Raabe
       <li>16/03/01 - Egg - SaveToFile/LoadFromFile additions/fixes by Uwe Raabe
@@ -329,14 +335,21 @@ interface
 
 uses
   // VCL
+{$IFDEF MSWINDOWS}
+  Windows,
+{$ENDIF}
   Classes, SysUtils, Graphics,
+{$IFDEF FPC}
+  LCLType,
+{$ENDIF}
 
   // GLScene
-  GLVectorGeometry, XCollection, GLSilhouette, GLPersistentClasses, GLState,
+  GLVectorGeometry, XCollection, GLSilhouette, GLPersistentClasses, OpenGL1x, GLState,
   GLGraphics, GeometryBB, GLContext, GLCrossPlatform, GLVectorLists, GLTexture,
-  GLColor, GLBaseClasses, GLCoordinates, GLRenderContextInfo, GLMaterial
+  GLColor, GLBaseClasses, GLCoordinates, GLRenderContextInfo, GLMaterial,
+  GLTextureFormat
 {$IFDEF GLS_EXPERIMENTAL}
-  ,GLVBOManagers
+  , GLVBOManagers
 {$ENDIF}
   ;
 
@@ -378,6 +391,7 @@ type
   // TContextOption
   //
   {: Options for the rendering context.<p>
+     roSoftwareMode: force software rendering.
      roDoubleBuffer: enables double-buffering.<br>
      roRenderToWindows: ignored (legacy).<br>
      roTwoSideLighting: enables two-side lighting model.<br>
@@ -389,8 +403,9 @@ type
          whole viewer is fully repainted each frame, this can improve framerate<br>
      roNoSwapBuffers: don't perform RenderingContext.SwapBuffers after rendering
      roNoDepthBufferClear: do not clear the depth buffer automatically. Useful for
-         early-z culling.<br> }
-  TContextOption = (roDoubleBuffer, roStencilBuffer,
+         early-z culling.<br>
+     roForwardContext: force OpenGL forward context }
+  TContextOption = (roSoftwareMode, roDoubleBuffer, roStencilBuffer,
     roRenderToWindow, roTwoSideLighting, roStereo,
     roDestinationAlpha, roNoColorBuffer, roNoColorBufferClear,
     roNoSwapBuffers, roNoDepthBufferClear, roForwardContext);
@@ -423,17 +438,16 @@ type
      Allowed styles are:<ul>
      <li>osDirectDraw : object shall not make use of compiled call lists, but issue
         direct calls each time a render should be performed.
-     <li>osDoesTemperWithColorsOrFaceWinding : object is not "GLScene compatible" for
-        color/face winding. "GLScene compatible" objects must use GLMisc functions
-        for color or face winding setting (to avoid redundant OpenGL calls), for
-        objects that don't comply, the internal cache must be flushed.
      <li>osIgnoreDepthBuffer : object is rendered with depth test disabled,
         this is true for its children too.
      <li>osNoVisibilityCulling : whatever the VisibilityCulling setting,
         it will be ignored and the object rendered
      </ul> }
-  TGLObjectStyle = (osDirectDraw, osDoesTemperWithColorsOrFaceWinding,
-    osIgnoreDepthBuffer, osNoVisibilityCulling, osBuiltStage);
+  TGLObjectStyle = (
+    osDirectDraw,
+    osIgnoreDepthBuffer,
+    osNoVisibilityCulling,
+    osBuiltStage);
   TGLObjectStyles = set of TGLObjectStyle;
 
   // IGLInitializable
@@ -1954,7 +1968,6 @@ type
     FAfterRender: TNotifyEvent;
     FInitiateRendering: TDirectRenderEvent;
     FWrapUpRendering: TDirectRenderEvent;
-    FNameStackMap    : TPersistentObjectList;
 
   protected
     { Protected Declarations }
@@ -2001,11 +2014,7 @@ type
 
     procedure NotifyChange(Sender: TObject); override;
 
-    procedure DoGLInitNames;
-    procedure DoGLLoadName(aPointer : pointer);
-    procedure DoGLPushName(aPointer : pointer);
-
-    procedure CreateRC(deviceHandle: HDC; memoryContext: Boolean;
+    procedure CreateRC(deviceHandle: HWND; memoryContext: Boolean;
       BufferCount: integer = 1);
     procedure ClearBuffers;
     procedure DestroyRC;
@@ -2075,7 +2084,7 @@ type
     procedure CopyToTexture(aTexture: TGLTexture); overload;
     procedure CopyToTexture(aTexture: TGLTexture; xSrc, ySrc, width, height:
       Integer;
-      xDest, yDest: Integer; target: Integer = 0;
+      xDest, yDest: Integer; glTarget: TGLEnum = 0;
       forceCreateTexture: Boolean = False); overload;
     {: Save as raw float data to a file }
     procedure SaveAsFloatToFile(const aFilename: string);
@@ -2485,7 +2494,7 @@ implementation
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-uses GLStrings, XOpenGL, GLVectorTypes, OpenGL1x, ApplicationFileIO, GLUtils;
+uses GLStrings, XOpenGL, GLVectorTypes, ApplicationFileIO, GLUtils;
 
 var
   vCounterFrequency: Int64;
@@ -2496,44 +2505,47 @@ var
 procedure AxesBuildList(var rci: TRenderContextInfo; pattern: Word; axisLen:
   Single);
 begin
-  rci.GLStates.PushAttrib([sttEnable, sttLighting, sttLine, sttDepthBuffer]);
-  rci.GLStates.Disable(stLighting);
-  rci.GLStates.Enable(stLineStipple);
-  if not rci.ignoreBlendingRequests then
+{$IFDEF GLS_OPENGL_DEBUG}
+  if GL.GREMEDY_string_marker then
+    GL.StringMarkerGREMEDY(13, 'AxesBuildList');
+{$ENDIF}
+  with rci.GLStates do
   begin
-    rci.GLStates.Enable(stBlend);
-    rci.GLStates.SetBlendFunc(bfSrcAlpha, bfOneMinusSrcAlpha);
+    Disable(stLighting);
+    if not rci.ignoreBlendingRequests then
+    begin
+      Enable(stBlend);
+      SetBlendFunc(bfSrcAlpha, bfOneMinusSrcAlpha);
+    end;
+    LineWidth := 1;
+    Enable(stLineStipple);
+    LineStippleFactor := 1;
+    LineStipplePattern := Pattern;
+    DepthWriteMask := True;
+    DepthFunc := cfLEqual;
+    if rci.bufferDepthTest then
+      Enable(stDepthTest);
   end;
-  rci.GLStates.LineWidth := 1;
-  glLineStipple(1, Pattern);
-  rci.GLStates.DepthWriteMask := True;
-  rci.GLStates.DepthFunc := cfLess;
-  if rci.bufferDepthTest then
-    rci.GLStates.Enable(stDepthTest);
-  glBegin(GL_LINES);
-  glColor3f(0.5, 0.0, 0.0);
-  glVertex3f(0, 0, 0);
-  glVertex3f(-AxisLen, 0, 0);
-  glColor3f(1.0, 0.0, 0.0);
-  glVertex3f(0, 0, 0);
-  glVertex3f(AxisLen, 0, 0);
-  glColor3f(0.0, 0.5, 0.0);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, -AxisLen, 0);
-  glColor3f(0.0, 1.0, 0.0);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, AxisLen, 0);
-  glColor3f(0.0, 0.0, 0.5);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 0, -AxisLen);
-  glColor3f(0.0, 0.0, 1.0);
-  glVertex3f(0, 0, 0);
-  glVertex3f(0, 0, AxisLen);
-  glEnd;
-  rci.GLStates.PopAttrib;
-  // clear fpu exception flag (sometime raised by the call to glEnd)
-  asm fclex
-  end;
+  GL.Begin_(GL_LINES);
+  GL.Color3f(0.5, 0.0, 0.0);
+  GL.Vertex3f(0, 0, 0);
+  GL.Vertex3f(-AxisLen, 0, 0);
+  GL.Color3f(1.0, 0.0, 0.0);
+  GL.Vertex3f(0, 0, 0);
+  GL.Vertex3f(AxisLen, 0, 0);
+  GL.Color3f(0.0, 0.5, 0.0);
+  GL.Vertex3f(0, 0, 0);
+  GL.Vertex3f(0, -AxisLen, 0);
+  GL.Color3f(0.0, 1.0, 0.0);
+  GL.Vertex3f(0, 0, 0);
+  GL.Vertex3f(0, AxisLen, 0);
+  GL.Color3f(0.0, 0.0, 0.5);
+  GL.Vertex3f(0, 0, 0);
+  GL.Vertex3f(0, 0, -AxisLen);
+  GL.Color3f(0.0, 0.0, 1.0);
+  GL.Vertex3f(0, 0, 0);
+  GL.Vertex3f(0, 0, AxisLen);
+  GL.End_;
 end;
 
 // RegisterInfoForm
@@ -2806,11 +2818,11 @@ function TGLBaseSceneObject.GetHandle(var rci: TRenderContextInfo): Cardinal;
       FListHandle.AllocateHandle;
       Assert(FListHandle.Handle <> 0);
     end;
-    glNewList(FListHandle.Handle, GL_COMPILE);
+    rci.GLStates.NewList(FListHandle.Handle, GL_COMPILE);
     try
       BuildList(rci);
     finally
-      glEndList;
+      rci.GLStates.EndList;
     end;
   end;
 
@@ -3258,7 +3270,7 @@ begin
     if not Assigned(FAbsoluteMatrix) then
     begin
       GetMem(FAbsoluteMatrix, SizeOf(TMatrix) * 2);
-         FInvAbsoluteMatrix := PMatrix(PtrUInt(FAbsoluteMatrix) + SizeOf(TMatrix));
+      FInvAbsoluteMatrix := PMatrix(PtrUInt(FAbsoluteMatrix) + SizeOf(TMatrix));
     end;
     if Assigned(Parent) and (not (Parent is TGLSceneRootObject)) then
     begin
@@ -3294,7 +3306,7 @@ begin
       if not Assigned(FAbsoluteMatrix) then
       begin
         GetMem(FAbsoluteMatrix, SizeOf(TMatrix) * 2);
-            FInvAbsoluteMatrix := PMatrix(PtrUInt(FAbsoluteMatrix) +
+        FInvAbsoluteMatrix := PMatrix(PtrUInt(FAbsoluteMatrix) +
           SizeOf(TMatrix));
       end;
       RebuildMatrix;
@@ -3932,7 +3944,7 @@ var
   i: Integer;
   child, newChild: TGLBaseSceneObject;
 begin
-  if Source is TGLBaseSceneObject then
+  if Assigned(Source) and (Source is TGLBaseSceneObject) then
   begin
     DestroyHandles;
     FVisible := TGLBaseSceneObject(Source).FVisible;
@@ -4895,6 +4907,11 @@ var
   saveMatrixParent,
     saveMatrixSelf: TMatrix;
 begin
+{$IFDEF GLS_OPENGL_DEBUG}
+  if GL.GREMEDY_string_marker then
+    GL.StringMarkerGREMEDY(
+      Length(Name) + Length('.Render'), PGLChar(TGLString(Name + '.Render')));
+{$ENDIF}
   // visibility culling determination
   if ARci.visibilityCulling in [vcObjectBased, vcHierarchical] then
   begin
@@ -4927,13 +4944,13 @@ begin
   // Prepare Matrix and PickList stuff
 {$IFNDEF GLS_OPTIMIZATIONS}
   if OptSaveGLStack then
-    glGetFloatv(GL_MODELVIEW_MATRIX, @saveMatrixParent[0])
+    GL.GetFloatv(GL_MODELVIEW_MATRIX, @saveMatrixParent[0])
   else
 {$ENDIF}
-    glPushMatrix;
+    GL.PushMatrix;
   if ocTransformation in FChanges then
     RebuildMatrix;
-  glMultMatrixf(PGLfloat(FLocalMatrix));
+  GL.MultMatrixf(PGLfloat(FLocalMatrix));
 {$IFDEF GLS_EXPERIMENTAL}
   if Parent is TGLSceneRootObject then
     FScene.CurrentBuffer.FModelMatrix := FLocalMatrix^
@@ -4943,9 +4960,9 @@ begin
 {$ENDIF}
   if ARci.drawState = dsPicking then
     if ARci.proxySubObject then
-      TGLSceneBuffer(ARci.buffer).DoGLPushName(self)
+      GL.PushName(Integer(Self))
     else
-      TGLSceneBuffer(ARci.buffer).DoGLLoadName(self);
+      GL.LoadName(Integer(Self));
   // Start rendering
   if shouldRenderSelf then
   begin
@@ -4957,23 +4974,23 @@ begin
     begin
 {$IFNDEF GLS_OPTIMIZATIONS}
       if OptSaveGLStack then
-        glGetFloatv(GL_MODELVIEW_MATRIX, @saveMatrixSelf[0])
+        GL.GetFloatv(GL_MODELVIEW_MATRIX, @saveMatrixSelf[0])
       else
 {$ENDIF}
-        glPushMatrix;
+        GL.PushMatrix;
 
       FGLObjectEffects.RenderPreEffects(ARci);
 {$IFNDEF GLS_OPTIMIZATIONS}
       if OptSaveGLStack then
-        glLoadMatrixf(@saveMatrixSelf[0])
+        GL.LoadMatrixf(@saveMatrixSelf[0])
       else
       begin
-        glPopMatrix;
-        glPushMatrix;
+        GL.PopMatrix;
+        GL.PushMatrix;
       end;
 {$ELSE}
-      glPopMatrix;
-      glPushMatrix;
+      GL.PopMatrix;
+      GL.PushMatrix;
 {$ENDIF}
       if osIgnoreDepthBuffer in ObjectStyle then
       begin
@@ -4983,20 +5000,14 @@ begin
       end
       else
         DoRender(ARci, True, shouldRenderChildren);
-      if osDoesTemperWithColorsOrFaceWinding in ObjectStyle then
-      begin
-        ARci.GLStates.ResetGLPolygonMode;
-        ARci.GLStates.ResetGLMaterialColors;
-        ARci.GLStates.ResetGLCurrentTexture;
-        ARci.GLStates.ResetGLFrontFace;
-      end;
+
       FGLObjectEffects.RenderPostEffects(ARci);
 {$IFNDEF GLS_OPTIMIZATIONS}
       if OptSaveGLStack then
-        glLoadMatrixf(@saveMatrixSelf[0])
+        GL.LoadMatrixf(@saveMatrixSelf[0])
       else
 {$ENDIF}
-        glPopMatrix;
+        GL.PopMatrix;
     end
     else
     begin
@@ -5008,13 +5019,7 @@ begin
       end
       else
         DoRender(ARci, True, shouldRenderChildren);
-      if osDoesTemperWithColorsOrFaceWinding in ObjectStyle then
-      begin
-        ARci.GLStates.ResetGLPolygonMode;
-        ARci.GLStates.ResetGLMaterialColors;
-        ARci.GLStates.ResetGLCurrentTexture;
-        ARci.GLStates.ResetGLFrontFace;
-      end;
+
     end;
   end
   else
@@ -5032,13 +5037,13 @@ begin
   // Pop Name & Matrix
   if ARci.drawState = dsPicking then
     if ARci.proxySubObject then
-      glPopName;
+      GL.PopName;
 {$IFNDEF GLS_OPTIMIZATIONS}
   if OptSaveGLStack then
-    glLoadMatrixf(@saveMatrixParent[0])
+    GL.LoadMatrixf(@saveMatrixParent[0])
   else
 {$ENDIF}
-    glPopMatrix;
+    GL.PopMatrix;
 end;
 
 // DoRender
@@ -5053,7 +5058,7 @@ begin
     if (osDirectDraw in ObjectStyle) or ARci.amalgamating then
       BuildList(ARci)
     else
-      glCallList(GetHandle(ARci));
+      ARci.GLStates.CallList(GetHandle(ARci));
   end;
   // start rendering children (if any)
   if ARenderChildren then
@@ -5155,8 +5160,6 @@ begin
             if distList.Count > 0 then
             begin
               if distList.Count > 1 then
-                     {$WARNING crossbuilder: FastQuickSortLists comment says all values >= 1 but osRenderNearestFirst would give values <= -1 }
-                     {$WARNING crossbuilder: so maybe better use the slower QuickSortLists instead }
                 FastQuickSortLists(0, distList.Count - 1, distList, objList);
               plist := objList.List;
               for i := objList.Count - 1 downto 0 do
@@ -5488,6 +5491,8 @@ end;
 
 procedure TGLBaseBehaviour.WriteToFiler(writer: TWriter);
 begin
+  inherited;
+
   with writer do
   begin
     WriteInteger(0); // Archive Version 0
@@ -5500,6 +5505,9 @@ end;
 
 procedure TGLBaseBehaviour.ReadFromFiler(reader: TReader);
 begin
+  if Owner.ArchiveVersion > 0 then
+    inherited;
+
   with reader do
   begin
     if ReadInteger <> 0 then
@@ -5507,6 +5515,7 @@ begin
     // nothing more, yet
   end;
 end;
+
 
 // OwnerBaseSceneObject
 //
@@ -5598,6 +5607,7 @@ end;
 
 procedure TGLObjectEffect.WriteToFiler(writer: TWriter);
 begin
+  inherited;
   with writer do
   begin
     WriteInteger(0); // Archive Version 0
@@ -5610,6 +5620,9 @@ end;
 
 procedure TGLObjectEffect.ReadFromFiler(reader: TReader);
 begin
+  if Owner.ArchiveVersion > 0 then
+    inherited;
+
   with reader do
   begin
     if ReadInteger <> 0 then
@@ -5804,25 +5817,21 @@ procedure TGLCustomSceneObject.DoRender(var ARci: TRenderContextInfo;
 begin
   // start rendering self
   if ARenderSelf then
-  begin
-    if not ARci.ignoreMaterials then
-    begin
-      FMaterial.Apply(ARci);
-      repeat
-        if (osDirectDraw in ObjectStyle) or ARci.amalgamating then
-          BuildList(ARci)
-        else
-          glCallList(GetHandle(ARci));
-      until not FMaterial.UnApply(ARci);
-    end
+    if ARci.ignoreMaterials then
+      if (osDirectDraw in ObjectStyle) or ARci.amalgamating then
+       BuildList(ARci)
+      else
+       ARci.GLStates.CallList(GetHandle(ARci))
     else
     begin
-      if (osDirectDraw in ObjectStyle) or ARci.amalgamating then
-        BuildList(ARci)
-      else
-        glCallList(GetHandle(ARci));
+     FMaterial.Apply(ARci);
+     repeat
+       if (osDirectDraw in ObjectStyle) or ARci.amalgamating then
+         BuildList(ARci)
+       else
+         ARci.GLStates.CallList(GetHandle(ARci));
+     until not FMaterial.UnApply(ARci);
     end;
-  end;
   // start rendering children (if any)
   if ARenderChildren then
     Self.RenderChildren(0, Count - 1, ARci);
@@ -6027,7 +6036,7 @@ begin
     // finally create view frustum (perspective or orthogonal)
     case CameraStyle of
       csPerspective:
-        glFrustum(LLeft, LRight, LBottom, LTop, FNearPlane, zFar);
+        GL.Frustum(LLeft, LRight, LBottom, LTop, FNearPlane, zFar);
       csInfinitePerspective:
         begin
           mat := IdentityHmgMatrix;
@@ -6039,10 +6048,10 @@ begin
           mat[2][3] := -1;
           mat[3][2] := FNearPlane * (cEpsilon - 2);
           mat[3][3] := 0;
-          glMultMatrixf(@mat);
+          GL.MultMatrixf(@mat);
         end;
       csOrthogonal:
-        glOrtho(LLeft, LRight, LBottom, LTop, FNearPlane, zFar);
+        GL.Ortho(LLeft, LRight, LBottom, LTop, FNearPlane, zFar);
     else
       Assert(False);
     end;
@@ -6110,8 +6119,8 @@ begin
   FFocalLength := 50;
   with aSceneBuffer do
   begin
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity;
+    GL.MatrixMode(GL_PROJECTION);
+    GL.LoadIdentity;
     ApplyPerspective(FViewport, FViewport.Width, FViewport.Height, FRenderDPI);
     FUp.DirectVector := YHmgVector;
     if FViewport.Height < FViewport.Width then
@@ -6555,7 +6564,7 @@ begin
     if (osDirectDraw in ObjectStyle) or ARci.amalgamating then
       BuildList(ARci)
     else
-      glCallList(GetHandle(ARci));
+      ARci.GLStates.CallList(GetHandle(ARci));
   end;
   // start rendering children (if any)
   if ARenderChildren then
@@ -6599,28 +6608,28 @@ begin
   CurrentBuffer := TGLSceneBuffer(ARCi.buffer);
   if CamInvarianceMode <> cimNone then
   begin
-    glPushMatrix;
+    GL.PushMatrix;
     // prepare
     case CamInvarianceMode of
       cimPosition:
         begin
-          glLoadMatrixf(@CurrentBuffer.ViewMatrix);
-          glTranslatef(ARci.cameraPosition[0], ARci.cameraPosition[1],
+          GL.LoadMatrixf(@CurrentBuffer.ViewMatrix);
+          GL.Translatef(ARci.cameraPosition[0], ARci.cameraPosition[1],
             ARci.cameraPosition[2]);
         end;
       cimOrientation:
         begin
-          glLoadIdentity;
+          GL.LoadIdentity;
           // makes the coordinates system more 'intuitive' (Z+ forward)
-          glScalef(1, -1, -1);
+          GL.Scalef(1, -1, -1);
         end;
     else
       Assert(False);
     end;
     // Apply local transform
-    glMultMatrixf(PGLFloat(LocalMatrix));
+    GL.MultMatrixf(PGLFloat(LocalMatrix));
 
-    glGetFloatv(GL_MODELVIEW_MATRIX, @mvMat);
+    GL.GetFloatv(GL_MODELVIEW_MATRIX, @mvMat);
     CurrentBuffer.PushViewMatrix(mvMat);
     try
       if ARenderSelf then
@@ -6628,14 +6637,14 @@ begin
         if (osDirectDraw in ObjectStyle) or ARci.amalgamating then
           BuildList(ARci)
         else
-          glCallList(GetHandle(ARci));
+          ARci.GLStates.CallList(GetHandle(ARci));
       end;
       if ARenderChildren then
         Self.RenderChildren(0, Count - 1, ARci);
     finally
       CurrentBuffer.PopViewMatrix;
     end;
-    glPopMatrix;
+    GL.PopMatrix;
   end
   else
     inherited;
@@ -6664,8 +6673,7 @@ end;
 constructor TGLDirectOpenGL.Create(AOwner: TComponent);
 begin
   inherited;
-  ObjectStyle := ObjectStyle + [osDirectDraw,
-    osDoesTemperWithColorsOrFaceWinding];
+  ObjectStyle := ObjectStyle + [osDirectDraw];
   FBlend := False;
 end;
 
@@ -6748,8 +6756,7 @@ end;
 constructor TGLRenderPoint.Create(AOwner: TComponent);
 begin
   inherited;
-  ObjectStyle := ObjectStyle + [osDirectDraw,
-    osDoesTemperWithColorsOrFaceWinding];
+  ObjectStyle := ObjectStyle + [osDirectDraw];
 end;
 
 // Destroy
@@ -6840,7 +6847,6 @@ end;
 constructor TGLProxyObject.Create(AOwner: TComponent);
 begin
   inherited;
-  ObjectStyle := ObjectStyle + [osDoesTemperWithColorsOrFaceWinding];
   FProxyOptions := cDefaultProxyOptions;
 end;
 
@@ -6887,7 +6893,7 @@ begin
         oldProxySubObject := ARci.proxySubObject;
         ARci.proxySubObject := True;
         if pooTransformation in FProxyOptions then
-          glMultMatrixf(PGLFloat(FMasterObject.MatrixAsAddress));
+          GL.MultMatrixf(PGLFloat(FMasterObject.MatrixAsAddress));
         FMasterObject.DoRender(ARci, ARenderSelf, (FMasterObject.Count > 0));
         ARci.proxySubObject := oldProxySubObject;
       end;
@@ -7295,7 +7301,7 @@ begin
     if FLights.List^[i] = nil then
     begin
       FLights.List^[i] := ALight;
-      ALight.FLightID := GL_LIGHT0 + i;
+      ALight.FLightID := i;
       Break;
     end;
 end;
@@ -7370,7 +7376,7 @@ begin
     if FBaseContext = nil then
       FBaseContext := TGLSceneBuffer(FBuffers[0]).RenderingContext;
     if (FBuffers.Count > 1) and Assigned(FBaseContext) then
-      FBaseContext.ShareLists(aBuffer.RenderingContext);
+      aBuffer.RenderingContext.ShareLists(FBaseContext);
   end;
 end;
 
@@ -7502,7 +7508,7 @@ begin
   pt.newTime := newTime;
   FObjects.DoProgress(pt);
 {$IFDEF GLS_EXPERIMENTAL}
-   StaticVBOManager.DoProgress(pt);
+  GLVBOManagers.vCurrentTime := newTime;
 {$ENDIF}
 end;
 
@@ -7729,7 +7735,9 @@ begin
   if nbLights > maxLights then
     nbLights := maxLights;
   // setup all light sources
-  glPushMatrix;
+  with CurrentGLContext.GLStates do
+  begin
+  GL.PushMatrix;
   for i := 0 to nbLights - 1 do
   begin
     lightSource := TGLLightSource(FLights[i]);
@@ -7738,50 +7746,51 @@ begin
       begin
         if Shining then
         begin
-          glEnable(FLightID);
-          glPopMatrix;
-          glPushMatrix;
+          LightEnabling[FLightID] := True;
+          GL.PopMatrix;
+          GL.PushMatrix;
           RebuildMatrix;
           if LightStyle = lsParallel then
           begin
-            glMultMatrixf(PGLFloat(AbsoluteMatrixAsAddress));
-            glLightfv(FLightID, GL_POSITION, SpotDirection.AsAddress)
+            GL.MultMatrixf(PGLFloat(AbsoluteMatrixAsAddress));
+            GL.Lightfv(GL_LIGHT0+FLightID, GL_POSITION, SpotDirection.AsAddress);
           end
           else
           begin
-            glMultMatrixf(PGLFloat(Parent.AbsoluteMatrixAsAddress));
-            glLightfv(FLightID, GL_POSITION, Position.AsAddress);
+            GL.MultMatrixf(PGLFloat(Parent.AbsoluteMatrixAsAddress));
+            GL.Lightfv(GL_LIGHT0+FLightID, GL_POSITION, Position.AsAddress);
           end;
-          glLightfv(FLightID, GL_AMBIENT, FAmbient.AsAddress);
-          glLightfv(FLightID, GL_DIFFUSE, FDiffuse.AsAddress);
-          glLightfv(FLightID, GL_SPECULAR, FSpecular.AsAddress);
+          LightAmbient[FLightID] := FAmbient.Color;
+          LightDiffuse[FLightID] := FDiffuse.Color;
+          LightSpecular[FLightID] := FSpecular.Color;
           if LightStyle = lsSpot then
           begin
             if FSpotCutOff <> 180 then
             begin
-              glLightfv(FLightID, GL_SPOT_DIRECTION, FSpotDirection.AsAddress);
-              glLightfv(FLightID, GL_SPOT_EXPONENT, @FSpotExponent);
+              GL.Lightfv(GL_LIGHT0+FLightID, GL_SPOT_DIRECTION, FSpotDirection.AsAddress);
+              GL.Lightfv(GL_LIGHT0+FLightID, GL_SPOT_EXPONENT, @FSpotExponent);
             end;
-            glLightfv(FLightID, GL_SPOT_CUTOFF, @FSpotCutOff);
+            LightSpotCutoff[FLightID] := FSpotCutOff;
           end
           else
           begin
-            glLightf(FLightID, GL_SPOT_CUTOFF, 180);
+            LightSpotCutoff[FLightID] := 180;
           end;
-          glLightfv(FLightID, GL_CONSTANT_ATTENUATION, @FConstAttenuation);
-          glLightfv(FLightID, GL_LINEAR_ATTENUATION, @FLinearAttenuation);
-          glLightfv(FLightID, GL_QUADRATIC_ATTENUATION, @FQuadraticAttenuation);
+          LightConstantAtten[FLightID] := FConstAttenuation;
+          LightLinearAtten[FLightID] := FLinearAttenuation;
+          LightQuadraticAtten[FLightID] := FQuadraticAttenuation;
         end
         else
-          glDisable(FLightID);
+          LightEnabling[FLightID] := False;
       end
     else
-      glDisable(GL_LIGHT0 + i);
+      LightEnabling[i] := False;
   end;
-  glPopMatrix;
+  GL.PopMatrix;
   // turn off other lights
   for i := nbLights to maxLights - 1 do
-    glDisable(GL_LIGHT0 + i);
+    LightEnabling[i] := False;
+  end;
 end;
 
 // ------------------
@@ -7922,36 +7931,36 @@ begin
   end;
 
   case FFogMode of
-    fmLinear: glFogi(GL_FOG_MODE, GL_LINEAR);
+    fmLinear: GL.Fogi(GL_FOG_MODE, GL_LINEAR);
     fmExp:
       begin
-        glFogi(GL_FOG_MODE, GL_EXP);
-        glFogf(GL_FOG_DENSITY, FFogColor.Alpha);
+        GL.Fogi(GL_FOG_MODE, GL_EXP);
+        GL.Fogf(GL_FOG_DENSITY, FFogColor.Alpha);
       end;
     fmExp2:
       begin
-        glFogi(GL_FOG_MODE, GL_EXP2);
-        glFogf(GL_FOG_DENSITY, FFogColor.Alpha);
+        GL.Fogi(GL_FOG_MODE, GL_EXP2);
+        GL.Fogf(GL_FOG_DENSITY, FFogColor.Alpha);
       end;
   end;
-  glFogfv(GL_FOG_COLOR, FFogColor.AsAddress);
-  glFogf(GL_FOG_START, FFogStart);
-  glFogf(GL_FOG_END, FFogEnd);
-  if GL_NV_fog_distance then
+  GL.Fogfv(GL_FOG_COLOR, FFogColor.AsAddress);
+  GL.Fogf(GL_FOG_START, FFogStart);
+  GL.Fogf(GL_FOG_END, FFogEnd);
+  if GL.NV_fog_distance then
   begin
     case FogDistance of
       fdDefault:
         begin
           if vImplemDependantFogDistanceDefault = -1 then
-            glGetIntegerv(GL_FOG_DISTANCE_MODE_NV,
+            GL.GetIntegerv(GL_FOG_DISTANCE_MODE_NV,
               @vImplemDependantFogDistanceDefault)
           else
-            glFogi(GL_FOG_DISTANCE_MODE_NV, vImplemDependantFogDistanceDefault);
+            GL.Fogi(GL_FOG_DISTANCE_MODE_NV, vImplemDependantFogDistanceDefault);
         end;
       fdEyePlane:
-        glFogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_PLANE_ABSOLUTE_NV);
+        GL.Fogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_PLANE_ABSOLUTE_NV);
       fdEyeRadial:
-        glFogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_RADIAL_NV);
+        GL.Fogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_RADIAL_NV);
     else
       Assert(False);
     end;
@@ -7998,14 +8007,6 @@ end;
 destructor TGLSceneBuffer.Destroy;
 begin
   Melt;
-  // clean up and terminate
-   {$HINT crossbuilder: check, if this ifndef is still needed }
-   {$ifndef FPC}
-   if Assigned(FCamera) and Assigned(FCamera.FScene) then begin
-    FCamera.FScene.RemoveBuffer(Self);
-    FCamera := nil;
-  end;
-   {$endif}
   DestroyRC;
   FAmbientColor.Free;
   FAfterRenderEffects.Free;
@@ -8036,6 +8037,8 @@ var
   locStencilBits, locAlphaBits, locColorBits: Integer;
 begin
   locOptions := [];
+
+
   if roDoubleBuffer in ContextOptions then
     locOptions := locOptions + [rcoDoubleBuffered];
   if roStereo in ContextOptions then
@@ -8054,6 +8057,10 @@ begin
     locAlphaBits := 0;
   with context do
   begin
+    if roSoftwareMode in ContextOptions then
+      Acceleration := chaSoftware
+    else
+      Acceleration := chaHardware;
     Options := locOptions;
     ColorBits := locColorBits;
     DepthBits := cDepthPrecisionToDepthBits[DepthPrecision];
@@ -8062,7 +8069,7 @@ begin
     AccumBits := AccumBufferBits;
     AuxBuffers := 0;
     AntiAliasing := Self.AntiAliasing;
-    GLStates.ForwardContext := roForwardContext in  ContextOptions;
+    GLStates.ForwardContext := roForwardContext in ContextOptions;
     PrepareGLContext;
   end;
 end;
@@ -8070,19 +8077,22 @@ end;
 // CreateRC
 //
 
-procedure TGLSceneBuffer.CreateRC(deviceHandle : HDC; memoryContext:
+procedure TGLSceneBuffer.CreateRC(deviceHandle: HWND; memoryContext:
   Boolean; BufferCount: integer);
-var
-  backColor: TColorVector;
 begin
   DestroyRC;
   FRendering := True;
+
   try
     // will be freed in DestroyWindowHandle
     FRenderingContext := GLContextManager.CreateContext;
     if not Assigned(FRenderingContext) then
       raise Exception.Create('Failed to create RenderingContext.');
     SetupRCOptions(FRenderingContext);
+
+    if Assigned(FCamera) and Assigned(FCamera.FScene) then
+      FCamera.FScene.AddBuffer(Self);
+
     with FRenderingContext do
     begin
       try
@@ -8103,11 +8113,12 @@ begin
         raise EOpenGLError.Create(glsWrongVersion);
       // define viewport, this is necessary because the first WM_SIZE message
       // is posted before the rendering context has been created
-      glViewport(0, 0, FViewPort.Width, FViewPort.Height);
+      FRenderingContext.GLStates.ViewPort :=
+        Vector4iMake(0, 0, FViewPort.Width, FViewPort.Height);
       // set up initial context states
       SetupRenderingContext(FRenderingContext);
-      BackColor := ConvertWinColor(FBackgroundColor);
-      glClearColor(BackColor[0], BackColor[1], BackColor[2], BackColor[3]);
+      FRenderingContext.GLStates.ColorClearValue :=
+        ConvertWinColor(FBackgroundColor);
     finally
       FRenderingContext.Deactivate;
     end;
@@ -8125,7 +8136,8 @@ begin
   begin
     Melt;
     // for some obscure reason, Mesa3D doesn't like this call... any help welcome
-    FreeAndNil(FRenderingContext);
+    FRenderingContext.Free;
+    FRenderingContext := nil;
     if Assigned(FCamera) and Assigned(FCamera.FScene) then
       FCamera.FScene.RemoveBuffer(Self);
   end;
@@ -8155,7 +8167,8 @@ begin
     FRenderingContext.Activate;
     try
       // Part of workaround for MS OpenGL "black borders" bug
-      glViewport(0, 0, FViewPort.Width, FViewPort.Height);
+      FRenderingContext.GLStates.ViewPort :=
+        Vector4iMake(0, 0, FViewPort.Width, FViewPort.Height);
     finally
       FRenderingContext.Deactivate;
     end;
@@ -8178,7 +8191,7 @@ end;
 
 procedure TGLSceneBuffer.SetupRenderingContext(context: TGLContext);
 
-  procedure PerformEnable(bool: Boolean; csState: TGLState);
+  procedure SetState(bool: Boolean; csState: TGLState);
   begin
     case bool of
       true: context.GLStates.PerformEnable(csState);
@@ -8192,35 +8205,35 @@ begin
   if not Assigned(context) then
     Exit;
 
-  if not(roForwardContext in ContextOptions) then
+  if not (roForwardContext in ContextOptions) then
   begin
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, FAmbientColor.AsAddress);
+    GL.LightModelfv(GL_LIGHT_MODEL_AMBIENT, FAmbientColor.AsAddress);
     if roTwoSideLighting in FContextOptions then
-      glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
+      GL.LightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
     else
-      glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+      GL.LightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+    GL.Hint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     case ShadeModel of
-      smDefault, smSmooth: glShadeModel(GL_SMOOTH);
-      smFlat: glShadeModel(GL_FLAT);
+      smDefault, smSmooth: GL.ShadeModel(GL_SMOOTH);
+      smFlat: GL.ShadeModel(GL_FLAT);
     else
       Assert(False, glsErrorEx + glsUnknownType);
     end;
   end;
 
-  PerformEnable(True, stNormalize);
-
-  PerformEnable(DepthTest, stDepthTest);
-  PerformEnable(FaceCulling, stCullFace);
-  PerformEnable(Lighting, stLighting);
-  PerformEnable(FogEnable, stFog);
-  if GL_ARB_depth_clamp then
-    PerformEnable(False, stDepthClamp);
-  glGetIntegerv(GL_BLUE_BITS, @LColorDepth); // could've used red or green too
-  PerformEnable((LColorDepth < 8), stDither);
-
-  context.GLStates.ResetGLDepthState;
-
+  with context.GLStates do
+  begin
+    Enable(stNormalize);
+    SetState(DepthTest, stDepthTest);
+    SetState(FaceCulling, stCullFace);
+    SetState(Lighting, stLighting);
+    SetState(FogEnable, stFog);
+    if GL.ARB_depth_clamp then
+      Disable(stDepthClamp);
+    GL.GetIntegerv(GL_BLUE_BITS, @LColorDepth); // could've used red or green too
+    SetState((LColorDepth < 8), stDither);
+    ResetGLTextureMatrix;
+  end;
 end;
 
 // GetLimit
@@ -8232,66 +8245,66 @@ var
 begin
   case Which of
     limClipPlanes:
-      glGetIntegerv(GL_MAX_CLIP_PLANES, @Result);
+      GL.GetIntegerv(GL_MAX_CLIP_PLANES, @Result);
     limEvalOrder:
-      glGetIntegerv(GL_MAX_EVAL_ORDER, @Result);
+      GL.GetIntegerv(GL_MAX_EVAL_ORDER, @Result);
     limLights:
-      glGetIntegerv(GL_MAX_LIGHTS, @Result);
+      GL.GetIntegerv(GL_MAX_LIGHTS, @Result);
     limListNesting:
-      glGetIntegerv(GL_MAX_LIST_NESTING, @Result);
+      GL.GetIntegerv(GL_MAX_LIST_NESTING, @Result);
     limModelViewStack:
-      glGetIntegerv(GL_MAX_MODELVIEW_STACK_DEPTH, @Result);
+      GL.GetIntegerv(GL_MAX_MODELVIEW_STACK_DEPTH, @Result);
     limNameStack:
-      glGetIntegerv(GL_MAX_NAME_STACK_DEPTH, @Result);
+      GL.GetIntegerv(GL_MAX_NAME_STACK_DEPTH, @Result);
     limPixelMapTable:
-      glGetIntegerv(GL_MAX_PIXEL_MAP_TABLE, @Result);
+      GL.GetIntegerv(GL_MAX_PIXEL_MAP_TABLE, @Result);
     limProjectionStack:
-      glGetIntegerv(GL_MAX_PROJECTION_STACK_DEPTH, @Result);
+      GL.GetIntegerv(GL_MAX_PROJECTION_STACK_DEPTH, @Result);
     limTextureSize:
-      glGetIntegerv(GL_MAX_TEXTURE_SIZE, @Result);
+      GL.GetIntegerv(GL_MAX_TEXTURE_SIZE, @Result);
     limTextureStack:
-      glGetIntegerv(GL_MAX_TEXTURE_STACK_DEPTH, @Result);
+      GL.GetIntegerv(GL_MAX_TEXTURE_STACK_DEPTH, @Result);
     limViewportDims:
       begin
-        glGetDoublev(GL_MAX_VIEWPORT_DIMS, @VP);
+        GL.GetDoublev(GL_MAX_VIEWPORT_DIMS, @VP);
         if VP[0] > VP[1] then
           Result := Round(VP[0])
         else
           Result := Round(VP[1]);
       end;
     limAccumAlphaBits:
-      glGetIntegerv(GL_ACCUM_ALPHA_BITS, @Result);
+      GL.GetIntegerv(GL_ACCUM_ALPHA_BITS, @Result);
     limAccumBlueBits:
-      glGetIntegerv(GL_ACCUM_BLUE_BITS, @Result);
+      GL.GetIntegerv(GL_ACCUM_BLUE_BITS, @Result);
     limAccumGreenBits:
-      glGetIntegerv(GL_ACCUM_GREEN_BITS, @Result);
+      GL.GetIntegerv(GL_ACCUM_GREEN_BITS, @Result);
     limAccumRedBits:
-      glGetIntegerv(GL_ACCUM_RED_BITS, @Result);
+      GL.GetIntegerv(GL_ACCUM_RED_BITS, @Result);
     limAlphaBits:
-      glGetIntegerv(GL_ALPHA_BITS, @Result);
+      GL.GetIntegerv(GL_ALPHA_BITS, @Result);
     limAuxBuffers:
-      glGetIntegerv(GL_AUX_BUFFERS, @Result);
+      GL.GetIntegerv(GL_AUX_BUFFERS, @Result);
     limDepthBits:
-      glGetIntegerv(GL_DEPTH_BITS, @Result);
+      GL.GetIntegerv(GL_DEPTH_BITS, @Result);
     limStencilBits:
-      glGetIntegerv(GL_STENCIL_BITS, @Result);
+      GL.GetIntegerv(GL_STENCIL_BITS, @Result);
     limBlueBits:
-      glGetIntegerv(GL_BLUE_BITS, @Result);
+      GL.GetIntegerv(GL_BLUE_BITS, @Result);
     limGreenBits:
-      glGetIntegerv(GL_GREEN_BITS, @Result);
+      GL.GetIntegerv(GL_GREEN_BITS, @Result);
     limRedBits:
-      glGetIntegerv(GL_RED_BITS, @Result);
+      GL.GetIntegerv(GL_RED_BITS, @Result);
     limIndexBits:
-      glGetIntegerv(GL_INDEX_BITS, @Result);
+      GL.GetIntegerv(GL_INDEX_BITS, @Result);
     limStereo:
-      glGetIntegerv(GL_STEREO, @Result);
+      GL.GetIntegerv(GL_STEREO, @Result);
     limDoubleBuffer:
-      glGetIntegerv(GL_DOUBLEBUFFER, @Result);
+      GL.GetIntegerv(GL_DOUBLEBUFFER, @Result);
     limSubpixelBits:
-      glGetIntegerv(GL_SUBPIXEL_BITS, @Result);
+      GL.GetIntegerv(GL_SUBPIXEL_BITS, @Result);
     limNbTextureUnits:
-      if GL_ARB_multitexture then
-        glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, @Result)
+      if GL.ARB_multitexture then
+        GL.GetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, @Result)
       else
         Result := 1;
   else
@@ -8416,10 +8429,10 @@ end;
 procedure TGLSceneBuffer.CopyToTexture(aTexture: TGLTexture;
   xSrc, ySrc, width, height: Integer;
   xDest, yDest: Integer;
-  target: Integer = 0;
+  glTarget: TGLEnum = 0;
   forceCreateTexture: Boolean = False);
 var
-  handle, bindTarget: Integer;
+  handle, bindTarget: TGLEnum;
   buf: Pointer;
   createTexture: Boolean;
 begin
@@ -8427,55 +8440,50 @@ begin
   begin
     RenderingContext.Activate;
     try
-      if target <= 0 then
+      if glTarget = 0 then
       begin
-        target := aTexture.Image.NativeTextureTarget;
-        bindTarget := target;
+        glTarget := DecodeGLTextureTarget(aTexture.Image.NativeTextureTarget);
+        bindTarget := glTarget;
       end
       else
       begin
-        if (target >= GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB)
-          and (target < GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + 6) then
-          bindTarget := GL_TEXTURE_CUBE_MAP_ARB
+        if (glTarget >= GL_TEXTURE_CUBE_MAP_POSITIVE_X)
+          and (glTarget < GL_TEXTURE_CUBE_MAP_POSITIVE_X + 6) then
+          bindTarget := GL_TEXTURE_CUBE_MAP
         else
-          bindTarget := target;
+          bindTarget := glTarget;
       end;
       createTexture := not aTexture.IsHandleAllocated;
-
-      if aTexture.IsFloatType then // float_type special treatment
-        CreateTexture := false;
 
       if createTexture then
         handle := aTexture.AllocateHandle
       else
         handle := aTexture.Handle;
       createTexture := createTexture or forceCreateTexture;
-      RenderingContext.GLStates.SetGLCurrentTexture(0, bindTarget, handle);
+      RenderingContext.GLStates.TextureBinding[0,
+        EncodeGLTextureTarget(bindTarget)] := handle;
       if createTexture then
       begin
         GetMem(buf, Width * Height * 4);
         try
-          glReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+          GL.ReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
           case aTexture.MinFilter of
             miNearest, miLinear:
-              glTexImage2d(target, 0, aTexture.OpenGLTextureFormat, Width,
-                Height,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+              GL.TexImage2d(glTarget, 0, aTexture.OpenGLTextureFormat, Width,
+                Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
           else
-            if GL_SGIS_generate_mipmap and (target = GL_TEXTURE_2D) then
+            if GL.SGIS_generate_mipmap and IsTargetSupportMipmap(bindTarget) then
             begin
               // hardware-accelerated when supported
-              glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-              glTexImage2d(target, 0, aTexture.OpenGLTextureFormat, Width,
-                Height,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+              GL.TexParameteri(glTarget, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+              GL.TexImage2d(glTarget, 0, aTexture.OpenGLTextureFormat, Width,
+                Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
             end
             else
             begin
               // slower (software mode)
-              gluBuild2DMipmaps(target, aTexture.OpenGLTextureFormat, Width,
-                Height,
-                GL_RGBA, GL_UNSIGNED_BYTE, buf);
+              gluBuild2DMipmaps(glTarget, aTexture.OpenGLTextureFormat,
+                Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
             end;
           end;
         finally
@@ -8484,7 +8492,7 @@ begin
       end
       else
       begin
-        glCopyTexSubImage2D(target, 0, xDest, yDest, xSrc, ySrc, Width, Height);
+        GL.CopyTexSubImage2D(glTarget, 0, xDest, yDest, xSrc, ySrc, Width, Height);
       end;
       ClearGLError;
     finally
@@ -8507,8 +8515,8 @@ begin
     GetMem(Data, DataSize);
     FRenderingContext.Activate;
     try
-      glReadPixels(0, 0, Width, Height, GL_RGBA, GL_FLOAT, Data);
-      CheckOpenGLError;
+      GL.ReadPixels(0, 0, Width, Height, GL_RGBA, GL_FLOAT, Data);
+      GL.CheckError;
 
       Stream := TMemoryStream.Create;
       try
@@ -8569,7 +8577,7 @@ begin
   RenderingContext.Activate;
   try
     FFreezeBuffer := AllocMem(FViewPort.Width * FViewPort.Height * 4);
-    glReadPixels(0, 0, FViewport.Width, FViewPort.Height,
+    GL.ReadPixels(0, 0, FViewport.Width, FViewPort.Height,
       GL_RGBA, GL_UNSIGNED_BYTE, FFreezeBuffer);
     FFreezedViewPort := FViewPort;
   finally
@@ -8595,7 +8603,6 @@ end;
 procedure TGLSceneBuffer.RenderToBitmap(ABitmap: TGLBitmap; DPI: Integer);
 var
   bmpContext: TGLContext;
-  backColor: TColorVector;
   aColorBits: Integer;
   LViewport, viewportBackup: TRectangle;
 begin
@@ -8615,14 +8622,10 @@ begin
       CreateContext(Cardinal(ABitmap.Canvas.Handle));
     end;
     try
-      // save current window context states
-      // we must free the lists before changeing context, or it will have no effect
-      GLContextManager.DestroyAllHandles;
       bmpContext.Activate;
       try
         SetupRenderingContext(bmpContext);
-        BackColor := ConvertWinColor(FBackgroundColor);
-        glClearColor(BackColor[0], BackColor[1], BackColor[2], BackColor[3]);
+        bmpContext.GLStates.ColorClearValue := ConvertWinColor(FBackgroundColor);
         // set the desired viewport and limit output to this rectangle
         with LViewport do
         begin
@@ -8630,7 +8633,8 @@ begin
           Top := 0;
           Width := ABitmap.Width;
           Height := ABitmap.Height;
-          glViewport(Left, Top, Width, Height);
+          bmpContext.GLStates.ViewPort :=
+            Vector4iMake(Left, Top, Width, Height);
         end;
         ClearBuffers;
         FRenderDPI := DPI;
@@ -8642,11 +8646,10 @@ begin
         FViewport := LViewport;
         DoBaseRender(LViewport, FRenderDPI, dsPrinting, nil);
         FViewport := viewportBackup;
-        glFinish;
+        GL.Finish;
       finally
         bmpContext.Deactivate;
       end;
-      GLContextManager.DestroyAllHandles;
     finally
       bmpContext.Free;
     end;
@@ -9043,13 +9046,20 @@ var
 begin
   if roNoDepthBufferClear in ContextOptions then
     bufferBits := 0
-  else
+  else begin
     bufferBits := GL_DEPTH_BUFFER_BIT;
+    CurrentGLContext.GLStates.DepthWriteMask := True;
+  end;
   if ContextOptions * [roNoColorBuffer, roNoColorBufferClear] = [] then
+  begin
     bufferBits := bufferBits or GL_COLOR_BUFFER_BIT;
+    CurrentGLContext.GLStates.SetColorMask(cAllColorComponents);
+  end;
   if roStencilBuffer in ContextOptions then
+  begin
     bufferBits := bufferBits or GL_STENCIL_BUFFER_BIT;
-  glClear(BufferBits);
+  end;
+  GL.Clear(BufferBits);
 end;
 
 // NotifyChange
@@ -9058,28 +9068,6 @@ end;
 procedure TGLSceneBuffer.NotifyChange(Sender: TObject);
 begin
   DoChange;
-end;
-
-procedure TGLSceneBuffer.DoGLInitNames;
-begin
-  if assigned(FNameStackMap) then
-    FNameStackMap.Count:=0
-  else begin
-    FNameStackMap:=TPersistentObjectList.Create;
-    FNameStackMap.GrowthDelta:=1024;
-    FNameStackMap.Capacity:=1024;
-  end;
-  glInitNames;
-end;
-
-procedure TGLSceneBuffer.DoGLLoadName(aPointer: pointer);
-begin
-  glLoadName(FNameStackMap.add(aPointer));
-end;
-
-procedure TGLSceneBuffer.DoGLPushName(aPointer: pointer);
-begin
-  glPushName(FNameStackMap.add(aPointer));
 end;
 
 // PickObjects
@@ -9123,20 +9111,20 @@ begin
           // hardware that uses DMA to return select results but that sometimes
           // overrun the buffer.  Yuck.
           Inc(objectCountGuess, objectCountGuess); // double buffer size
-               ReallocMem(buffer, objectCountGuess * 4 * SizeOf(GLUint) + 32 * 4);
+          ReallocMem(buffer, objectCountGuess * 4 * SizeOf(Integer) + 32 * 4);
         end;
         // pass buffer to opengl and prepare render
-        glSelectBuffer(objectCountGuess * 4, @Buffer^);
-        glRenderMode(GL_SELECT);
-        DoGLInitNames;
-        DoGLPushName(nil);
+        GL.SelectBuffer(objectCountGuess * 4, @Buffer^);
+        GL.RenderMode(GL_SELECT);
+        GL.InitNames;
+        GL.PushName(0);
         // render the scene (in select mode, nothing is drawn)
         FRenderDPI := 96;
         if Assigned(FCamera) and Assigned(FCamera.FScene) then
           RenderScene(FCamera.FScene, FViewPort.Width, FViewPort.Height,
             dsPicking, nil);
-        glFlush;
-        Hits := glRenderMode(GL_RENDER);
+        GL.Flush;
+        Hits := GL.RenderMode(GL_RENDER);
       until Hits > -1; // try again with larger selection buffer
       next := 0;
       PickList.Clear;
@@ -9158,13 +9146,12 @@ begin
             inc(subObjIndex);
           end;
         end;
-        PickList.AddHit(TGLBaseSceneObject(FNameStackMap.Items[buffer^[current+3]]),
+        PickList.AddHit(TGLBaseSceneObject(buffer^[current + 3]),
           subObj, szmin, szmax);
       end;
     finally
       FProjectionMatrix := backupProjectionMatrix;
       FreeMem(buffer);
-      FreeAndNil(FNameStackMap);
     end;
   finally
     FRendering := False;
@@ -9214,7 +9201,7 @@ begin
   end;
   FRenderingContext.Activate;
   try
-    glReadPixels(x, FViewPort.Height - y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE,
+    GL.ReadPixels(x, FViewPort.Height - y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE,
       @buf[0]);
   finally
     FRenderingContext.Deactivate;
@@ -9234,7 +9221,7 @@ begin
   end;
   FRenderingContext.Activate;
   try
-    glReadPixels(x, FViewPort.Height - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT,
+    GL.ReadPixels(x, FViewPort.Height - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT,
       @Result);
   finally
     FRenderingContext.Deactivate;
@@ -9292,25 +9279,25 @@ procedure TGLSceneBuffer.PrepareRenderingMatrices(const aViewPort: TRectangle;
   resolution: Integer; pickingRect: PGLRect = nil);
 begin
   // setup projection matrix
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity;
+  GL.MatrixMode(GL_PROJECTION);
+  GL.LoadIdentity;
   if Assigned(pickingRect) then
     gluPickMatrix((pickingRect^.Left + pickingRect^.Right) div 2,
       FViewPort.Height - ((pickingRect^.Top + pickingRect^.Bottom) div 2),
       Abs(pickingRect^.Right - pickingRect^.Left),
       Abs(pickingRect^.Bottom - pickingRect^.Top),
       TVector4i(FViewport));
-  glGetFloatv(GL_PROJECTION_MATRIX, @FBaseProjectionMatrix);
+  GL.GetFloatv(GL_PROJECTION_MATRIX, @FBaseProjectionMatrix);
   if Assigned(FCamera) then
   begin
     // apply camera perpective
     FCamera.ApplyPerspective(aViewport, FViewPort.Width, FViewPort.Height,
       resolution);
-    glGetFloatv(GL_PROJECTION_MATRIX, @FProjectionMatrix);
+    GL.GetFloatv(GL_PROJECTION_MATRIX, @FProjectionMatrix);
   end;
   // setup model view matrix
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity;
+  GL.MatrixMode(GL_MODELVIEW);
+  GL.LoadIdentity;
   if Assigned(FCamera) then
   begin
     // apply camera transformation (viewpoint)
@@ -9318,7 +9305,7 @@ begin
     FCamera.Apply;
     FCameraAbsolutePosition := FCamera.AbsolutePosition;
   end;
-  glGetFloatv(GL_MODELVIEW_MATRIX, @FViewMatrix);
+  GL.GetFloatv(GL_MODELVIEW_MATRIX, @FViewMatrix);
 end;
 
 // DoBaseRender
@@ -9327,39 +9314,49 @@ end;
 procedure TGLSceneBuffer.DoBaseRender(const aViewPort: TRectangle; resolution:
   Integer;
   drawState: TDrawState; baseObject: TGLBaseSceneObject);
-var
-  maxLights: Integer;
 begin
-  PrepareRenderingMatrices(aViewPort, resolution);
-  xglMapTexCoordToNull; // force XGL rebind
-  xglMapTexCoordToMain;
-  if Assigned(FViewerBeforeRender) then
-    FViewerBeforeRender(Self);
-  if Assigned(FBeforeRender) then
-    if Owner is TComponent then
-      if not (csDesigning in TComponent(Owner).ComponentState) then
-        FBeforeRender(Self);
-  if Assigned(FCamera) and Assigned(FCamera.FScene) then
+  with RenderingContext.GLStates do
   begin
-    with FCamera.FScene do
+    PrepareRenderingMatrices(aViewPort, resolution);
+    if not ForwardContext then
     begin
-      glGetIntegerv(GL_MAX_LIGHTS, @maxLights);
-      SetupLights(maxLights);
-      if FogEnable then
-      begin
-        glEnable(GL_FOG);
-        FogEnvironment.ApplyFog;
-      end
-      else
-        glDisable(GL_FOG);
-      RenderScene(FCamera.FScene, aViewPort.Width, aViewPort.Height, drawState,
-        baseObject);
+      xglMapTexCoordToNull; // force XGL rebind
+      xglMapTexCoordToMain;
     end;
+
+    if Assigned(FViewerBeforeRender) then
+      FViewerBeforeRender(Self);
+    if Assigned(FBeforeRender) then
+      if Owner is TComponent then
+        if not (csDesigning in TComponent(Owner).ComponentState) then
+          FBeforeRender(Self);
+
+    if Assigned(FCamera) and Assigned(FCamera.FScene) then
+    begin
+      with FCamera.FScene do
+      begin
+        if not ForwardContext then
+        begin
+          SetupLights(MaxLights);
+          if FogEnable then
+          begin
+            Enable(stFog);
+            FogEnvironment.ApplyFog;
+          end
+          else
+            Disable(stFog);
+        end;
+
+        RenderScene(FCamera.FScene, aViewPort.Width, aViewPort.Height,
+          drawState,
+          baseObject);
+      end;
+    end;
+    if Assigned(FPostRender) then
+      if Owner is TComponent then
+        if not (csDesigning in TComponent(Owner).ComponentState) then
+          FPostRender(Self);
   end;
-  if Assigned(FPostRender) then
-    if Owner is TComponent then
-      if not (csDesigning in TComponent(Owner).ComponentState) then
-        FPostRender(Self);
   Assert(Length(FViewMatrixStack) = 0,
     'Unbalance Push/PopViewMatrix.');
   Assert(Length(FProjectionMatrixStack) = 0,
@@ -9380,27 +9377,25 @@ end;
 procedure TGLSceneBuffer.Render(baseObject: TGLBaseSceneObject);
 var
   perfCounter, framePerf: Int64;
-  backColor: TColorVector;
 begin
   if FRendering then
     Exit;
   if not Assigned(FRenderingContext) then
     Exit;
 
-  backColor := ConvertWinColor(FBackgroundColor, FBackgroundAlpha);
-
   if Freezed and (FFreezeBuffer <> nil) then
   begin
     RenderingContext.Activate;
     try
-      glClearColor(backColor[0], backColor[1], backColor[2], backColor[3]);
+      RenderingContext.GLStates.ColorClearValue :=
+        ConvertWinColor(FBackgroundColor, FBackgroundAlpha);
       ClearBuffers;
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity;
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity;
-      glRasterPos2f(-1, -1);
-      glDrawPixels(FFreezedViewPort.Width, FFreezedViewPort.Height,
+      GL.MatrixMode(GL_PROJECTION);
+      GL.LoadIdentity;
+      GL.MatrixMode(GL_MODELVIEW);
+      GL.LoadIdentity;
+      GL.RasterPos2f(-1, -1);
+      GL.DrawPixels(FFreezedViewPort.Width, FFreezedViewPort.Height,
         GL_RGBA, GL_UNSIGNED_BYTE, FFreezeBuffer);
       if not (roNoSwapBuffers in ContextOptions) then
         RenderingContext.SwapBuffers;
@@ -9415,9 +9410,9 @@ begin
   if Assigned(FCamera) and Assigned(FCamera.FScene) then
   begin
     FCamera.AbsoluteMatrixAsAddress;
-      {$warning Ales - if we don't add self, leak doesn't happen (cause is elsewhere tho)}
     FCamera.FScene.AddBuffer(Self);
   end;
+
   FRendering := True;
   try
     FRenderingContext.Activate;
@@ -9429,12 +9424,13 @@ begin
       ClearGLError;
       SetupRenderingContext(FRenderingContext);
       // clear the buffers
-      glClearColor(backColor[0], backColor[1], backColor[2], backColor[3]);
+      FRenderingContext.GLStates.ColorClearValue :=
+        ConvertWinColor(FBackgroundColor, FBackgroundAlpha);
       ClearBuffers;
-      CheckOpenGLError;
+      GL.CheckError;
       // render
       DoBaseRender(FViewport, RenderDPI, dsRendering, baseObject);
-      CheckOpenGLError;
+      GL.CheckError;
       if not (roNoSwapBuffers in ContextOptions) then
         RenderingContext.SwapBuffers;
 
@@ -9445,7 +9441,7 @@ begin
       Dec(perfCounter, FFirstPerfCounter);
       if perfCounter > 0 then
         FFramesPerSecond := (FFrameCount * vCounterFrequency) / perfCounter;
-      CheckOpenGLError;
+      GL.CheckError;
     finally
       FRenderingContext.Deactivate;
     end;
@@ -9469,8 +9465,8 @@ procedure TGLSceneBuffer.RenderScene(aScene: TGLScene;
   var
     projMat, mvMat: TMatrix;
   begin
-    glGetFloatv(GL_PROJECTION_MATRIX, @projMat);
-    glGetFloatv(GL_MODELVIEW_MATRIX, @mvMat);
+    GL.GetFloatv(GL_PROJECTION_MATRIX, @projMat);
+    GL.GetFloatv(GL_MODELVIEW_MATRIX, @mvMat);
     Result := MatrixMultiply(mvMat, projMat);
   end;
 
@@ -9518,7 +9514,7 @@ begin
   rci.renderDPI := FRenderDPI;
   rci.modelViewMatrix := @FViewMatrix;
   rci.GLStates := RenderingContext.GLStates;
-  rci.GLStates.ResetAll;
+  //  rci.GLStates.ResetAll;
   rci.proxySubObject := False;
   rci.ignoreMaterials := (roNoColorBuffer in FContextOptions)
     or (rci.drawState = dsPicking);
@@ -9552,16 +9548,6 @@ begin
         TGLObjectAfterEffect(Items[i]).Render(rci);
   if Assigned(FWrapUpRendering) then
     FWrapUpRendering(Self, rci);
-  with rci.GLStates do
-  begin
-    Disable(stBlend);
-    Disable(stTexture2D);
-    if (GL_NV_texture_rectangle or GL_ARB_texture_rectangle or
-        GL_VERSION_3_1) then
-      Disable(stTextureRect);
-    Enable(stAlphaTest);
-    ResetGLAlphaFunction;
-  end;
 end;
 
 // SetBackgroundColor
@@ -9852,17 +9838,17 @@ var
   begin
     GetMem(buf, Width * Height * 4);
     try // float_type
-      glReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+      GL.ReadPixels(0, 0, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
       case aTexture.MinFilter of
         miNearest, miLinear:
-          glTexImage2d(target, 0, aTexture.OpenGLTextureFormat, Width, Height,
+          GL.TexImage2d(target, 0, aTexture.OpenGLTextureFormat, Width, Height,
             0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
       else
-        if GL_SGIS_generate_mipmap and (target = GL_TEXTURE_2D) then
+        if GL.SGIS_generate_mipmap and (target = GL_TEXTURE_2D) then
         begin
           // hardware-accelerated when supported
-          glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-          glTexImage2d(target, 0, aTexture.OpenGLTextureFormat, Width, Height,
+          GL.TexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+          GL.TexImage2d(target, 0, aTexture.OpenGLTextureFormat, Width, Height,
             0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
         end
         else
@@ -9882,7 +9868,7 @@ begin
   begin
     Buffer.RenderingContext.Activate;
     try
-      target := aTexture.Image.NativeTextureTarget;
+      target := DecodeGLTextureTarget(aTexture.Image.NativeTextureTarget);
 
       CreateTexture := true;
 
@@ -9903,9 +9889,10 @@ begin
         handle := aTexture.Handle;
 
       // For MRT
-      glReadBuffer(MRT_BUFFERS[BufferIndex]);
+      GL.ReadBuffer(MRT_BUFFERS[BufferIndex]);
 
-      Buffer.RenderingContext.GLStates.SetGLCurrentTexture(0, target, handle);
+      Buffer.RenderingContext.GLStates.TextureBinding[0,
+        EncodeGLTextureTarget(target)] := handle;
 
       if target = GL_TEXTURE_CUBE_MAP_ARB then
         target := GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + FCubeMapRotIdx;
@@ -9913,7 +9900,7 @@ begin
       if CreateTexture then
         CreateNewTexture
       else
-        glCopyTexSubImage2D(target, 0, xDest, yDest, xSrc, ySrc, Width, Height);
+        GL.CopyTexSubImage2D(target, 0, xDest, yDest, xSrc, ySrc, Width, Height);
 
       ClearGLError;
     finally
@@ -9933,16 +9920,16 @@ const
     (0, 90), (0, -90)); // PZ, NZ
 begin
   // Setup appropriate FOV
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity;
+  GL.MatrixMode(GL_PROJECTION);
+  GL.LoadIdentity;
   gluPerspective(90, 1, FCubeMapZNear, FCubeMapZFar);
   // Setup appropriate orientation
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity;
+  GL.MatrixMode(GL_MODELVIEW);
+  GL.LoadIdentity;
   gluLookAt(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0); // Dir = X, Up = Y
-  glRotatef(cRot[FCubeMapRotIdx][0], 0.0, 0.0, 1.0); // Rotate around Z
-  glRotatef(cRot[FCubeMapRotIdx][1], 0.0, 1.0, 0.0); // then rotate around Y
-  glTranslatef(FCubeMapTranslation[0], FCubeMapTranslation[1],
+  GL.Rotatef(cRot[FCubeMapRotIdx][0], 0.0, 0.0, 1.0); // Rotate around Z
+  GL.Rotatef(cRot[FCubeMapRotIdx][1], 0.0, 1.0, 0.0); // then rotate around Y
+  GL.Translatef(FCubeMapTranslation[0], FCubeMapTranslation[1],
     FCubeMapTranslation[2]);
 end;
 
@@ -10170,8 +10157,7 @@ begin
 
   if FBufferCount < 1 then
     FBufferCount := 1;
-  //   glGetIntegerv(GL_AUX_BUFFERS, @MaxAxuBufCount);
-  //   MaxAxuBufCount:=MaxAxuBufCount + 1; // + 1 front buffer
+
   if FBufferCount > MaxAxuBufCount then
     FBufferCount := MaxAxuBufCount;
 
@@ -10225,4 +10211,3 @@ initialization
   QueryPerformanceFrequency(vCounterFrequency);
 
 end.
-

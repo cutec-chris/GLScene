@@ -1138,6 +1138,15 @@ function PointIsInHalfSpace(const point, planePoint, planeNormal : TAffineVector
    negative on the other side. }
 function PointPlaneDistance(const point, planePoint, planeNormal : TVector) : Single; overload;
 function PointPlaneDistance(const point, planePoint, planeNormal : TAffineVector) : Single; overload;
+function PointPlaneDistance(const point : TAffineVector; plane : THmgPlane) : Single; overload;
+
+{: Computes point to plane projection. Plane and direction have to be normalized }
+function PointPlaneOrthoProjection(const point: TAffineVector; const plane : THmgPlane; var inter : TAffineVector; bothface : Boolean = True) : Boolean;
+function PointPlaneProjection(const point, direction : TAffineVector; const plane : THmgPlane; var inter : TAffineVector; bothface : Boolean = True) : Boolean;
+
+
+{: Computes segment / plane intersection return false if there isn't an intersection}
+function SegmentPlaneIntersection(const ptA, ptB : TAffineVector; const plane : THmgPlane; var inter : TAffineVector) : Boolean;
 
 {: Computes closest point on a segment (a segment is a limited line).}
 function PointSegmentClosestPoint(const point, segmentStart, segmentStop : TAffineVector) : TAffineVector;
@@ -6375,6 +6384,53 @@ begin
            +(point[2]-planePoint[2])*planeNormal[2];
 end;
 
+function PointPlaneDistance(const point : TAffineVector; plane : THmgPlane) : Single;
+begin
+  Result := PlaneEvaluatePoint(plane, point);
+end;
+
+// PointPlaneOrthoProjection
+//
+function PointPlaneOrthoProjection(const point: TAffineVector; const plane : THmgPlane;
+ var inter : TAffineVector; bothface : Boolean = True) : Boolean;
+var
+  h : Single;
+  normal : TAffineVector;
+begin
+  Result := False;
+
+  h := PointPlaneDistance(point, plane);
+
+  if (not bothface) and (h < 0) then Exit;
+
+  normal := Vector3fMake(plane);
+  inter := VectorAdd(point, VectorScale(normal,- h ));
+  Result := True;
+end;
+
+// PointPlaneProjection
+//
+function PointPlaneProjection(const point, direction : TAffineVector; const plane : THmgPlane;
+ var inter : TAffineVector; bothface : Boolean = True) : Boolean;
+var
+  h, dot : Single;
+  normal : TAffineVector;
+begin
+  Result := False;
+
+  normal := Vector3fMake(plane);
+  dot := VectorDotProduct(VectorNormalize(direction), normal);
+
+  if (not bothface) and (dot > 0) then Exit;
+
+  if Abs(dot) >= 0.000000001 then begin
+    h := PointPlaneDistance(point, plane);
+    inter := VectorAdd(point, VectorScale(direction, -h / dot));
+    Result := True;
+  end;
+end;
+
+
 // PointLineClosestPoint
 //
 function PointLineClosestPoint(const point, linePoint, lineDirection : TAffineVector) : TAffineVector;
@@ -6399,6 +6455,28 @@ var
 begin
    pb:=PointLineClosestPoint(point, linePoint, lineDirection);
    Result:=VectorDistance(point, pb);
+end;
+
+// SegmentPlaneIntersection
+//
+function SegmentPlaneIntersection(const ptA, ptB : TAffineVector; const plane : THmgPlane; var inter : TAffineVector) : Boolean;
+var
+  hA, hB, dot : Single;
+  normal, direction : TVector3f;
+begin
+  Result := False;
+  hA := PointPlaneDistance(ptA, plane);
+  hB := PointPlaneDistance(ptB, plane);
+  if hA*hB <= 0 then
+  begin
+    normal := Vector3fMake(plane);
+    direction := VectorNormalize(VectorSubtract(ptB, ptA));
+    dot := VectorDotProduct(direction, normal);
+    if Abs(dot) >= 0.000000001 then begin
+      inter := VectorAdd(ptA, VectorScale(direction, -hA / dot));
+      Result := True;
+    end;
+  end;
 end;
 
 // PointSegmentClosestPoint

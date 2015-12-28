@@ -1,1 +1,8 @@
 .svn
+*.o
+*.ppu
+*.or
+*.compiled
+lib*/
+*.bak
+*.old

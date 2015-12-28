@@ -7,11 +7,12 @@
    Allows assign a unique material for each proxy master.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>10/04/08 - DaStr - Added a Delpi 5 interface bug work-around to
                               TGLMaterialMultiProxyMaster (BugTracker ID = 1938988)
       <li>25/03/07 - Added GLCrossPlatform to uses for Delphi5 compatibility
       <li>17/02/07 - DaStr - Initial version (contributed to GLScene)
-    </ul></font>     
+    </ul></font>
 
   What changed compared to GLMultiProxy:
     1) Allows assign a unique material for each proxy master
@@ -191,7 +192,7 @@ implementation
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 
-uses SysUtils, OpenGL1x;
+uses SysUtils, OpenGL1x, GLVectorTypes;
 
 // ------------------
 // ------------------ TGLMaterialMultiProxyMaster ------------------
@@ -461,7 +462,7 @@ end;
 constructor TGLMaterialMultiProxy.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  ObjectStyle := ObjectStyle + [osDoesTemperWithColorsOrFaceWinding, osDirectDraw];
+  ObjectStyle := ObjectStyle + [osDirectDraw];
   FMasterObjects := TGLMaterialMultiProxyMasters.Create(Self);
 end;
 

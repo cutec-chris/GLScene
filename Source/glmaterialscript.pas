@@ -6,6 +6,7 @@
    Material Script Batch loader for TGLMaterialLibrary for runtime.<p>
 
 	<b>History : </b><font size=-1><ul>
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>22/01/10 - Yar   - Added GLTextureFormat to uses
       <li>24/03/08 - DaStr - Moved TGLMinFilter and TGLMagFilter from GLUtils.pas
                               to GLGraphics.pas (BugTracker ID = 1923844)
@@ -32,7 +33,7 @@
    29/06/2004 - KP - Updated strtofloat to strtofloatdef and replaced "," with ";"
    29/06/2004 - KP - Added MaterialLibraries and Shaders for use
    06/07/2004 - KP - Added Append and Overwrite
-   
+
    Future notes :
    Implementation of variables
    Implementation of constants
@@ -202,6 +203,7 @@ type
     procedure XTextureMode;
     procedure XTextureWrap;
     procedure XBlendingMode;
+    procedure XPolygonMode;
     procedure XFacingCulling;
     procedure XLibMaterialName;
     procedure XMaterialOptions;
@@ -210,14 +212,12 @@ type
     procedure XBackAmbient;
     procedure XBackDiffuse;
     procedure XBackEmission;
-    procedure XBackPolygonMode;
     procedure XBackShininess;
     procedure XBackSpecular;
     procedure XFrontProperties;
     procedure XFrontAmbient;
     procedure XFrontDiffuse;
     procedure XFrontEmission;
-    procedure XFrontPolygonMode;
     procedure XFrontShininess;
     procedure XFrontSpecular;
     procedure XPersistantImage;
@@ -713,17 +713,6 @@ begin
    end;
 end;
 
-procedure TGLMaterialScripter.XBackPolygonMode;
-begin
-   if classexists('polygonmode') then
-   begin
-      tmpstr := extractvalue;
-      if valueexists('pmFill') then Newmat.Material.BackProperties.PolygonMode := pmFill;
-      if valueexists('pmLines') then Newmat.Material.BackProperties.PolygonMode := pmLines;
-      if valueexists('pmPoints') then Newmat.Material.BackProperties.PolygonMode := pmPoints;
-   end;
-end;
-
 
 procedure TGLMaterialScripter.XBackShininess;
 begin
@@ -752,6 +741,17 @@ begin
       if valueexists('bmAdditive') then Newmat.Material.BlendingMode := bmAdditive;
       if valueexists('bmAlphaTest100') then Newmat.Material.BlendingMode := bmAlphaTest100;
       if valueexists('bmAlphaTest50') then Newmat.Material.BlendingMode := bmAlphaTest50;
+   end;
+end;
+
+procedure TGLMaterialScripter.XPolygonMode;
+begin
+   if classexists('polygonmode') then
+   begin
+      tmpstr := extractvalue;
+      if valueexists('pmFill') then Newmat.Material.PolygonMode := pmFill;
+      if valueexists('pmLines') then Newmat.Material.PolygonMode := pmLines;
+      if valueexists('pmPoints') then Newmat.Material.PolygonMode := pmPoints;
    end;
 end;
 
@@ -830,18 +830,6 @@ begin
       NewMat.Material.frontProperties.Emission := tmpcolor;
    end;
 end;
-
-procedure TGLMaterialScripter.XfrontPolygonMode;
-begin
-   if classexists('polygonmode') then
-   begin
-      tmpstr := extractvalue;
-      if valueexists('pmFill') then Newmat.Material.frontProperties.PolygonMode := pmFill;
-      if valueexists('pmLines') then Newmat.Material.frontProperties.PolygonMode := pmLines;
-      if valueexists('pmPoints') then Newmat.Material.frontProperties.PolygonMode := pmPoints;
-   end;
-end;
-
 
 procedure TGLMaterialScripter.XfrontShininess;
 begin
@@ -1107,6 +1095,7 @@ begin
    XMaterialOptions;
    XLibMaterialName;
    XBlendingMode;
+   XPolygonMode;
    XFacingCulling;
    XMaterialLibrary;
 end;
@@ -1126,7 +1115,6 @@ begin
          XfrontAmbient;
          XfrontDiffuse;
          XfrontEmission;
-         XfrontPolygonMode;
          XfrontShininess;
          XfrontSpecular;
 
@@ -1200,7 +1188,6 @@ begin
          XBackAmbient;
          XBackDiffuse;
          XBackEmission;
-         XBackPolygonMode;
          XBackShininess;
          XBackSpecular;
 

@@ -496,7 +496,6 @@ begin
               ChangeDisplaySettings(t^, CDS_FULLSCREEN);
 {$ENDIF}
 {$IFDEF GLS_X11_SUPPORT}
-              begin
                 // if vCurrentVideoMode=0 then
                 ReadVideoModes;
                 vDisplay := XOpenDisplay(nil);
@@ -521,8 +520,8 @@ begin
                 end;
 
                 procedure GLSetCursorPos(AScreenX, AScreenY: Integer);
-                begin
 {$IFDEF MSWINDOWS}
+                begin
                   SetCursorPos(AScreenX, AScreenY);
 {$ENDIF}
 {$IFDEF GLS_X11_SUPPORT}
@@ -542,8 +541,8 @@ begin
                     end;
 
                     procedure GLGetCursorPos(var point: TGLPoint);
-                      begin
 {$IFDEF MSWINDOWS}
+                      begin
                       GetCursorPos(point);
 {$ENDIF}
 {$IFDEF GLS_X11_SUPPORT}

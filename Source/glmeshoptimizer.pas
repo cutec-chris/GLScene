@@ -40,7 +40,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses GLPersistentClasses, GLVectorLists, MeshUtils;
+uses GLPersistentClasses, GLVectorLists, GLMeshUtils;
 
 // OptimizeMesh (list, default options)
 //

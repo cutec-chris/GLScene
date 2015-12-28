@@ -6,20 +6,9 @@
  Vector File related objects for GLScene<p>
 
  <b>History :</b><font size=-1><ul>
-
-      <li>28/06/13 - YP - Added support for vector color
-      <li>10/11/12 - PW - Added CPP compatibility: changed vector arrays to records
-      <li>11/07/12 - YP - Added BarycenterPosition and BarycenterOffset
-                          New centering option macRestorePosition
-      <li>02/07/11 - DaStr - Replaced TAABB.Revision with TMeshObject.FExtentCacheRevision
-      <li>30/06/11 - DaStr - TGLBaseMesh.BarycenterAbsolutePosition() now uses caching
-      <li>23/02/11 - Yar - Added extent caching to TMeshObject
-      <li>03/12/10 - Yar - Added mesh visibility checking in
-                            TMeshObjectList.ExtractTriangles (thnaks to Sandor Domokos)
-      <li>23/08/10 - Yar - Added OpenGLTokens to uses
       <li>23/07/10 - Yar - Bugfixed TSkeleton.WriteToFiler (thanks E-Cone)
       <li>11/06/10 - Yar - Bugfixed binary reading TGLMeshObject for FPC
-                           Replace OpenGL1x functions to OpenGLAdapter.
+                           Replace OpenGL1x functions to OpenGLAdapter. TGLFreeFrom now osDirectDraw by default
                            Fixes for Linux x64
       <li>22/04/10 - Yar - Fixes after GLState revision
       <li>11/04/10 - Yar - Replaced function InsideList to GLState.InsideList
@@ -36,7 +25,7 @@
       <li>07/06/08 - DaStr - Implemented TBaseMeshObject.Assign(), TMeshObject.Assign()
       <li>20/05/08 - Mrqzzz - Fixed memory leak in TSkeletonMeshObject.Destroy (thanks Dave Gravel)
       <li>17/05/08 - DaStr - Added TSkeleton.MorphInvisibleParts
-                             (thanks andron13 and Veon (BugtrackerID = 1966020)
+                             (thanks andron13 and Âåîí) (BugtrackerID = 1966020)
                              Added vGLVectorFileObjectsEnableVBOByDefault
       <li>01/05/08 - DaStr - Implemented TGLBaseMesh.BarycenterAbsolutePosition()
                              Bugfixed TGLBaseMesh.AxisAlignedDimensionsUnscaled()
@@ -80,8 +69,6 @@
                           Added BuildTangentSpace function (experimental).
       <li>23/07/04 - SG - Added fgmmQuad case for TFGVertexIndexList.TraingleCount
                           (Thanks fig).
-      <li>02/08/04 - LR, YHC - BCB corrections: use record instead array
-                               moved TBlendedLerpInfo to top of declaration
       <li>18/07/04 - LR - Suppress Consts in uses
       <li>20/06/04 - MRQZZZ - Added AutoScaling property to GLBaseMesh to scale
                               a mesh after loading (like Autocentering)
@@ -200,16 +187,9 @@ interface
 
 {$I GLScene.inc}
 
-uses
-  {$IFDEF GLS_DELPHI_XE2_UP}
-  System.Classes, System.SysUtils, System.Types,
-  {$ELSE}
-  Classes, SysUtils, Types,
-  {$ENDIF}
-
-  GLScene, OpenGLTokens, GLVectorGeometry,  GLTexture,
-  GLMaterial, GLMesh, GLVectorLists, GLPersistentClasses, GLOctree, GLGeometryBB,
-  GLApplicationFileIO, GLSilhouette, GLContext, GLColor, GLRenderContextInfo,
+uses Classes, GLScene, OpenGL1x, GLVectorGeometry, SysUtils, GLTexture,
+  GLMaterial, GLMesh, GLVectorLists, GLPersistentClasses, Octree, GeometryBB,
+  ApplicationFileIO, GLSilhouette, GLContext, GLColor, GLRenderContextInfo,
   GLCoordinates, GLBaseClasses, GLTextureFormat;
 
 type
@@ -219,7 +199,7 @@ type
 
   // TMeshAutoCentering
   //
-  TMeshAutoCentering = (macCenterX, macCenterY, macCenterZ, macUseBarycenter, macRestorePosition);
+  TMeshAutoCentering = (macCenterX, macCenterY, macCenterZ, macUseBarycenter);
   TMeshAutoCenterings = set of TMeshAutoCentering;
 
   // TMeshObjectMode
@@ -705,7 +685,6 @@ type
   private
     { Private Declarations }
     FOwner: TMeshObjectList;
-    FExtentCacheRevision: Cardinal;
     FTexCoords: TAffineVectorList; // provision for 3D textures
     FLightMapTexCoords: TAffineVectorList; // reserved for 2D surface needs
     FColors: TVectorList;
@@ -726,7 +705,6 @@ type
     FTexCoordsVBO: array of TGLVBOHandle;
     FLightmapTexCoordsVBO: TGLVBOHandle;
     FValidBuffers: TVBOBuffers;
-    FExtentCache: TAABB;
 
     procedure SetUseVBO(const Value: boolean);
     procedure SetValidBuffers(Value: TVBOBuffers);
@@ -785,11 +763,7 @@ type
     procedure BuildList(var mrci: TRenderContextInfo); virtual;
 
     //: The extents of the object (min and max coordinates)
-    procedure GetExtents(out min, max: TAffineVector); overload; virtual;
-    procedure GetExtents(out aabb: TAABB); overload; virtual;
-
-    //: Barycenter from vertices data
-    function GetBarycenter: TVector;
+    procedure GetExtents(var min, max: TAffineVector); dynamic;
 
     //: Precalculate whatever is needed for rendering, called once
     procedure Prepare; dynamic;
@@ -863,10 +837,10 @@ type
   private
     { Private Declarations }
     FOwner: TGLBaseMesh;
-
     {: Resturns True if all its MeshObjects use VBOs. }
     function GetUseVBO: Boolean;
     procedure SetUseVBO(const Value: Boolean);
+
   protected
     { Protected Declarations }
     function GetMeshObject(Index: Integer): TMeshObject;
@@ -892,7 +866,7 @@ type
       lerpFactor: Single);
     function MorphTargetCount: Integer;
 
-    procedure GetExtents(out min, max: TAffineVector);
+    procedure GetExtents(var min, max: TAffineVector);
     procedure Translate(const delta: TAffineVector);
     function ExtractTriangles(texCoords: TAffineVectorList = nil;
       normals: TAffineVectorList = nil): TAffineVectorList;
@@ -1012,9 +986,9 @@ type
     Weight: Single;
   end;
 
-  TVertexBoneWeightArray = array[0..MaxInt div (2*SizeOf(TVertexBoneWeight))] of TVertexBoneWeight;
+  TVertexBoneWeightArray = array[0..MaxInt shr 4] of TVertexBoneWeight;
   PVertexBoneWeightArray = ^TVertexBoneWeightArray;
-  TVerticesBoneWeights = array[0..MaxInt div (2*SizeOf(PVertexBoneWeightArray))] of PVertexBoneWeightArray;
+  TVerticesBoneWeights = array[0..MaxInt shr 3] of PVertexBoneWeightArray;
   PVerticesBoneWeights = ^TVerticesBoneWeights;
   TVertexBoneWeightDynArray = array of TVertexBoneWeight;
 
@@ -1368,8 +1342,6 @@ type
     FMaterialLibrary: TGLMaterialLibrary;
     FLightmapLibrary: TGLMaterialLibrary;
     FAxisAlignedDimensionsCache: TVector;
-    FBaryCenterOffsetChanged: Boolean;
-    FBaryCenterOffset: TVector;
     FUseMeshMaterials: Boolean;
     FOverlaySkeleton: Boolean;
     FIgnoreMissingTextures: Boolean;
@@ -1424,8 +1396,6 @@ type
       override;
 
     function AxisAlignedDimensionsUnscaled: TVector; override;
-    function BarycenterOffset: TVector;
-    function BarycenterPosition: TVector;
     function BarycenterAbsolutePosition: TVector; override;
 
     procedure BuildList(var rci: TRenderContextInfo); override;
@@ -1454,7 +1424,7 @@ type
     property Skeleton: TSkeleton read FSkeleton;
 
     {: Computes the extents of the mesh.<p> }
-    procedure GetExtents(out min, max: TAffineVector);
+    procedure GetExtents(var min, max: TAffineVector);
     {: Computes the barycenter of the mesh.<p> }
     function GetBarycenter: TAffineVector;
     {: Invoked after a mesh has been loaded.<p>
@@ -1992,8 +1962,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses
-  GLStrings, XOpenGL, GLCrossPlatform, GLMeshUtils, GLState, GLUtils,
+uses GLStrings, XOpenGL, GLCrossPlatform, GLMeshUtils, GLState, GLUtils,
   GLBaseMeshSilhouette, GLVectorTypes;
 
 var
@@ -2616,28 +2585,28 @@ begin
           FLocalMatrixList := AllocMem(SizeOf(TMatrix) * Rotation.Count);
           for i := 0 to Rotation.Count - 1 do
           begin
-            if Rotation[i].V[0] <> 0 then
+            if Rotation[i][0] <> 0 then
             begin
-              SinCos(Rotation[i].V[0], s, c);
+              SinCos(Rotation[i][0], s, c);
               mat := CreateRotationMatrixX(s, c);
             end
             else
               mat := IdentityHmgMatrix;
-            if Rotation[i].V[1] <> 0 then
+            if Rotation[i][1] <> 0 then
             begin
-              SinCos(Rotation[i].V[1], s, c);
+              SinCos(Rotation[i][1], s, c);
               rmat := CreateRotationMatrixY(s, c);
               mat := MatrixMultiply(mat, rmat);
             end;
-            if Rotation[i].V[2] <> 0 then
+            if Rotation[i][2] <> 0 then
             begin
-              SinCos(Rotation[i].V[2], s, c);
+              SinCos(Rotation[i][2], s, c);
               rmat := CreateRotationMatrixZ(s, c);
               mat := MatrixMultiply(mat, rmat);
             end;
-            mat.V[3].V[0] := Position[i].V[0];
-            mat.V[3].V[1] := Position[i].V[1];
-            mat.V[3].V[2] := Position[i].V[2];
+            mat[3][0] := Position[i][0];
+            mat[3][1] := Position[i][1];
+            mat[3][2] := Position[i][2];
             FLocalMatrixList^[i] := mat;
           end;
         end;
@@ -2648,10 +2617,10 @@ begin
           begin
             quat := Quaternion[i];
             mat := QuaternionToMatrix(quat);
-            mat.V[3].V[0] := Position[i].V[0];
-            mat.V[3].V[1] := Position[i].V[1];
-            mat.V[3].V[2] := Position[i].V[2];
-            mat.V[3].V[3] := 1;
+            mat[3][0] := Position[i][0];
+            mat[3][1] := Position[i][1];
+            mat[3][2] := Position[i][2];
+            mat[3][3] := 1;
             FLocalMatrixList^[i] := mat;
           end;
         end;
@@ -2709,13 +2678,13 @@ begin
   for i := 0 to Rotation.Count - 1 do
   begin
     mat := IdentityHmgMatrix;
-    SinCos(Rotation[i].V[0], s, c);
+    SinCos(Rotation[i][0], s, c);
     rmat := CreateRotationMatrixX(s, c);
     mat := MatrixMultiply(mat, rmat);
-    SinCos(Rotation[i].V[1], s, c);
+    SinCos(Rotation[i][1], s, c);
     rmat := CreateRotationMatrixY(s, c);
     mat := MatrixMultiply(mat, rmat);
-    SinCos(Rotation[i].V[2], s, c);
+    SinCos(Rotation[i][2], s, c);
     rmat := CreateRotationMatrixZ(s, c);
     mat := MatrixMultiply(mat, rmat);
     Quaternion.Add(QuaternionFromMatrix(mat));
@@ -3000,7 +2969,7 @@ begin
   // root node setups and restore OpenGL stuff
   mrci.GLStates.Disable(stColorMaterial);
   mrci.GLStates.Disable(stLighting);
-  GL.Color3f(1, 1, 1);
+  GLColor3f(1, 1, 1);
   // render root-bones
   for i := 0 to Count - 1 do
     Items[i].BuildList(mrci);
@@ -3051,7 +3020,7 @@ begin
     WriteInteger(0); // Archive Version 0
     WriteString(FName);
     WriteInteger(FBoneID);
-    WriteInteger(Integer(FColor));
+    WriteInteger(FColor);
   end;
 end;
 
@@ -3069,7 +3038,7 @@ begin
     begin
       FName := ReadString;
       FBoneID := ReadInteger;
-      FColor := Cardinal(ReadInteger);
+      FColor := ReadInteger;
     end
   else
     RaiseFilerException(archiveVersion);
@@ -3084,7 +3053,7 @@ procedure TSkeletonBone.BuildList(var mrci: TRenderContextInfo);
 
   procedure IssueColor(color: Cardinal);
   begin
-    GL.Color4f(GetRValue(color) / 255, GetGValue(color) / 255, GetBValue(color) /
+    GLColor4f(GetRValue(color) / 255, GetGValue(color) / 255, GetBValue(color) /
       255,
       ((color shr 24) and 255) / 255);
   end;
@@ -3094,17 +3063,17 @@ var
 begin
   // point for self
   mrci.GLStates.PointSize := 5;
-  GL.Begin_(GL_POINTS);
+  GLBegin(GL_POINTS);
   IssueColor(Color);
-  GL.Vertex3fv(@GlobalMatrix.V[3].V[0]);
-  GL.End_;
+  GLVertex3fv(@GlobalMatrix[3][0]);
+  GLEnd;
   // parent-self bone line
   if Owner is TSkeletonBone then
   begin
-    GL.Begin_(GL_LINES);
-    GL.Vertex3fv(@TSkeletonBone(Owner).GlobalMatrix.V[3].V[0]);
-    GL.Vertex3fv(@GlobalMatrix.V[3].V[0]);
-    GL.End_;
+    GLBegin(GL_LINES);
+    GLVertex3fv(@TSkeletonBone(Owner).GlobalMatrix[3][0]);
+    GLVertex3fv(@GlobalMatrix[3][0]);
+    GLEnd;
   end;
   // render sub-bones
   for i := 0 to Count - 1 do
@@ -3985,11 +3954,7 @@ begin
 {$IFNDEF FPC}
       FRenderingOptions := TMeshObjectRenderingOptions(Byte(ro));
 {$ELSE}
-     {$IF (FPC_VERSION > 2)}
-      FRenderingOptions := TMeshObjectRenderingOptions(Byte(ro));
-     {$ELSE}
       FRenderingOptions := TMeshObjectRenderingOptions(ro);
-     {$ENDIF}
 {$ENDIF}
       if archiveVersion >= 2 then
       begin
@@ -4102,40 +4067,9 @@ end;
 // GetExtents
 //
 
-procedure TMeshObject.GetExtents(out min, max: TAffineVector);
+procedure TMeshObject.GetExtents(var min, max: TAffineVector);
 begin
-  if FVertices.Revision <> FExtentCacheRevision then
-  begin
-    FVertices.GetExtents(FExtentCache.min, FExtentCache.max);
-    FExtentCacheRevision := FVertices.Revision;
-  end;
-  min := FExtentCache.min;
-  max := FExtentCache.max;
-end;
-
-procedure TMeshObject.GetExtents(out aabb: TAABB);
-begin
-  if FVertices.Revision <> FExtentCacheRevision then
-  begin
-    FVertices.GetExtents(FExtentCache.min, FExtentCache.max);
-    FExtentCacheRevision := FVertices.Revision;
-  end;
-  aabb := FExtentCache;
-end;
-
-// GetBarycenter
-//
-
-function TMeshObject.GetBarycenter: TVector;
-var
-  dMin, dMax: TAffineVector;
-begin
-  GetExtents(dMin, dMax);
-
-  Result.V[0] := (dMin.V[0] + dMax.V[0]) / 2;
-  Result.V[1] := (dMin.V[1] + dMax.V[1]) / 2;
-  Result.V[2] := (dMin.V[2] + dMax.V[2]) / 2;
-  Result.V[3] := 0;
+  FVertices.GetExtents(min, max);
 end;
 
 // Prepare
@@ -4158,12 +4092,10 @@ var
   min, max: TAffineVector;
 begin
   GetExtents(min, max);
-  Result := (aPoint.V[0] >= min.V[0]) and
-            (aPoint.V[1] >= min.V[1]) and
-            (aPoint.V[2] >= min.V[2]) and
-            (aPoint.V[0] <= max.V[0]) and
-            (aPoint.V[1] <= max.V[1]) and
-            (aPoint.V[2] <= max.V[2]);
+  Result := (aPoint[0] >= min[0]) and (aPoint[1] >= min[1]) and (aPoint[2] >=
+    min[2])
+    and (aPoint[0] <= max[0]) and (aPoint[1] <= max[1]) and (aPoint[2] <=
+      max[2]);
 end;
 
 // SetTexCoords
@@ -4646,7 +4578,7 @@ var
 
   procedure SortVertexData(sortidx: Integer);
   begin
-    if t[0].V[sortidx] < t[1].V[sortidx] then
+    if t[0][sortidx] < t[1][sortidx] then
     begin
       vt := v[0];
       tt := t[0];
@@ -4655,7 +4587,7 @@ var
       v[1] := vt;
       t[1] := tt;
     end;
-    if t[0].V[sortidx] < t[2].V[sortidx] then
+    if t[0][sortidx] < t[2][sortidx] then
     begin
       vt := v[0];
       tt := t[0];
@@ -4664,7 +4596,7 @@ var
       v[2] := vt;
       t[2] := tt;
     end;
-    if t[1].V[sortidx] < t[2].V[sortidx] then
+    if t[1][sortidx] < t[2][sortidx] then
     begin
       vt := v[1];
       tt := t[1];
@@ -4696,20 +4628,20 @@ begin
       begin
         SortVertexData(1);
 
-        if (t[2].V[1] - t[0].V[1]) = 0 then
+        if (t[2][1] - t[0][1]) = 0 then
           interp := 1
         else
-          interp := (t[1].V[1] - t[0].V[1]) / (t[2].V[1] - t[0].V[1]);
+          interp := (t[1][1] - t[0][1]) / (t[2][1] - t[0][1]);
 
         vt := VectorLerp(v[0], v[2], interp);
-        interp := t[0].V[0] + (t[2].V[0] - t[0].V[0]) * interp;
+        interp := t[0][0] + (t[2][0] - t[0][0]) * interp;
         vt := VectorSubtract(vt, v[1]);
-        if t[1].V[0] < interp then
+        if t[1][0] < interp then
           vt := VectorNegate(vt);
         dot := VectorDotProduct(vt, n[j]);
-        vt.V[0] := vt.V[0] - n[j].V[0] * dot;
-        vt.V[1] := vt.V[1] - n[j].V[1] * dot;
-        vt.V[2] := vt.V[2] - n[j].V[2] * dot;
+        vt[0] := vt[0] - n[j][0] * dot;
+        vt[1] := vt[1] - n[j][1] * dot;
+        vt[2] := vt[2] - n[j][2] * dot;
         tangent[j] := VectorMake(VectorNormalize(vt), 0);
       end;
 
@@ -4718,20 +4650,20 @@ begin
       begin
         SortVertexData(0);
 
-        if (t[2].V[0] - t[0].V[0]) = 0 then
+        if (t[2][0] - t[0][0]) = 0 then
           interp := 1
         else
-          interp := (t[1].V[0] - t[0].V[0]) / (t[2].V[0] - t[0].V[0]);
+          interp := (t[1][0] - t[0][0]) / (t[2][0] - t[0][0]);
 
         vt := VectorLerp(v[0], v[2], interp);
-        interp := t[0].V[1] + (t[2].V[1] - t[0].V[1]) * interp;
+        interp := t[0][1] + (t[2][1] - t[0][1]) * interp;
         vt := VectorSubtract(vt, v[1]);
-        if t[1].V[1] < interp then
+        if t[1][1] < interp then
           vt := VectorNegate(vt);
         dot := VectorDotProduct(vt, n[j]);
-        vt.V[0] := vt.V[0] - n[j].V[0] * dot;
-        vt.V[1] := vt.V[1] - n[j].V[1] * dot;
-        vt.V[2] := vt.V[2] - n[j].V[2] * dot;
+        vt[0] := vt[0] - n[j][0] * dot;
+        vt[1] := vt[1] - n[j][1] * dot;
+        vt[2] := vt[2] - n[j][2] * dot;
         binormal[j] := VectorMake(VectorNormalize(vt), 0);
       end;
     end;
@@ -4781,6 +4713,16 @@ begin
       BufferArrays;
     end;
 
+    if Vertices.Count > 0 then
+    begin
+      if FUseVBO then
+        FVerticesVBO.Bind;
+      GL.EnableClientState(GL_VERTEX_ARRAY);
+      GL.VertexPointer(3, GL_FLOAT, 0, lists[0]);
+    end
+    else
+      GL.DisableClientState(GL_VERTEX_ARRAY);
+
     if not mrci.ignoreMaterials then
     begin
       if Normals.Count > 0 then
@@ -4805,11 +4747,11 @@ begin
       begin
         if FUseVBO then
           FTexCoordsVBO[0].Bind;
-        xgl.EnableClientState(GL_TEXTURE_COORD_ARRAY);
-        xgl.TexCoordPointer(2, GL_FLOAT, SizeOf(TAffineVector), lists[3]);
+        xglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        xglTexCoordPointer(2, GL_FLOAT, SizeOf(TAffineVector), lists[3]);
       end
       else
-        xgl.DisableClientState(GL_TEXTURE_COORD_ARRAY);
+        xglDisableClientState(GL_TEXTURE_COORD_ARRAY);
       if GL.ARB_multitexture then
       begin
         if LightMapTexCoords.Count > 0 then
@@ -4838,39 +4780,27 @@ begin
     begin
       GL.DisableClientState(GL_NORMAL_ARRAY);
       GL.DisableClientState(GL_COLOR_ARRAY);
-      xgl.DisableClientState(GL_TEXTURE_COORD_ARRAY);
+      xglDisableClientState(GL_TEXTURE_COORD_ARRAY);
     end;
-
-    if Vertices.Count > 0 then
-    begin
-      if FUseVBO then
-        FVerticesVBO.Bind;
-      GL.EnableClientState(GL_VERTEX_ARRAY);
-      GL.VertexPointer(3, GL_FLOAT, 0, lists[0]);
-    end
-    else
-      GL.DisableClientState(GL_VERTEX_ARRAY);
-
     if GL.EXT_compiled_vertex_array and (LightMapTexCoords.Count = 0) and not
       FUseVBO then
       GL.LockArrays(0, vertices.Count);
-
     FLastLightMapIndex := -1;
     FArraysDeclared := True;
     FLightMapArrayEnabled := False;
     if mrci.drawState <> dsPicking then
-      FLastXOpenGLTexMapping := xgl.GetBitWiseMapping;
+      FLastXOpenGLTexMapping := xglGetBitWiseMapping;
   end
   else
   begin
     if not mrci.ignoreMaterials and not (mrci.drawState = dsPicking) then
       if TexCoords.Count > 0 then
       begin
-        currentMapping := xgl.GetBitWiseMapping;
+        currentMapping := xglGetBitWiseMapping;
         if FLastXOpenGLTexMapping <> currentMapping then
         begin
-          xgl.EnableClientState(GL_TEXTURE_COORD_ARRAY);
-          xgl.TexCoordPointer(2, GL_FLOAT, SizeOf(TAffineVector),
+          xglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+          xglTexCoordPointer(2, GL_FLOAT, SizeOf(TAffineVector),
             TexCoords.List);
           FLastXOpenGLTexMapping := currentMapping;
         end;
@@ -4900,7 +4830,7 @@ begin
       if (Colors.Count > 0) and (not mrci.ignoreMaterials) then
         GL.DisableClientState(GL_COLOR_ARRAY);
       if TexCoords.Count > 0 then
-        xgl.DisableClientState(GL_TEXTURE_COORD_ARRAY);
+        xglDisableClientState(GL_TEXTURE_COORD_ARRAY);
       if GL.ARB_multitexture then
       begin
         if LightMapTexCoords.Count > 0 then
@@ -5174,7 +5104,7 @@ begin
             if gotTexCoordsEx[0] then
               GL.MultiTexCoord4fv(GL_TEXTURE0, @TexCoordsEx[0].List[i])
             else if gotTexCoords then
-              xgl.TexCoord2fv(@TexCoords.List[i]);
+              xglTexCoord2fv(@TexCoords.List[i]);
             for j := 1 to FTexCoordsEx.Count - 1 do
               if gotTexCoordsEx[j] then
                 GL.MultiTexCoord4fv(GL_TEXTURE0 + j,
@@ -5183,7 +5113,7 @@ begin
           else
           begin
             if gotTexCoords then
-              xgl.TexCoord2fv(@TexCoords.List[i]);
+              xglTexCoord2fv(@TexCoords.List[i]);
           end;
           GL.Vertex3fv(@Vertices.List[i]);
         end;
@@ -5434,7 +5364,7 @@ end;
 // GetExtents
 //
 
-procedure TMeshObjectList.GetExtents(out min, max: TAffineVector);
+procedure TMeshObjectList.GetExtents(var min, max: TAffineVector);
 var
   i, k: Integer;
   lMin, lMax: TAffineVector;
@@ -5449,10 +5379,10 @@ begin
     GetMeshObject(i).GetExtents(lMin, lMax);
     for k := 0 to 2 do
     begin
-      if lMin.V[k] < min.V[k] then
-        min.V[k] := lMin.V[k];
-      if lMax.V[k] > max.V[k] then
-        max.V[k] := lMax.V[k];
+      if lMin[k] < min[k] then
+        min[k] := lMin[k];
+      if lMax[k] > max[k] then
+        max[k] := lMax[k];
     end;
   end;
 end;
@@ -5475,7 +5405,6 @@ function TMeshObjectList.ExtractTriangles(texCoords: TAffineVectorList = nil;
   normals: TAffineVectorList = nil): TAffineVectorList;
 var
   i: Integer;
-  obj: TMeshObject;
   objTris: TAffineVectorList;
   objTexCoords: TAffineVectorList;
   objNormals: TAffineVectorList;
@@ -5492,10 +5421,7 @@ begin
   try
     for i := 0 to Count - 1 do
     begin
-      obj := GetMeshObject(i);
-      if not obj.Visible then
-        continue;
-      objTris := obj.ExtractTriangles(objTexCoords, objNormals);
+      objTris := GetMeshObject(i).ExtractTriangles(objTexCoords, objNormals);
       try
         Result.Add(objTris);
         if Assigned(texCoords) then
@@ -6168,7 +6094,7 @@ begin
       // transform normal
       SetVector(p, Normals[i]);
       invMat := bone.GlobalMatrix;
-      invMat.V[3] := NullHmgPoint;
+      invMat[3] := NullHmgPoint;
       InvertMatrix(invMat);
       p := VectorTransform(p, invMat);
       invMesh.Normals[i] := PAffineVector(@p)^;
@@ -6235,7 +6161,7 @@ begin
     refNormals := Normals;
   end;
   skeleton := Owner.Owner.Skeleton;
-  n.V[3] := 0;
+  n[3] := 0;
   if BonesPerVertex = 1 then
   begin
     // simple case, one bone per vertex
@@ -6720,10 +6646,10 @@ begin
     for k := 0 to 2 do
     begin
       f := ref^[k];
-      if f < min.V[k] then
-        min.V[k] := f;
-      if f > max.V[k] then
-        max.V[k] := f;
+      if f < min[k] then
+        min[k] := f;
+      if f > max[k] then
+        max[k] := f;
     end;
   end;
 end;
@@ -6870,7 +6796,6 @@ var
   vertexPool: PAffineVectorArray;
   normalPool: PAffineVectorArray;
   texCoordPool: PAffineVectorArray;
-  colorPool: PVectorArray;
   normalIdxList, texCoordIdxList, vertexIdxList: PIntegerVector;
 begin
   Assert(((TexCoordIndices.Count = 0) or (VertexIndices.Count <=
@@ -6879,7 +6804,6 @@ begin
       NormalIndices.Count)));
   vertexPool := Owner.Owner.Vertices.List;
   normalPool := Owner.Owner.Normals.List;
-  colorPool := Owner.Owner.Colors.List;
   texCoordPool := Owner.Owner.TexCoords.List;
   case Mode of
     fgmmTriangles, fgmmFlatTriangles: GL.Begin_(GL_TRIANGLES);
@@ -6897,17 +6821,23 @@ begin
     texCoordIdxList := TexCoordIndices.List
   else
     texCoordIdxList := vertexIdxList;
-
-  for i := 0 to VertexIndices.Count - 1 do
+  if Assigned(texCoordPool) then
   begin
-    GL.Normal3fv(@normalPool[normalIdxList^[i]]);
-    if Assigned(colorPool) then
-      GL.Color4fv(@colorPool[vertexIdxList^[i]]);
-    if Assigned(texCoordPool) then
-      xgl.TexCoord2fv(@texCoordPool[texCoordIdxList^[i]]);
-    GL.Vertex3fv(@vertexPool[vertexIdxList^[i]]);
+    for i := 0 to VertexIndices.Count - 1 do
+    begin
+      GL.Normal3fv(@normalPool[normalIdxList^[i]]);
+      xglTexCoord2fv(@texCoordPool[texCoordIdxList^[i]]);
+      GL.Vertex3fv(@vertexPool[vertexIdxList^[i]]);
+    end;
+  end
+  else
+  begin
+    for i := 0 to VertexIndices.Count - 1 do
+    begin
+      GL.Normal3fv(@normalPool[normalIdxList^[i]]);
+      GL.Vertex3fv(@vertexPool[vertexIdxList^[i]]);
+    end;
   end;
-
   GL.End_;
 end;
 
@@ -7030,7 +6960,7 @@ begin
     normalPool := Owner.Owner.Normals.List;
     for i := 0 to VertexIndices.Count - 1 do
     begin
-      xgl.TexCoord2fv(@texCoordPool[i]);
+      xglTexCoord2fv(@texCoordPool[i]);
       k := indicesPool[i];
       if gotColor then
         GL.Color4fv(@colorPool[k]);
@@ -7042,7 +6972,7 @@ begin
   begin
     for i := 0 to VertexIndices.Count - 1 do
     begin
-      xgl.TexCoord2fv(@texCoordPool[i]);
+      xglTexCoord2fv(@texCoordPool[i]);
       if gotColor then
         GL.Color4fv(@colorPool[indicesPool[i]]);
       GL.Vertex3fv(@vertexPool[indicesPool[i]]);
@@ -7355,8 +7285,7 @@ begin
     FSkeleton := TSkeleton.CreateOwned(Self);
   FUseMeshMaterials := True;
   FAutoCentering := [];
-  FAxisAlignedDimensionsCache.V[0] := -1;
-  FBaryCenterOffsetChanged := True;
+  FAxisAlignedDimensionsCache[0] := -1;
   FAutoScaling := TGLCoordinates.CreateInitialized(Self, XYZWHmgVector,
     csPoint);
 end;
@@ -7385,8 +7314,8 @@ begin
     FNormalsOrientation := TGLBaseMesh(Source).FNormalsOrientation;
     FMaterialLibrary := TGLBaseMesh(Source).FMaterialLibrary;
     FLightmapLibrary := TGLBaseMesh(Source).FLightmapLibrary;
-    FAxisAlignedDimensionsCache :=  TGLBaseMesh(Source).FAxisAlignedDimensionsCache;
-    FBaryCenterOffset := TGLBaseMesh(Source).FBaryCenterOffset;
+    FAxisAlignedDimensionsCache :=
+      TGLBaseMesh(Source).FAxisAlignedDimensionsCache;
     FUseMeshMaterials := TGLBaseMesh(Source).FUseMeshMaterials;
     FOverlaySkeleton := TGLBaseMesh(Source).FOverlaySkeleton;
     FIgnoreMissingTextures := TGLBaseMesh(Source).FIgnoreMissingTextures;
@@ -7544,7 +7473,7 @@ end;
 // GetExtents
 //
 
-procedure TGLBaseMesh.GetExtents(out min, max: TAffineVector);
+procedure TGLBaseMesh.GetExtents(var min, max: TAffineVector);
 var
   i, k: Integer;
   lMin, lMax: TAffineVector;
@@ -7559,10 +7488,10 @@ begin
     TMeshObject(MeshObjects[i]).GetExtents(lMin, lMax);
     for k := 0 to 2 do
     begin
-      if lMin.V[k] < min.V[k] then
-        min.V[k] := lMin.V[k];
-      if lMax.V[k] > max.V[k] then
-        max.V[k] := lMax.V[k];
+      if lMin[k] < min[k] then
+        min[k] := lMin[k];
+      if lMax[k] > max[k] then
+        max[k] := lMax[k];
     end;
   end;
 end;
@@ -7685,54 +7614,36 @@ function TGLBaseMesh.AxisAlignedDimensionsUnscaled: TVector;
 var
   dMin, dMax: TAffineVector;
 begin
-  if FAxisAlignedDimensionsCache.V[0] < 0 then
+  if FAxisAlignedDimensionsCache[0] < 0 then
   begin
     MeshObjects.GetExtents(dMin, dMax);
-    FAxisAlignedDimensionsCache.V[0] := (dMax.V[0] - dMin.V[0]) / 2;
-    FAxisAlignedDimensionsCache.V[1] := (dMax.V[1] - dMin.V[1]) / 2;
-    FAxisAlignedDimensionsCache.V[2] := (dMax.V[2] - dMin.V[2]) / 2;
-    FAxisAlignedDimensionsCache.V[3] := 0;
+    FAxisAlignedDimensionsCache[0] := (dMax[0] - dMin[0]) / 2;
+    FAxisAlignedDimensionsCache[1] := (dMax[1] - dMin[1]) / 2;
+    FAxisAlignedDimensionsCache[2] := (dMax[2] - dMin[2]) / 2;
+    FAxisAlignedDimensionsCache[3] := 0;
   end;
   SetVector(Result, FAxisAlignedDimensionsCache);
 end;
 
-// BarycenterOffset
+// BarycenterAbsolutePosition
 //
 
-function TGLBaseMesh.BarycenterOffset: TVector;
+function TGLBaseMesh.BarycenterAbsolutePosition: TVector;
 var
   dMin, dMax: TAffineVector;
 begin
-  if FBaryCenterOffsetChanged then
-  begin
-    MeshObjects.GetExtents(dMin, dMax);
+  MeshObjects.GetExtents(dMin, dMax);
+  Result[0] := (dMax[0] + dMin[0]) / 2;
+  Result[1] := (dMax[1] + dMin[1]) / 2;
+  Result[2] := (dMax[2] + dMin[2]) / 2;
+  Result[3] := 1;
 
-    FBaryCenterOffset.V[0] := (dMin.V[0] + dMax.V[0]) / 2;
-    FBaryCenterOffset.V[1] := (dMin.V[1] + dMax.V[1]) / 2;
-    FBaryCenterOffset.V[2] := (dMin.V[2] + dMax.V[2]) / 2;
-    FBaryCenterOffset.V[3] := 0;
-    FBaryCenterOffsetChanged := False;
-  end;
-  Result := FBaryCenterOffset;
-end;
-
-// BarycenterPosition
-//
-
-function TGLBaseMesh.BarycenterPosition: TVector;
-begin
-  Result := VectorAdd(Position.DirectVector, BarycenterOffset);
-end;
-
-// BarycenterAbsolutePosition
-//
-function TGLBaseMesh.BarycenterAbsolutePosition: TVector;
-begin
-  Result := LocalToAbsolute(BarycenterPosition);
+  Result := LocalToAbsolute(Result);
 end;
 
 // DestroyHandle
 //
+
 procedure TGLBaseMesh.DestroyHandle;
 begin
   if Assigned(FMaterialLibrary) then
@@ -7765,22 +7676,19 @@ begin
   begin
     GetExtents(min, max);
     if macCenterX in AutoCentering then
-      delta.V[0] := -0.5 * (min.V[0] + max.V[0])
+      delta[0] := -0.5 * (min[0] + max[0])
     else
-      delta.V[0] := 0;
+      delta[0] := 0;
     if macCenterY in AutoCentering then
-      delta.V[1] := -0.5 * (min.V[1] + max.V[1])
+      delta[1] := -0.5 * (min[1] + max[1])
     else
-      delta.V[1] := 0;
+      delta[1] := 0;
     if macCenterZ in AutoCentering then
-      delta.V[2] := -0.5 * (min.V[2] + max.V[2])
+      delta[2] := -0.5 * (min[2] + max[2])
     else
-      delta.V[2] := 0;
+      delta[2] := 0;
   end;
   MeshObjects.Translate(delta);
-
-  if macRestorePosition in AutoCentering then
-    Position.Translate(VectorNegate(delta));
 end;
 
 // PerformAutoScaling
@@ -7873,7 +7781,7 @@ procedure TGLBaseMesh.DoRender(var rci: TRenderContextInfo;
   renderSelf, renderChildren: Boolean);
 begin
   if Assigned(LightmapLibrary) then
-    xgl.ForbidSecondTextureUnit;
+    xglForbidSecondTextureUnit;
   if renderSelf then
   begin
     // set winding
@@ -7902,9 +7810,7 @@ begin
         PrepareBuildList(rci);
       Material.Apply(rci);
       repeat
-        if (osDirectDraw in ObjectStyle)
-          or rci.amalgamating
-          or UseMeshMaterials then
+        if (osDirectDraw in ObjectStyle) or rci.amalgamating then
           BuildList(rci)
         else
           rci.GLStates.CallList(GetHandle(rci));
@@ -7922,7 +7828,7 @@ begin
       rci.GLStates.InvertGLFrontFace;
   end;
   if Assigned(LightmapLibrary) then
-    xgl.AllowSecondTextureUnit;
+    xglAllowSecondTextureUnit;
   if renderChildren and (Count > 0) then
     Self.RenderChildren(0, Count - 1, rci);
 end;
@@ -7932,8 +7838,7 @@ end;
 
 procedure TGLBaseMesh.StructureChanged;
 begin
-  FAxisAlignedDimensionsCache.V[0] := -1;
-  FBaryCenterOffsetChanged := True;
+  FAxisAlignedDimensionsCache[0] := -1;
   DropMaterialLibraryCache;
   MeshObjects.Prepare;
   inherited;
@@ -8064,8 +7969,8 @@ end;
 constructor TGLFreeForm.Create(AOwner: TComponent);
 begin
   inherited;
-//  ObjectStyle := [osDirectDraw];
   FUseMeshMaterials := True;
+  ObjectStyle:= ObjectStyle + [osDirectDraw];
 end;
 
 // Destroy
@@ -8577,9 +8482,9 @@ var
   i: Integer;
 begin
   WriteCRLFString(aStream, cAAFHeader);
-  WriteCRLFString(aStream, AnsiString(IntToStr(Count)));
+  WriteCRLFString(aStream, IntToStr(Count));
   for i := 0 to Count - 1 do
-    WriteCRLFString(aStream, AnsiString(Items[i].AsString));
+    WriteCRLFString(aStream, Items[i].AsString);
 end;
 
 // LoadFromStream
@@ -8592,9 +8497,9 @@ begin
   Clear;
   if ReadCRLFString(aStream) <> cAAFHeader then
     Assert(False);
-  n := StrToInt(string(ReadCRLFString(aStream)));
+  n := StrToInt(ReadCRLFString(aStream));
   for i := 0 to n - 1 do
-    Add.AsString := string(ReadCRLFString(aStream));
+    Add.AsString := ReadCRLFString(aStream);
 end;
 
 // SaveToFile
@@ -9344,3 +9249,4 @@ finalization
   FreeAndNil(vVectorFileFormats);
 
 end.
+

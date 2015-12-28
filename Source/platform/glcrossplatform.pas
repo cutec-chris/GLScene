@@ -9,6 +9,20 @@
    in the core GLScene units, and have all moved here instead.<p>
 
 	<b>Historique : </b><font size=-1><ul>
+      <li>15/06/10 - Yar - Replace Shell to fpSystem
+      <li>04/03/10 - DanB - Added CharInSet, for Delphi versions < 2009
+      <li>07/01/10 - DaStr - Bugfixed GetDeviceCapabilities() for Unix
+                             (thanks Predator)
+      <li>17/12/09 - DaStr - Moved screen utility functions to GLScreen.pas
+                             (thanks Predator)
+      <li>11/11/09 - DaStr - Added GLS_FONT_CHARS_COUNT constant
+      <li>07/11/09 - DaStr - Improved FPC compatibility (BugtrackerID = 2893580)
+                             (thanks Predator)
+      <li>24/08/09 - DaStr - Added IncludeTrailingPathDelimiter for Delphi 5
+      <li>03/06/09 - DanB - Re-added Sleep procedure, for Delphi 5
+      <li>07/05/09 - DanB - Added FindUnitName (to provide functionality of TObject.UnitName,
+                            on prior versions of Delphi)
+      <li>24/03/09 - DanB - Moved Dialog utility functions to GLUtils.pas, new ShowHTMLUrl procedure
       <li>19/03/09 - DanB - Removed some Kylix IFDEFs, and other changes mostly affecting D5/FPC
       <li>29/05/08 - DaStr - Added StrToFloatDef(), TryStrToFloat()
       <li>10/04/08 - DaStr - Added TGLComponent (BugTracker ID = 1938988)
@@ -56,35 +70,16 @@ interface
 
 {$include GLScene.inc}
 
-//**************************************
-//**  FPC uses section
-{$IFDEF FPC}
-uses
-  {$IFDEF WINDOWS}
-  Windows,
-  {$ENDIF}
-  Classes, SysUtils, Graphics, Controls, Forms, GLVectorTypes,
-  Dialogs, StdCtrls, ExtDlgs, Math, strutils, LCLType, LCLIntf, types, ComponentEditors
-  {$IFDEF UNIX}
-  , Buttons, unix
-  {$ENDIF}
-;
-{$ENDIF}
-//**  end of FPC uses section
-//**************************************
-
-//**************************************
-//**  Delphi uses section
-{$IFNDEF FPC} //Not FPC
+//   Tips: Delphi 5 doesn't contain StrUtils.pas, Types.pas, so don't include
+//         these files in uses clauses.
 
 uses
-  Windows, Classes, SysUtils, Graphics, Controls, Forms, GLVectorTypes,
-  Dialogs, StdCtrls, ExtDlgs, Consts
-  {$IFDEF GLS_COMPILER_6_UP}, Math, StrUtils{$ENDIF}
+  {$IFDEF MSWINDOWS} Windows, {$ENDIF}
+  {$IFDEF UNIX} Unix, xlib, x,{$ENDIF}
+  Classes, SysUtils, Graphics, Controls, Forms, Dialogs
+  {$IFDEF FPC} ,LCLType {$ELSE}, Consts{$ENDIF}
+  {$IFNDEF GLS_COMPILER_5_DOWN}, StrUtils, Types{$ENDIF}
   ;
-{$ENDIF}
-//**  end of Delphi uses section
-//**************************************
 
 type
 {$IFNDEF FPC}
@@ -125,15 +120,12 @@ type
 {$IFDEF GLS_DELPHI_5}
    EGLOSError = EWin32Error;
 {$ELSE}
-   {$IFDEF FPC}
-   {$IFDEF unix}
-      EGLOSError = EOSError;
-   {$ELSE}
-      EGLOSError = EWin32Error;
-   {$ENDIF}
-   {$ELSE}
-      EGLOSError = EOSError;
-   {$ENDIF}
+   EGLOSError = EOSError;
+//   {$IFDEF FPC}
+//      EGLOSError = EWin32Error;
+//   {$ELSE}
+//      EGLOSError = EOSError;
+//   {$ENDIF}
 {$ENDIF}
 
 {$IFDEF GLS_DELPHI_5_DOWN}
@@ -147,33 +139,27 @@ type
   TGLComponent = class(TComponent);
 {$ENDIF}
 
-{$IFDEF FPC}
-   TGLDesigner = TComponentEditorDesigner;
-{$ELSE}
-  {$ifdef GLS_DELPHI_6_UP}
-    TGLDesigner = IDesigner;
-  {$else}
-    TGLDesigner = IFormDesigner;
-  {$endif}
-{$ENDIF}
-
-  {$IFDEF FPC}
-  TPoint = Types.TPoint;
-  PPoint = Types.PPoint;
-  TRect = Types.TRect;
-  PRect = Types.PRect;
-
-  TTextLayout = Graphics.TTextLayout;
-  HDC         = LCLType.HDC;
-  {$ELSE}
+{$IFDEF GLS_DELPHI_5_DOWN}
+  DWORD = Windows.DWORD;
   TPoint = Windows.TPoint;
   PPoint = Windows.PPoint;
   TRect = Windows.TRect;
   PRect = Windows.PRect;
-
-  TTextLayout = StdCtrls.TTextLayout;
-
+{$ELSE}
+  {$IFDEF FPC}
+  DWORD = System.DWORD;
+  TPoint = Types.TPoint;
+  PPoint = ^TPoint;
+  TRect = Types.TRect;
+  PRect = ^TRect;
+  {$ELSE}
+  DWORD = Types.DWORD;
+  TPoint = Types.TPoint;
+  PPoint = Types.PPoint;
+  TRect = Types.TRect;
+  PRect = Types.PRect;
   {$ENDIF}
+{$ENDIF}
 
 const
 {$IFDEF GLS_DELPHI_5_DOWN}
@@ -181,15 +167,20 @@ const
   E_NOINTERFACE = Windows.E_NOINTERFACE;
 {$ENDIF}
 
+{$IFDEF WIN32}
    glpf8Bit = pf8bit;
    glpf24bit = pf24bit;
    glpf32Bit = pf32bit;
    glpfDevice = pfDevice;
-
+{$ENDIF}
+{$IFDEF UNIX}
+   glpf8Bit = pf8bit;
+   glpf24bit = pf32bit;
+   glpf32Bit = pf32bit;
+   glpfDevice = pf32bit;
+{$ENDIF}
 
 // standard keyboard
-  glKey_ESCAPE = VK_ESCAPE;
-  glKey_SHIFT = VK_SHIFT;
   glKey_TAB = VK_TAB;
   glKey_SPACE = VK_SPACE;
   glKey_RETURN = VK_RETURN;
@@ -205,28 +196,19 @@ const
   glKey_NEXT = VK_NEXT;
   glKey_CONTROL = VK_CONTROL;
 
+// TPenStyle.
+ {$IFDEF FPC}
+  //FPC doesn't support TPenStyle "psInsideFrame", so provide an alternative
+  psInsideFrame = psSolid;
+ {$ENDIF}
+
 // Several define from unit Consts
 const
-  glsAllFilter: string = {$ifndef FPC}sAllFilter{$else}'all'{$endif};
-  {$IFDEF FPC}
-  SMsgDlgWarning = 'Warnung';
-  SMsgDlgError = 'Fehler';
-  SMsgDlgInformation = 'Information';
-  SMsgDlgConfirm = 'Best�igen';
-  SMsgDlgYes = '&Ja';
-  SMsgDlgNo = '&Nein';
-  SMsgDlgOK = 'OK';
-  SMsgDlgCancel = 'Abbrechen';
-  SMsgDlgHelp = '&Hilfe';
-  SMsgDlgHelpNone = 'Keine Hilfe verfgbar';
-  SMsgDlgHelpHelp = 'Hilfe';
-  SMsgDlgAbort = '&Abbrechen';
-  SMsgDlgRetry = '&Wiederholen';
-  SMsgDlgIgnore = '&Ignorieren';
-  SMsgDlgAll = '&Alles';
-  SMsgDlgNoToAll = '&Alle Nein';
-  SMsgDlgYesToAll = 'A&lle Ja';
-  {$ENDIF}
+{$IFDEF FPC}
+  glsAllFilter: string = 'All';
+{$ELSE}
+  glsAllFilter: string = sAllFilter;
+{$ENDIF}
 
 {$IFDEF GLS_COMPILER_2009_UP}
   GLS_FONT_CHARS_COUNT = 2024;
@@ -259,10 +241,16 @@ function PixelFormatToColorBits(aPixelFormat : TPixelFormat) : Integer;
 {: Returns the bitmap's scanline for the specified row. }
 function BitmapScanLine(aBitmap : TGLBitmap; aRow : Integer) : Pointer;
 
+{$IFDEF GLS_DELPHI_5_DOWN}
 {: Suspends thread execution for length milliseconds.<p>
    If length is zero, only the remaining time in the current thread's time
    slice is relinquished. }
 procedure Sleep(length : Cardinal);
+
+{: IncludeTrailingPathDelimiter returns the path without a PathDelimiter
+  ('\' or '/') at the end.  This function is MBCS enabled. }
+function IncludeTrailingPathDelimiter(const S: string): string;
+{$ENDIF}
 
 {: Returns the current value of the highest-resolution counter.<p>
    If the platform has none, should return a value derived from the highest
@@ -287,18 +275,18 @@ function PrecisionTimerLap(const precisionTimer : Int64) : Double;
 {: Computes time elapsed since timer start and stop timer.<p>
    Return time lap in seconds. }
 function StopPrecisionTimer(const precisionTimer : Int64) : Double;
+{: Returns the number of CPU cycles since startup.<p>
+   Use the similarly named CPU instruction. }
+function RDTSC : Int64;
 
-procedure GLLoadBitmapFromInstance(aInstance: LongInt; ABitmap: TCustomBitmap; AName: string);
 function GLOKMessageBox(const Text, Caption: string): Integer;
+procedure GLLoadBitmapFromInstance(Instance: LongInt; ABitmap: TBitmap; AName: string);
 procedure ShowHTMLUrl(Url: String);
-procedure GLShowCursor(AShow: boolean);
-procedure GLSetCursorPos(AScreenX, AScreenY: integer);
-procedure GLGetCursorPos(var point: TGLPoint);
-function GLGetScreenWidth:integer;
-function GLGetScreenHeight:integer;
 function GLGetTickCount:int64;
 
+{$IFDEF GLS_DELPHI_5_DOWN}
 function ColorToString(Color: TColor): string;
+{$ENDIF}
 
 // StrUtils.pas
 function AnsiStartsText(const ASubText, AText: string): Boolean;
@@ -307,22 +295,29 @@ function AnsiStartsText(const ASubText, AText: string): Boolean;
 function IsSubComponent(const AComponent: TComponent): Boolean;
 procedure MakeSubComponent(const AComponent: TComponent; const Value: Boolean);
 
+{$IFDEF GLS_DELPHI_5_DOWN}
 // SysUtils.pas
 function StrToFloatDef(const S: string; const Default: Extended): Extended; overload;
-{$IFDEF FPC_HAS_TYPE_EXTENDED}
 function TryStrToFloat(const S: string; out Value: Extended): Boolean; overload;
-{$ENDIF}
 function TryStrToFloat(const S: string; out Value: Double): Boolean; overload;
 function TryStrToFloat(const S: string; out Value: Single): Boolean; overload;
 
 // Math.pas
 function IsNan(const AValue: Double): Boolean; overload;
 function IsNan(const AValue: Single): Boolean; overload;
-{$IFDEF FPC_HAS_TYPE_EXTENDED}
 function IsNan(const AValue: Extended): Boolean; overload;
-{$ENDIF}
 function IsInfinite(const AValue: Double): Boolean;
+{$ENDIF}
 
+{$IFDEF GLS_DELPHI_7_UP}
+function FindUnitName(anObject: TObject): string; overload;
+function FindUnitName(aClass: TClass): string; overload;
+{$ENDIF}
+
+{$IFNDEF GLS_COMPILER_2009_UP}
+function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean; overload;
+function CharInSet(C: WideChar; const CharSet: TSysCharSet): Boolean; overload;
+{$ENDIF}
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -335,6 +330,9 @@ implementation
 {$IFDEF MSWINDOWS}
 uses
   ShellApi;
+{$ENDIF}
+{$IFDEF UNIX}
+
 {$ENDIF}
 
 var
@@ -359,96 +357,75 @@ begin
 {$ENDIF}
 end;
 
+{$IFDEF GLS_DELPHI_5_DOWN}
 function StrToFloatDef(const S: string; const Default: Extended): Extended;
 begin
-{$IFDEF GLS_DELPHI_5_DOWN}
-  Removed code, because we don't need it AND it's probably copyrighted
-  regards, crossbuilder
-{$ELSE}
-  Result := SysUtils.StrToFloatDef(S, Default);
-{$ENDIF}
+  if not TextToFloat(PChar(S), Result, fvExtended) then
+    Result := Default;
 end;
 
-{$IFDEF FPC_HAS_TYPE_EXTENDED}
 function TryStrToFloat(const S: string; out Value: Extended): Boolean;
 begin
-{$IFDEF GLS_DELPHI_5_DOWN}
-  Removed code, because we don't need it AND it's probably copyrighted
-  regards, crossbuilder
-{$ELSE}
-  Result := SysUtils.TryStrToFloat(S, Value);
-{$ENDIF}
+  Result := TextToFloat(PChar(S), Value, fvExtended)
 end;
-{$ENDIF}
 
 function TryStrToFloat(const S: string; out Value: Double): Boolean;
-{$IFDEF GLS_DELPHI_5_DOWN}
-  Removed code, because we don't need it AND it's probably copyrighted
-  regards, crossbuilder
-{$ELSE}
+var
+  LValue: Extended;
 begin
-  Result := SysUtils.TryStrToFloat(S, Value);
+  Result := TextToFloat(PChar(S), LValue, fvExtended);
+  if Result then
+    Value := LValue;
 end;
-{$ENDIF}
-
 
 function TryStrToFloat(const S: string; out Value: Single): Boolean;
-{$IFDEF GLS_DELPHI_5_DOWN}
-  Removed code, because we don't need it AND it's probably copyrighted
-  regards, crossbuilder
-{$ELSE}
+var
+  LValue: Extended;
 begin
-  Result := SysUtils.TryStrToFloat(S, Value);
+  Result := TextToFloat(PChar(S), LValue, fvExtended);
+  if Result then
+    Value := LValue;
 end;
-{$ENDIF}
 
 function IsNan(const AValue: Single): Boolean;
 begin
-{$IFDEF GLS_DELPHI_5_DOWN}
-  Removed code, because we don't need it AND it's probably copyrighted
-  regards, crossbuilder
-{$ELSE}
-  Result := Math.IsNan(AValue);
-{$ENDIF}
+  Result := ((PLongWord(@AValue)^ and $7F800000)  = $7F800000) and
+            ((PLongWord(@AValue)^ and $007FFFFF) <> $00000000);
 end;
 
 function IsNan(const AValue: Double): Boolean;
 begin
-{$IFDEF GLS_DELPHI_5_DOWN}
-  Removed code, because we don't need it AND it's probably copyrighted
-  regards, crossbuilder
-{$ELSE}
-  Result := Math.IsNan(AValue);
-{$ENDIF}
+  Result := ((PInt64(@AValue)^ and $7FF0000000000000)  = $7FF0000000000000) and
+            ((PInt64(@AValue)^ and $000FFFFFFFFFFFFF) <> $0000000000000000);
 end;
 
-{$IFDEF FPC_HAS_TYPE_EXTENDED}
 function IsNan(const AValue: Extended): Boolean;
-{$IFDEF GLS_DELPHI_5_DOWN}
-  Removed code, because we don't need it AND it's probably copyrighted
-  regards, crossbuilder
-{$ELSE}
+type
+  TExtented = packed record
+    Mantissa: Int64;
+    Exponent: Word;
+  end;
+  PExtended = ^TExtented;
 begin
-  Result := Math.IsNan(AValue);
-{$ENDIF}
+  Result := ((PExtended(@AValue)^.Exponent and $7FFF)  = $7FFF) and
+            ((PExtended(@AValue)^.Mantissa and $7FFFFFFFFFFFFFFF) <> 0);
 end;
-{$ENDIF}
 
 function IsInfinite(const AValue: Double): Boolean;
 begin
-{$IFDEF GLS_DELPHI_5_DOWN}
-  Removed code, because we don't need it AND it's probably copyrighted
-  regards, crossbuilder
-{$ELSE}
-  Result := Math.IsInfinite(AValue);
-{$ENDIF}
+  Result := ((PInt64(@AValue)^ and $7FF0000000000000) = $7FF0000000000000) and
+            ((PInt64(@AValue)^ and $000FFFFFFFFFFFFF) = $0000000000000000);
 end;
+{$ENDIF}
 
+{$IFDEF GLS_DELPHI_5_DOWN}
 function ColorToString(Color: TColor): string;
 begin
+  // Taken from Delphi7 Graphics.pas
   if not ColorToIdent(Color, Result) then
     FmtStr(Result, '%s%.8x', [HexDisplayPrefix, Color]);
 end;
+{$ENDIF}
 
 function AnsiStartsText(const ASubText, AText: string): Boolean;
 {$IFDEF GLS_DELPHI_5_DOWN}
@@ -471,231 +448,38 @@ begin
 end;
 {$ENDIF}
 
-procedure GLLoadBitmapFromInstance(aInstance: LongInt; ABitmap: TCustomBitmap; AName: string);
-begin
-  try
-    ABitmap.LoadFromLazarusResource(AName);
-(*
-  {$IFDEF MSWINDOWS}
-    ABitmap.Handle := LoadBitmap(aInstance, PChar(AName));
-  {$ENDIF}
-  {$IFDEF UNIX}
-    //ABitmap.LoadFromResourceName(aInstance, PChar(AName));
-    ABitmap.LoadFromLazarusResource(AName);
-  {$ENDIF}
-*)
-  except end;
-end;
-
 function GLOKMessageBox(const Text, Caption: string): Integer;
 begin
   Result := Application.MessageBox(PChar(Text), PChar(Caption), MB_OK);
 end;
 
-procedure GLShowCursor(AShow: boolean);
+procedure GLLoadBitmapFromInstance(Instance: LongInt; ABitmap: TBitmap; AName: string);
 begin
 {$IFDEF MSWINDOWS}
-  ShowCursor(AShow);
+  ABitmap.Handle := LoadBitmap(Instance, PChar(AName));
 {$ENDIF}
 {$IFDEF UNIX}
-  {$MESSAGE Warn 'ShowCursor: Needs to be implemented'}
+  ABitmap.LoadFromResourceName(Instance, PChar(AName));
 {$ENDIF}
-end;
-
-procedure GLSetCursorPos(AScreenX, AScreenY: integer);
-begin
-{$IFDEF MSWINDOWS}
-  SetCursorPos(AScreenX, AScreenY);
-{$ENDIF}
-{$IFDEF UNIX}
-  {$MESSAGE Warn 'SetCursorPos: Needs to be implemented'}
-{$ENDIF}
-end;
-
-procedure GLGetCursorPos(var point: TGLPoint);
-begin
-{$IFDEF MSWINDOWS}
-  GetCursorPos(point);
-{$ENDIF}
-{$IFDEF UNIX}
-  {$MESSAGE Warn 'GetCursorPos: Needs to be implemented'}
-{$ENDIF}
-end;
-
-function GLGetScreenWidth:integer;
-begin
-  result := Screen.Width;
-end;
-
-function GLGetScreenHeight:integer;
-begin
-  result := Screen.Height;
 end;
 
 function GLGetTickCount:int64;
 begin
+{$IFDEF MSWINDOWS}
   result := GetTickCount;
-end;
-
-{$IFDEF UNIX}
-function QueryCombo(const ACaption, APrompt: string; Alist:TStringList;
-                          var Index: integer; var Value: string): Boolean;
-var
-  Form: TForm;
-  Prompt: TLabel;
-  Combo: TComboBox;
-  Dialogfrms: TPoint;
-  ButtonTop, ButtonWidth, ButtonHeight: Integer;
-begin
-  Result := False;
-  Form := TForm.Create(Application);
-  with Form do
-    try
-      Canvas.Font := Font;
-      Dialogfrms := Point(Canvas.TextWidth('L'),Canvas.TextHeight('R'));
-      BorderStyle := bsDialog;
-      Caption := ACaption;
-      ClientWidth := MulDiv(180, Dialogfrms.X, 4);
-      ClientHeight := MulDiv(63, Dialogfrms.Y, 8);
-      Position := poScreenCenter;
-      Prompt := TLabel.Create(Form);
-      with Prompt do
-      begin
-        Parent := Form;
-        AutoSize := True;
-        Left := MulDiv(8, Dialogfrms.X, 4);
-        Top := MulDiv(8, Dialogfrms.Y, 8);
-        Caption := APrompt;
-      end;
-      Combo := TComboBox.Create(Form);
-      with Combo do
-      begin
-        Parent := Form;
-        Left := Prompt.Left;
-        Top := MulDiv(19, Dialogfrms.Y, 8);
-        Width := MulDiv(164, Dialogfrms.X, 4);
-        DropDownCount := 3;
-        Items.AddStrings(AList);
-        Combo.ItemIndex := index;
-      end;
-      ButtonTop := MulDiv(41, Dialogfrms.Y, 8);
-      ButtonWidth := MulDiv(50, Dialogfrms.X, 4);
-      ButtonHeight := MulDiv(14, Dialogfrms.Y, 8);
-      with TButton.Create(Form) do
-      begin
-        Parent := Form;
-        Caption := SMsgDlgOK;
-        ModalResult := mrOk;
-        Default := True;
-        SetBounds(MulDiv(38, Dialogfrms.X, 4), ButtonTop, ButtonWidth,
-          ButtonHeight);
-        TabOrder := 0;
-      end;
-      with TButton.Create(Form) do
-      begin
-        Parent := Form;
-        Caption := SMsgDlgCancel;
-        ModalResult := mrCancel;
-        Cancel := True;
-        SetBounds(MulDiv(92, Dialogfrms.X, 4), ButtonTop, ButtonWidth,
-          ButtonHeight);
-      end;
-      if ShowModal = mrOk then
-      begin
-        Value := Combo.Text;
-        index := Combo.ItemIndex;
-        Result := True;
-      end;
-    finally
-      Form.Free;
-    end;
-end;
-
-resourcestring
-  sFileName = '/tmp/delete-me.txt';
-
-// Code inspired from unit Misc.pas of TPlot component of Mat Ballard
-function CheckForRPM(AnRPM: String): String;
-var
-  TmpFile: TStringList;
-begin
-  Result := '';
-  TmpFile := TStringList.Create;
-  FPSystem(PChar('rpm -ql ' + AnRPM + ' > ' + sFileName));
-  TmpFile.LoadFromFile(sFileName);
-  if (Length(TmpFile.Strings[0]) > 0) then
-    if (Pos('not installed', TmpFile.Strings[0]) = 0) then
-      Result := TmpFile.Strings[0];
-  DeleteFile(sFileName);
-  TmpFile.Free;
-end;
-
-function GetBrowser: String;
-var
-  Index: Integer;
-  AProgram,
-  ExeName: String;
-  BrowserList: TStringList;
-begin
-{Get the $BROWSER environment variable:}
-  ExeName := GetEnvironmentVariable('BROWSER');
-
-  if (Length(ExeName) = 0) then
-  begin
-{Get the various possible browsers:}
-    BrowserList := TStringList.Create;
-
-    try
-      if (FileExists('/usr/bin/konqueror')) then
-        BrowserList.Add('/usr/bin/konqueror');
-
-      AProgram := CheckForRPM('mozilla');
-      if (Length(AProgram) > 0) then
-        BrowserList.Add(AProgram);
-      AProgram := CheckForRPM('netscape-common');
-      if (Length(AProgram) > 0) then
-        BrowserList.Add(AProgram);
-      AProgram := CheckForRPM('opera');
-      if (Length(AProgram) > 0) then
-        BrowserList.Add(AProgram);
-      AProgram := CheckForRPM('lynx');
-      if (Length(AProgram) > 0) then
-        BrowserList.Add(AProgram);
-      AProgram := CheckForRPM('links');
-      if (Length(AProgram) > 0) then
-        BrowserList.Add(AProgram);
-
-      Index := 0;
-      if QueryCombo('Browser Selection', 'Which Web Browser Program To Use ?',
-        BrowserList, Index, AProgram) then
-      begin
-        ExeName := AProgram;
-        //Libc.putenv(PChar('BROWSER=' + ExeName));
-      end;
-
-    finally
-      BrowserList.Free;
-    end;
-  end;
-
-  Result := ExeName;
-end;
 {$ENDIF}
+{$IFDEF UNIX}
+  QueryPerformanceCounter(result);
+{$ENDIF}
+end;
 
 procedure ShowHTMLUrl(Url: String);
-{$IFDEF UNIX}
-var
-  TheBrowser: String;
-{$ENDIF}
 begin
 {$IFDEF MSWINDOWS}
   ShellExecute(0, 'open', PChar(Url), Nil, Nil, SW_SHOW);
 {$ENDIF}
 {$IFDEF UNIX}
-  TheBrowser := GetBrowser;
-{the ' &' means immediately continue:}
-  if (Length(TheBrowser) > 0) then
-    fpsystem(PChar(TheBrowser + ' ' + Url + ' &'));
+  fpSystem(PChar('env xdg-open ' + Url));
 {$ENDIF}
 end;
 
@@ -766,17 +550,16 @@ end;
 
 // RaiseLastOSError
 //
-{ TODO : Fix this. Currently it does nothing in lazarus. }
 procedure RaiseLastOSError;
-{$IFNDEF FPC}
 var
    e : EGLOSError;
-{$ENDIF}
 begin
-  {$IFNDEF FPC}
+   {$IFDEF FPC}
+   e:=EGLOSError.Create('OS Error : '+SysErrorMessage(GetLastOSError));
+   {$ELSE}
    e:=EGLOSError.Create('OS Error : '+SysErrorMessage(GetLastError));
-   raise e;
    {$ENDIF}
+   raise e;
 end;
 
 type
@@ -801,23 +584,16 @@ begin
     ReleaseDC(0, Device);
   end;
 end;
-{$ENDIF}
-{$IFDEF UNIX}
-var
-  Device: HDC;
-const
-  NUMCOLORS=24;
+{$ELSE}
+var dpy: PDisplay;
 begin
+  dpy := XOpenDisplay(nil);
+  Result.Depth := DefaultDepth(dpy,DefaultScreen(dpy));
+  XCloseDisplay(dpy);
 
-  Device := GetDC(0);
-  try
-    result.Xdpi := GetDeviceCaps(Device,LOGPIXELSX);
-    result.Ydpi := GetDeviceCaps(Device,LOGPIXELSY);
-    result.Depth := GetDeviceCaps(Device,BITSPIXEL);
-    result.NumColors := GetDeviceCaps(Device,NUMCOLORS);
-  finally
-    ReleaseDC(0, Device);
-  end;
+  Result.Xdpi := 96;
+  Result.Ydpi := 96;
+  Result.NumColors := 1;
 end;
 {$ENDIF}
 
@@ -830,7 +606,6 @@ end;
 
 // GetCurrentColorDepth
 //
-
 function GetCurrentColorDepth : Integer;
 begin
   result := GetDeviceCapabilities().Depth;
@@ -841,10 +616,10 @@ end;
 function PixelFormatToColorBits(aPixelFormat : TPixelFormat) : Integer;
 begin
    case aPixelFormat of
-      pfCustom {$IFDEF WINDOWS}, pfDevice{$ENDIF} :  // use current color depth
+      pfCustom {$IFDEF WIN32}, pfDevice{$ENDIF} :  // use current color depth
          Result:=GetCurrentColorDepth;
       pf1bit  : Result:=1;
-{$IFDEF WINDOWS}
+{$IFDEF WIN32}
       pf4bit  : Result:=4;
       pf15bit : Result:=15;
 {$ENDIF}
@@ -861,25 +636,33 @@ end;
 function BitmapScanLine(aBitmap : TGLBitmap; aRow : Integer) : Pointer;
 begin
 {$IFDEF FPC}
-   //Assert(False, 'BitmapScanLine unsupported');
+   Assert(False, 'BitmapScanLine unsupported');
    Result:=nil;
-   raise exception.create('BitmapScanLine unsupported');
 {$ELSE}
    Result:=aBitmap.ScanLine[aRow];
 {$ENDIF}
 end;
 
-
+{$IFDEF GLS_DELPHI_5_DOWN}
 // Sleep
 //
 procedure Sleep(length : Cardinal);
 begin
-  SysUtils.Sleep(Length);
+   Windows.Sleep(length);
 end;
+
+// IncludeTrailingPathDelimiter
+//
+function IncludeTrailingPathDelimiter(const S: string): string;
+begin
+  Result := IncludeTrailingBackslash(S);
+end;
+{$ENDIF} // GLS_DELPHI_5_DOWN
 
 // QueryPerformanceCounter
 //
 {$IFDEF UNIX}
+  {$IFDEF FPC}
    var
      vProgStartSecond : int64;
 
@@ -887,39 +670,63 @@ end;
    var
      tz:timeval;
    begin
-     fpgettimeofday(@tz,nil);
-     vProgStartSecond:=tz.tv_sec;
+     fpgettimeofday(@tz, nil);
+     vProgStartSecond := tz.tv_sec;
    end;
+  {$ENDIF}
 {$ENDIF}
 
 procedure QueryPerformanceCounter(var val : Int64);
-{$IFDEF WINDOWS}
+{$IFDEF WIN32}
 begin
    Windows.QueryPerformanceCounter(val);
 {$ELSE}
+   {$IFDEF FPC}
    var
-     tz:timeval;
+     tz: timeval;
    begin
      //val:=round(now*MSecsPerDay);
-     fpgettimeofday(@tz,nil);
-     val:=tz.tv_sec-vProgStartSecond;
-     val:=val*1000000;
-     val:=val+tz.tv_usec;
+     fpgettimeofday(@tz, nil);
+     val := tz.tv_sec - vProgStartSecond;
+     val := val * 1000000;
+     val := val + tz.tv_usec;
+   {$ELSE}
+   begin
+     val := RDTSC;
+   {$ENDIF}
 {$ENDIF}
 end;
 
 // QueryPerformanceFrequency
 //
 function QueryPerformanceFrequency(var val : Int64) : Boolean;
-{$IFDEF WINDOWS}
+{$IFDEF WIN32}
 begin
    Result:=Boolean(Windows.QueryPerformanceFrequency(val));
-{$ELSE}
-begin
-  val:=1000000;
-  Result:=True;
-{$ENDIF}
 end;
+{$ELSE}
+  {$IFDEF FPC}
+  begin
+    val := 1000000;
+    Result := True;
+  end;
+  {$ELSE}
+  var
+    startCycles, endCycles : Int64;
+    aTime, refTime : TDateTime;
+  begin
+   aTime:=Now;
+   while aTime=Now do ;
+   startCycles:=RDTSC;
+   refTime:=Now;
+   while refTime=Now do ;
+   endCycles:=RDTSC;
+   aTime:=Now;
+   val:=Round((endCycles-startCycles)/((aTime-refTime)*(3600*24)));
+   Result:=True;
+  end;
+  {$ENDIF}
+{$ENDIF}
 
 // StartPrecisionTimer
 //
@@ -951,10 +758,91 @@ begin
    Result:=(cur-precisionTimer)*vInvPerformanceCounterFrequency;
 end;
 
+// RDTSC
+//
+function RDTSC : Int64;
+{$IFDEF FPC}
+begin
+  raise exception.create('Using GLCrossPlatform.RDTSC is a bad idea!');
+end;
+{$ELSE}
+asm
+   db $0f, $31
+end;
+{$ENDIF}
+
+{$IFDEF GLS_DELPHI_7_UP}
+{$IFNDEF GLS_COMPILER_2009_UP}
+type
+  PClassData = ^TClassData;
+  TClassData = record
+    ClassType: TClass;
+    ParentInfo: Pointer;
+    PropCount: SmallInt;
+    UnitName: ShortString;
+  end;
+{$ENDIF}
+
+function FindUnitName(anObject: TObject): string;
+{$IFDEF GLS_COMPILER_2009_UP}
+begin
+  if Assigned(anObject) then
+    Result := anObject.UnitName
+  else
+    Result:='';
+end;
+{$ELSE}
+var
+  LClassInfo: Pointer;
+begin
+  Result:='';
+  if anObject=nil then Exit;
+
+  LClassInfo := anObject.ClassInfo;
+  if LClassInfo <> nil then
+    Result := String(PClassData(Integer(LClassInfo) + 2 + PByte(Integer(LClassInfo) + 1)^).UnitName);
+end;
+{$ENDIF}
+
+function FindUnitName(aClass: TClass): string;
+{$IFDEF GLS_COMPILER_2009_UP}
+begin
+  if Assigned(aClass) then
+    Result := aClass.UnitName
+  else
+    Result:='';
+end;
+{$ELSE}
+var
+  LClassInfo: Pointer;
+begin
+  Result:='';
+  if aClass=nil then Exit;
+
+  LClassInfo := aClass.ClassInfo;
+  if LClassInfo <> nil then
+    Result := String(PClassData(Integer(LClassInfo) + 2 + PByte(Integer(LClassInfo) + 1)^).UnitName);
+end;
+{$ENDIF}
+{$ENDIF}
+
+{$IFNDEF GLS_COMPILER_2009_UP}
+function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
+begin
+  Result := C in CharSet;
+end;
+
+function CharInSet(C: WideChar; const CharSet: TSysCharSet): Boolean;
+begin
+  Result := (C < #$0100) and (AnsiChar(C) in CharSet);
+end;
+{$ENDIF}
 
 
 initialization
-{$IFDEF UNIX}
+{$IFDEF FPC}
+  {$IFDEF UNIX}
   Init_vProgStartSecond;
+  {$ENDIF}
 {$ENDIF}
 end.

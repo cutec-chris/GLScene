@@ -3,15 +3,18 @@
 //
 {: DDSImage<p>
     Alternative for DDS unit with more supported formats of flat image:
-    Alpha8, Luminance8, R3G3B2, RGB5A1, RGBA4, Alpha8Luminance8, Luminance16, R5G6B5, 
-    RGB8, R10G10B10A2, RGBA8, RGBA16, R16F, RGBA16F, R32F, RGBA32F, GR16, GR16F, GR32F, 
-    Compressed RGB S3TC DXT1, Compressed RGBA S3TC DXT1, Compressed RGBA S3TC DXT3, 
+    Alpha8, Luminance8, R3G3B2, RGB5A1, RGBA4, Alpha8Luminance8, Luminance16, R5G6B5,
+    RGB8, R10G10B10A2, RGBA8, RGBA16, R16F, RGBA16F, R32F, RGBA32F, GR16, GR16F, GR32F,
+    Compressed RGB S3TC DXT1, Compressed RGBA S3TC DXT1, Compressed RGBA S3TC DXT3,
     Compressed RGBA S3TC DXT5
     But it down color to RGBA8 because becomes to TGLBitmap
-    Good for preview picture in OpenDialog, 
+    Good for preview picture in OpenDialog,
     so you may include both DDSImage (preview) and GLFileDDS (loading)
 
  <b>History : </b><font size=-1><ul>
+        <li>20/05/10 - Yar - Fixes for Linux x64
+        <li>21/03/10 - Yar - Added Linux support
+                             (thanks to Rustam Asmandiarov aka Predator)
         <li>24/01/10 - Yar - Improved FPC compatibility
         <li>21/01/10 - Yar - Creation
    </ul><p>
@@ -24,9 +27,9 @@ interface
 {$i GLScene.inc}
 
 uses
-  {$IFDEF MSWINDOWS} Windows, GLPBuffer, {$ENDIF}
+  {$IFDEF MSWINDOWS} Windows,  {$ENDIF}
   Classes, SysUtils, GLCrossPlatform, GLVectorGeometry, GLGraphics,
-  OpenGL1x;
+  OpenGL1x, GLPBuffer;
 
 type
 
@@ -42,7 +45,7 @@ type
 implementation
 
 uses
-  {$IFDEF FPC} graphtype, {$ENDIF}
+  {$IFDEF FPC} graphtype, LCLType, {$ENDIF}
   DXTC, GLFileDDS, GLTextureFormat;
 
 // ------------------
@@ -58,8 +61,14 @@ var
   size: integer;
   tempBuff: PGLubyte;
   tempTex: GLuint;
+  {$IFDEF MSWINDOWS}
   DC: HDC;
   RC: HGLRC;
+  {$ENDIF}
+  {$IFDEF Linux}
+  DC: GLXDrawable;
+  RC: GLXContext;
+  {$ENDIF}
   {$IFNDEF FPC}
   src, dst: PGLubyte;
   y: integer;
@@ -75,12 +84,23 @@ begin
     raise;
   end;
 
+  {$IFDEF MSWINDOWS}
   // Copy surface as posible to TBitmap
   DC := wglGetCurrentDC;
   RC := wglGetCurrentContext;
+  {$ENDIF}
+  {$IFDEF Linux}
+   DC := glXGetCurrentReadDrawable;
+   RC := glxGetCurrentContext;
+  {$ENDIF}
 
   // Create minimal pixel buffer
+  {$IFDEF MSWINDOWS}
   if (DC = 0) or (RC = 0) then
+  {$ENDIF}
+  {$IFDEF Linux}
+  if (DC = 0) or (RC = nil) then
+  {$ENDIF}
   begin
     PBuf := TGLPixelBuffer.Create;
     try
@@ -108,10 +128,13 @@ begin
     begin
       size := ((FullDDS.Width + 3) div 4) * ((FullDDS.Height + 3) div 4) *
         FullDDS.ElementSize;
-      glCompressedTexImage2DARB(GL_TEXTURE_2D, 0,
+
+      glCompressedTexImage2DARB(
+      GL_TEXTURE_2D, 0,
         InternalFormatToOpenGLFormat(FullDDS.InternalFormat),
         FullDDS.Width, FullDDS.Height, 0, size,
         FullDDS.GetLevelData(0));
+
     end
     else
       glTexImage2D(GL_TEXTURE_2D, 0,
@@ -154,7 +177,9 @@ begin
     RIMG.DataSize := Width*Height*4;
     rimg.Data := PByte(tempBuff);
     LoadFromRawImage(rimg, false);
+
 {$ENDIF}
+
     FullDDS.Free;
     FreeMem(tempBuff);
 
@@ -175,7 +200,10 @@ const
   Magic: array[0..3] of AnsiChar = 'DDS ';
 var
   header: TDDSHeader;
-  i, rowSize: integer;
+  rowSize: integer;
+  {$IFNDEF FPC}
+  i: Integer;
+  {$ENDIF}
 begin
   FillChar(header, SizeOf(TDDSHeader), 0);
   header.magic := cardinal(Magic);

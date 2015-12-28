@@ -6,6 +6,7 @@
   A collection of components that generate post effects.<p>
 
 	<b>History : </b><font size=-1><ul>
+      <li>22/04/10 - Yar - Fixes after GLState revision
       <li>28/05/08 - DaStr - Fixed AV in TGLPostEffect.MakeDistortEffect()
                              Got rid of all R- hacks
       <li>10/04/08 - DaStr - Added a Delpi 5 interface bug work-around to
@@ -33,7 +34,7 @@
                              pepNone preset does not call gl[Read/Draw]Pixels
       <li>23/02/07 - DaStr - Initial version of TGLPostEffect
                                                 (based on OldCity demo by FedeX)
-    </ul></font>                                                
+    </ul></font>
 
 }
 unit GLPostEffects;
@@ -48,7 +49,7 @@ uses
 
   // GLScene
   GLScene, GLTexture, OpenGL1x, GLGraphics, GLStrings, GLCustomShader, GLContext,
-  GLVectorGeometry, GLRenderContextInfo, GLMaterial;
+  GLVectorGeometry, GLRenderContextInfo, GLMaterial, GLTextureFormat;
 
 type
   EGLPostShaderHolderException = class(Exception);
@@ -88,10 +89,8 @@ type
     FShaders: TGLPostShaderCollection;
     FTempTexture: TGLTextureHandle;
     FPreviousViewportSize: TGLSize;
-    FTempTextureTarget: Cardinal;
+    FTempTextureTarget: TGLTextureTarget;
     procedure SetShaders(const Value: TGLPostShaderCollection);
-    procedure SetTempTextureTarget(const Value: TGLTextureTarget);
-    function GetTempTextureTarget: TGLTextureTarget;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -101,7 +100,7 @@ type
     procedure DoRender(var rci : TRenderContextInfo;
                        renderSelf, renderChildren : Boolean); override;
   published
-    property TempTextureTarget: TGLTextureTarget read GetTempTextureTarget write SetTempTextureTarget default ttTexture2d;
+    property TempTextureTarget: TGLTextureTarget read FTempTextureTarget write FTempTextureTarget default ttTexture2d;
     property Shaders: TGLPostShaderCollection read FShaders write SetShaders;
 
     //: Publish some stuff from TGLBaseSceneObject.
@@ -367,7 +366,7 @@ begin
     raise EGLPostShaderHolderException.Create('Shader must support interface IGLPostShader!');
 
   if RealOwner <> nil then
-    if FPostShaderInterface.GetTextureTarget <> RealOwner.GetTempTextureTarget then
+    if FPostShaderInterface.GetTextureTarget <> RealOwner.TempTextureTarget then
       raise EGLPostShaderHolderException.Create(glsErrorEx + 'TextureTarget is not compatible!');
   // If RealOwner = nil, we ignore this case and hope it will turn out ok...
 
@@ -394,7 +393,7 @@ constructor TGLPostShaderHolder.Create(Owner: TComponent);
 begin
   inherited;
   FTempTexture := TGLTextureHandle.Create;
-  FTempTextureTarget := GL_TEXTURE_2D;
+  FTempTextureTarget :=ttTexture2D;
   FShaders := TGLPostShaderCollection.Create(Self, TGLPostShaderCollectionItem);
 end;
 
@@ -416,7 +415,8 @@ begin
     if (FPreviousViewportSize.cx <> rci.viewPortSize.cx) or
        (FPreviousViewportSize.cy <> rci.viewPortSize.cy) then
     begin
-      InitTexture(FTempTexture.Handle, rci.viewPortSize, FTempTextureTarget);
+      InitTexture(FTempTexture.Handle, rci.viewPortSize,
+        FTempTextureTarget);
       FPreviousViewportSize := rci.viewPortSize;
     end;
 
@@ -427,25 +427,20 @@ begin
         Assert(Assigned(FShaders[I].FShader));
         if FShaders[I].FShader.Enabled then
         begin
-          glEnable(FTempTextureTarget);
+          rci.GLStates.ActiveTextureEnabled[FTempTextureTarget] := True;
           FShaders[I].FShader.Apply(rci, Self);
           repeat
-            CopyScreentoTexture(rci.viewPortSize, FTempTextureTarget);
+            CopyScreenToTexture(rci.viewPortSize, DecodeGLTextureTarget(FTempTextureTarget));
             FShaders[I].FPostShaderInterface.DoUseTempTexture(FTempTexture, FTempTextureTarget);
             DrawTexturedScreenQuad5(rci.viewPortSize);
           until not FShaders[I].FShader.UnApply(rci);
-          glDisable(FTempTextureTarget);
+          rci.GLStates.ActiveTextureEnabled[FTempTextureTarget] := False;
         end;
       end;
     end;
   end;
   if renderChildren then
     Self.RenderChildren(0, Count - 1, rci);
-end;
-
-function TGLPostShaderHolder.GetTempTextureTarget: TGLTextureTarget;
-begin
-  Result := EncodeGLTextureTarget(FTempTextureTarget);
 end;
 
 procedure TGLPostShaderHolder.Notification(AComponent: TComponent;
@@ -463,12 +458,6 @@ procedure TGLPostShaderHolder.SetShaders(
   const Value: TGLPostShaderCollection);
 begin
   FShaders.Assign(Value);
-end;
-
-procedure TGLPostShaderHolder.SetTempTextureTarget(
-  const Value: TGLTextureTarget);
-begin
-  FTempTextureTarget := DecodeGLTextureTarget(Value);
 end;
 
 { TGLPostShaderCollection }

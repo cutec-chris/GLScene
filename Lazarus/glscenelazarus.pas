@@ -9,17 +9,16 @@ interface
 uses
   ApplicationFileIO, ARBProgram, AsyncTimer, BumpMapping, CurvesAndSurfaces, 
   GeometryBB, GLCanvas, GLKeyboard, GLTextureCombiners, HeightTileFile, jpeg, 
-  MeshUtils, Octree, OpenGL1x, PerlinNoise, glpersistentclasses, 
+  glmeshutils, Octree, OpenGL1x, PerlinNoise, GLPersistentClasses, 
   PictureRegisteredFormats, Polynomials, SpatialPartitioning, Spline, 
   GLVectorGeometry, GLVectorLists, GLVectorTypes, VerletClasses, 
   VerletHairClasses, XCollection, XOpenGL, FVectorEditor, FXCollectionEditor, 
-  GLSceneRegister, GLSceneEdit, GLTextureImageEditors, Info, 
-  RegisterXCollection, GLFile3DS, GLFileASE, GLFileGL2, GLFileGTS, GLFileLWO, 
-  GLFileMD2, GLFileMD3, GLFileMD5, GLFileMDC, GLFileMS3D, GLFileNMF, 
-  GLFileNurbs, GLFileObj, GLFilePLY, GLFileSMD, GLFileSTL, GLFileTIN, 
-  GLFileVRML, GlFileX, GLVfsPAK, Q3MD3, TGA, Utils3DS, GLAtmosphere, 
-  GLBaseMeshSilhouette, GLBehaviours, GLBitmapFont, GLBlur, GLBSP, 
-  GLBumpmapHDS, GLCadencer, GLCollision, GLConsole, GLContext, GLDCE, 
+  GLTextureImageEditors, Info, RegisterXCollection, GLFile3DS, GLFileASE, 
+  GLFileGL2, GLFileGTS, GLFileLWO, GLFileMD2, GLFileMD3, GLFileMD5, GLFileMDC, 
+  GLFileMS3D, GLFileNMF, GLFileNurbs, GLFileObj, GLFilePLY, GLFileSMD, 
+  GLFileSTL, GLFileTIN, GLFileVRML, GlFileX, GLVfsPAK, Q3MD3, TGA, Utils3DS, 
+  GLAtmosphere, GLBaseMeshSilhouette, GLBehaviours, GLBitmapFont, GLBlur, 
+  GLBSP, GLBumpmapHDS, GLCadencer, GLCollision, GLConsole, GLContext, GLDCE, 
   GLDCEMisc, GLEllipseCollision, GLEParticleMasksManager, GLExplosionFx, 
   GLExtrusion, GLFireFX, GLGameMenu, GLGeomObjects, GLGraph, GLGraphics, 
   GLGui, GLHeightData, GLHeightTileFileHDS, GLHUDObjects, GLImposter, 
@@ -39,15 +38,15 @@ uses
   GLSLShader, GLBaseClasses, GLCoordinates, GLManager, GLNodes, 
   GLRenderContextInfo, GLMaterial, GLObjectManager, GLCameraController, GLFBO, 
   GLFBORenderer, GLGizmoEx, Q3BSP, GLFileMP3, GLFileWAV, GLApplicationFileIO, 
-  GLSoundFileObjects, GLLinGTKContext, GLLCLFullscreenViewer, 
-  LazarusPackageIntf;
+  GLSoundFileObjects, GLLCLFullscreenViewer, GLWidgetContext, GLSceneEditLCL, 
+  GLSceneRegisterLCL, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
-  RegisterUnit('GLSceneRegister', @GLSceneRegister.Register);
   RegisterUnit('RegisterXCollection', @RegisterXCollection.Register);
+  RegisterUnit('GLSceneRegisterLCL', @GLSceneRegisterLCL.Register);
 end;
 
 initialization

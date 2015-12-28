@@ -20,7 +20,7 @@ uses forms, lcltype, messages, classes, glscene, controls, menus
      , gllingtkcontext
      {$endif}
      {$ifdef LCLGTK2}
-     , gllingtkcontext
+     , GLWidgetContext
      {$endif}
      {$ifdef LCLWIN32}
      ,windows

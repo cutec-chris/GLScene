@@ -34,7 +34,7 @@
    A way round this is to make the emiitters a children of the 6 nearest objects
    to the camera.
 3. Changing emitter properties causes a slight delay while recreating the shader.
-   To make an emitter invisible, just move it to somewhere it won't project on 
+   To make an emitter invisible, just move it to somewhere it won't project on
    anything, or set the brightness to 0. (?)
 4. All children of the ProjectedTextures must have use a texture.
    The shader can't be changed between rendering each seperate object..
@@ -55,7 +55,8 @@ uses
     GLContext,
     sysutils,
     GLColor,
-    GLRenderContextInfo;
+    GLRenderContextInfo,
+    GLTextureFormat;
 
 type
     TGLSLProjectedTexturesStyle = (ptsLight, ptsShadow);
@@ -522,7 +523,7 @@ begin
               if emitter.UseAttenuation then
               begin
                   // for attenuation we need the distance to the point
-                  // so use absolute value when AllowReverseProjection is enabled 
+                  // so use absolute value when AllowReverseProjection is enabled
                   fp.add(format('dist = 1.0 - clamp(%s(ProjTexCoords%d.q/Attenuation%d), 0.0, 1.0);',
                     [AbsFunc[emitter.AllowReverseProjection], i, i]));
                   if emitter.UseQuadraticAttenuation then
@@ -612,9 +613,7 @@ begin
         if emitters.count > 0 then
             Shader.Uniform1i['ProjMap'] := 2;
 
-        rci.GLStates.ActiveTexture := 2;
-        rci.GLStates.SetGLCurrentTexture(2, GL_TEXTURE_2D, Material.Texture.Handle);
-        rci.GLStates.ActiveTexture := 0;
+        rci.GLStates.TextureBinding[2, ttTexture2D] := Material.Texture.Handle;
 
         self.RenderChildren(0, Count - 1, rci);
 

@@ -6,6 +6,8 @@
    A shader that blurs the entire scene.<p>
 
    <b>History : </b><font size=-1><ul>
+      <li>22/04/10 - Yar - Fixes after GLState revision
+      <                    Added VectorTypes to uses
       <li>16/04/07 - DaStr - Shader made ATI compatible
       <li>05/04/07 - DaStr - Initial version (contributed to GLScene)
 
@@ -28,7 +30,7 @@ uses
 
   // GLScene
   GLTexture, GLScene, GLVectorGeometry, GLContext,
-  GLSLShader, GLCustomShader, GLRenderContextInfo;
+  GLSLShader, GLCustomShader, GLRenderContextInfo, GLTextureFormat;
 
 type
   TGLCustomGLSLPostBlurShader = class(TGLCustomGLSLShader, IGLPostShader)
@@ -36,7 +38,8 @@ type
     FThreshold: Single;
 
     // Implementing IGLPostShader.
-    procedure DoUseTempTexture(const TempTexture: TGLTextureHandle; const TextureTarget: Cardinal);
+    procedure DoUseTempTexture(const TempTexture: TGLTextureHandle;
+      TextureTarget: TGLTextureTarget);
     function GetTextureTarget: TGLTextureTarget;
     function StoreThreshold: Boolean;
   protected
@@ -55,6 +58,9 @@ type
 
 implementation
 
+uses
+  GLVectorTypes;
+
 { TGLCustomGLSLPostBlurShader }
 
 constructor TGLCustomGLSLPostBlurShader.Create(
@@ -64,18 +70,18 @@ begin
   with VertexProgram.Code do
   begin
     Add('varying vec2 vTexCoord; ');
-    Add(' '); 
-    Add('void main(void) '); 
-    Add('{ '); 
-    Add(' '); 
-    Add('   // Clean up inaccuracies '); 
-    Add('   vec2 Position; '); 
-    Add('   Position.xy = sign(gl_Vertex.xy); '); 
-    Add(' '); 
-    Add('   gl_Position = vec4(Position.xy, 0.0, 1.0); '); 
-    Add('   vTexCoord = Position.xy *.5 + .5; '); 
+    Add(' ');
+    Add('void main(void) ');
+    Add('{ ');
+    Add(' ');
+    Add('   // Clean up inaccuracies ');
+    Add('   vec2 Position; ');
+    Add('   Position.xy = sign(gl_Vertex.xy); ');
+    Add(' ');
+    Add('   gl_Position = vec4(Position.xy, 0.0, 1.0); ');
+    Add('   vTexCoord = Position.xy *.5 + .5; ');
     Add('    ');
-    Add('} '); 
+    Add('} ');
   end;
 
   with FragmentProgram.Code do
@@ -119,7 +125,7 @@ begin
     Add('   float sel  = float(dot(diff, vec4(0.25)) > threshold); ');
     Add(' ');
     Add('   gl_FragColor =  mix(sample, avg, sel); ');
-    Add('} '); 
+    Add('} ');
   end;
   FThreshold := 0.1;
 end;
@@ -141,7 +147,7 @@ begin
 end;
 
 procedure TGLCustomGLSLPostBlurShader.DoUseTempTexture(
-  const TempTexture: TGLTextureHandle; const TextureTarget: Cardinal);
+  const TempTexture: TGLTextureHandle; TextureTarget: TGLTextureTarget);
 begin
   Param['Image'].AsCustomTexture[2, TextureTarget] := TempTexture.Handle;
 end;
