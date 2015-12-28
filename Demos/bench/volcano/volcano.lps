@@ -2,7 +2,7 @@
 <CONFIG>
   <ProjectSession>
     <Version Value="9"/>
-    <Units Count="4">
+    <Units Count="6">
       <Unit0>
         <Filename Value="volcano.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -15,7 +15,6 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="4"/>
         <CursorPos X="18" Y="28"/>
@@ -26,7 +25,7 @@
       <Unit2>
         <Filename Value="../../../Source/glscene.pas"/>
         <UnitName Value="GLScene"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="10197"/>
         <CursorPos X="3" Y="1553"/>
         <UsageCount Value="11"/>
@@ -34,17 +33,39 @@
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
-        <Filename Value="../../../Source/designtime/glsceneregister.pas"/>
-        <UnitName Value="GLSceneRegister"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="104"/>
-        <CursorPos X="17" Y="118"/>
-        <UsageCount Value="11"/>
+        <Filename Value="Unit1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../../Source/base/opengladapter.pas"/>
+        <UnitName Value="OpenGLAdapter"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="3519"/>
+        <CursorPos Y="3543"/>
+        <UsageCount Value="10"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit3>
+      </Unit4>
+      <Unit5>
+        <Filename Value="../../../Source/platform/gllclviewer.pas"/>
+        <UnitName Value="GLLCLViewer"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="381"/>
+        <CursorPos Y="395"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit5>
     </Units>
-    <JumpHistory Count="7" HistoryIndex="6">
+    <JumpHistory Count="5" HistoryIndex="4">
       <Position1>
         <Filename Value="../../../AdvDemos/Forest/Unit1.pas"/>
       </Position1>
@@ -53,25 +74,16 @@
         <Caret Line="28" Column="18" TopLine="4"/>
       </Position2>
       <Position3>
-        <Filename Value="../../../Source/designtime/glsceneregister.pas"/>
-        <Caret Line="1450" Column="9" TopLine="1434"/>
+        <Filename Value="Unit1.pas"/>
       </Position3>
       <Position4>
-        <Filename Value="../../../Source/designtime/glsceneregister.pas"/>
-        <Caret Line="1204" Column="46" TopLine="1191"/>
+        <Filename Value="../../../Source/base/opengladapter.pas"/>
+        <Caret Line="3536" Column="52" TopLine="3519"/>
       </Position4>
       <Position5>
-        <Filename Value="../../../Source/designtime/glsceneregister.pas"/>
-        <Caret Line="1309" Column="15" TopLine="1301"/>
+        <Filename Value="../../../Source/platform/gllclviewer.pas"/>
+        <Caret Line="395" TopLine="381"/>
       </Position5>
-      <Position6>
-        <Filename Value="../../../Source/designtime/glsceneregister.pas"/>
-        <Caret Line="1309" Column="18" TopLine="1305"/>
-      </Position6>
-      <Position7>
-        <Filename Value="../../../Source/designtime/glsceneregister.pas"/>
-        <Caret Line="118" Column="7" TopLine="104"/>
-      </Position7>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
