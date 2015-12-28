@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 297
+  Left = 336
   Height = 329
-  Top = 228
+  Top = 246
   Width = 537
   HorzScrollBar.Page = 536
   VertScrollBar.Page = 328
@@ -12,7 +12,7 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.7'
   object PaintBox: TPaintBox
     Left = 272
     Height = 256
@@ -23,7 +23,7 @@ object Form1: TForm1
     Left = 8
     Height = 14
     Top = 48
-    Width = 77
+    Width = 85
     Caption = 'GLCanvas: N/A'
     ParentColor = False
   end
@@ -31,7 +31,7 @@ object Form1: TForm1
     Left = 272
     Height = 14
     Top = 48
-    Width = 46
+    Width = 48
     Caption = 'GDI: N/A'
     ParentColor = False
   end
@@ -69,22 +69,23 @@ object Form1: TForm1
     Camera = GLCamera1
     Buffer.Lighting = False
     FieldOfView = 137.326278686523
+    TabOrder = 7
   end
   object RBPenWidth1: TRadioButton
     Left = 432
-    Height = 17
+    Height = 22
     Top = 8
-    Width = 88
+    Width = 105
     Caption = 'Pen Width = 1'
     Checked = True
-    State = cbChecked
     TabOrder = 2
+    TabStop = True
   end
   object RBPenWidth2: TRadioButton
     Left = 432
-    Height = 17
+    Height = 22
     Top = 24
-    Width = 88
+    Width = 105
     Caption = 'Pen Width = 2'
     TabOrder = 3
   end

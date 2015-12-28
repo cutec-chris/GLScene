@@ -3,10 +3,11 @@ program Memviewer;
 {$MODE Delphi}
 
 uses
-  Interfaces,
-  Forms,
-  Unit1 in 'Unit1.pas' {Form1};
-  
+  Forms, Interfaces,
+  unit1, glscene_designtime, glscene_runtime;
+
+{$R *.res}
+
 begin
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);

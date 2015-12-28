@@ -1,15 +1,13 @@
-program ActorTwoCam;
+program actortwocam;
 
 {$MODE Delphi}
 
 uses
-  interfaces,
-  Forms,Unit1;
+  Forms, unit1, Interfaces, glscene_designtime, glscene_runtime;
 
-
+{$R *.res}
 
 begin
   Application.Initialize;
-  Application.CreateForm(TForm1, Form1);
   Application.Run;
 end.

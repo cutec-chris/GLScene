@@ -7,6 +7,7 @@
       <Unit0>
         <Filename Value="GLSViewer.lpr"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <CursorPos Y="19"/>
         <UsageCount Value="58"/>
         <Loaded Value="True"/>
@@ -19,8 +20,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="666"/>
-        <CursorPos X="4" Y="669"/>
+        <TopLine Value="642"/>
+        <CursorPos X="55" Y="701"/>
         <UsageCount Value="58"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -65,10 +66,11 @@
       <Unit6>
         <Filename Value="../../Source/fileformats/q3bsp.pas"/>
         <UnitName Value="Q3BSP"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="83"/>
-        <CursorPos X="4" Y="96"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="189"/>
+        <CursorPos X="108" Y="193"/>
         <UsageCount Value="17"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
@@ -820,7 +822,6 @@
       <Unit91>
         <Filename Value="../../Source/glsmfmod.pas"/>
         <UnitName Value="GLSMFMOD"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <TopLine Value="78"/>
         <CursorPos X="48" Y="92"/>
@@ -836,7 +837,7 @@
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit92>
     </Units>
-    <JumpHistory Count="8" HistoryIndex="7">
+    <JumpHistory Count="9" HistoryIndex="8">
       <Position1>
         <Filename Value="FMain.pas"/>
         <Caret Line="188" Column="44" TopLine="161"/>
@@ -868,6 +869,10 @@
         <Filename Value="../../Source/glsmfmod.pas"/>
         <Caret Line="384" TopLine="356"/>
       </Position8>
+      <Position9>
+        <Filename Value="../../Source/glsmfmod.pas"/>
+        <Caret Line="92" Column="48" TopLine="78"/>
+      </Position9>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
