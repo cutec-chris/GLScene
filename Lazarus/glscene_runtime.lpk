@@ -8,7 +8,7 @@
       <SearchPaths>
         <IncludeFiles Value="../Source;../Source/fileformats/zlib"/>
         <OtherUnitFiles Value="../Source;../Source/Base;../Source/platform;../Source/designtime;../Source/fileformats;../Source/shaders;../Source/glslshaders;../Source/videoapis;../Source/Experimental;../Source/fileformats/zlib;../Source/base"/>
-        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)"/>
       </SearchPaths>
       <Parsing>
         <SyntaxOptions>
@@ -32,7 +32,7 @@
     <Description Value="GLScene - OpenGL 3D library
 "/>
     <Version Major="1"/>
-    <Files Count="216">
+    <Files Count="217">
       <Item1>
         <Filename Value="../Source/base/applicationfileio.pas"/>
         <UnitName Value="ApplicationFileIO"/>
@@ -897,6 +897,10 @@
         <Filename Value="../Source/fileformats/zlib/zlibex.inc"/>
         <Type Value="Include"/>
       </Item216>
+      <Item217>
+        <Filename Value="../Source/base/opengltokens.pas"/>
+        <UnitName Value="OpenGLTokens"/>
+      </Item217>
     </Files>
     <RequiredPkgs Count="3">
       <Item1>
@@ -913,7 +917,7 @@
     </RequiredPkgs>
     <UsageOptions>
       <CustomOptions Value="-dUseCThreads"/>
-      <UnitPath Value="$(PkgOutDir)/"/>
+      <UnitPath Value="$(PkgOutDir)"/>
     </UsageOptions>
     <PublishOptions>
       <Version Value="2"/>

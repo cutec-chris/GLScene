@@ -47,7 +47,7 @@ uses
   GLHiddenLineShader, GLMultiMaterialShader, GLOutlineShader, GLPhongShader, 
   GLShaderCombiner, GLTexCombineShader, GLTextureSharingShader, GLUserShader, 
   GLBaseClasses, glmeshutils, GLPersistentClasses, GLVectorGeometry, 
-  GLVectorLists, GLVectorTypes, GLSZLibEx, GLSZLibExApi;
+  GLVectorLists, GLVectorTypes, GLSZLibEx, GLSZLibExApi, OpenGLTokens;
 
 implementation
 

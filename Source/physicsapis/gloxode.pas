@@ -53,7 +53,7 @@ uses
   {$endif}
   sysutils, variants, classes, graphics, controls, extctrls,
   dialogs, math, GLVectorGeometry, globjects, glscene, glvectorfileobjects,
-  GLVectorLists, GLPersistentClasses, opengl1x, gltexture, glmesh, meshutils, glstate,
+  GLVectorLists, GLPersistentClasses, opengl1x, gltexture, glmesh, glmeshutils, glstate,
   xcollection, glgeomobjects, glverletclothify, xopengl, glterrainrenderer,
   GLVectorTypes, odegl, odeimport, glcrossplatform, glcontext, glsilhouette, tga,
   jpeg, GLColor, GLRenderContextInfo, GLCoordinates, GLBaseClasses;

@@ -1,32 +1,31 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Package Version="2">
+  <Package Version="4">
     <Name Value="glsceneode"/>
+    <Type Value="DesignTime"/>
+    <AddToProjectUsesSection Value="True"/>
     <CompilerOptions>
-      <Version Value="5"/>
+      <Version Value="11"/>
       <SearchPaths>
-        <IncludeFiles Value="../Source/"/>
-        <OtherUnitFiles Value="../Source/physicsapis/;../Source/;../Source/base/;../Source/designtime/"/>
+        <IncludeFiles Value="../Source"/>
+        <OtherUnitFiles Value="../Source/physicsapis;../Source;../Source/base;../Source/designtime"/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <Parsing>
         <SyntaxOptions>
-          <DelphiCompat Value="True"/>
+          <SyntaxMode Value="Delphi"/>
+          <UseAnsiStrings Value="False"/>
         </SyntaxOptions>
       </Parsing>
       <CodeGeneration>
         <SmartLinkUnit Value="True"/>
-        <Generate Value="Faster"/>
       </CodeGeneration>
       <Linking>
         <Debugging>
-          <GenerateDebugInfo Value="True"/>
+          <DebugInfoType Value="dsStabs"/>
           <UseHeaptrc Value="True"/>
         </Debugging>
       </Linking>
-      <Other>
-        <CompilerPath Value="$(CompPath)"/>
-      </Other>
     </CompilerOptions>
     <Description Value="GLScene ODE support"/>
     <Version Major="1" Build="3"/>
@@ -57,13 +56,12 @@
         <UnitName Value="odegl"/>
       </Item6>
     </Files>
-    <Type Value="DesignTime"/>
     <RequiredPkgs Count="2">
       <Item1>
-        <PackageName Value="LCL"/>
+        <PackageName Value="GLScene_RunTime"/>
       </Item1>
       <Item2>
-        <PackageName Value="glscenelazarus"/>
+        <PackageName Value="LCL"/>
       </Item2>
     </RequiredPkgs>
     <UsageOptions>

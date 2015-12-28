@@ -48,7 +48,7 @@ implementation
 // ------------------------------------------------------------------
 // ------------------------------------------------------------------
 
-uses FXCollectionEditor;
+uses FXCollectionEditorLCL;
 
 
 procedure Register;

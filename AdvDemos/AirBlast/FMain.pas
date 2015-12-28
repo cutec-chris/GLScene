@@ -8,7 +8,7 @@ unit FMain;
 interface
 
 uses
-  LCLProc,LCLIntf,LMessages, SysUtils, Classes, Graphics, Controls, Forms, fmoddyn,
+  LCLProc,LCLIntf,LMessages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, GLScene, GLObjects, GLLCLViewer, GLVectorGeometry,
   GLVectorFileObjects, GLTexture, ApplicationFileIO, UAirplane, GLCadencer,
   GLTerrainRenderer, GLHeightData, GLHeightTileFileHDS, GLSkyBox, GLFileWAV,

@@ -89,7 +89,7 @@ implementation
 // ---------------------------------------------------------------------
 
 
-uses SysUtils, FMod, fmodtypes, fmodpresets, GLVectorGeometry;
+uses SysUtils, fmoddyn, fmodtypes, fmodpresets, GLVectorGeometry;
 
 type
    TFMODInfo =  record
