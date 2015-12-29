@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -6,7 +6,6 @@
     <General>
       <MainUnit Value="0"/>
       <UseXPManifest Value="True"/>
-      <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -36,16 +35,13 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="7">
       <Unit0>
         <Filename Value="fxy.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="19" Y="8"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="22"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
@@ -55,30 +51,97 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="Unit1"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="23"/>
         <CursorPos X="22" Y="8"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="22"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\..\..\Source\Base\GLPipelineTransformation.pas"/>
-        <UnitName Value="GLPipelineTransformation"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="200"/>
         <CursorPos X="60" Y="208"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="..\..\..\Source\platform\glwidgetcontext.pas"/>
+        <UnitName Value="GLWidgetContext"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="82"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\..\..\Source\platform\glviewer.pas"/>
+        <UnitName Value="GLViewer"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="40"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <UnitName Value="GLLCLViewer"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="356"/>
+        <CursorPos X="47" Y="368"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\..\..\..\..\..\lazarus\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="1391"/>
+        <CursorPos X="15" Y="1404"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit6>
     </Units>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <JumpHistory Count="9" HistoryIndex="8">
+      <Position1>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="455" TopLine="448"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="461" Column="30" TopLine="454"/>
+      </Position2>
+      <Position3>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="382" Column="25" TopLine="380"/>
+      </Position3>
+      <Position4>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="461" Column="22" TopLine="447"/>
+      </Position4>
+      <Position5>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="456" Column="18" TopLine="447"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="461" Column="37" TopLine="447"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="382" Column="3" TopLine="380"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="380" TopLine="389"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\..\..\Source\platform\gllclviewer.pas"/>
+        <Caret Line="66" TopLine="52"/>
+      </Position9>
+    </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
       <Filename Value="fxy"/>
@@ -103,12 +166,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <UseMsgFile Value="True"/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">
@@ -123,4 +180,4 @@
       </Item3>
     </Exceptions>
   </Debugging>
-</CONFIG>
+</CONFIG>

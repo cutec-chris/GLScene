@@ -63,6 +63,7 @@ type
     FMouseInControl: boolean;
     FLastScreenPos: TPoint;
 
+    procedure InitialRefresh(Data: PtrInt);
     procedure LMEraseBkgnd(var Message: TLMEraseBkgnd); message LM_ERASEBKGND;
     procedure LMPaint(var Message: TLMPaint); message LM_PAINT;
     procedure LMSize(var Message: TLMSize); message LM_SIZE;
@@ -376,6 +377,11 @@ begin
     inherited;
 end;
 
+procedure TGLSceneViewer.InitialRefresh(Data: PtrInt);
+begin
+  Invalidate;
+end;
+
 // LMSize
 
 procedure TGLSceneViewer.LMSize(var Message: TLMSize);
@@ -452,6 +458,7 @@ begin
   {$ifndef LCLGTK2}
   HandleNeeded;
   {$endif}
+  Application.QueueAsyncCall(InitialRefresh,0);
 end;
 
 // DoBeforeRender

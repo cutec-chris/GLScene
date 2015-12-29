@@ -32,7 +32,7 @@
     <Description Value="GLScene - OpenGL 3D library
 "/>
     <Version Major="1"/>
-    <Files Count="218">
+    <Files Count="219">
       <Item1>
         <Filename Value="../Source/base/applicationfileio.pas"/>
         <UnitName Value="ApplicationFileIO"/>
@@ -905,6 +905,10 @@
         <Filename Value="../Source/fileformats/glfileq3bsp.pas"/>
         <UnitName Value="GLFileQ3BSP"/>
       </Item218>
+      <Item219>
+        <Filename Value="../Source/platform/gllclviewer.pas"/>
+        <UnitName Value="GLLCLViewer"/>
+      </Item219>
     </Files>
     <RequiredPkgs Count="3">
       <Item1>
