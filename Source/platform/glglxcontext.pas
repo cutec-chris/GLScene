@@ -675,7 +675,10 @@ begin
     if (glXGetCurrentContext() = FRC) and
       (not _glXMakeCurrent(FDisplay, 0, nil)) then
       raise EGLContext.Create(cContextDeactivationFailed);
-    glXDestroyContext(FDisplay, FRC);
+    try
+      //glXDestroyContext(FDisplay, FRC);
+    except
+    end;
     {$IFDEF GLS_LOGGING}
     GLSLogger.Log('GLGLXContext: DoDestroyContext->RenderingContext it is Destroyd');
     {$ENDIF}
@@ -690,7 +693,7 @@ begin
     FRC := nil;
     FDC := 0;
     FShareContext := nil;
-    XCloseDisplay(FDisplay);
+    //XCloseDisplay(FDisplay);
     FCurScreen := 0;
   finally
     if vLastConfigs <> nil then
