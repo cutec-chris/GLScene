@@ -3,8 +3,11 @@ program SkyboxDemo;
 {$MODE Delphi}
 
 uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
   Forms, Interfaces,
-  Unit1 in 'Unit1.pas', glscene_designtime, glscene_runtime {Form1};
+  Unit1 in 'Unit1.pas' {Form1};
 
 {$R *.res}
 

@@ -8,9 +8,13 @@ program CgTexture;
 {%File 'cg_texture.vp.cg'}
 
 uses
-  Interfaces,
-  Forms,
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Forms, Interfaces,
   Unit1 in 'Unit1.pas' {Form1};
+
+{$R *.res}
 
 begin
   Application.Initialize;

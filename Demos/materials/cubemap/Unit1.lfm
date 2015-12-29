@@ -1,16 +1,14 @@
 object Form1: TForm1
-  Left = 294
+  Left = 135
   Height = 334
-  Top = 130
+  Top = 85
   Width = 316
-  HorzScrollBar.Page = 315
-  VertScrollBar.Page = 333
   Caption = 'Form1'
   ClientHeight = 334
   ClientWidth = 316
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 334
@@ -18,20 +16,20 @@ object Form1: TForm1
     Width = 316
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
-    FieldOfView = 55.5485610961914
+    FieldOfView = 55.5485649108887
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object Button1: TButton
     Left = 136
     Height = 25
     Top = 8
     Width = 163
-    BorderSpacing.InnerBorder = 4
     Caption = 'Apply Cube Environment Map'
     OnClick = Button1Click
-    TabOrder = 0
+    TabOrder = 1
   end
   object GLScene1: TGLScene
     left = 8
@@ -41,7 +39,7 @@ object Form1: TForm1
       PitchAngle = 0
       RollAngle = 0
       TurnAngle = 0
-      CubeSize = 0.80000001192092
+      CubeSize = 0.80000001192093
       VisibleAtRunTime = True
     end
     object GLLightSource1: TGLLightSource
@@ -58,10 +56,10 @@ object Form1: TForm1
     object Teapot1: TGLTeapot
       TagFloat = 0
       Material.Texture.TextureMode = tmReplace
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       PitchAngle = 0
+      Position.Coordinates = {
+        00000000000080BE000000000000803F
+      }
       RollAngle = 0
       TurnAngle = 0
     end

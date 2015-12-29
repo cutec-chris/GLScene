@@ -3,7 +3,6 @@ object Form1: TForm1
   Height = 435
   Top = 117
   Width = 666
-  ActiveControl = Panel1
   Caption = 'Form1'
   ClientHeight = 435
   ClientWidth = 666
@@ -22,16 +21,16 @@ object Form1: TForm1
     TabOrder = 0
     object Label1: TLabel
       Left = 16
-      Height = 21
-      Top = 32
-      Width = 59
+      Height = 13
+      Top = 56
+      Width = 52
       Caption = 'Resolution'
       ParentColor = False
     end
     object TrackBar1: TTrackBar
       Left = 16
-      Height = 37
-      Top = 56
+      Height = 38
+      Top = 80
       Width = 129
       Max = 50
       Min = 1
@@ -42,9 +41,9 @@ object Form1: TForm1
     end
     object CheckBox1: TCheckBox
       Left = 16
-      Height = 24
+      Height = 22
       Top = 120
-      Width = 80
+      Width = 74
       Caption = 'Wireframe'
       OnClick = CheckBox1Click
       TabOrder = 1
@@ -63,8 +62,8 @@ object Form1: TForm1
     TabOrder = 1
   end
   object GLScene1: TGLScene
-    left = 64
-    top = 184
+    left = 104
+    top = 16
     object GLDummyCube1: TGLDummyCube
       TagFloat = 0
       PitchAngle = 0

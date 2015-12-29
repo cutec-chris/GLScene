@@ -3,8 +3,11 @@ program ExPolygon;
 {$MODE Delphi}
 
 uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
   Forms, Interfaces,
-  expolygon1, glscene_designtime, glscene_runtime;
+  ExPolygon1 in 'ExPolygon1.pas' {Form1};
 
 {$R *.res}
 

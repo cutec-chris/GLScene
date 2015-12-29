@@ -1,25 +1,24 @@
 object Form1: TForm1
-  Left = 358
-  Height = 431
-  Top = 202
+  Left = 144
+  Height = 427
+  Top = 81
   Width = 559
-  HorzScrollBar.Page = 558
-  VertScrollBar.Page = 430
   BorderStyle = bsSingle
   Caption = 'Multitexture'
-  ClientHeight = 431
+  ClientHeight = 427
   ClientWidth = 559
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '1.5'
+  LCLVersion = '0.9.31'
   object Image1: TImage
     Left = 416
     Height = 128
     Top = 56
     Width = 128
     OnClick = Image1Click
+    Stretch = True
   end
   object Image2: TImage
     Left = 416
@@ -27,12 +26,13 @@ object Form1: TForm1
     Top = 208
     Width = 128
     OnClick = Image2Click
+    Stretch = True
   end
   object Label1: TLabel
     Left = 416
     Height = 14
     Top = 40
-    Width = 80
+    Width = 70
     Caption = 'Texture Map 1'
     ParentColor = False
   end
@@ -40,7 +40,7 @@ object Form1: TForm1
     Left = 416
     Height = 14
     Top = 192
-    Width = 80
+    Width = 70
     Caption = 'Texture Map 2'
     ParentColor = False
   end
@@ -48,15 +48,15 @@ object Form1: TForm1
     Left = 416
     Height = 14
     Top = 368
-    Width = 68
+    Width = 61
     Caption = 'Map 2 Scale'
     ParentColor = False
   end
   object Label4: TLabel
     Left = 432
-    Height = 19
+    Height = 20
     Top = 8
-    Width = 93
+    Width = 94
     Caption = 'MultiTexture'
     Font.CharSet = ANSI_CHARSET
     Font.Height = -16
@@ -73,27 +73,27 @@ object Form1: TForm1
     Camera = GLCamera1
     FieldOfView = 151.447769165039
     Enabled = False
-    TabOrder = 2
+    TabOrder = 0
   end
   object TrackBar1: TTrackBar
     Left = 416
-    Height = 33
-    Top = 384
+    Height = 37
+    Top = 390
     Width = 126
     Max = 30
     Min = 5
     OnChange = TrackBar1Change
     Position = 10
-    TabOrder = 0
+    TabOrder = 1
   end
   object CBClampTex2: TCheckBox
     Left = 416
-    Height = 22
+    Height = 19
     Top = 344
-    Width = 117
+    Width = 97
     Caption = 'Clamp Texture 2'
     OnClick = CBClampTex2Click
-    TabOrder = 1
+    TabOrder = 2
   end
   object GLScene1: TGLScene
     left = 48
@@ -125,23 +125,21 @@ object Form1: TForm1
     Materials = <    
       item
         Name = 'Base'
+        Tag = 0
         Material.Texture.TextureMode = tmReplace
         Material.Texture.Disabled = False
-        Tag = 0
         Texture2Name = 'Second'
       end    
       item
         Name = 'Second'
+        Tag = 0
         Material.Texture.TextureMode = tmModulate
         Material.Texture.Disabled = False
-        Tag = 0
       end>
     left = 48
     top = 64
   end
   object OpenPictureDialog1: TOpenPictureDialog
-    Filter = 'Graphic (*.jpeg;*.jpg;*.ico;*.ppm;*.pgm;*.pbm;*.png;*.xpm;*.bmp)|*.jpeg;*.jpg;*.ico;*.ppm;*.pgm;*.pbm;*.png;*.xpm;*.bmp|JPEG Image File (*.jpeg)|*.jpeg|JPEG Image File (*.jpg)|*.jpg|Icon (*.ico)|*.ico|Portable PixMap (*.ppm)|*.ppm|Portable GrayMap (*.pgm)|*.pgm|Portable BitMap (*.pbm)|*.pbm|Portable Network Graphic (*.png)|*.png|Pixmap (*.xpm)|*.xpm|Bitmaps (*.bmp)|*.bmp|Alle Dateien (*.*)|*.*|'
-    FilterIndex = 0
     left = 480
     top = 8
   end

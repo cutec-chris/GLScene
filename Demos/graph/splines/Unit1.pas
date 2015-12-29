@@ -15,7 +15,7 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLObjects, GLViewer, LResources, GLScene;
+  GLScene, GLObjects, GLLCLViewer, GLCrossPlatform, GLCoordinates;
 
 type
   TForm1 = class(TForm)
@@ -23,15 +23,15 @@ type
     GLSceneViewer1: TGLSceneViewer;
     GLCamera1: TGLCamera;
     Lines1: TGLLines;
-    procedure GLSceneViewer1MouseDown(Sender: TObject;
-      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
+      X, Y: integer);
   private
     { Déclarations privées }
   public
     { Déclarations publiques }
-    procedure MoveCenterNodeTo(x, y : Integer);
+    procedure MoveCenterNodeTo(x, y: integer);
   end;
 
 var
@@ -39,28 +39,27 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses VectorGeometry;
+uses GLVectorGeometry;
 
-procedure TForm1.MoveCenterNodeTo(x, y : Integer);
+procedure TForm1.MoveCenterNodeTo(x, y: integer);
 begin
-   Lines1.Nodes[1].AsAffineVector:=GLSceneViewer1.Buffer.ScreenToWorld(x, y);
+  Lines1.Nodes[1].AsAffineVector := GLSceneViewer1.Buffer.ScreenToWorld(x, y);
 end;
 
-procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: integer);
 begin
-   MoveCenterNodeTo(x, y);
+  MoveCenterNodeTo(x, y);
 end;
 
-procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
+procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: integer);
 begin
-   if Shift<>[] then
-      MoveCenterNodeTo(x, y);
+  if Shift <> [] then
+    MoveCenterNodeTo(x, y);
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.
+

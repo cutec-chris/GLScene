@@ -1,13 +1,11 @@
 object Form1: TForm1
-  Left = 225
+  Left = 218
   Height = 403
-  Top = 214
-  Width = 635
-  HorzScrollBar.Page = 634
-  VertScrollBar.Page = 379
+  Top = 117
+  Width = 755
   Caption = 'Form1'
-  ClientHeight = 383
-  ClientWidth = 635
+  ClientHeight = 380
+  ClientWidth = 755
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Menu = MainMenu1
@@ -15,12 +13,12 @@ object Form1: TForm1
   LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 383
+    Height = 380
     Top = 0
-    Width = 635
+    Width = 755
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
-    FieldOfView = 150.73388671875
+    FieldOfView = 150.512878417968
     Align = alClient
     OnClick = GLSceneViewer1Click
     TabOrder = 0
@@ -71,7 +69,7 @@ object Form1: TForm1
       TagFloat = 0
       PitchAngle = 0
       Position.Coordinates = {
-        0000164300009643000000000000803F
+        000016430000AF43000000000000803F
       }
       RollAngle = 0
       TurnAngle = 0
@@ -85,7 +83,7 @@ object Form1: TForm1
       TagFloat = 0
       PitchAngle = 0
       Position.Coordinates = {
-        0000FA4300009643000000000000803F
+        000016440000AF43000000000000803F
       }
       RollAngle = 0
       TurnAngle = 0
@@ -122,12 +120,9 @@ object Form1: TForm1
     top = 80
   end
   object WindowsBitmapFont1: TGLWindowsBitmapFont
-    Font.CharSet = ANSI_CHARSET
     Font.Color = clWhite
     Font.Height = -20
-    Font.Name = 'Arial'
-    Font.Pitch = fpVariable
-    Font.Style = [fsBold]
+    Font.Name = 'dotum [un]'
     left = 48
     top = 16
   end
@@ -144,7 +139,6 @@ object Form1: TForm1
     end
   end
   object FontDialog1: TFontDialog
-    Title = 'Schriftart auswählen'
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     MinFontSize = 0
@@ -152,4 +146,4 @@ object Form1: TForm1
     left = 112
     top = 16
   end
-end
+end

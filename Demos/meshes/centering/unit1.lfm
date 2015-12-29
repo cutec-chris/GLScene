@@ -1,9 +1,8 @@
 object Form1: TForm1
-  Left = 375
+  Left = 160
   Height = 276
-  Top = 261
+  Top = 105
   Width = 563
-  ActiveControl = GLSceneViewer1
   Caption = 'Form1'
   ClientHeight = 276
   ClientWidth = 563
@@ -11,12 +10,11 @@ object Form1: TForm1
   Font.Name = 'Arial'
   OnCreate = FormCreate
   LCLVersion = '0.9.29'
-  Visible = True
   object Label1: TLabel
     Left = 56
     Height = 15
     Top = 8
-    Width = 77
+    Width = 69
     Caption = 'Centered X, Y'
     ParentColor = False
   end
@@ -24,7 +22,7 @@ object Form1: TForm1
     Left = 232
     Height = 15
     Top = 8
-    Width = 63
+    Width = 56
     Caption = 'Centered Y'
     ParentColor = False
   end
@@ -32,7 +30,7 @@ object Form1: TForm1
     Left = 408
     Height = 15
     Top = 8
-    Width = 89
+    Width = 81
     Caption = 'Centered X, Y, Z'
     ParentColor = False
   end

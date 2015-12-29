@@ -3,9 +3,13 @@ program Caterpillar;
 {$MODE Delphi}
 
 uses
-  Interfaces,
-  Forms,
-  Unit1 in 'Unit1.pas' {Form1};
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Forms, Interfaces,
+  Unit1 in 'Unit1.pas', glscene_designtime {Form1};
+
+{$R *.res}
 
 begin
   Application.Initialize;

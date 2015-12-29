@@ -1,17 +1,17 @@
 object Form1: TForm1
   Left = 192
-  Height = 456
+  Height = 432
   Top = 119
   Width = 510
-  HorzScrollBar.Page = 509
-  VertScrollBar.Page = 455
   Caption = 'Form1'
-  ClientHeight = 456
+  ClientHeight = 432
   ClientWidth = 510
+  Color = clBtnFace
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object LFogStart: TLabel
     Left = 8
     Height = 14
@@ -23,30 +23,30 @@ object Form1: TForm1
   object LFogEnd: TLabel
     Left = 8
     Height = 14
-    Top = 365
+    Top = 344
     Width = 37
     Caption = 'fog end'
     ParentColor = False
   end
   object LFogColor: TLabel
-    Left = 425
+    Left = 344
     Height = 14
-    Top = 292
+    Top = 288
     Width = 42
     Caption = 'fog color'
     ParentColor = False
   end
   object SFogColor: TShape
-    Left = 424
+    Left = 392
     Height = 16
-    Top = 320
+    Top = 288
     Width = 57
     OnMouseDown = SFogColorMouseDown
   end
   object LFogDensity: TLabel
-    Left = 283
+    Left = 344
     Height = 14
-    Top = 391
+    Top = 336
     Width = 145
     Caption = 'fog density (for fmExp/fmExp2)'
     ParentColor = False
@@ -57,14 +57,15 @@ object Form1: TForm1
     Top = 8
     Width = 502
     Camera = GLCamera1
-    FieldOfView = 139.899520874023
+    FieldOfView = 139.899536132813
     Anchors = [akTop, akLeft, akRight]
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object CBFogEnable: TCheckBox
     Left = 8
-    Height = 17
+    Height = 19
     Top = 288
     Width = 67
     Caption = 'fog on/off'
@@ -73,7 +74,7 @@ object Form1: TForm1
   end
   object RGFogDistance: TRadioGroup
     Left = 120
-    Height = 97
+    Height = 73
     Top = 288
     Width = 105
     AutoFill = True
@@ -86,7 +87,7 @@ object Form1: TForm1
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 79
+    ClientHeight = 55
     ClientWidth = 101
     ItemIndex = 0
     Items.Strings = (
@@ -95,11 +96,11 @@ object Form1: TForm1
       'fdEyeRadial'
     )
     OnClick = RGFogModeClick
-    TabOrder = 0
+    TabOrder = 2
   end
   object RGFogMode: TRadioGroup
     Left = 232
-    Height = 97
+    Height = 73
     Top = 288
     Width = 105
     AutoFill = True
@@ -112,7 +113,7 @@ object Form1: TForm1
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 79
+    ClientHeight = 55
     ClientWidth = 101
     ItemIndex = 0
     Items.Strings = (
@@ -121,32 +122,32 @@ object Form1: TForm1
       'fmExp2'
     )
     OnClick = RGFogModeClick
-    TabOrder = 2
+    TabOrder = 3
   end
   object CBApplyToBackground: TCheckBox
-    Left = 345
-    Height = 17
-    Top = 344
+    Left = 376
+    Height = 19
+    Top = 304
     Width = 104
     Caption = 'background too ?'
     Checked = True
     OnClick = CBApplyToBackgroundClick
     State = cbChecked
-    TabOrder = 3
+    TabOrder = 4
   end
   object GBTexture: TGroupBox
-    Left = 112
-    Height = 41
-    Top = 409
+    Left = 120
+    Height = 57
+    Top = 368
     Width = 217
     Caption = '[ texture ]'
-    ClientHeight = 23
+    ClientHeight = 39
     ClientWidth = 213
-    TabOrder = 4
+    TabOrder = 5
     object CBTextureEnabled: TCheckBox
       Left = 8
-      Height = 17
-      Top = 0
+      Height = 19
+      Top = 16
       Width = 58
       Caption = 'enabled'
       Checked = True
@@ -155,9 +156,9 @@ object Form1: TForm1
       TabOrder = 0
     end
     object CBTextureIgnoreFog: TCheckBox
-      Left = 78
-      Height = 17
-      Top = 0
+      Left = 80
+      Height = 19
+      Top = 16
       Width = 67
       Caption = 'ignore fog'
       OnClick = CBTextureIgnoreFogClick
@@ -165,30 +166,30 @@ object Form1: TForm1
     end
   end
   object EFogStart: TEdit
-    Left = 8
+    Left = 56
     Height = 21
-    Top = 336
-    Width = 57
-    OnChange = EFogStartChange
-    TabOrder = 5
-    Text = '-30'
-  end
-  object EFogEnd: TEdit
-    Left = 8
-    Height = 21
-    Top = 391
+    Top = 312
     Width = 57
     OnChange = EFogStartChange
     TabOrder = 6
-    Text = '30'
+    Text = '-30'
   end
-  object EFogDensity: TEdit
-    Left = 424
+  object EFogEnd: TEdit
+    Left = 56
     Height = 21
-    Top = 424
+    Top = 344
     Width = 57
     OnChange = EFogStartChange
     TabOrder = 7
+    Text = '30'
+  end
+  object EFogDensity: TEdit
+    Left = 392
+    Height = 21
+    Top = 352
+    Width = 57
+    OnChange = EFogStartChange
+    TabOrder = 8
     Text = '100'
   end
   object GLScene1: TGLScene
@@ -212,16 +213,6 @@ object Form1: TForm1
       SpotCutOff = 180
       SpotExponent = 0
     end
-    object GLSphere1: TGLSphere
-      TagFloat = 0
-      PitchAngle = 0
-      Position.Coordinates = {
-        000000000000A0C1000000000000803F
-      }
-      RollAngle = 0
-      TurnAngle = 0
-      Radius = 0.5
-    end
     object GLCamera1: TGLCamera
       TagFloat = 0
       DepthOfView = 100
@@ -238,7 +229,6 @@ object Form1: TForm1
     MinDeltaTime = 0
     FixedDeltaTime = 0
     SleepLength = 1
-    OnProgress = GLCadencer1Progress
     left = 48
     top = 16
   end

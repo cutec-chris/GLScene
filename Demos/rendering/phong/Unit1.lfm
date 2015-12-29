@@ -1,51 +1,42 @@
 object Form1: TForm1
-  Left = 306
-  Height = 383
-  Top = 135
-  Width = 412
-  HorzScrollBar.Page = 411
-  VertScrollBar.Page = 382
+  Left = 271
+  Height = 373
+  Top = 122
+  Width = 397
   Caption = 'Phong Shader'
-  ClientHeight = 383
-  ClientWidth = 412
+  ClientHeight = 373
+  ClientWidth = 397
+  Color = clBtnFace
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnCreate = FormCreate
   LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 344
-    Top = 0
-    Width = 412
+    Height = 349
+    Top = 24
+    Width = 397
     Camera = GLCamera1
-    FieldOfView = 147.581939697265
-    Align = alClient
+    FieldOfView = 148.022491455078
+    Align = alBottom
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
-  end
-  object Panel1: TPanel
-    Left = 0
-    Height = 39
-    Top = 344
-    Width = 412
-    Align = alBottom
-    ClientHeight = 39
-    ClientWidth = 412
     TabOrder = 0
-    object CheckBox1: TCheckBox
-      Left = 34
-      Height = 17
-      Top = 8
-      Width = 54
-      Anchors = [akTop, akRight]
-      Caption = 'Shader'
-      OnClick = CheckBox1Click
-      TabOrder = 0
-    end
+  end
+  object CheckBox1: TCheckBox
+    Left = 0
+    Height = 22
+    Top = 0
+    Width = 397
+    Align = alTop
+    Anchors = [akTop, akRight]
+    Caption = 'Shader'
+    OnClick = CheckBox1Click
+    TabOrder = 1
   end
   object GLScene1: TGLScene
-    left = 8
-    top = 8
+    left = 16
+    top = 40
     object GLDummyCube1: TGLDummyCube
       TagFloat = 0
       PitchAngle = 0
@@ -96,27 +87,28 @@ object Form1: TForm1
         Tag = 0
         Shader = GLPhongShader1
       end>
-    left = 40
-    top = 8
+    left = 48
+    top = 40
   end
   object GLPhongShader1: TGLPhongShader
     Enabled = False
-    left = 72
-    top = 8
+    left = 80
+    top = 40
   end
   object GLCadencer1: TGLCadencer
     Scene = GLScene1
     MaxDeltaTime = 0
     MinDeltaTime = 0
     FixedDeltaTime = 0
-    Mode = cmApplicationIdle
     OnProgress = GLCadencer1Progress
-    left = 8
-    top = 40
+    left = 16
+    top = 72
   end
-  object Timer1: TTimer
+  object AsyncTimer1: TGLAsyncTimer
+    Enabled = True
     OnTimer = AsyncTimer1Timer
-    left = 40
-    top = 40
+    ThreadPriority = tpNormal
+    left = 48
+    top = 72
   end
-end
+end

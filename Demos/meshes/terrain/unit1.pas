@@ -36,18 +36,17 @@
    it was possible to set roNoColorBufferClear in the Viewer.Buffer.ContextOptions,
    which allows to gain a few more frames per second (try unsetting it). 
 }
-unit unit1;
+unit Unit1;
 
 interface
 
-{þ$I GLScene.inc}
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLScene, GLTerrainRenderer, GLObjects, GLHeightData, GLColor,
-  ExtCtrls, GLCadencer, GLTexture, GLHUDObjects, GLBitmapFont,
-  GLSkydome, GLViewer, GLSound, GLSMBASS, VectorGeometry, GLLensFlare,
-  GLCrossPlatform, GLMaterial, GLCoordinates, GLState, GLFileMP3;
+  ExtCtrls, GLCadencer, StdCtrls, GLTexture, GLHUDObjects, GLBitmapFont,
+  GLSkydome, GLLCLViewer, GLSound, GLSMBASS, GLVectorGeometry, GLLensFlare,
+  GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses, GLState, GLFileMP3;
 
 type
   TForm1 = class(TForm)
@@ -98,19 +97,11 @@ implementation
 
 {$R *.lfm}
 
-uses GLKeyboard, FileUtil, LCLType;
+uses GLKeyboard, GLUtils, LCLType;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  path: UTF8String;
-  p: Integer;
 begin
-  path := ExtractFilePath(ParamStrUTF8(0));
-  p := Pos('DemosLCL', path);
-  Delete(path, p+5, Length(path));
-  path := IncludeTrailingPathDelimiter(path) + IncludeTrailingPathDelimiter('media');
-  SetCurrentDirUTF8(path);
-
+   SetGLSceneMediaDir();
    // 8 MB height data cache
    // Note this is the data size in terms of elevation samples, it does not
    // take into account all the data required/allocated by the renderer
@@ -291,9 +282,9 @@ begin
       // wolf howl at some distance, at ground level
       wolfPos:=GLCamera1.AbsolutePosition;
       SinCos(Random*c2PI, 100+Random(1000), s, c);
-      wolfPos[0]:=wolfPos[0]+c;
-      wolfPos[2]:=wolfPos[2]+s;
-      wolfPos[1]:=TerrainRenderer1.InterpolatedHeight(wolfPos);
+      wolfPos.X:=wolfPos.X+c;
+      wolfPos.Z:=wolfPos.Z+s;
+      wolfPos.Y:=TerrainRenderer1.InterpolatedHeight(wolfPos);
       DCSound.Position.AsVector:=wolfPos;
       with GetOrCreateSoundEmitter(DCSound) do begin
          Source.SoundLibrary:=GLSoundLibrary;

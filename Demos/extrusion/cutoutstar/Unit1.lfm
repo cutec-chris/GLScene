@@ -1,24 +1,23 @@
 object Form1: TForm1
-  Left = 351
+  Left = 187
   Height = 358
-  Top = 256
+  Top = 153
   Width = 469
-  HorzScrollBar.Page = 468
-  VertScrollBar.Page = 357
+  ActiveControl = GLSceneViewer1
   Caption = 'Form1'
   ClientHeight = 358
   ClientWidth = 469
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '1.5'
+  LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 358
     Top = 0
     Width = 469
     Camera = GLCamera1
-    FieldOfView = 134.533172607422
+    FieldOfView = 134.533172607421
     Align = alClient
     TabOrder = 0
   end
@@ -78,4 +77,4 @@ object Form1: TForm1
     left = 8
     top = 88
   end
-end
+end

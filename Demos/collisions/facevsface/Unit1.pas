@@ -24,15 +24,12 @@ unit Unit1;
 interface
 
 uses
-  LCLIntf, Forms, GLObjects, Classes, Controls, SysUtils, Graphics,
-  ExtCtrls, VectorGeometry, StdCtrls, GLSpaceText,
-  ComCtrls, GLVectorFileObjects, GLCrossPlatform, VectorLists,
-  Grids, GLFile3DS, LResources, GLViewer, GLScene, GLCollision;
+  Windows, Forms, GLScene, GLObjects, Classes, Controls, SysUtils, Graphics,
+  GLLCLViewer, ExtCtrls, GLVectorGeometry, StdCtrls, GLSpaceText,
+  ComCtrls, GLCollision, GLVectorFileObjects, GLCrossPlatform, GLVectorLists,
+  Grids, GLFile3DS, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -44,7 +41,7 @@ type
     txtX: TGLSpaceText;
     txtY: TGLSpaceText;
     txtZ: TGLSpaceText;
-    CollisionManager1: TCollisionManager;
+    CollisionManager1: TGLCollisionManager;
     cbCollisionMode: TRadioGroup;
     Bar: TGLCube;
     Teapot1: TGLFreeForm;
@@ -96,17 +93,19 @@ const
 
 implementation
 
+{$R *.lfm}
 
-uses Math;
+uses Math, GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
   i:integer;
 begin
-   TeaPot1.LoadFromFile('..\..\media\TeaPot.3ds');
+   SetGLSceneMediaDir();
+   TeaPot1.LoadFromFile('teapot.3ds');
    TeaPot1.BuildOctree;
 
-   TeaPot2.LoadFromFile('..\..\media\TeaPot.3ds');
+   TeaPot2.LoadFromFile('teapot.3ds');
    TeaPot2.BuildOctree;
 
 //   rgObjectsClick(nil);
@@ -265,9 +264,6 @@ begin
    // this code adjusts the distance to target with a 10% per wheel-step ratio
    Camera.AdjustDistanceToTarget(Power(1.1, WheelDelta / 120));
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.
 

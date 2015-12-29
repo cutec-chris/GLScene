@@ -3,9 +3,13 @@ program basicsdl;
 {$MODE Delphi}
 
 uses
-  Interfaces,
-  Forms,
-  Unit1 in 'Unit1.pas' {DataModule1: TDataModule};
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Forms, Interfaces,
+  Unit1 in 'Unit1.pas'{DataModule1: TDataModule};
+
+{$R *.res}
 
 begin
   Application.Initialize;

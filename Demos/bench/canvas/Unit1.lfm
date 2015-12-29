@@ -1,18 +1,15 @@
 object Form1: TForm1
-  Left = 336
+  Left = 151
   Height = 329
-  Top = 246
+  Top = 105
   Width = 537
-  HorzScrollBar.Page = 536
-  VertScrollBar.Page = 328
   BorderStyle = bsDialog
   Caption = 'GLCanvas vs GDI'
   ClientHeight = 329
   ClientWidth = 537
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnCreate = FormCreate
-  LCLVersion = '1.7'
+  LCLVersion = '0.9.29'
   object PaintBox: TPaintBox
     Left = 272
     Height = 256
@@ -21,17 +18,17 @@ object Form1: TForm1
   end
   object LAGLCanvas: TLabel
     Left = 8
-    Height = 14
+    Height = 13
     Top = 48
-    Width = 85
+    Width = 69
     Caption = 'GLCanvas: N/A'
     ParentColor = False
   end
   object LAGDI: TLabel
     Left = 272
-    Height = 14
+    Height = 13
     Top = 48
-    Width = 48
+    Width = 40
     Caption = 'GDI: N/A'
     ParentColor = False
   end
@@ -46,7 +43,6 @@ object Form1: TForm1
     Height = 25
     Top = 8
     Width = 73
-    BorderSpacing.InnerBorder = 4
     Caption = '20k Lines'
     OnClick = BULinesClick
     TabOrder = 0
@@ -56,7 +52,6 @@ object Form1: TForm1
     Height = 25
     Top = 8
     Width = 73
-    BorderSpacing.InnerBorder = 4
     Caption = '20k Ellipses'
     OnClick = BUEllipsesClick
     TabOrder = 1
@@ -69,55 +64,52 @@ object Form1: TForm1
     Camera = GLCamera1
     Buffer.Lighting = False
     FieldOfView = 137.326278686523
-    TabOrder = 7
+    TabOrder = 2
   end
   object RBPenWidth1: TRadioButton
     Left = 432
     Height = 22
     Top = 8
-    Width = 105
+    Width = 92
     Caption = 'Pen Width = 1'
     Checked = True
-    TabOrder = 2
+    TabOrder = 3
     TabStop = True
   end
   object RBPenWidth2: TRadioButton
     Left = 432
     Height = 22
     Top = 24
-    Width = 105
+    Width = 92
     Caption = 'Pen Width = 2'
-    TabOrder = 3
+    TabOrder = 4
   end
   object BUPoints: TButton
     Left = 248
     Height = 25
     Top = 8
     Width = 73
-    BorderSpacing.InnerBorder = 4
     Caption = '200k Points'
     OnClick = BUPointsClick
-    TabOrder = 4
+    TabOrder = 5
   end
   object BURects: TButton
     Left = 168
     Height = 25
     Top = 8
     Width = 73
-    BorderSpacing.InnerBorder = 4
     Caption = '20k Rects'
     OnClick = BURectsClick
-    TabOrder = 5
+    TabOrder = 6
   end
   object BUTextOut: TButton
     Left = 328
     Height = 25
     Top = 8
     Width = 73
-    BorderSpacing.InnerBorder = 4
     Caption = '20k TextOut'
     OnClick = BUTextOutClick
-    TabOrder = 6
+    TabOrder = 7
   end
   object GLScene1: TGLScene
     left = 16
@@ -141,7 +133,7 @@ object Form1: TForm1
     Font.Color = clWhite
     Font.Height = -11
     Font.Name = 'Arial'
-    left = 8
-    top = 168
+    left = 464
+    top = 16
   end
-end
+end

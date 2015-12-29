@@ -1,206 +1,201 @@
 object Form1: TForm1
+  Left = 192
+  Top = 105
+  Width = 694
+  Height = 510
   Caption = 'Simple ODE Demo'
-  ClientHeight = 510
-  ClientWidth = 694
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnCreate = FormCreate
-  PixelsPerInch = 96
+  Font.Style = []
   Position = poScreenCenter
-  HorzScrollBar.Page = 693
-  VertScrollBar.Page = 509
-  Left = 249
-  Height = 510
-  Top = 115
-  Width = 694
+  PixelsPerInch = 96
   object GLSceneViewer1: TGLSceneViewer
+    Left = 153
+    Top = 0
+    Width = 525
+    Height = 472
     Camera = GLCamera1
     Buffer.ContextOptions = [roDoubleBuffer, roStencilBuffer, roRenderToWindow]
-    Buffer.OnChange = nil
-    Buffer.OnStructuralChange = nil
-    FieldOfView = 157.81256103515625
+    FieldOfView = 156.075897216796900000
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
-    Left = 153
-    Height = 510
-    Width = 541
+    TabOrder = 0
   end
   object Panel1: TPanel
-    Align = alLeft
-    ClientHeight = 510
-    ClientWidth = 153
-    FullRepaint = False
-    TabOrder = 0
-    Height = 510
+    Left = 0
+    Top = 0
     Width = 153
+    Height = 472
+    Align = alLeft
+    TabOrder = 1
     object Label1: TLabel
-      Caption = 'Choose an object'
-      Color = clNone
-      ParentColor = False
       Left = 8
-      Height = 13
       Top = 64
       Width = 83
+      Height = 13
+      Caption = 'Choose an object'
     end
     object Label2: TLabel
-      Caption = 'HeightField Contact Resolution'
-      Color = clNone
-      ParentColor = False
-      WordWrap = True
       Left = 8
-      Height = 26
       Top = 208
       Width = 96
+      Height = 26
+      Caption = 'HeightField Contact Resolution'
+      WordWrap = True
     end
     object Label3: TLabel
-      Caption = 'Choose surface type'
-      Color = clNone
-      ParentColor = False
       Left = 8
-      Height = 13
       Top = 8
       Width = 97
+      Height = 13
+      Caption = 'Choose surface type'
+    end
+    object Spawn: TButton
+      Left = 40
+      Top = 112
+      Width = 75
+      Height = 25
+      Caption = 'Spawn'
+      TabOrder = 0
+      OnClick = SpawnClick
     end
     object ComboBox1: TComboBox
-      AutoCompleteText = [cbactEndOfLineComplete, cbactSearchAscending]
+      Left = 8
+      Top = 80
+      Width = 137
+      Height = 21
+      Style = csDropDownList
       ItemHeight = 13
       ItemIndex = 0
+      TabOrder = 1
+      Text = 'Sphere'
       Items.Strings = (
         'Sphere'
         'Box'
         'Capsule (CCylinder)'
         'Cylinder'
-        'Cone'
-      )
-      MaxLength = 0
-      Style = csDropDownList
-      TabOrder = 0
-      Text = 'Sphere'
-      Left = 8
-      Height = 21
-      Top = 80
-      Width = 137
+        'Cone')
     end
     object CheckBox1: TCheckBox
-      Caption = 'Show ODE Elements'
-      OnClick = CheckBox1Click
-      TabOrder = 1
       Left = 8
-      Height = 17
       Top = 144
       Width = 129
+      Height = 17
+      Caption = 'Show ODE Elements'
+      TabOrder = 2
+      OnClick = CheckBox1Click
     end
     object CheckBox2: TCheckBox
-      Caption = 'Show HeightField Contacts'
-      OnClick = CheckBox2Click
-      TabOrder = 2
       Left = 8
-      Height = 33
       Top = 168
       Width = 129
+      Height = 33
+      Caption = 'Show HeightField Contacts'
+      TabOrder = 3
+      OnClick = CheckBox2Click
     end
     object TrackBar1: TTrackBar
-      OnChange = TrackBar1Change
-      ScalePos = trTop
-      TabOrder = 3
-      TickMarks = tmBoth
-      OnChange = TrackBar1Change
-      ScalePos = trTop
-      TickMarks = tmBoth
       Left = 8
-      Height = 34
       Top = 240
       Width = 137
+      Height = 34
+      TabOrder = 4
+      TickMarks = tmBoth
+      OnChange = TrackBar1Change
     end
     object ComboBox2: TComboBox
-      AutoCompleteText = [cbactEndOfLineComplete, cbactSearchAscending]
-      ItemHeight = 13
-      ItemIndex = 0
-      Items.Strings = (
-        'Plane'
-        'HeightField'
-      )
-      MaxLength = 0
-      OnChange = ComboBox2Change
-      Style = csDropDownList
-      TabOrder = 4
-      Text = 'Plane'
       Left = 8
-      Height = 21
       Top = 24
       Width = 137
-    end
-    object Spawn1: TButton
-      BorderSpacing.InnerBorder = 2
-      Caption = 'Spawn'
-      OnClick = SpawnClick
+      Height = 21
+      Style = csDropDownList
+      ItemHeight = 13
+      ItemIndex = 0
       TabOrder = 5
-      Left = 40
-      Height = 25
-      Top = 112
-      Width = 75
+      Text = 'Plane'
+      OnChange = ComboBox2Change
+      Items.Strings = (
+        'Plane'
+        'HeightField')
     end
   end
   object GLScene1: TGLScene
-    left = 168
-    top = 8
+    Left = 168
+    Top = 8
     object GLDummyCube1: TGLDummyCube
-      CubeSize = 1
-      Position.Coordinates = {
-        000000000000803F000000000000803F
-      }
+      Position.Coordinates = {000000000000803F000000000000803F}
+      CubeSize = 1.000000000000000000
       object GLCamera1: TGLCamera
-        DepthOfView = 100
-        FocalLength = 50
+        DepthOfView = 100.000000000000000000
+        FocalLength = 50.000000000000000000
         TargetObject = GLDummyCube1
-        Position.Coordinates = {
-          0000803F000040400000A0400000803F
-        }
+        Position.Coordinates = {0000803F000040400000A0400000803F}
         object GLLightSource1: TGLLightSource
-          ConstAttenuation = 1
+          ConstAttenuation = 1.000000000000000000
           LightStyle = lsOmni
-          SpotCutOff = 180
+          SpotCutOff = 180.000000000000000000
         end
       end
     end
     object GLHeightField1: TGLHeightField
-      XSamplingScale.Step = 0.100000001490116
-      YSamplingScale.Step = 0.100000001490116
+      Direction.Coordinates = {000000000000803F0000000000000000}
+      Up.Coordinates = {00000000000000000000803F00000000}
+      Visible = False
+      XSamplingScale.Min = -10.000000000000000000
+      XSamplingScale.Max = 10.000000000000000000
+      XSamplingScale.Step = 0.500000000000000000
+      YSamplingScale.Min = -10.000000000000000000
+      YSamplingScale.Max = 10.000000000000000000
+      YSamplingScale.Step = 0.500000000000000000
+      Options = []
+      OnGetHeight = GLHeightField1GetHeight
+      BehavioursData = {
+        0201061154474C4F44454865696768744669656C640200020006000200050000
+        0000006F1283F53F0800000500000000000000FA084005000000000000000000
+        0005000000000000000000000500000000000000000000050000000000000000
+        0000050000000000000000000005000000000000000000000500000000000000
+        0000000500000000000000000000050000000000000000000002000500000000
+        00000080FF3F080500000000000000C000400000803F0200}
     end
     object GLPlane1: TGLPlane
-      Height = 10
-      Width = 10
-      Direction.Coordinates = {
-        000000000000803F0000000000000000
-      }
-      Up.Coordinates = {
-        00000000000000000000803F00000000
-      }
+      Direction.Coordinates = {000000000000803F0000000000000000}
+      Up.Coordinates = {00000000000000000000803F00000000}
+      Height = 10.000000000000000000
+      Width = 10.000000000000000000
+      BehavioursData = {
+        0201060C54474C4F444553746174696302000200060D474C4F44454D616E6167
+        65723102000500000000006F1283F53F0800000500000000000000FA08400500
+        0000000000000000000500000000000000000000050000000000000000000005
+        0000000000000000000005000000000000000000000500000000000000000000
+        0500000000000000000000050000000000000000000005000000000000000000
+        00020002010610544F4445456C656D656E74506C616E650200}
     end
     object ODEObjects: TGLDummyCube
-      CubeSize = 1
+      CubeSize = 1.000000000000000000
     end
     object GLRenderPoint1: TGLRenderPoint
     end
   end
   object GLCadencer1: TGLCadencer
     Scene = GLScene1
-    MaxDeltaTime = 0.02
+    MaxDeltaTime = 0.020000000000000000
     OnProgress = GLCadencer1Progress
-    left = 200
-    top = 8
+    Left = 200
+    Top = 8
   end
   object GLODEManager1: TGLODEManager
-    Gravity.Coordinates = {
-      00000000C3F51CC1000000000000803F
-    }
+    Gravity.Coordinates = {00000000C3F51CC1000000000000803F}
     Solver = osmQuickStep
     Iterations = 3
     MaxContacts = 8
     RenderPoint = GLRenderPoint1
+    Visible = False
     VisibleAtRunTime = True
-    left = 168
-    top = 40
+    Left = 168
+    Top = 40
   end
 end

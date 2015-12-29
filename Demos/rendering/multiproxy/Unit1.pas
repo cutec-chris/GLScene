@@ -9,20 +9,15 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLScene, GLObjects, GLParticles, GLViewer, GLColor,
-  ExtCtrls, GLMultiProxy, StdCtrls, GLTexture, LResources,
-  GLCadencer;
+  SysUtils, Classes, Graphics, Controls, Forms, GLColor,
+  Dialogs, GLCadencer, GLScene, GLObjects, GLParticles, GLLCLViewer,
+  ExtCtrls, GLMultiProxy, StdCtrls, GLTexture, GLCrossPlatform, GLCoordinates,
+  GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -43,7 +38,6 @@ type
     RBHighRes: TRadioButton;
     CBColorize: TCheckBox;
     RBLowRes: TRadioButton;
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure MPSphereProgress(Sender: TObject; const deltaTime,
@@ -60,8 +54,9 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses VectorGeometry;
+uses GLVectorGeometry;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
@@ -71,12 +66,7 @@ begin
    RBUseLODsClick(Self);
    // replicate the multiproxy via a TGLParticles object
    for i:=0 to 35 do
-      GLParticles.CreateParticle.TagFloat:=DegToRad(i*10);
-end;
-
-procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-begin
-
+      GLParticles.CreateParticle.TagFloat:=DegToRad(i*10.0);
 end;
 
 procedure TForm1.MPSphereProgress(Sender: TObject; const deltaTime,
@@ -133,7 +123,4 @@ begin
    GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
-end.
+end.

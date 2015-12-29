@@ -2,13 +2,15 @@ unit unit1;
 
 interface
 
+{$MODE Delphi}
+
 uses
   SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLViewer, GLScene, GLTexture, GLObjects, GLUtils,
-  ComCtrls, OpenGL1x, GLContext, VectorGeometry, GLGeomObjects,
-  GLCadencer, ExtCtrls, GLUserShader, GLGraph, VectorTypes, GLSkydome,
-  VectorLists, GLCrossPlatform, GLMaterial, GLCoordinates, BaseClasses,
-  GLRenderContextInfo, GLColor;
+  Dialogs, GLViewer, GLScene, GLTexture, GLObjects,
+  ComCtrls, GLContext, GLVectorGeometry, GLGeomObjects,
+  GLCadencer, ExtCtrls, GLUserShader, GLGraph, GLSkydome,
+  GLVectorLists, GLCrossPlatform, GLMaterial, GLCoordinates,
+  GLRenderContextInfo, GLColor, OpenGLTokens;
 
 type
 
@@ -37,6 +39,7 @@ type
       var rci: TRenderContextInfo);
     procedure GLHeightField1GetHeight(const x, y: Single; var z: Single;
       var acolor: TColorVector; var texPoint: TTexPoint);
+    procedure GLMemoryViewer1BeforeRender(Sender: TObject);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
     procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
@@ -62,7 +65,7 @@ var
 implementation
 
 uses
-  GLTextureFormat, FileUtil;
+  GLTextureFormat, GLUtils;
 
 {$R *.lfm}
 
@@ -188,15 +191,8 @@ const
 
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  path: UTF8String;
-  p: integer;
 begin
-  path := ExtractFilePath(ParamStrUTF8(0));
-  p := Pos('DemosLCL', path);
-  Delete(path, p + 5, Length(path));
-  path := IncludeTrailingPathDelimiter(path) + 'media';
-  SetCurrentDirUTF8(path);
+  SetGLSceneMediaDir();
 
    // Load the cube map which is used both for environment and as reflection texture
 
@@ -219,169 +215,181 @@ begin
       end;
    end;
 
-   GLMemoryViewer1.RenderCubeMapTextures(matLib.LibMaterialByName('cubeMap').Material.Texture);
-
    SetCurrentDir(ExtractFilePath(Application.ExeName));
-
-//   GLHeightField1.ObjectStyle:=GLHeightField1.ObjectStyle+[osDirectDraw];
 end;
 
-procedure TForm1.DOInitializeRender(Sender: TObject;
+procedure TForm1.DoInitializeRender(Sender: TObject;
   var rci: TRenderContextInfo);
 begin
-   if not (    GL_ARB_shader_objects and GL_ARB_vertex_program and GL_ARB_vertex_shader
-           and GL_ARB_fragment_shader) then begin
-      ShowMessage('Your hardware/driver doesn''t support GLSL and can''t execute this demo!');
-      Halt;
-   end;
+  if not (GL.ARB_shader_objects and GL.ARB_vertex_program and GL.ARB_vertex_shader
+    and GL.ARB_fragment_shader) then
+  begin
+    ShowMessage('Your hardware/driver doesn''t support GLSL and can''t execute this demo!');
+    Halt;
+  end;
 
-   if DOInitialize.Tag<>0 then Exit;
-   DOInitialize.Tag:=1;
+  if DOInitialize.Tag <> 0 then
+    Exit;
+  DOInitialize.Tag := 1;
 
-   GLMemoryViewer1.Buffer.RenderingContext.ShareLists(GLSceneViewer1.Buffer.RenderingContext);
+  GLSceneViewer1.Buffer.RenderingContext.Deactivate;
+  GLMemoryViewer1.RenderCubeMapTextures(matLib.LibMaterialByName('cubeMap').Material.Texture);
+  GLSceneViewer1.Buffer.RenderingContext.Activate;
 
-   programObject:=TGLProgramHandle.CreateAndAllocate;
+  programObject := TGLProgramHandle.CreateAndAllocate;
 
-   programObject.AddShader(TGLVertexShaderHandle, ocean_vp, True);
-   programObject.AddShader(TGLFragmentShaderHandle, ocean_fp, True);
+  programObject.AddShader(TGLVertexShaderHandle, ocean_vp, True);
+  programObject.AddShader(TGLFragmentShaderHandle, ocean_fp, True);
 
-   if not programObject.LinkProgram then 
-      raise Exception.Create(programObject.InfoLog);
+  if not programObject.LinkProgram then
+    raise Exception.Create(programObject.InfoLog);
 
-   if not programObject.ValidateProgram then
-      raise Exception.Create(programObject.InfoLog);
+  if not programObject.ValidateProgram then
+    raise Exception.Create(programObject.InfoLog);
 
-   // initialize the heightmap
-   with MatLib.LibMaterialByName('water') do begin
-      PrepareBuildList;
-      rci.GLStates.ActiveTexture := 0;
-      rci.GLStates.TextureBinding[0, ttTexture2D] := Material.Texture.Handle;
-   end;
+  // initialize the heightmap
+  with MatLib.LibMaterialByName('water') do
+  begin
+    PrepareBuildList;
+    rci.GLStates.TextureBinding[0, ttTexture2D] := Material.Texture.Handle;
+  end;
 
-   // initialize the heightmap
-   with MatLib.LibMaterialByName('cubeMap') do begin
-      PrepareBuildList;
-      rci.GLStates.ActiveTexture := 1;
-      rci.GLStates.TextureBinding[1, ttTextureCube] := Material.Texture.Handle;
-      rci.GLStates.ActiveTexture := 0;
-   end;
+  // initialize the heightmap
+  with MatLib.LibMaterialByName('cubeMap') do
+  begin
+    PrepareBuildList;
+    rci.GLStates.TextureBinding[1, ttTextureCube] := Material.Texture.Handle;
+  end;
 
-   programObject.UseProgramObject;
+  programObject.UseProgramObject;
 
-   programObject.Uniform1i['NormalMap']:=0;
-   programObject.Uniform1i['EnvironmentMap']:=1;
+  programObject.Uniform1i['NormalMap'] := 0;
+  programObject.Uniform1i['EnvironmentMap'] := 1;
 
-   programObject.EndUseProgramObject;
+  programObject.EndUseProgramObject;
 
-   CheckOpenGLError;
-end;
-
-procedure TForm1.GLHeightField1GetHeight(const x, y: Single; var z: Single;
-  var acolor: TColorVector; var texPoint: TTexPoint);
-begin
-  z := 0;
 end;
 
 procedure TForm1.GLUserShader1DoApply(Sender: TObject;
   var rci: TRenderContextInfo);
 var
-   mat : TMatrix;
-   camPos : TVector;
+  camPos: TVector;
 begin
-   glGetFloatv(GL_MODELVIEW_MATRIX, @mat);
-   InvertMatrix(mat);
+  programObject.UseProgramObject;
 
-   programObject.UseProgramObject;
+  programObject.Uniform1f['Time'] := GLCadencer1.CurrentTime * 0.05;
 
-   programObject.Uniform1f['Time']:=GLCadencer1.CurrentTime*0.05;
-
-   camPos:=GLCamera.AbsolutePosition;
-   programObject.Uniform4f['EyePos']:=camPos;
+  camPos := GLCamera.AbsolutePosition;
+  programObject.Uniform4f['EyePos'] := camPos;
 end;
 
 procedure TForm1.GLUserShader1DoUnApply(Sender: TObject; Pass: Integer;
   var rci: TRenderContextInfo; var Continue: Boolean);
 begin
-   programObject.EndUseProgramObject;
+  programObject.EndUseProgramObject;
 end;
 
 procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
-   if ssLeft in Shift then begin
-      Inc(dmx, mx-x); Inc(dmy, my-y);
-   end;
-   mx:=x; my:=y;
+  if ssLeft in Shift then
+  begin
+    Inc(dmx, mx - x);
+    Inc(dmy, my - y);
+  end;
+  mx := x;
+  my := y;
 end;
 
 procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
   newTime: Double);
 begin
-   if (dmx<>0) or (dmy<>0) then begin
-      GLCamera.MoveAroundTarget(dmy*0.3, dmx*0.3);
-      dmx:=0; dmy:=0;
-   end;
-   GLSceneViewer1.Invalidate;
+  if (dmx <> 0) or (dmy <> 0) then
+  begin
+    GLCamera.MoveAroundTarget(dmy * 0.3, dmx * 0.3);
+    dmx := 0;
+    dmy := 0;
+  end;
+  GLSceneViewer1.Invalidate;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-   Caption:=GLSceneViewer1.FramesPerSecondText;
-   GLSceneViewer1.ResetPerformanceMonitor;
+  Caption := GLSceneViewer1.FramesPerSecondText;
+  GLSceneViewer1.ResetPerformanceMonitor;
+end;
+
+procedure TForm1.GLHeightField1GetHeight(const x, y: Single; var z: Single;
+      var acolor: TColorVector; var texPoint: TTexPoint);
+begin
+  z := 0;
 end;
 
 const
-   cExtent = 200;
+  cExtent = 200;
 var
-   vbo : TGLVBOArrayBufferHandle;
-   nbVerts : Integer;
+  vbo: TGLVBOArrayBufferHandle;
+  nbVerts: Integer;
+
 procedure TForm1.DOOceanPlaneRender(Sender: TObject;
   var rci: TRenderContextInfo);
 var
-   x, y : Integer;
-   v : TTexPointList;
-   cont : Boolean;
+  x, y: Integer;
+  v: TTexPointList;
+  cont: Boolean;
 begin
-   GLUserShader1DoApply(Self, rci);
-   glEnableClientState(GL_VERTEX_ARRAY);
+  GLUserShader1DoApply(Self, rci);
+  GL.EnableClientState(GL_VERTEX_ARRAY);
 
-   if not Assigned(vbo) then begin
-      v:=TTexPointList.Create;
+  if not Assigned(vbo) then
+  begin
+    v := TTexPointList.Create;
 
-      v.Capacity:=Sqr(cExtent+1);
-      y:=-cExtent; while y<cExtent do begin
-         x:=-cExtent; while x<=cExtent do begin
-            v.Add(y, x);
-            v.Add(y+2, x);
-            Inc(x, 2);
-         end;
-         Inc(y, 2);
-         v.Add(y, cExtent);
-         v.Add(y, -cExtent);
+    v.Capacity := Sqr(cExtent + 1);
+    y := -cExtent;
+    while y < cExtent do
+    begin
+      x := -cExtent;
+      while x <= cExtent do
+      begin
+        v.Add(y, x);
+        v.Add(y + 2, x);
+        Inc(x, 2);
       end;
+      Inc(y, 2);
+      v.Add(y, cExtent);
+      v.Add(y, -cExtent);
+    end;
 
-      vbo:=TGLVBOArrayBufferHandle.CreateAndAllocate();
-      vbo.Bind;
-      vbo.BufferData(v.List, v.DataSize, GL_STATIC_DRAW_ARB);
-      nbVerts:=v.Count;
+    vbo := TGLVBOArrayBufferHandle.CreateAndAllocate();
+    vbo.Bind;
+    vbo.BufferData(v.List, v.DataSize, GL_STATIC_DRAW_ARB);
+    nbVerts := v.Count;
 
-      glVertexPointer(2, GL_FLOAT, 0, nil);
-      glDrawArrays(GL_QUAD_STRIP, 0, nbVerts);
+    GL.VertexPointer(2, GL_FLOAT, 0, nil);
+    GL.DrawArrays(GL_QUAD_STRIP, 0, nbVerts);
 
-      vbo.UnBind;
-      
-      v.Free;
-   end else begin
-      vbo.Bind;
+    vbo.UnBind;
 
-      glVertexPointer(2, GL_FLOAT, 0, nil);
-      glDrawArrays(GL_TRIANGLE_STRIP, 0, nbVerts);
+    v.Free;
+  end
+  else
+  begin
+    vbo.Bind;
 
-      vbo.UnBind;
-   end;
+    GL.VertexPointer(2, GL_FLOAT, 0, nil);
+    GL.DrawArrays(GL_TRIANGLE_STRIP, 0, nbVerts);
 
-   glDisableClientState(GL_VERTEX_ARRAY);
-   GLUserShader1DoUnApply(Self, 0, rci, cont);
+    vbo.UnBind;
+  end;
+
+  GL.DisableClientState(GL_VERTEX_ARRAY);
+  GLUserShader1DoUnApply(Self, 0, rci, cont);
+end;
+
+procedure TForm1.GLMemoryViewer1BeforeRender(Sender: TObject);
+begin
+  GLMemoryViewer1.Buffer.RenderingContext.ShareLists(GLSceneViewer1.Buffer.RenderingContext);
 end;
 
 end.

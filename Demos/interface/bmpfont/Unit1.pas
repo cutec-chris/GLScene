@@ -22,13 +22,11 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLHUDObjects, GLObjects, GLCadencer, ExtCtrls,
-  GLViewer, GLTeapot, LResources, GLScene, GLBitmapFont;
+  GLScene, GLHUDObjects, GLObjects, GLCadencer, ExtCtrls,
+  GLBitmapFont, GLLCLViewer, GLTeapot, GLCrossPlatform, GLCoordinates,
+  GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -41,8 +39,8 @@ type
     HUDText2: TGLHUDText;
     HUDText3: TGLHUDText;
     Teapot1: TGLTeapot;
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure GLCadencer1Progress(Sender: TObject;
+      const deltaTime, newTime: double);
     procedure Timer1Timer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure GLSceneViewer1Click(Sender: TObject);
@@ -57,34 +55,40 @@ var
 
 implementation
 
+{$R *.lfm}
+
+uses GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-   BitmapFont1.Glyphs.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'darkgold_font.bmp');
+  SetGLSceneMediaDir();
+  // Load the font bitmap
+  BitmapFont1.Glyphs.LoadFromFile('darkgold_font.bmp');
+  // sorry, couldn't resist...
+  HUDText1.Text := 'Hello World !'#13#10#13#10 +
+    'This is me, '#13#10 + 'the HUD Text.'#13#10#13#10
+    + 'Bitmap Fonts!';
 end;
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime, newTime: double);
 begin
-   // make things move a little
-   HUDText2.Rotation:=HUDText2.Rotation+15*deltaTime;
-   HUDText3.Scale.X:=0.5*sin(newTime)+1;
-   HUDText3.Scale.Y:=0.5*cos(newTime)+1;
-   GLSceneViewer1.Invalidate;
+  // make things move a little
+  HUDText2.Rotation := HUDText2.Rotation + 15 * deltaTime;
+  HUDText3.Scale.X := 0.5 * sin(newTime) + 1;
+  HUDText3.Scale.Y := 0.5 * cos(newTime) + 1;
+  GLSceneViewer1.Invalidate;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-   Caption:=Format('%.1f FPS', [GLSceneViewer1.FramesPerSecond]);
-   GLSceneViewer1.ResetPerformanceMonitor;
+  Caption := Format('%.1f FPS', [GLSceneViewer1.FramesPerSecond]);
+  GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
 procedure TForm1.GLSceneViewer1Click(Sender: TObject);
 begin
-   Teapot1.Visible:=not Teapot1.Visible; 
+  Teapot1.Visible := not Teapot1.Visible;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

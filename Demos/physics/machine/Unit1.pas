@@ -1,19 +1,14 @@
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLObjects, GLViewer, GLODEManager,
-  GLCadencer, GLGeomObjects, dynode, GLHUDObjects, GLBitmapFont,
-  GLWindowsFont, LResources, GLScene;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLScene, GLObjects, GLLCLViewer, GLODEManager,
+  GLCadencer, GLGeomObjects, odeimport, GLHUDObjects, GLBitmapFont,
+  GLWindowsFont, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -33,7 +28,6 @@ type
     ODERenderPoint: TGLRenderPoint;
     GLHUDText1: TGLHUDText;
     GLWindowsBitmapFont1: TGLWindowsBitmapFont;
-    procedure FormCreate(Sender: TObject);
     procedure GLSceneViewer1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
@@ -52,19 +46,15 @@ var
 
 implementation
 
-{uses VectorGeometry;}
+uses GLVectorGeometry;
 
+{$R *.lfm}
 
 procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   mx:=x;
   my:=y;
-end;
-
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-
 end;
 
 procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
@@ -91,8 +81,5 @@ begin
     'Pin2 Linear Velocity (X-Axis) = %.1f',
     [velWheel[1], velPin2[0]]);
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

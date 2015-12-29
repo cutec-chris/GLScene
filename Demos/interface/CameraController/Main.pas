@@ -6,19 +6,21 @@
 }
 unit Main;
 
-{$MODE Delphi}
+{$MODE DELPHI}
 
 interface
 
 uses
-  SysUtils, LCLIntf, Messages, Classes, Graphics, Controls, Forms,
+  SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, GLViewer, GLScene, GLObjects,
   GLVectorFileObjects, GLCameraController, GLFile3ds, GLGeomObjects, GLTexture,
-  GLCadencer, StdCtrls, ComCtrls, LResources, GLMaterial,
-  GLCoordinates, GLCrossPlatform,
-  BaseClasses;
+  GLCadencer, StdCtrls, ComCtrls, GLMaterial, GLCoordinates, GLCrossPlatform,
+  GLBaseClasses, GLVectorGeometry, GLNavigator, GLSmoothNavigator, GLGraph;
 
 type
+
+  { TForm1 }
+
   TForm1 = class(TForm)
     Panel1: TPanel;
     Panel2: TPanel;
@@ -30,7 +32,7 @@ type
     eDestZ: TEdit;
     Label5: TLabel;
     GLScene1: TGLScene;
-    GLDummyCube1: TGLDummyCube;
+    dcSphere: TGLDummyCube;
     GLSphere1: TGLSphere;
     GLCylinder1: TGLCylinder;
     GLSphere2: TGLSphere;
@@ -39,7 +41,6 @@ type
     GLMaterialLibrary1: TGLMaterialLibrary;
     GLCadencer1: TGLCadencer;
     GLSceneViewer1: TGLSceneViewer;
-    GLCameraController1: TGLCameraController;
     GLSphere3: TGLSphere;
     Panel3: TPanel;
     Label6: TLabel;
@@ -68,7 +69,38 @@ type
     Label4: TLabel;
     Panel6: TPanel;
     Label15: TLabel;
-    btnStopMovement: TButton;
+    btnOrbitToPosAdv: TButton;
+    Timer1: TTimer;
+    GLCameraController1: TGLCameraController;
+    Panel8: TPanel;
+    Label20: TLabel;
+    Panel7: TPanel;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    camDirX: TEdit;
+    camDirY: TEdit;
+    camDirZ: TEdit;
+    Panel9: TPanel;
+    Label21: TLabel;
+    Label22: TLabel;
+    Label23: TLabel;
+    Label24: TLabel;
+    camUpX: TEdit;
+    camUpY: TEdit;
+    camUpZ: TEdit;
+    btSmoothOrbit: TButton;
+    GLSmoothNavigator: TGLSmoothNavigator;
+    dcDebugGUI: TGLDummyCube;
+    ArrowLine: TGLArrowLine;
+    XYZGrid: TGLXYZGrid;
+    GLPlane1: TGLPlane;
+    UpAxis: TCheckBox;
+    btSmoothOrbitToPosAdv: TButton;
+    btSmoothOrbitAndZoom: TButton;
+    dcMovingParent: TGLDummyCube;
+    cbMoveParent: TCheckBox;
     procedure GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -81,13 +113,25 @@ type
     procedure btnSafeOrbitAndZoomToPosClick(Sender: TObject);
     procedure GLSceneViewer1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure btnStopMovementClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
+      newTime: Double);
+    procedure btnOrbitToPosAdvClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure btSmoothOrbitToPosAdvClick(Sender: TObject);
+    procedure btSmoothOrbitClick(Sender: TObject);
+    procedure btSmoothOrbitAndZoomClick(Sender: TObject);
   private
     { Private declarations }
+    FGLCameraController : TGLCameraController;
     DextX, DextY, DextZ, Time, ZoomDistance: double;
     mx, my : Integer;
+    FCameraSmoothAnimator_AbsPos: TGLNavigatorSmoothChangeVector;
+    FCameraSmoothAnimator_RelPos: TGLNavigatorSmoothChangeVector;
     procedure GetInput(Sender:TButton);
+    function OnGetCameraPosition(const ASender: TGLNavigatorSmoothChangeVector): TVector;
+    procedure OnSetCameraPosition(const ASender: TGLNavigatorSmoothChangeVector; const AValue: TVector);
   public
     { Public declarations }
   end;
@@ -99,19 +143,28 @@ implementation
 
 uses Math;
 
+{$R *.lfm}
 
 procedure TForm1.GetInput(Sender:TButton);
 begin
-  if (Sender.Name='btnMoveToPos') or
-     (Sender.Name='btnOrbitToPos') or
-     (Sender.Name='btnSafeOrbitAndZoomToPos') then
+  FCameraSmoothAnimator_AbsPos.Enabled := False;
+  FCameraSmoothAnimator_RelPos.Enabled := False;
+
+  if (Sender = btnMoveToPos) or
+     (Sender = btnOrbitToPos) or
+     (Sender = btnOrbitToPosAdv) or
+     (Sender = btnSafeOrbitAndZoomToPos) or
+     (Sender = btSmoothOrbit) or
+     (Sender = btSmoothOrbitAndZoom) or
+     (Sender = btSmoothOrbitToPosAdv) then
   begin
     DextX:=strtofloat(eDestX.text);
     DextY:=strtofloat(eDestY.text);
     DextZ:=strtofloat(eDestZ.text);
   end;
-  if (Sender.Name='btnMoveToPos') or
+  if (Sender = btnMoveToPos) or
      (Sender.Name='btnZoomToDistance') or
+     (Sender.Name='btnOrbitToPosAdv') or
      (Sender.Name='btnOrbitToPos') then
   begin
     Time:= strtofloat(eTime.text);
@@ -122,59 +175,89 @@ begin
   end;
   if (Sender.Name='btnSafeOrbitAndZoomToPos')then
   begin
-    GLCameraController1.soSafeDistance := strtofloat(eSafeDistance.text);
-    GLCameraController1.soTimeToSafePlacement := strtofloat(eTimeToSafePlacement.text);
-    GLCameraController1.soTimeToOrbit := strtofloat(eTimeToOrbit.text);
-    GLCameraController1.soTimeToZoomBackIn := strtofloat(eTimeToZoomBackIn.text);
+    FGLCameraController.soSafeDistance := strtofloat(eSafeDistance.text);
+    FGLCameraController.soTimeToSafePlacement := strtofloat(eTimeToSafePlacement.text);
+    FGLCameraController.soTimeToOrbit := strtofloat(eTimeToOrbit.text);
+    FGLCameraController.soTimeToZoomBackIn := strtofloat(eTimeToZoomBackIn.text);
   end;
 end;
 
 //MoveToPos Usage
 procedure TForm1.btnMoveToPosClick(Sender: TObject);
 begin
-  if not GLCameraController1.AllowUserAction then exit;
   GetInput(TButton(Sender));
-  GLCameraController1.MoveToPos(DextX, DextY, DextZ, Time);
+  FGLCameraController.MoveToPos(DextX, DextY, DextZ, Time);
 end;
 
 //ZoomToDistance Usage
 procedure TForm1.btnZoomToDistanceClick(Sender: TObject);
 begin
-  if not GLCameraController1.AllowUserAction then exit;
   GetInput(TButton(Sender));
-  GLCameraController1.ZoomToDistance(ZoomDistance,Time);
+  FGLCameraController.ZoomToDistance(ZoomDistance,Time);
 end;
 
 //OrbitToPos Usage
 procedure TForm1.btnOrbitToPosClick(Sender: TObject);
+var
+  lTargetPosition: TVector;
 begin
-  if not GLCameraController1.AllowUserAction then exit;
   GetInput(TButton(Sender));
-  GLCameraController1.OrbitToPos(DextX, DextY, DextZ, Time);
+  lTargetPosition := dcSphere.LocalToAbsolute(PointMake(DextX, DextY, DextZ));
+
+  FGLCameraController.OrbitToPos(lTargetPosition.X, lTargetPosition.Y, lTargetPosition.Z, Time);
 end;
+
+procedure TForm1.btnOrbitToPosAdvClick(Sender: TObject);
+var
+  lTargetPosition: TVector;
+begin
+  GetInput(TButton(Sender));
+  lTargetPosition := dcSphere.LocalToAbsolute(PointMake(DextX, DextY, DextZ));
+  FGLCameraController.OrbitToPosAdvanced(lTargetPosition.X, lTargetPosition.Y, lTargetPosition.Z, Time, UpAxis.Checked);
+end;
+
 
 //SafeOrbitAndZoomToPos Usage
 procedure TForm1.btnSafeOrbitAndZoomToPosClick(Sender: TObject);
 begin
-  if not GLCameraController1.AllowUserAction then exit;
   GetInput(TButton(Sender));
-  GLCameraController1.SafeOrbitAndZoomToPos(DextX, DextY, DextZ);
+  FGLCameraController.SafeOrbitAndZoomToPos(DextX, DextY, DextZ);
 end;
 
-//GUI Implementation - Pay attention to GLCameraController1.AllowUserAction!
+//GUI Implementation - Pay attention to FGLCameraController.AllowUserAction!
 
 procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  if not GLCameraController1.AllowUserAction then exit;
+  FCameraSmoothAnimator_AbsPos.Enabled := False;
+  FCameraSmoothAnimator_RelPos.Enabled := False;
 	GLCamera.AdjustDistanceToTarget(Power(1.1, WheelDelta/120));
-  GLCamera.DepthOfView:=2*GLCamera.DistanceToTarget+2*GLcamera.TargetObject.BoundingSphereRadius;
+end;
+
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
+  newTime: Double);
+begin
+  if cbMoveParent.Checked then
+  begin
+    dcMovingParent.Position.X := Sin(NewTime * 1.5) * 8;
+  end;
+
+  // For btSmoothOrbitAndZoomClick Order of these commands is important.
+  GLSmoothNavigator.AdjustDistanceToTarget(0, deltaTime);
+
+  FGLCameraController.Step(deltaTime, newtime);
+
+  // This component requires FixedDeltaTime higher than FMaxExpectedDeltatime.
+  GLSmoothNavigator.AnimateCustomItems(deltaTime);
 end;
 
 procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-   if not GLCameraController1.AllowUserAction then exit;
+  FCameraSmoothAnimator_AbsPos.Enabled := False;
+  FCameraSmoothAnimator_RelPos.Enabled := False;
+  FGLCameraController.StopMovement;
+  
    if Shift=[ssLeft] then
    begin
      mx:=x; my:=y;
@@ -184,34 +267,139 @@ end;
 procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
-  if not GLCameraController1.AllowUserAction then exit;
+
   if Shift=[ssLeft] then
   begin
     GLCamera.MoveAroundTarget(my-y, mx-x);
     mx:=x; my:=y;
-    caption:= 'CameraController Demo - camera position = '+formatfloat('0.##',glcamera.position.x)+'/'+formatfloat('0.##',glcamera.position.y)+'/'+formatfloat('0.##',glcamera.position.z);
+    caption:= 'CameraController Demo - camera position = ' +
+      formatfloat('0.##',glcamera.position.x)+'/'+
+      formatfloat('0.##',glcamera.position.y)+'/'+
+      formatfloat('0.##',glcamera.position.z);
   end;
 end;
 
 procedure TForm1.GLSceneViewer1MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if not GLCameraController1.AllowUserAction then exit;
   caption:= 'CameraController Demo';
 end;
 
-procedure TForm1.btnStopMovementClick(Sender: TObject);
+procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-  GLCameraController1.StopMovement;
+  camDirX.Text := Format('%.4f',[GLCamera.Direction.X]);
+  camDirY.Text := Format('%.4f',[GLCamera.Direction.Y]);
+  camDirZ.Text := Format('%.4f',[GLCamera.Direction.Z]);
+
+  camUpX.Text := Format('%.4f',[GLCamera.Up.X]);
+  camUpY.Text := Format('%.4f',[GLCamera.Up.Y]);
+  camUpZ.Text := Format('%.4f',[GLCamera.Up.Z]);
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  GLCameraController1.StopMovement;
+  GLCadencer1.Enabled := False;
 end;
 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  FGLCameraController := GLCameraController1;
+
+  FCameraSmoothAnimator_AbsPos := TGLNavigatorSmoothChangeVector.Create(GLSmoothNavigator.CustomAnimatedItems);
+  FCameraSmoothAnimator_AbsPos.Enabled := False;
+  FCameraSmoothAnimator_AbsPos.Inertia := 0.6;
+  FCameraSmoothAnimator_AbsPos.Speed := 1;
+  FCameraSmoothAnimator_AbsPos.SpeedLimit := 5000;
+  FCameraSmoothAnimator_AbsPos.Cutoff := 0.0001;
+  FCameraSmoothAnimator_AbsPos.OnGetCurrentValue := OnGetCameraPosition;
+  FCameraSmoothAnimator_AbsPos.OnSetCurrentValue := OnSetCameraPosition;
+
+  FCameraSmoothAnimator_RelPos := TGLNavigatorSmoothChangeVector.Create(GLSmoothNavigator.CustomAnimatedItems);
+  FCameraSmoothAnimator_RelPos.Assign(FCameraSmoothAnimator_AbsPos);
+
+  GLSmoothNavigator.MovingObject := GLCamera;
+  GLSmoothNavigator.MoveAroundParams.TargetObject := GLCamera.TargetObject;
+end;
+
+
+procedure TForm1.btSmoothOrbitClick(Sender: TObject);
+var
+  lAngle: Single; // In radians.
+  lTime: Single;
+  lNeedToRecalculateZoom: Boolean;
+  lTargetPosition: TVector;
+begin
+  GetInput(TButton(Sender));
+
+  lTargetPosition := dcSphere.LocalToAbsolute(PointMake(DextX, DextY, DextZ));
+
+  lAngle := AngleBetweenVectors(GLCamera.AbsolutePosition, lTargetPosition, GLSphere1.AbsolutePosition);
+
+  // The final look and feel of smooth animation is affected by
+  // FCameraSmoothAnimator_AbsPos's propperties and this value.
+  lTime := lAngle * 2;
+  FCameraSmoothAnimator_RelPos.ResetTargetValue();
+  FCameraSmoothAnimator_RelPos.Enabled := True;
+
+  if Sender = btSmoothOrbit then
+    lNeedToRecalculateZoom := False
+  else if Sender = btSmoothOrbitAndZoom then
+    lNeedToRecalculateZoom := True
+  else
+  begin
+    lNeedToRecalculateZoom := False;
+    Assert(False);
+  end;
+
+  FGLCameraController.OrbitToPosSmooth(lTargetPosition, lTime,
+    FCameraSmoothAnimator_RelPos, lNeedToRecalculateZoom, @YHmgVector);
+end;
+
+procedure TForm1.btSmoothOrbitAndZoomClick(Sender: TObject);
+begin
+  btSmoothOrbitClick(btSmoothOrbitAndZoom);
+  GLSmoothNavigator.AdjustDistanceParams.AddImpulse( Sign(Random - 0.5) * 10);
+end;
+
+procedure TForm1.btSmoothOrbitToPosAdvClick(Sender: TObject);
+var
+  lAngle: Single; // In radians.
+  lTime: Single;
+  lTargetPosition: TVector;
+begin
+  GetInput(TButton(Sender));
+
+  lTargetPosition := dcSphere.LocalToAbsolute(PointMake(DextX, DextY, DextZ));
+
+  lAngle := AngleBetweenVectors(GLCamera.AbsolutePosition, lTargetPosition, GLSphere1.AbsolutePosition);
+
+  lTime := lAngle; // Speed can be controled by applying a multiplier here.
+
+  FCameraSmoothAnimator_AbsPos.TargetValue.DirectVector := GLCamera.AbsolutePosition;
+  FCameraSmoothAnimator_AbsPos.Enabled := True;
+  FGLCameraController.OrbitToPosAdvancedSmooth(
+    lTargetPosition.X, lTargetPosition.Y, lTargetPosition.Z,
+    lTime, FCameraSmoothAnimator_AbsPos);
+end;
+
+function TForm1.OnGetCameraPosition(const ASender: TGLNavigatorSmoothChangeVector): TVector;
+begin
+  if ASender = FCameraSmoothAnimator_AbsPos then
+    Result := GLCamera.AbsolutePosition
+  else
+    Result := GLCamera.Position.DirectVector;
+end;
+
+procedure TForm1.OnSetCameraPosition(const ASender: TGLNavigatorSmoothChangeVector; const AValue: TVector);
+begin
+  if ASender = FCameraSmoothAnimator_AbsPos then
+    GLCamera.AbsolutePosition := AValue
+  else
+    GLCamera.Position.AsVector := AValue;
+end;
+
+
 initialization
-  {$i Main.lrs}
   DecimalSeparator := '.';
 
 end.

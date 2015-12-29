@@ -5,19 +5,15 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  LCLType, SysUtils, Classes, Graphics, Controls, Forms,
+  SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, GLScene, GLObjects, GLCadencer,
-  GLTexture, LResources, GLViewer, GLMaterial;
+  GLLCLViewer, GLTexture, GLCrossPlatform, GLMaterial, GLCoordinates,
+  GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -42,9 +38,6 @@ type
     EFogStart: TEdit;
     EFogEnd: TEdit;
     EFogDensity: TEdit;
-    GLSphere1: TGLSphere;
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
     procedure GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure CBFogEnableClick(Sender: TObject);
@@ -69,22 +62,25 @@ var
 
 implementation
 
+{$R *.lfm}
+
+uses GLUtils;
 
 // applyfogsettings
 //
 procedure TForm1.ApplyFogSettings;
 begin
   with GLSceneViewer1.Buffer.FogEnvironment do begin
-   // FogMode := TFogMode(RGFogMode.ItemIndex);
-    //FogDistance := TFogDistance(RGFogDistance.ItemIndex);
+    FogMode := TFogMode(RGFogMode.ItemIndex);
+    FogDistance := TFogDistance(RGFogDistance.ItemIndex);
     FogColor.AsWinColor := SFogColor.Brush.Color;
-  //  FogColor.Alpha := StrToInt(EFogDensity.Text) / 1000;
-    ///if CBApplyToBackground.Checked then
-   //   GLSceneViewer1.Buffer.BackgroundColor := SFogColor.Brush.Color;
+    FogColor.Alpha := StrToInt(EFogDensity.Text) / 1000;
+    if CBApplyToBackground.Checked then
+      GLSceneViewer1.Buffer.BackgroundColor := SFogColor.Brush.Color;
     FogStart := StrToInt(EFogStart.Text);
     FogEnd := StrToInt(EFogEnd.Text);
   end;
-  GLSceneViewer1.Buffer.FogEnable := not CBFogEnable.Checked;
+  GLSceneViewer1.Buffer.FogEnable := CBFogEnable.Checked;
 end;
 
 // glsceneviewer1mousedown
@@ -93,12 +89,6 @@ procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton; 
 begin
   MX := X;
   MY := Y;
-end;
-
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
-begin
-
 end;
 
 // glsceneviewer1mousemove
@@ -160,8 +150,8 @@ var
   Cube : TGLCube;
 
 begin
-  GLMaterialLibrary1.AddTextureMaterial('glscene', '..' + PathDelim +
-                     '..' + PathDelim + 'media' + PathDelim + 'GLScene.bmp');
+  SetGLSceneMediaDir();
+  GLMaterialLibrary1.AddTextureMaterial('glscene', 'glscene.bmp');
   for X := -cNb to cNb do
     for Y := -cNb to cNb do
       for Z := -cNb to cNb do
@@ -191,14 +181,14 @@ end;
 //
 procedure TForm1.CBTextureEnabledClick(Sender: TObject);
 begin
-  GLMaterialLibrary1.Materials[0].Material.Texture.Enabled := not CBTextureEnabled.Checked;
+  GLMaterialLibrary1.Materials[0].Material.Texture.Enabled := CBTextureEnabled.Checked;
 end;
 
 // cbtextureignorefogclick
 //
 procedure TForm1.CBTextureIgnoreFogClick(Sender: TObject);
 begin
-  if not CBTextureIgnoreFog.Checked then
+  if CBTextureIgnoreFog.Checked then
     GLMaterialLibrary1.Materials[0].Material.MaterialOptions := GLMaterialLibrary1.Materials[0].Material.MaterialOptions + [moIgnoreFog]
   else
     GLMaterialLibrary1.Materials[0].Material.MaterialOptions := GLMaterialLibrary1.Materials[0].Material.MaterialOptions - [moIgnoreFog];
@@ -209,8 +199,5 @@ begin
   if TEdit(Sender).Text <> '' then
     ApplyFogSettings;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

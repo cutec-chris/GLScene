@@ -1,275 +1,196 @@
 object Form1: TForm1
   Left = 77
-  Height = 442
   Top = 70
   Width = 665
-  ActiveControl = Panel1
+  Height = 442
   Caption = 'Form1'
-  ClientHeight = 442
-  ClientWidth = 665
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
+  Font.Style = []
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  PixelsPerInch = 96
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 417
     Top = 25
-    Width = 665
+    Width = 657
+    Height = 388
     Camera = GLCamera2
     Buffer.BackgroundColor = clGreen
-    FieldOfView = 128.753723144531
     Align = alClient
-    TabOrder = 0
   end
   object Panel1: TPanel
     Left = 0
-    Height = 25
     Top = 0
-    Width = 665
+    Width = 657
+    Height = 25
     Align = alTop
     BevelOuter = bvLowered
-    ClientHeight = 25
-    ClientWidth = 665
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Arial'
+    Font.Style = []
     ParentFont = False
     TabOrder = 1
     object Label3: TLabel
-      Left = 352
-      Height = 15
-      Top = 6
-      Width = 88
+      Left = 350
+      Top = 4
+      Width = 76
+      Height = 14
       Caption = 'F7 Third Person'
-      ParentColor = False
     end
     object Label4: TLabel
-      Left = 448
-      Height = 15
-      Top = 6
-      Width = 88
+      Left = 446
+      Top = 4
+      Width = 83
+      Height = 14
       Caption = 'F8 First Person'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Arial'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
     end
     object Label1: TLabel
-      Left = 8
-      Height = 15
-      Top = 6
-      Width = 365
-      Caption = 'Move with arrow keys, strafe with CTRL, run with SHIFT, ESC to exit'
-      ParentColor = False
+      Left = 6
+      Top = 4
+      Width = 332
+      Height = 14
+      Caption = 
+        'Move with arrow keys, strafe with CTRL, run with SHIFT, ESC to e' +
+        'xit'
     end
     object CBMouseLook: TCheckBox
-      Left = 552
-      Height = 22
-      Top = 4
-      Width = 91
+      Left = 550
+      Top = 2
+      Width = 97
+      Height = 17
       Caption = '&Mouse Look'
-      OnClick = CBMouseLookClick
       TabOrder = 0
+      OnClick = CBMouseLookClick
     end
   end
   object GLScene1: TGLScene
     ObjectsSorting = osNone
-    left = 40
-    top = 32
+    Left = 40
+    Top = 32
     object SkyDome1: TGLSkyDome
-      TagFloat = 0
-      Direction.Coordinates = {
-        000000000000803F0000000000000000
-      }
-      PitchAngle = 0
-      RollAngle = 0
-      TurnAngle = 0
-      Up.Coordinates = {
-        E9DC72BF000000009BE8A13E00000000
-      }
-      Bands = <      
+      Direction.Coordinates = {000000000000803F0000000000000000}
+      Up.Coordinates = {E9DC72BF000000009BE8A13E00000000}
+      Bands = <
         item
-          StartAngle = 0
-          StartColor.Color = {
-            0000803F0000803F0000803F0000803F
-          }
+          StartColor.Color = {0000803F0000803F0000803F0000803F}
           StopAngle = 15
-        end      
+        end
         item
           StartAngle = 15
           StopAngle = 90
-          StopColor.Color = {
-            938C0C3E938C0C3E938E0E3F0000803F
-          }
+          StopColor.Color = {938C0C3E938C0C3E938E0E3F0000803F}
           Stacks = 4
         end>
       Stars = <>
     end
     object Disk1: TGLDisk
-      TagFloat = 0
+      Direction.Coordinates = {000000000000803F0000000000000000}
+      Up.Coordinates = {00000000000000000000803F00000000}
       Material.Texture.MinFilter = miLinear
+      Material.Texture.MappingTCoordinates.Coordinates = {000000000000803F0000000000000000}
       Material.Texture.Disabled = False
-      Direction.Coordinates = {
-        000000000000803F0000000000000000
-      }
-      PitchAngle = 0
-      RollAngle = 0
-      TurnAngle = 0
-      Up.Coordinates = {
-        00000000000000000000803F00000000
-      }
-      InnerRadius = 0
       Loops = 1
       OuterRadius = 80
       Slices = 7
-      StartAngle = 0
       SweepAngle = 360
     end
     object GLLightSource2: TGLLightSource
-      TagFloat = 0
       ConstAttenuation = 1
-      LinearAttenuation = 0
-      QuadraticAttenuation = 0
-      Position.Coordinates = {
-        0000704200003443000000000000803F
-      }
+      Position.Coordinates = {0000704200003443000000000000803F}
       LightStyle = lsOmni
       SpotCutOff = 180
-      SpotExponent = 0
     end
     object DummyCube1: TGLDummyCube
-      TagFloat = 0
-      PitchAngle = 0
-      RollAngle = 0
-      TurnAngle = 0
+      Direction.Coordinates = {00000000000000800000803F00000000}
       CubeSize = 1
       object FreeForm1: TGLFreeForm
-        TagFloat = 0
-        Material.FrontProperties.Diffuse.Color = {
-          0AD7633FD7A3F03ECDCC4C3E0000803F
-        }
-        Direction.Coordinates = {
-          000000000000803F0000000000000000
-        }
-        PitchAngle = 0
-        Position.Coordinates = {
-          0000803F0000803F000000000000803F
-        }
-        RollAngle = 0
-        Scale.Coordinates = {
-          0AD7A33CCDCCCC3C4260E53C00000000
-        }
-        TurnAngle = 0
-        Up.Coordinates = {
-          00000000000000000000803F00000000
-        }
+        Direction.Coordinates = {000000000000803F0000000000000000}
+        Position.Coordinates = {0000803F0000803F000000000000803F}
+        Scale.Coordinates = {0AD7A33CCDCCCC3C4260E53C00000000}
+        Up.Coordinates = {00000000000000000000803F00000000}
+        Material.FrontProperties.Diffuse.Color = {0AD7633FD7A3F03ECDCC4C3E0000803F}
+        Material.Texture.MappingTCoordinates.Coordinates = {000000000000803F0000000000000000}
         NormalsOrientation = mnoInvert
       end
     end
     object DummyCube2: TGLDummyCube
-      TagFloat = 0
-      PitchAngle = 0
-      Position.Coordinates = {
-        000000000000803F000000000000803F
-      }
-      RollAngle = 0
-      TurnAngle = 0
-      CubeSize = 0.10000000149011
+      Direction.Coordinates = {00000000000000800000803F00000000}
+      Position.Coordinates = {000000000000803F000000000000803F}
+      CubeSize = 0.100000001490116
       object GLCamera2: TGLCamera
-        TagFloat = 0
         DepthOfView = 500
         FocalLength = 100
-        Position.Coordinates = {
-          000000000000003F000000000000803F
-        }
-        Direction.Coordinates = {
-          00000080000000000000803F00000000
-        }
-        left = 320
-        top = 192
+        Position.Coordinates = {000000000000003F000000000000803F}
+        Direction.Coordinates = {00000080000000000000803F00000000}
+        Left = 320
+        Top = 192
       end
       object Actor1: TGLActor
-        TagFloat = 0
-        Material.FrontProperties.Emission.Color = {
-          0000803F0000803F0000803F0000803F
-        }
-        Material.Texture.MinFilter = miLinear
-        Material.Texture.Disabled = False
-        Direction.Coordinates = {
-          000000800000803F0000000000000000
-        }
-        PitchAngle = 0
-        RollAngle = 0
-        TurnAngle = 0
-        Up.Coordinates = {
-          0000803F000000000000000000000000
-        }
+        Direction.Coordinates = {000000800000803F0000000000000000}
+        Up.Coordinates = {0000803F000000000000000000000000}
         Visible = False
-        CurrentFrameDelta = 0
+        Material.FrontProperties.Emission.Color = {0000803F0000803F0000803F0000803F}
+        Material.Texture.MinFilter = miLinear
+        Material.Texture.MappingTCoordinates.Coordinates = {000000000000803F0000000000000000}
+        Material.Texture.Disabled = False
         Interval = 100
         object Actor2: TGLActor
-          TagFloat = 0
+          Direction.Coordinates = {00000080000000000000803F00000000}
           Material.Texture.MinFilter = miLinear
+          Material.Texture.MappingTCoordinates.Coordinates = {000000000000803F0000000000000000}
           Material.Texture.Disabled = False
-          PitchAngle = 0
-          RollAngle = 0
-          TurnAngle = 0
-          CurrentFrameDelta = 0
           Interval = 100
         end
       end
       object DummyCube3: TGLDummyCube
-        TagFloat = 0
-        PitchAngle = 0
-        RollAngle = 0
-        TurnAngle = 0
         CubeSize = 1
         object GLCamera1: TGLCamera
-          TagFloat = 0
           DepthOfView = 1000
           FocalLength = 200
           TargetObject = DummyCube2
-          Position.Coordinates = {
-            00000000000040400000A0C10000803F
-          }
-          Direction.Coordinates = {
-            00000000000000800000803F00000000
-          }
+          Position.Coordinates = {00000000000040400000A0C10000803F}
+          Direction.Coordinates = {00000000000000800000803F00000000}
         end
       end
     end
   end
   object GLCadencer1: TGLCadencer
     Scene = GLScene1
-    MaxDeltaTime = 0
-    MinDeltaTime = 0
-    FixedDeltaTime = 0
     SleepLength = 0
     OnProgress = GLCadencer1Progress
-    left = 8
-    top = 32
+    Left = 8
+    Top = 32
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer
-    left = 8
-    top = 64
+    Left = 8
+    Top = 64
   end
   object GLNavigator1: TGLNavigator
-    VirtualUp.Coordinates = {
-      000000000000803F000000000000803F
-    }
+    VirtualUp.Coordinates = {000000000000803F000000000000803F}
     MovingObject = DummyCube2
     UseVirtualUp = True
-    MaxAngle = 0
-    MinAngle = 0
-    left = 40
-    top = 64
+    AutoUpdateObject = False
+    AngleLock = False
+    Left = 40
+    Top = 64
   end
   object GLUserInterface1: TGLUserInterface
+    InvertMouse = False
     MouseSpeed = 20
     GLNavigator = GLNavigator1
-    left = 40
-    top = 96
+    Left = 40
+    Top = 96
   end
 end

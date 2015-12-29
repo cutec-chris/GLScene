@@ -14,35 +14,35 @@ object Form1: TForm1
   LCLVersion = '0.9.29'
   object Label1: TLabel
     Left = 448
-    Height = 40
+    Height = 43
     Top = 88
-    Width = 90
+    Width = 97
     Caption = 'Move your mouse'#13#10'over an object and'#13#10'it will start spinning'
     ParentColor = False
   end
   object Label2: TLabel
     Left = 8
-    Height = 27
+    Height = 28
     Top = 8
-    Width = 125
+    Width = 128
     Alignment = taCenter
     Caption = 'Cube has a small constant'#13#10'and linear damping'
     ParentColor = False
   end
   object Label3: TLabel
     Left = 168
-    Height = 40
+    Height = 43
     Top = 0
-    Width = 101
+    Width = 100
     Alignment = taCenter
     Caption = 'Dodecahedron has a'#13#10'small constant and'#13#10'quadratic damping'
     ParentColor = False
   end
   object Label4: TLabel
     Left = 328
-    Height = 27
+    Height = 28
     Top = 8
-    Width = 110
+    Width = 115
     Alignment = taCenter
     Caption = 'Octahedron has a'#13#10'only quadratic damping'
     ParentColor = False
@@ -59,9 +59,9 @@ object Form1: TForm1
   end
   object CheckBox1: TCheckBox
     Left = 448
-    Height = 19
+    Height = 22
     Top = 144
-    Width = 82
+    Width = 85
     Caption = 'Double Mass'
     OnClick = CheckBox1Click
     TabOrder = 1
@@ -143,4 +143,4 @@ object Form1: TForm1
     left = 480
     top = 48
   end
-end
+end

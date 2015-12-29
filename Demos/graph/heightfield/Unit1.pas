@@ -28,8 +28,9 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, StdCtrls,
-  ComCtrls, GLGraph, GLObjects, ExtCtrls, GLTexture,
-  GLCadencer, VectorGeometry, GLViewer, LResources, GLScene, GLColor;
+  ComCtrls, GLScene, GLGraph, GLObjects, ExtCtrls, GLTexture,
+  GLCadencer, GLVectorGeometry, GLLCLViewer, GLColor, GLCrossPlatform,
+  GLCoordinates;
 
 type
   TForm1 = class(TForm)
@@ -86,6 +87,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -223,8 +225,5 @@ begin
       mx:=x; my:=y;
    end;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

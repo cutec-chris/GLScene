@@ -4,19 +4,16 @@
    (by default, the polyhedron is not centered in its mesh).
 }
 
-unit unit1;
+unit Unit1;
 
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLScene, GLVectorFileObjects, GLObjects, ComCtrls, StdCtrls,
-  GLViewer, GLFile3DS, GLCrossPlatform, GLCoordinates;
+  GLLCLViewer, GLFile3DS, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -48,29 +45,23 @@ implementation
 
 {$R *.lfm}
 
-uses
-  FileUtil;
+uses GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  path: UTF8String;
-  p: Integer;
+const
+   cFileName = 'polyhedron.3ds';
 begin
-  path := ExtractFilePath(ParamStrUTF8(0));
-  p := Pos('DemosLCL', path);
-  Delete(path, p+5, Length(path));
-  path := IncludeTrailingPathDelimiter(path) + IncludeTrailingPathDelimiter('media');
-  SetCurrentDirUTF8(path);
+   SetGLSceneMediaDir();
 
    // left one
    FreeForm3.AutoCentering:=[macCenterX, macCenterZ];
-   FreeForm3.LoadFromFile('polyhedron.3ds');
+   FreeForm3.LoadFromFile(cFileName);
    // central one
    FreeForm2.AutoCentering:=[macCenterY];
-   FreeForm2.LoadFromFile('polyhedron.3ds');
+   FreeForm2.LoadFromFile(cFileName);
    // right one
    FreeForm1.AutoCentering:=[macCenterX, macCenterY, macCenterZ];
-   FreeForm1.LoadFromFile('polyhedron.3ds'); 
+   FreeForm1.LoadFromFile(cFileName);
 end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);

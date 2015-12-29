@@ -1,17 +1,17 @@
 object Form1: TForm1
-  Left = 351
+  Left = 241
   Height = 380
-  Top = 153
+  Top = 242
   Width = 429
-  HorzScrollBar.Page = 428
-  VertScrollBar.Page = 379
   Caption = 'Form1'
   ClientHeight = 380
   ClientWidth = 429
+  Color = clBtnFace
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 380
@@ -19,10 +19,11 @@ object Form1: TForm1
     Width = 429
     Camera = GLCamera
     Buffer.BackgroundColor = clBlack
-    FieldOfView = 150.512878417968
+    FieldOfView = 150.512878417969
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 8
@@ -40,7 +41,7 @@ object Form1: TForm1
         TagFloat = 0
         DepthOfView = 30
         FocalLength = 50
-        NearPlaneBias = 0.10000000149011
+        NearPlaneBias = 0.10000000149012
         TargetObject = DCCamera
         Position.Coordinates = {
           CDCCCC3E9A99993ECDCC4C3E0000803F
@@ -66,7 +67,6 @@ object Form1: TForm1
       XTiles = 3
       YOffset = 0
       YTiles = 3
-      NoZWrite = False
       object GLCube1: TGLCube
         TagFloat = 0
         Material.MaterialLibrary = GLMaterialLibrary
@@ -142,9 +142,9 @@ object Form1: TForm1
         Up.Coordinates = {
           00000000D7B35D3F0100003F00000000
         }
-        BottomRadius = 0.10000000149011
+        BottomRadius = 0.10000000149012
         Height = 1
-        TopRadius = 0.10000000149011
+        TopRadius = 0.10000000149012
         TopArrowHeadHeight = 0.5
         TopArrowHeadRadius = 0.20000000298023
         BottomArrowHeadHeight = 0.5
@@ -156,26 +156,26 @@ object Form1: TForm1
     Materials = <    
       item
         Name = 'walkway'
+        Tag = 0
         Material.Texture.TextureMode = tmModulate
         Material.Texture.FilteringQuality = tfAnisotropic
         Material.Texture.Disabled = False
-        Tag = 0
       end    
       item
         Name = 'rawwall'
+        Tag = 0
         Material.Texture.TextureMode = tmModulate
         Material.Texture.FilteringQuality = tfAnisotropic
         Material.Texture.Disabled = False
-        Tag = 0
         TextureScale.Coordinates = {
           000000400000803F0000803F00000000
         }
       end    
       item
         Name = 'marbletiles'
+        Tag = 0
         Material.Texture.TextureMode = tmModulate
         Material.Texture.Disabled = False
-        Tag = 0
         TextureScale.Coordinates = {
           000040410000803F0000803F00000000
         }

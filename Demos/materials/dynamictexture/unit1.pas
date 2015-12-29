@@ -1,23 +1,24 @@
 {
   GLDynamicTexture Demo.
+  Use F2 and F3 to toggle between PBO and non-PBO updates,
+  if your card supports it.
+  Use F4 to toggle partial updates.
 
   Version history:
+    16/10/07 - LC - Updated to use DirtyRectangle property
+    12/07/07 - DaStr - Restored FPC compatibility
     29/06/07 - DaStr - Initial version (by LordCrc)
 }
 
 unit Unit1;
 
-{$IFDEF FPC}
-{$MODE Delphi}
-{$ENDIF}
-
 interface
 
 uses
-  {$IFDEF LCL} lcltype, LResources, {$ELSE} Windows,{$ENDIF}
-  Messages, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLScene, GLObjects, GLTexture, GLViewer, GLCadencer,
-  ExtCtrls, GLMaterial, GLRenderContextInfo;
+  GLLCLViewer,
+  SysUtils, Classes, Controls, Forms, ExtCtrls,
+  GLScene, GLObjects, GLTexture, GLCadencer, GLCrossPlatform, GLMaterial,
+  GLCoordinates, GLBaseClasses, GLRenderContextInfo;
 
 type
   TForm1 = class(TForm)
@@ -31,15 +32,16 @@ type
     GLDirectOpenGL1: TGLDirectOpenGL;
     GLCadencer1: TGLCadencer;
     Timer1: TTimer;
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormResize(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure GLDirectOpenGL1Render(Sender: TObject; var rci: TRenderContextInfo);
     procedure Timer1Timer(Sender: TObject);
-    procedure GLCadencer1Progress(Sender: TObject; const DeltaTime, newTime: Double);
+    procedure GLCadencer1Progress(Sender: TObject; const DeltaTime, newTime: double);
   private
     { Private declarations }
-    frame: Integer;
+    frame: integer;
+    partial: boolean;
   public
     { Public declarations }
   end;
@@ -49,19 +51,17 @@ var
 
 implementation
 
-{$IFNDEF FPC}
-{$R *.dfm}
-{$ENDIF}
+{$R *.lfm}
 
 uses
-  OpenGL1x, GLUtils, GLContext, GLDynamicTexture;
+  GLUtils, GLContext, GLDynamicTexture, LCLType;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   GLSceneViewer1.Align := alClient;
 end;
 
-procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
 var
   tex: TGLTexture;
   img: TGLDynamicTextureImage;
@@ -77,11 +77,17 @@ begin
     begin
       img.UsePBO := False;
       GLSceneViewer1.ResetPerformanceMonitor;
+      frame := 0;
     end;
     VK_F3:
     begin
       img.UsePBO := True;
       GLSceneViewer1.ResetPerformanceMonitor;
+      frame := 0;
+    end;
+    VK_F4:
+    begin
+      partial := not partial;
     end;
   end;
 end;
@@ -91,17 +97,17 @@ begin
   GLCamera1.SceneScale := GLSceneViewer1.ClientWidth / 400;
 end;
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const DeltaTime, newTime: Double);
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const DeltaTime, newTime: double);
 begin
   GLSceneViewer1.Invalidate;
 end;
 
 procedure TForm1.GLDirectOpenGL1Render(Sender: TObject; var rci: TRenderContextInfo);
 var
-  tex:  TGLTexture;
-  img:  TGLDynamicTextureImage;
-  p:    PRGBQuad;
-  X, Y: Integer;
+  tex: TGLTexture;
+  img: TGLDynamicTextureImage;
+  p: PRGBQuad;
+  X, Y: integer;
 begin
   tex := GLMaterialLibrary1.TextureByName('Anim');
   if tex.Disabled then
@@ -124,9 +130,23 @@ begin
   // draw some silly stuff
   p := img.Data;
   frame := frame + 1;
-  for Y := 0 to img.Height - 1 do
+
+  // first frame must always be drawn completely
+  if partial and (frame > 1) then
   begin
-    for X := 0 to img.Width - 1 do
+    // do partial update, set the dirty rectangle
+    // note that we do NOT offset the p pointer,
+    // since it is relative to the dirty rectangle,
+    // not the complete texture
+    // also note that the right/bottom edge is not included
+    // in the upload
+    img.DirtyRectangle := GLRect(img.Width div 4, img.Height div 4,
+      img.Width * 3 div 4, img.Height * 3 div 4);
+  end;
+
+  for Y := img.DirtyRectangle.Top to img.DirtyRectangle.Bottom - 1 do
+  begin
+    for X := img.DirtyRectangle.Left to img.DirtyRectangle.Right - 1 do
     begin
       p^.rgbRed := ((X xor Y) + frame) and 255;
       p^.rgbGreen := ((X + frame) xor Y) and 255;
@@ -140,11 +160,11 @@ end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 const
-  PBOText: array[Boolean] of string = ('PBO disabled', 'PBO enabled');
+  PBOText: array[boolean] of string = ('PBO disabled', 'PBO enabled');
 var
   tex: TGLTexture;
   img: TGLDynamicTextureImage;
-  s:   string;
+  s: string;
 begin
   tex := GLMaterialLibrary1.TextureByName('Anim');
   if (tex.Image is TGLDynamicTextureImage) then
@@ -157,8 +177,5 @@ begin
   GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
-initialization
-  {$IFDEF LCL}
-  {$i unit1.lrs}
-  {$ENDIF}
 end.
+

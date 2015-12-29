@@ -20,10 +20,13 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLScene, GLExtrusion, VectorGeometry, ExtCtrls, GLMultiPolygon,
-  GLViewer, LResources, GLCadencer;
+  GLCadencer, GLScene, GLExtrusion, GLVectorGeometry, ExtCtrls, GLMultiPolygon,
+  GLLCLViewer, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
+
+  { TForm1 }
+
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -47,6 +50,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
@@ -97,7 +101,4 @@ begin
    GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
-end.
+end.

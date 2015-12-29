@@ -3,14 +3,14 @@
    Note: this sample has been partly obsoleted/superseded by the TGLExtrusionSolid
    (by Uwe Raabe), which allows building such solids directly.
 }
-unit expolygon1;
+unit ExPolygon1;
 
 interface
 
 uses
-  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  VectorGeometry, GLTexture, GLScene, GLObjects, GLGeomObjects, GLMultiPolygon,
-  GLViewer, GLCrossPlatform, GLMaterial, GLCoordinates;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  GLVectorGeometry, GLTexture, GLScene, GLObjects, GLGeomObjects, GLMultiPolygon,
+  GLLCLViewer, GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses;
 
 type
   TVektor = record

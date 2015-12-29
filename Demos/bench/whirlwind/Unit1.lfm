@@ -1,16 +1,13 @@
 object Form1: TForm1
-  Left = 276
+  Left = 395
   Height = 208
-  Top = 126
+  Top = 115
   Width = 228
-  HorzScrollBar.Page = 227
-  VertScrollBar.Page = 207
   Caption = 'Form1'
   ClientHeight = 208
   ClientWidth = 228
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnCreate = FormCreate
   LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
@@ -22,6 +19,7 @@ object Form1: TForm1
     Buffer.DepthTest = False
     FieldOfView = 152.966873168945
     Align = alClient
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 8
@@ -42,11 +40,6 @@ object Form1: TForm1
         TurnAngle = 0
         OnProgress = DummyCube1Progress
         CubeSize = 1
-        BehavioursData = {
-          0201060B54474C42496E657274696102000200050000000000000080FF3F0200
-          0805000000000000000000000500000000000000000000050000000000000000
-          000008020008020008
-        }
         object Sprite1: TGLSprite
           TagFloat = 0
           Material.FrontProperties.Ambient.Color = {
@@ -57,9 +50,6 @@ object Form1: TForm1
           }
           Material.FrontProperties.Emission.Color = {
             0000803F0000803F0000803F0000803F
-          }
-          Material.Texture.MappingTCoordinates.Coordinates = {
-            000000000000803F0000000000000000
           }
           PitchAngle = 0
           RollAngle = 0
@@ -95,4 +85,4 @@ object Form1: TForm1
     left = 40
     top = 8
   end
-end
+end

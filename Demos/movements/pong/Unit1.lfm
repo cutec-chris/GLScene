@@ -1,26 +1,27 @@
 object Form1: TForm1
-  Left = 403
-  Height = 266
-  Top = 262
-  Width = 519
-  HorzScrollBar.Page = 499
-  VertScrollBar.Page = 245
+  Left = 117
+  Height = 246
+  Top = 93
+  Width = 500
+  BorderWidth = 5
   Caption = 'Form1'
-  ClientHeight = 266
-  ClientWidth = 519
+  ClientHeight = 246
+  ClientWidth = 500
+  Color = clBtnFace
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '1.5'
+  LCLVersion = '0.9.31'
   object GLSceneViewer1: TGLSceneViewer
-    Left = 0
-    Height = 266
-    Top = 0
-    Width = 519
+    Left = 5
+    Height = 236
+    Top = 5
+    Width = 490
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
     Buffer.ContextOptions = [roDoubleBuffer, roStencilBuffer, roRenderToWindow]
-    FieldOfView = 138.793518066406
+    FieldOfView = 134.072463989258
     Align = alClient
     OnMouseMove = GLSceneViewer1MouseMove
     TabOrder = 0
@@ -47,7 +48,7 @@ object Form1: TForm1
           EffectiveRadius = 0
           Caster = Pad
         end>
-      Options = [svoCacheSilhouettes, svoScissorClips, svoWorldScissorClip]
+      Options = [svoCacheSilhouettes, svoWorldScissorClip, svoDesignVisible]
       object Plane1: TGLPlane
         TagFloat = 0
         Material.MaterialLibrary = GLMaterialLibrary1
@@ -112,7 +113,7 @@ object Form1: TForm1
         PitchAngle = 0
         RollAngle = 0
         TurnAngle = 0
-        Radius = 0.400000005960464
+        Radius = 0.40000000596046
         Slices = 12
         Stacks = 9
       end
@@ -167,37 +168,78 @@ object Form1: TForm1
       SpotCutOff = 180
       SpotExponent = 0
     end
+    object SpaceText1: TGLSpaceText
+      TagFloat = 0
+      Material.FrontProperties.Ambient.Color = {
+        0000000000000000000000000000803F
+      }
+      Material.FrontProperties.Diffuse.Color = {
+        0000803F0000803F000000000000803F
+      }
+      Material.FrontProperties.Emission.Color = {
+        0000000000000000A1A0203F0000803F
+      }
+      Material.FrontProperties.Shininess = 75
+      Direction.Coordinates = {
+        00000000EA4677BFEE83843E00000000
+      }
+      PitchAngle = 0
+      Position.Coordinates = {
+        0000C0BF00000000000060400000803F
+      }
+      RollAngle = 0
+      Scale.Coordinates = {
+        000000400000803F0000803F00000000
+      }
+      TurnAngle = 0
+      Up.Coordinates = {
+        00000000EE83843EEA46773F00000000
+      }
+      Extrusion = 1
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Arial'
+      Font.Style = [fsBold]
+      Lines.Strings = (
+        '000'
+      )
+      allowedDeviation = 1
+      CharacterRange = stcrNumbers
+      AspectRatio = 0
+      TextHeight = 0
+      Oblique = 0
+    end
   end
   object GLMaterialLibrary1: TGLMaterialLibrary
     Materials = <    
       item
         Name = 'Mat'
+        Tag = 0
         Material.FrontProperties.Diffuse.Color = {
           000000000000803F000000000000803F
         }
-        Tag = 0
       end    
       item
         Name = 'Edge'
+        Tag = 0
         Material.FrontProperties.Diffuse.Color = {
           0000803FBDBCBC3EF1F0F03D0000803F
         }
-        Tag = 0
       end    
       item
         Name = 'Ball'
+        Tag = 0
         Material.FrontProperties.Shininess = 75
         Material.FrontProperties.Specular.Color = {
           0000803F0000803F0000803F0000803F
         }
-        Tag = 0
       end    
       item
         Name = 'Pad'
+        Tag = 0
         Material.FrontProperties.Diffuse.Color = {
           00000000000000000000803F0000803F
         }
-        Tag = 0
       end>
     left = 8
     top = 72

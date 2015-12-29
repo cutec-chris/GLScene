@@ -3,14 +3,14 @@ object Form1: TForm1
   Height = 353
   Top = 117
   Width = 540
-  HorzScrollBar.Page = 539
-  VertScrollBar.Page = 352
   Caption = 'Lining Shaders'
   ClientHeight = 353
   ClientWidth = 540
+  Color = clBtnFace
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 353
@@ -18,10 +18,11 @@ object Form1: TForm1
     Width = 385
     Camera = GLCamera1
     Buffer.AntiAliasing = aa4xHQ
-    FieldOfView = 148.366622924804
+    FieldOfView = 148.366622924805
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object Panel1: TPanel
     Left = 385
@@ -33,11 +34,11 @@ object Form1: TForm1
     ClientHeight = 353
     ClientWidth = 155
     Font.CharSet = ANSI_CHARSET
+    Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Tahoma'
-    FullRepaint = False
     ParentFont = False
-    TabOrder = 0
+    TabOrder = 1
     object Label1: TLabel
       Left = 17
       Height = 14
@@ -71,7 +72,7 @@ object Form1: TForm1
     end
     object CheckBox1: TCheckBox
       Left = 9
-      Height = 17
+      Height = 19
       Top = 186
       Width = 132
       Caption = 'Outline Shader Enabled'
@@ -89,6 +90,7 @@ object Form1: TForm1
       ClientHeight = 108
       ClientWidth = 133
       Font.CharSet = ANSI_CHARSET
+      Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       ParentFont = False
@@ -102,7 +104,7 @@ object Form1: TForm1
       end
       object CheckBox2: TCheckBox
         Left = 10
-        Height = 17
+        Height = 19
         Top = 16
         Width = 58
         Caption = 'Enabled'
@@ -113,7 +115,7 @@ object Form1: TForm1
       end
       object CheckBox3: TCheckBox
         Left = 10
-        Height = 17
+        Height = 19
         Top = 56
         Width = 42
         Caption = 'Solid'
@@ -122,7 +124,7 @@ object Form1: TForm1
       end
       object CheckBox4: TCheckBox
         Left = 10
-        Height = 17
+        Height = 19
         Top = 32
         Width = 111
         Caption = 'Dotted Hidden Line'
@@ -132,8 +134,8 @@ object Form1: TForm1
         TabOrder = 2
       end
       object CheckBox5: TCheckBox
-        Left = 10
-        Height = 17
+        Left = 26
+        Height = 19
         Top = 72
         Width = 71
         Caption = 'Surface Lit'
@@ -141,9 +143,9 @@ object Form1: TForm1
         TabOrder = 3
       end
       object CheckBox6: TCheckBox
-        Left = 10
-        Height = 17
-        Top = 86
+        Left = 26
+        Height = 19
+        Top = 88
         Width = 38
         Caption = 'Flat'
         OnClick = CheckBox6Click
@@ -160,10 +162,10 @@ object Form1: TForm1
       Caption = 'Lining Shaders'
       Color = clBtnHighlight
       Font.CharSet = ANSI_CHARSET
+      Font.Color = clWindowText
       Font.Height = -19
       Font.Name = 'Trebuchet MS'
       Font.Style = [fsBold]
-      FullRepaint = False
       ParentColor = False
       ParentFont = False
       TabOrder = 2
@@ -205,6 +207,9 @@ object Form1: TForm1
       }
       MajorRadius = 2.5
       MinorRadius = 1.5
+      StartAngle = 0
+      StopAngle = 360
+      Parts = [toSides, toStartDisk, toStopDisk]
     end
     object Sphere1: TGLSphere
       TagFloat = 0
@@ -229,8 +234,8 @@ object Form1: TForm1
       TurnAngle = 0
       BottomRadius = 0.5
       Height = 1
-      BottomInnerRadius = 0.30000001192092
-      TopInnerRadius = 0.30000001192092
+      BottomInnerRadius = 0.30000001192093
+      TopInnerRadius = 0.30000001192093
       TopRadius = 0.5
     end
     object GLAnnulusPink: TGLAnnulus
@@ -248,8 +253,8 @@ object Form1: TForm1
       TurnAngle = 0
       BottomRadius = 0.5
       Height = 1
-      BottomInnerRadius = 0.30000001192092
-      TopInnerRadius = 0.30000001192092
+      BottomInnerRadius = 0.30000001192093
+      TopInnerRadius = 0.30000001192093
       TopRadius = 0.5
     end
     object GLAnnulusDotted: TGLAnnulus
@@ -267,8 +272,8 @@ object Form1: TForm1
       TurnAngle = 0
       BottomRadius = 0.5
       Height = 1
-      BottomInnerRadius = 0.30000001192092
-      TopInnerRadius = 0.30000001192092
+      BottomInnerRadius = 0.30000001192093
+      TopInnerRadius = 0.30000001192093
       TopRadius = 0.5
     end
     object GLCubeGreen: TGLCube
@@ -313,6 +318,7 @@ object Form1: TForm1
     Materials = <    
       item
         Name = 'LibMaterial'
+        Tag = 0
         Material.FrontProperties.Ambient.Color = {
           9190903D9190903D8786863E0000803F
         }
@@ -320,7 +326,6 @@ object Form1: TForm1
           9796163F0000803F0000803F0000803F
         }
         Material.FrontProperties.Shininess = 128
-        Tag = 0
         Shader = GLOutlineShader1
       end    
       item
@@ -330,6 +335,7 @@ object Form1: TForm1
       end    
       item
         Name = 'LibMaterial2'
+        Tag = 0
         Material.FrontProperties.Ambient.Color = {
           C5C4443EBFBEBE3EB5B4343E0000803F
         }
@@ -341,7 +347,6 @@ object Form1: TForm1
           0000803F0000803F0000803F0000803F
         }
         Material.BlendingMode = bmTransparency
-        Tag = 0
         Shader = GLHiddenLineShader2
       end    
       item
@@ -356,11 +361,11 @@ object Form1: TForm1
       end    
       item
         Name = 'LibMaterial5'
+        Tag = 0
         Material.FrontProperties.Diffuse.Color = {
           9998183E9796163F9190103E17D92E3F
         }
         Material.BlendingMode = bmTransparency
-        Tag = 0
         Shader = GLHiddenLineShader5
       end>
     left = 8

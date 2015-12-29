@@ -17,14 +17,13 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  GLColor, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLObjects, StdCtrls, ExtCtrls, GLTexture, GLCadencer,
-  GLViewer, ComCtrls, GLGeomObjects, LResources, Buttons, GLScene;
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  GLScene, GLObjects, StdCtrls, ExtCtrls, GLTexture, GLCadencer,
+  GLLCLViewer, ComCtrls, GLGeomObjects, GLColor, GLCrossPlatform,
+  GLCoordinates, GLBaseClasses;
 
 type
 
@@ -66,8 +65,9 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses VectorGeometry, Polynomials, GLCrossPlatform;
+uses GLVectorGeometry, Polynomials;
 
 procedure TForm1.BUCastClick(Sender: TObject);
 var
@@ -131,7 +131,6 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-
 end;
 
 procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
@@ -140,7 +139,4 @@ begin
    DummyCube1.TurnAngle:=newTime*50;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
-end.
+end.

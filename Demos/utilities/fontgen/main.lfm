@@ -1,0 +1,99 @@
+object frmMain: TfrmMain
+  Left = 277
+  Height = 363
+  Top = 178
+  Width = 378
+  BorderStyle = bsSingle
+  Caption = 'FontGen for GLScene'
+  ClientHeight = 363
+  ClientWidth = 378
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.29'
+  object GroupBox1: TGroupBox
+    Left = 6
+    Height = 109
+    Top = 8
+    Width = 363
+    Caption = '1. Select Windows font :'
+    ClientHeight = 91
+    ClientWidth = 359
+    TabOrder = 0
+    object Panel1: TPanel
+      Left = 10
+      Height = 41
+      Top = 20
+      Width = 343
+      BevelOuter = bvLowered
+      Caption = 'Sample AaBbCcDd'
+      Font.CharSet = RUSSIAN_CHARSET
+      Font.Height = -11
+      Font.Name = 'Arial'
+      ParentFont = False
+      TabOrder = 0
+    end
+    object Button1: TButton
+      Left = 142
+      Height = 25
+      Top = 70
+      Width = 75
+      Caption = 'Select...'
+      OnClick = Button1Click
+      TabOrder = 1
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 6
+    Height = 169
+    Top = 120
+    Width = 363
+    Caption = '2. Check glyphs'
+    ClientHeight = 151
+    ClientWidth = 359
+    TabOrder = 1
+    object Image1: TImage
+      Left = 0
+      Height = 151
+      Top = 0
+      Width = 359
+      Align = alClient
+      Center = True
+    end
+  end
+  object GroupBox3: TGroupBox
+    Left = 6
+    Height = 65
+    Top = 290
+    Width = 363
+    Caption = '3. Save font:'
+    ClientHeight = 47
+    ClientWidth = 359
+    TabOrder = 2
+    object Button2: TButton
+      Left = 150
+      Height = 25
+      Top = 24
+      Width = 75
+      Caption = 'Save...'
+      OnClick = Button2Click
+      TabOrder = 0
+    end
+  end
+  object FontDialog1: TFontDialog
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    MinFontSize = 0
+    MaxFontSize = 0
+    left = 264
+    top = 82
+  end
+  object SaveDialog1: TSaveDialog
+    Title = 'Save font'
+    DefaultExt = '.gsf'
+    FileName = 'font'
+    Filter = 'GlScene Font|*.gsf|All Files|*.*'
+    left = 290
+    top = 310
+  end
+end

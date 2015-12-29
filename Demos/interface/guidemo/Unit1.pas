@@ -34,15 +34,13 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLHUDObjects, GLObjects, GLCadencer, ExtCtrls,
-  GLBitmapFont, GLViewer, GLWindowsFont, Menus, GLWindows, GLGui,
-  GLTexture, LResources, GLScene, GLMaterial;
+  GLScene, GLHUDObjects, GLObjects, GLCadencer, ExtCtrls,
+  GLBitmapFont, GLLCLViewer, GLWindowsFont, Menus, GLWindows, GLGui,
+  GLTexture, GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -90,8 +88,7 @@ var
 
 implementation
 
-
-uses GLCrossPlatform;
+{$R *.lfm}
 
 procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
   newTime: Double);
@@ -158,7 +155,4 @@ begin
   GLEdit1.Caption := OldCaption;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
-end.
+end.

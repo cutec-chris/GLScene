@@ -3,8 +3,11 @@ program ocean;
 {$MODE Delphi}
 
 uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
   Forms, Interfaces,
-  unit1, glscene_designtime, glscene_runtime;
+  unit1;
 
 {$R *.res}
 

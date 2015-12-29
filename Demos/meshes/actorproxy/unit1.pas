@@ -7,7 +7,7 @@
                           the TGLActorProxy component.
 
 }
-unit unit1;
+unit Unit1;
 
 
 interface
@@ -15,8 +15,9 @@ interface
 uses
   SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, GLScene, GLProxyObjects, GLVectorFileObjects, GLObjects,
-  VectorGeometry, ExtCtrls, GLCadencer, GLTexture, GLGeomObjects, GLViewer,
-  GLFileSMD, StdCtrls, GLCrossPlatform, GLMaterial, GLCoordinates;
+  GLVectorGeometry, ExtCtrls, GLCadencer, GLTexture, GLGeomObjects, GLLCLViewer,
+  GLFileSMD, StdCtrls, GLCrossPlatform, GLMaterial, GLCoordinates,
+  GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -59,20 +60,14 @@ implementation
 
 {$R *.lfm}
 
-uses
-  FileUtil;
+uses GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
   i: integer;
-  path: UTF8String;
-  p: integer;
 begin
-  path := ExtractFilePath(ParamStrUTF8(0));
-  p := Pos('DemosLCL', path);
-  Delete(path, p + 5, Length(path));
-  path := IncludeTrailingPathDelimiter(path) + IncludeTrailingPathDelimiter('media');
-  SetCurrentDirUTF8(path);
+  SetGLSceneMediaDir();
+
   MasterActor.LoadFromFile('TRINITYrage.smd');
   MasterActor.AddDataFromFile('run.smd');
   MasterActor.AddDataFromFile('jump.smd');
@@ -156,3 +151,4 @@ begin
 end;
 
 end.
+

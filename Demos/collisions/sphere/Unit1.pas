@@ -12,19 +12,18 @@ unit Unit1;
 interface
 
 uses
-  Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLScene, GLObjects, GLCollision, ComCtrls, StdCtrls,
-  LResources, GLViewer, Buttons, GLCadencer;
+  GLLCLViewer, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
-    GLCadencer1: TGLCadencer;
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
-    CollisionManager1: TCollisionManager;
+    CollisionManager1: TGLCollisionManager;
     GLCamera1: TGLCamera;
     GLLightSource1: TGLLightSource;
     DummyCube1: TGLDummyCube;
@@ -48,15 +47,17 @@ var
 
 implementation
 
+{$R *.lfm}
+
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  GLSceneViewer1.Invalidate;
+end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
 begin
    Sphere1.Position.Z:=TrackBar1.Position/10;
-end;
-
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -70,7 +71,4 @@ begin
    ShowMessage('Collision between '+object1.Name+' and '+object2.Name);
 end;
 
-initialization
-  {$i Unit1.lrs}
-
-end.
+end.

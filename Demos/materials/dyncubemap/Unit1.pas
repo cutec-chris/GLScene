@@ -20,20 +20,15 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  Messages, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLObjects, GLScene, StdCtrls, GLSkydome,
+  SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLObjects, GLScene, GLLCLViewer, StdCtrls, GLSkydome,
   ExtCtrls, GLCadencer, GLParticleFX, OpenGL1x, GLTeapot, GLGeomObjects,
-  LResources, GLViewer;
+  GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -51,21 +46,20 @@ type
     Timer1: TTimer;
     Panel1: TPanel;
     CBDynamic: TCheckBox;
-    procedure Form1Create(Sender: TObject);
-    procedure GLSceneViewer1MouseDown(Sender: TObject;
-      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
+      X, Y: integer);
     procedure Timer1Timer(Sender: TObject);
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure GLCadencer1Progress(Sender: TObject;
+      const deltaTime, newTime: double);
   private
     { Private declarations }
     procedure GenerateCubeMap;
   public
     { Public declarations }
-    mx, my : Integer;
-    cubeMapWarnDone : Boolean;
+    mx, my: integer;
+    cubeMapWarnDone: boolean;
   end;
 
 var
@@ -73,73 +67,70 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.GenerateCubeMap;
 begin
-   // Don't do anything if cube maps aren't supported
-   if not GL_ARB_texture_cube_map then begin
-      if not cubeMapWarnDone then
-         ShowMessage('Your graphics hardware does not support cube maps...');
-      cubeMapWarnDone:=True;
-      Exit;
-   end;
-   // Here we generate the new cube map, from CubeMapCamera (a child of the
-   // teapot in the scene hierarchy)
-   with Teapot1 do begin
-      // hide the teapot while rendering the cube map
-      Visible:=False;
-      // render cube map to the teapot's texture
-      GLMemoryViewer1.RenderCubeMapTextures(Material.Texture);
-      // teapot visible again
-      Material.Texture.Disabled:=False;
-      Visible:=True;
-   end;
+  // Don't do anything if cube maps aren't supported
+  if not GLSceneViewer1.Buffer.RenderingContext.GL.ARB_texture_cube_map then
+  begin
+    if not cubeMapWarnDone then
+      ShowMessage('Your graphics hardware does not support cube maps...');
+    cubeMapWarnDone := True;
+    Exit;
+  end;
+  // Here we generate the new cube map, from CubeMapCamera (a child of the
+  // teapot in the scene hierarchy)
+  with Teapot1 do
+  begin
+    // hide the teapot while rendering the cube map
+    Visible := False;
+    // render cube map to the teapot's texture
+    GLMemoryViewer1.RenderCubeMapTextures(Material.Texture);
+    // teapot visible again
+    Material.Texture.Disabled := False;
+    Visible := True;
+  end;
 end;
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime, newTime: double);
 begin
-   if CBDynamic.Checked then begin
-      // make things move
-      Teapot1.Position.Y:=2*Sin(newTime);
-      Torus1.RollAngle:=newTime*15;
-      // generate the cube map
-      GenerateCubeMap;
-   end;
-   GLSceneViewer1.Invalidate;
+  if CBDynamic.Checked then
+  begin
+    // make things move
+    Teapot1.Position.Y := 2 * Sin(newTime);
+    Torus1.RollAngle := newTime * 15;
+    // generate the cube map
+    GenerateCubeMap;
+  end;
+  GLSceneViewer1.Invalidate;
 end;
 
 // Standard issue mouse movement
 
-procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: integer);
 begin
-   mx:=x;
-   my:=y;
+  mx := x;
+  my := y;
 end;
 
-procedure TForm1.Form1Create(Sender: TObject);
+procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: integer);
 begin
-  GLSceneViewer1.Invalidate;
-end;
-
-procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
-begin
-   if Shift<>[] then begin
-      GLCamera1.MoveAroundTarget(my-y, mx-x);
-      mx:=x;
-      my:=y;
-   end;
+  if Shift <> [] then
+  begin
+    GLCamera1.MoveAroundTarget(my - y, mx - x);
+    mx := x;
+    my := y;
+  end;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-   Caption:=Format('%.1f FPS', [GLSceneViewer1.FramesPerSecond]);
-   GLSceneViewer1.ResetPerformanceMonitor;
+  Caption := Format('%.1f FPS', [GLSceneViewer1.FramesPerSecond]);
+  GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

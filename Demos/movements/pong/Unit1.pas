@@ -8,19 +8,14 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  LCLIntf, Forms, GLObjects, GLTexture, VectorGeometry, ExtCtrls,
-  Classes, Controls, GLShadowPlane, GLShadowVolume, LResources,
-  GLScene, GLCadencer, GLViewer, GLMaterial;
+  Forms, GLScene, GLObjects, GLTexture, GLVectorGeometry, ExtCtrls,
+  Classes, Controls, GLCadencer, GLLCLViewer, GLSpaceText, GLShadowPlane,
+  GLShadowVolume, GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -34,6 +29,7 @@ type
 	 GLLightSource1: TGLLightSource;
 	 GLMaterialLibrary1: TGLMaterialLibrary;
     Pad: TGLCube;
+    SpaceText1: TGLSpaceText;
     Timer1: TTimer;
     GLCadencer1: TGLCadencer;
     GLShadowVolume: TGLShadowVolume;
@@ -58,6 +54,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 uses SysUtils, Dialogs;
 
@@ -111,22 +108,23 @@ begin
 		// ( note : VectorCombine(v1, v2, f1, f2)=v1*f1+v2*f2 )
 		newBallPos:=VectorCombine(Ball.Position.AsVector, ballVector, 1, deltaTime);
 		// check collision with edges
-		if newBallPos[0]<-7.05 then
-			ballVector[0]:=-ballVector[0]
-		else if newBallPos[0]>7.05 then
-			ballVector[0]:=-ballVector[0]
-		else if newBallPos[1]>4.55 then
-			ballVector[1]:=-ballVector[1];
+		if newBallPos.X<-7.05 then
+			ballVector.X:=-ballVector.X
+		else if newBallPos.X>7.05 then
+			ballVector.X:=-ballVector.X
+		else if newBallPos.Y>4.55 then
+			ballVector.Y:=-ballVector.Y;
 		// check collision with pad
-		if newBallPos[1]<-4 then begin
-			if (newBallPos[0]>Pad.Position.X-1.25) and (newBallPos[0]<Pad.Position.X+1.25) then begin
+		if newBallPos.Y<-4 then begin
+			if (newBallPos.X>Pad.Position.X-1.25) and (newBallPos.X<Pad.Position.X+1.25) then begin
 				// when ball bumps the pad, it is accelerated and the vector
 				// is slightly randomized
-				ballVector[1]:=-ballVector[1];
-				ballVector[0]:=ballVector[0]+(Random(100)-50)/50;
-				ballVector[1]:=ballVector[1]+0.1;
+				ballVector.Y:=-ballVector.Y;
+				ballVector.X:=ballVector.X+(Random(100)-50)/50;
+				ballVector.Y:=ballVector.Y+0.1;
 				// ...and of course a point is scored !
 				Inc(score);
+				SpaceText1.Text:=Format('%.3d', [score]);
 			end else begin
 				// ball missed !
 				gameOver:=True;
@@ -156,8 +154,5 @@ begin
 		end else Close;
 	end;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

@@ -10,15 +10,15 @@
    Use the resolution slider to increase or decrease the models triangle
    count dynamically.<p>
 }
-unit unit1;
+unit Unit1;
 
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLScene, GLVectorFileObjects, GLObjects, GLViewer,
+  Dialogs, GLScene, GLVectorFileObjects, GLObjects, GLLCLViewer,
   ExtCtrls, ComCtrls, StdCtrls, GLTexture, GLCrossPlatform, GLCoordinates,
-  GLMaterial, GLState;
+  GLBaseClasses, GLMaterial, GLState;
 
 type
   TForm1 = class(TForm)
@@ -53,19 +53,13 @@ implementation
 
 {$R *.lfm}
 
-uses FileUtil, GLFileNurbs, GLParametricSurfaces, VectorGeometry, VectorLists;
+uses GLFileNurbs, GLParametricSurfaces, GLVectorGeometry, GLVectorLists, GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
   cp: TAffineVectorList;
-  path: UTF8String;
-  p: integer;
 begin
-  path := ExtractFilePath(ParamStrUTF8(0));
-  p := Pos('DemosLCL', path);
-  Delete(path, p + 5, Length(path));
-  path := IncludeTrailingPathDelimiter(path) + IncludeTrailingPathDelimiter('media');
-  SetCurrentDirUTF8(path);
+  SetGLSceneMediaDir();
 
   // Load the nurbs data
   GLActor1.LoadFromFile('duck1.nurbs');
@@ -98,12 +92,9 @@ procedure TForm1.TrackBar1Change(Sender: TObject);
 var
   i: integer;
 begin
-  if Assigned(GLActor1) then
-  begin
-    for i := 0 to 2 do
-      TMOParametricSurface(GLActor1.MeshObjects[i]).Resolution := TrackBar1.Position;
-    GLActor1.StructureChanged;
-  end;
+  for i := 0 to 2 do
+    TMOParametricSurface(GLActor1.MeshObjects[i]).Resolution := TrackBar1.Position;
+  GLActor1.StructureChanged;
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);

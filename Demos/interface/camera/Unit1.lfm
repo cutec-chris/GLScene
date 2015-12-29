@@ -1,25 +1,25 @@
 object Form1: TForm1
-  Left = 364
+  Left = 379
   Height = 308
-  Top = 245
+  Top = 111
   Width = 377
-  HorzScrollBar.Page = 376
-  VertScrollBar.Page = 307
+  BorderWidth = 6
   Caption = 'Form1'
   ClientHeight = 308
   ClientWidth = 377
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnKeyPress = FormKeyPress
-  LCLVersion = '1.5'
+  OnMouseWheel = FormMouseWheel
+  LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
-    Left = 0
-    Height = 308
-    Top = 0
-    Width = 377
+    Left = 6
+    Height = 296
+    Top = 6
+    Width = 365
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
-    FieldOfView = 42.113410949707
+    FieldOfView = 40.6089477539062
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
@@ -82,4 +82,4 @@ object Form1: TForm1
       end
     end
   end
-end
+end

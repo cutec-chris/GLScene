@@ -22,9 +22,9 @@ uses
 
   // GLScene
   GLTexture, GLCadencer, GLViewer, GLScene, GLObjects, GLGraph,
-  VectorTypes, GLUserShader, GLUtils, GLContext, VectorGeometry, GLGeomObjects,
+  GLVectorTypes, GLUserShader, GLContext, GLVectorGeometry, GLGeomObjects,
   GLVectorFileObjects, GLSLDiffuseSpecularShader, GLSLShader, GLCustomShader,
-  GLSimpleNavigation, GLCrossPlatform, GLMaterial, GLCoordinates, BaseClasses,
+  GLSimpleNavigation, GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses,
 
   // FileFormats
   GLFileMD2, GLFileMS3D, GLFile3DS;
@@ -84,19 +84,11 @@ implementation
 {$R *.lfm}
 
 uses
-  FileUtil;
+  GLUtils;
 
 procedure TGLSLTestForm.FormCreate(Sender: TObject);
-var
-  path: UTF8String;
-  p: Integer;
-  I: Integer;
 begin
-  path := ExtractFilePath(ParamStrUTF8(0));
-  p := Pos('DemosLCL', path);
-  Delete(path, p+5, Length(path));
-  path := IncludeTrailingPathDelimiter(path) + 'media';
-  SetCurrentDirUTF8(path);
+  SetGLSceneMediaDir();
   // First load models.
   Fighter.LoadFromFile('waste.md2'); //Fighter
   Fighter.SwitchToAnimation(0, True);
@@ -106,10 +98,10 @@ begin
   Teapot.LoadFromFile('teapot.3ds'); //Teapot (no texture coordinates)
   Teapot.Scale.Scale(0.8);
 
-  Sphere_big.LoadFromFile('Sphere_big.3ds'); //Sphere_big
+  Sphere_big.LoadFromFile('Sphere_big.3DS'); //Sphere_big
   Sphere_big.Scale.Scale(70);
 
-  Sphere_little.LoadFromFile('Sphere_little.3ds'); //Sphere_little
+  Sphere_little.LoadFromFile('Sphere_little.3DS'); //Sphere_little
   Sphere_little.Scale.Scale(4);
 
   MaterialLibrary.LibMaterialByName('Earth').Material.Texture.Image.LoadFromFile('Earth.jpg');

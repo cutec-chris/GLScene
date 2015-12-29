@@ -25,15 +25,12 @@ unit Unit1;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLObjects, GLCadencer, GLTexture, GLCgShader,
-  GLViewer, CgGL, GLVectorFileObjects, JPEG, LResources,
-  GLScene, ExtCtrls, GLMaterial;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLScene, GLObjects, GLCadencer, GLTexture, GLCgShader,
+  GLLCLViewer, CgGL, GLVectorFileObjects, GLAsyncTimer,
+  GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -44,7 +41,7 @@ type
     GLDummyCube1: TGLDummyCube;
     GLLightSource1: TGLLightSource;
     GLActor1: TGLActor;
-    Timer1: TTimer;
+    AsyncTimer1: TGLAsyncTimer;
     procedure GLSceneViewer1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
@@ -54,7 +51,7 @@ type
     procedure CgCellShaderInitialize(CgShader: TCustomCgShader);
     procedure CgCellShaderApplyFP(CgProgram: TCgProgram; Sender: TObject);
     procedure CgCellShaderUnApplyFP(CgProgram: TCgProgram);
-    procedure Timer1Timer(Sender: TObject);
+    procedure AsyncTimer1Timer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -67,25 +64,35 @@ var
 
 implementation
 
+{$R *.lfm}
 
 uses
-  GLFileMD2;
+  GLFileMD2, FileUtil;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
   r : Single;
+  path: UTF8String;
+  p: Integer;
 begin
-  // Load the vertex and fragment Cg programs
-  CgCellShader.VertexProgram.LoadFromFile('cellshading_vp.cg');
-  CgCellShader.FragmentProgram.LoadFromFile('cellshading_fp.cg');
+   path := ExtractFilePath(ParamStrUTF8(0));
+   SetCurrentDirUTF8(path);
+   // Load the vertex and fragment Cg programs
+   CgCellShader.VertexProgram.LoadFromFile('cellshading_vp.cg');
+   CgCellShader.FragmentProgram.LoadFromFile('cellshading_fp.cg');
+   p := Pos('DemosLCL', path);
+   Delete(path, p+5, Length(path));
+   path := IncludeTrailingPathDelimiter(path) + 'media';
+   SetCurrentDirUTF8(path);
+
 
   // Load and scale the actor
-  GLActor1.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'waste.md2');
+  GLActor1.LoadFromFile('waste.md2');
   r:=GLActor1.BoundingSphereRadius;
   GLActor1.Scale.SetVector(2.5/r,2.5/r,2.5/r);
   GLActor1.AnimationMode:=aamLoop;
   // Load the texture
-  GLMaterialLibrary1.Materials[0].Material.Texture.Image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'wastecell.jpg');
+  GLMaterialLibrary1.Materials[0].Material.Texture.Image.LoadFromFile('wastecell.jpg');
 end;
 
 procedure TForm1.CgCellShaderApplyVP(CgProgram: TCgProgram; Sender: TObject);
@@ -133,13 +140,10 @@ begin
   my:=y;
 end;
 
-procedure TForm1.Timer1Timer(Sender: TObject);
+procedure TForm1.AsyncTimer1Timer(Sender: TObject);
 begin
   Form1.Caption:=Format('Cg Cell Shading Demo - %.2f FPS',[GLSceneViewer1.FramesPerSecond]);
   GLSceneViewer1.ResetPerformanceMonitor;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

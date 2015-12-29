@@ -9,14 +9,12 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLObjects, GLScene, StdCtrls, VectorGeometry, GLCadencer, GLViewer,
-  GLGeomObjects, LResources;
+  GLObjects, GLScene, StdCtrls, GLVectorGeometry, GLCadencer, GLLCLViewer,
+  GLGeomObjects, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -34,8 +32,8 @@ type
     Lines1: TGLLines;
     Plane1: TGLPlane;
     Lines2: TGLLines;
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure GLCadencer1Progress(Sender: TObject;
+      const deltaTime, newTime: double);
   private
     { Déclarations privées }
   public
@@ -47,22 +45,20 @@ var
 
 implementation
 
+{$R *.lfm}
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime, newTime: double);
 begin
-   // Make the blue sphere turn and ride a sin
-   DCSphere.Turn(deltaTime*30);
-   Sphere.Position.Y:=Sin(DegToRad(newTime*50))*3;
+  // Make the blue sphere turn and ride a sin
+  DCSphere.Turn(deltaTime * 30);
+  Sphere.Position.Y := Sin(DegToRad(newTime * 50)) * 3;
 
-   // Make the arrow turn
-   DCArrow.Turn(-deltaTime*15);
+  // Make the arrow turn
+  DCArrow.Turn(-deltaTime * 15);
 
-   // Make the arrow point toward the sphere, using Y as up reference
-   ArrowLine.PointTo(Sphere, YHmgVector);
+  // Make the arrow point toward the sphere, using Y as up reference
+  ArrowLine.PointTo(Sphere, YHmgVector);
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

@@ -10,20 +10,15 @@
 
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLScene, GLObjects, GLTexture, OpenGL1x,
+  Dialogs, GLScene, GLObjects, GLLCLViewer, GLTexture,
   StdCtrls, GLGeomObjects, GLHiddenLineShader, GLOutlineShader, ExtCtrls,
-  LResources, GLViewer, GLMaterial;
+  GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -79,6 +74,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
 begin
@@ -136,8 +132,5 @@ begin
       GLCamera1.RotateTarget(my-y, mx-x);
    mx:=x; my:=y;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

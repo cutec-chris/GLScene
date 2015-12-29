@@ -12,14 +12,12 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLObjects, GLExtrusion, GLCadencer, StdCtrls, ExtCtrls,
-  LResources, GLViewer, GLScene;
+  GLScene, GLObjects, GLExtrusion, GLCadencer, StdCtrls, ExtCtrls,
+  GLLCLViewer, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -53,8 +51,9 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses VectorGeometry;
+uses GLVectorGeometry;
 
 procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
   newTime: Double);
@@ -94,7 +93,4 @@ begin
    end;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
-end.
+end.

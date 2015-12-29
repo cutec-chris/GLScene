@@ -5,17 +5,15 @@
 
 unit fQuadtreeVisCulling;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  SysUtils, Classes, Graphics, Controls, Forms, LCLType,
-  Dialogs, GLScene, GLViewer, GLSkydome, GLObjects,  jpeg, glkeyboard,
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLScene, GLLCLViewer, GLSkydome, GLObjects, GLKeyboard,
   GLHeightData, GLTerrainRenderer, GLTexture, GLCadencer, GLNavigator,
-  SpatialPartitioning, VectorGeometry, ExtCtrls, GLBitmapFont, GeometryBB,
-  GLWindowsFont, GLHUDObjects, StdCtrls, ComCtrls, OpenGL1x, LResources,
-  GLMaterial, GLRenderContextInfo;
+  SpatialPartitioning, GLVectorGeometry, ExtCtrls, GLBitmapFont, GeometryBB,
+  GLWindowsFont, GLHUDObjects, StdCtrls, ComCtrls,
+  GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses, GLRenderContextInfo;
 
 type
   TfrmQuadtreeVisCulling = class(TForm)
@@ -73,8 +71,9 @@ var
 
 implementation
 
-uses GLSpatialPartitioning;
+uses GLSpatialPartitioning, GLUtils;
 
+{$R *.lfm}
 
 procedure TfrmQuadtreeVisCulling.GLCadencer1Progress(Sender: TObject; const deltaTime,
   newTime: Double);
@@ -118,10 +117,11 @@ begin
   tree.visible := false;
   trees.ObjectsSorting := osRenderFarthestFirst;
 
-  GLBitmapHDS1.Picture.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'terrain.bmp');
-  GLMaterialLibrary1.Materials[0].Material.Texture.Image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'snow512.jpg');
-  GLMaterialLibrary1.Materials[1].Material.Texture.Image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'detailmap.jpg');
-  tree.Material.Texture.Image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'tree1.bmp');
+  SetGLSceneMediaDir();
+  GLBitmapHDS1.Picture.LoadFromFile('terrain.bmp');
+  GLMaterialLibrary1.Materials[0].Material.Texture.Image.LoadFromFile('snow512.jpg');
+  GLMaterialLibrary1.Materials[1].Material.Texture.Image.LoadFromFile('detailmap.jpg');
+  tree.Material.Texture.Image.LoadFromFile('tree1.bmp');
   Show;
   CreateTrees;
   cullingMode := 'quadtree ';
@@ -174,10 +174,10 @@ procedure TfrmQuadtreeVisCulling.queryVisibleRender(Sender: TObject;
   function PlaneToStr(const APlane : THmgPlane) : string;
   begin
     result := Format('(%2.1f, %2.1f, %2.1f, %2.1f)',[
-      APlane[0],
-      APlane[1],
-      APlane[2],
-      APlane[3]]);
+      APlane.X,
+      APlane.Y,
+      APlane.Z,
+      APlane.W]);
   end;
 var
   i: integer;
@@ -222,7 +222,7 @@ begin
   for i := 0 to SpacePartition.QueryResult.Count - 1 do begin
     TSceneObj(SpacePartition.QueryResult[i]).Obj.Visible := true;
     if cbShowQuadtree.Checked then
-      RenderAABB(TSceneObj(SpacePartition.QueryResult[i]).FCachedAABB);
+      RenderAABB(rci, TSceneObj(SpacePartition.QueryResult[i]).FCachedAABB);
   end;
   glscene1.EndUpdate;
 end;
@@ -267,7 +267,7 @@ procedure TfrmQuadtreeVisCulling.GLDirectOpenGL2Render(
 {var
   ExtendendFrustum : TExtendedFrustum;//}
 begin
-  RenderSpatialPartitioning(SpacePartition);
+  RenderSpatialPartitioning(rci, SpacePartition);
 
   {ExtendendFrustum := ExtendedFrustumMake(rci.rcci.frustum,
     GLCamera1.NearPlane,
@@ -293,8 +293,5 @@ begin
   GLSphere1.Position.AsVector :=
     VectorCombine(GLCamera1.Position.AsVector, GLCamera1.Direction.AsVector, 1, GLCamera1.NearPlane)
 end;
-
-initialization
-  {$i fQuadtreeVisCulling.lrs}
 
 end.

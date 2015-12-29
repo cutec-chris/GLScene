@@ -86,18 +86,11 @@ implementation
 
 {$R *.lfm}
 
-uses VectorGeometry, SysUtils, FileUtil;
+uses GLVectorGeometry, SysUtils, GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  path: UTF8String;
-  p: Integer;
 begin
-   path := ExtractFilePath(ParamStrUTF8(0));
-   p := Pos('DemosLCL', path);
-   Delete(path, p+5, Length(path));
-   path := IncludeTrailingPathDelimiter(path) + 'media';
-   SetCurrentDirUTF8(path);
+   SetGLSceneMediaDir();
    // Load Actor into GLScene
    Actor1.LoadFromFile('waste.md2');
    Actor1.Material.Texture.Image.LoadFromFile('waste.jpg');
@@ -148,8 +141,8 @@ end;
 procedure TForm1.BBLoadWeaponClick(Sender: TObject);
 begin
    // Load weapon model and texture
-   Actor2.LoadFromFile('WeaponWaste.md2');
-   Actor2.Material.Texture.Image.LoadFromFile('WeaponWaste.jpg');
+   Actor2.LoadFromFile('weaponWaste.md2');
+   Actor2.Material.Texture.Image.LoadFromFile('weaponWaste.jpg');
 
    // Get animations frames from the main actor
    Actor2.Animations.Assign(Actor1.Animations);

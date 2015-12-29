@@ -3,13 +3,13 @@ program QuadtreeVisCulling;
 {$MODE Delphi}
 
 uses
-  {$ifndef windows}
-  cThreads,
-  {$endif}
-  Interfaces,
-  Forms,
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Forms, Interfaces,
   fQuadtreeVisCulling in 'fQuadtreeVisCulling.pas' {frmQuadtreeVisCulling};
 
+{$R *.res}
 
 begin
   Application.Initialize;

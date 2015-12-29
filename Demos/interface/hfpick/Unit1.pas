@@ -24,14 +24,13 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  SysUtils, Classes, Graphics, Controls, Forms, GLColor,
-  Dialogs, GLGraph, GLViewer, VectorGeometry, VectorTypes,
-  GLTexture, GLObjects, StdCtrls, ExtCtrls, LResources, GLScene;
+  SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLScene, GLGraph, GLLCLViewer, GLVectorGeometry, GLVectorTypes,
+  GLTexture, GLObjects, StdCtrls, ExtCtrls, GLColor, GLCrossPlatform,
+  GLCoordinates, GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -66,6 +65,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
@@ -107,14 +107,14 @@ begin
       // convert to heightfield local coordinates
       v:=HeightField.AbsoluteToLocal(v);
       // convert that local coords to grid pos
-      ix:=Round(v[0]);
-      iy:=Round(v[1]);
+      ix:=Round(v.X);
+      iy:=Round(v.Y);
       // if we are in the grid...
       if (ix>=-5) and (ix<=5) and (iy>=-5) and (iy<=5) then begin
          // show last coord in the caption bar
          Caption:=Format('Last coord. : %d %d', [ix, iy]);
          // and paint blue or red depending on the button
-         if Button=mbLeft then
+         if Button=TMouseButton(mbLeft) then
             grid[ix, iy]:=clBlue
          else grid[ix, iy]:=clRed;
          // Height field changed, rebuild it!
@@ -129,9 +129,9 @@ begin
    if RBPaint.Checked then begin
       // in paint mode, paint if a button is pressed
       if ssLeft in Shift then
-         GLSceneViewerMouseDown(Sender, mbLeft, Shift, x, y)
+         GLSceneViewerMouseDown(Sender, TMouseButton(mbLeft), Shift, x, y)
       else if ssRight in Shift then
-         GLSceneViewerMouseDown(Sender, mbRight, Shift, x, y);
+         GLSceneViewerMouseDown(Sender, TMouseButton(mbRight), Shift, x, y);
    end else begin
       // rotate mode
       if Shift<>[] then begin
@@ -141,8 +141,5 @@ begin
       end;
    end;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

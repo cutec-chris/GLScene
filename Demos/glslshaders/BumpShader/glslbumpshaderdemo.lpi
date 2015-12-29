@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="7"/>
+    <Version Value="9"/>
     <General>
       <MainUnit Value="0"/>
-      <TargetFileExt Value=""/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <ActiveWindowIndexAtStart Value="0"/>
@@ -12,8 +11,11 @@
     <VersionInfo>
       <Language Value=""/>
       <CharSet Value=""/>
-      <StringTable Comments="" CompanyName="" FileDescription="" FileVersion="" InternalName="" LegalCopyright="" LegalTrademarks="" OriginalFilename="" ProductName="" ProductVersion=""/>
+      <StringTable ProductVersion=""/>
     </VersionInfo>
+    <BuildModes Count="1">
+      <Item1 Name="default" Default="True"/>
+    </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
       <IgnoreBinaries Value="False"/>
@@ -37,11 +39,16 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="11">
+    <Units Count="13">
       <Unit0>
         <Filename Value="glslbumpshaderdemo.lpr"/>
         <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="19" Y="8"/>
         <UsageCount Value="20"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="umainform.pas"/>
@@ -52,22 +59,23 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="254"/>
-        <CursorPos X="35" Y="277"/>
-        <SyntaxHighlighter Value="FreePascal"/>
+        <TopLine Value="90"/>
+        <CursorPos X="14" Y="104"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Text"/>
+        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
-        <Filename Value="../../../Source/Base/ApplicationFileIO.pas"/>
-        <UnitName Value="ApplicationFileIO"/>
+        <Filename Value="../../../Source/Base/GLApplicationFileIO.pas"/>
+        <UnitName Value="GLApplicationFileIO"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="153"/>
-        <CursorPos X="1" Y="173"/>
-        <SyntaxHighlighter Value="Delphi"/>
+        <TopLine Value="187"/>
+        <CursorPos X="1" Y="206"/>
         <UsageCount Value="10"/>
-        <DefaultSyntaxHighlighter Value="Text"/>
+        <Bookmarks Count="1">
+          <Item0 X="64" Y="233" ID="1"/>
+        </Bookmarks>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="../../../Source/FileFormats/GLFile3DS.pas"/>
@@ -113,14 +121,13 @@
         <Filename Value="../../../Source/GLTexture.pas"/>
         <UnitName Value="GLTexture"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1736"/>
-        <CursorPos X="1" Y="1762"/>
-        <SyntaxHighlighter Value="Delphi"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
         <UsageCount Value="10"/>
-        <DefaultSyntaxHighlighter Value="Text"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
-        <Filename Value="/usr/lib/lazarus/0.9.29/lcl/include/picture.inc"/>
+        <Filename Value="../../../../../lcl/include/picture.inc"/>
         <WindowIndex Value="0"/>
         <TopLine Value="706"/>
         <CursorPos X="1" Y="730"/>
@@ -148,8 +155,25 @@
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Text"/>
       </Unit10>
+      <Unit11>
+        <Filename Value="../../../../../../lazarus/lcl/lresources.pp"/>
+        <UnitName Value="LResources"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5032"/>
+        <CursorPos X="14" Y="5041"/>
+        <UsageCount Value="10"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="../../../Source/Experimental/GL3xMaterial.pas"/>
+        <UnitName Value="GL3xMaterial"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2059"/>
+        <CursorPos X="1" Y="2078"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit12>
     </Units>
-    <JumpHistory Count="4" HistoryIndex="3">
+    <JumpHistory Count="8" HistoryIndex="7">
       <Position1>
         <Filename Value="umainform.pas"/>
         <Caret Line="149" Column="1" TopLine="124"/>
@@ -166,15 +190,26 @@
         <Filename Value="umainform.pas"/>
         <Caret Line="151" Column="49" TopLine="124"/>
       </Position4>
+      <Position5>
+        <Filename Value="umainform.pas"/>
+        <Caret Line="25" Column="9" TopLine="4"/>
+      </Position5>
+      <Position6>
+        <Filename Value="glslbumpshaderdemo.lpr"/>
+        <Caret Line="8" Column="19" TopLine="1"/>
+      </Position6>
+      <Position7>
+        <Filename Value="umainform.pas"/>
+        <Caret Line="104" Column="23" TopLine="90"/>
+      </Position7>
+      <Position8>
+        <Filename Value="umainform.pas"/>
+        <Caret Line="106" Column="1" TopLine="85"/>
+      </Position8>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="8"/>
-    <Parsing>
-      <SyntaxOptions>
-        <UseAnsiStrings Value="True"/>
-      </SyntaxOptions>
-    </Parsing>
+    <Version Value="11"/>
     <Other>
       <CompilerPath Value="$(CompPath)"/>
     </Other>

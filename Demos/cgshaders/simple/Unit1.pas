@@ -15,10 +15,11 @@ unit Unit1;
 interface
 
 uses
-  LCLIntf, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLObjects, GLViewer, GLTexture, OpenGL1x, GLMaterial,
-  GLCgShader, Cg, cgGL, StdCtrls, VectorGeometry, GLCadencer, ExtCtrls, ComCtrls,
-  GLVectorFileObjects, GLFile3DS, GLGraph, LResources, GLScene, Buttons;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLScene, GLObjects, GLLCLViewer, GLTexture,
+  GLCgShader, Cg, cgGL, StdCtrls, GLVectorGeometry, GLCadencer, ExtCtrls, ComCtrls,
+  GLVectorFileObjects, GLFile3DS, GLGraph, GLCrossPlatform, GLMaterial,
+  GLCoordinates, GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -90,7 +91,7 @@ type
     procedure ButtonApplyVPClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure CgShader1Initialize(CgShader: TCgShader);
+    procedure CgShader1Initialize(CgShader: TCustomCgShader);
   private
     { Private declarations }
   public
@@ -103,6 +104,10 @@ var
 
 implementation
 
+{$R *.lfm}
+
+uses
+  FileUtil;
 
 procedure TForm1.CgShader1ApplyVP(CgProgram: TCgProgram; Sender : TObject);
 var
@@ -129,17 +134,21 @@ begin
 end;
 
 
-procedure TForm1.CgShader1Initialize(CgShader: TCgShader);
+procedure TForm1.CgShader1Initialize(CgShader: TCustomCgShader);
 begin
   // Shows the profiles to be used. The latest support profiles would be detected
   // if you have CgShader1.VertexProgram.Profile set to vpDetectLatest (similarly
   // for the fragment program).
-  LabelVertProfile.Caption:='Using profile: ' + CgShader.VertexProgram.GetProfileString;
-  LabelFragProfile.Caption:='Using profile: ' + CgShader.FragmentProgram.GetProfileString;
+  LabelVertProfile.Caption:='Using profile: ' + CgShader1.VertexProgram.GetProfileString;
+  LabelFragProfile.Caption:='Using profile: ' + CgShader1.FragmentProgram.GetProfileString;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  path: UTF8String;
+  p: Integer;
 begin
+   path := ExtractFilePath(ParamStrUTF8(0));
    // Load Cg proggy
    with CgShader1 do begin
      VertexProgram.LoadFromFile('Simple_vp.cg');
@@ -152,6 +161,11 @@ begin
      FragmentProgram.Enabled:=false;
    end;
 
+   p := Pos('DemosLCL', path);
+   Delete(path, p+5, Length(path));
+   path := IncludeTrailingPathDelimiter(path) + 'media';
+   SetCurrentDirUTF8(path);
+
    ButtonApplyFP.Enabled:=false;
    ButtonApplyVP.Enabled:=false;
 
@@ -162,7 +176,7 @@ begin
    // internally for GLScene objects like TGLCylinder & TGLSphere, and Cg shader
    // is not aware of that. If you apply a vertex shader on those objects, they
    // would appear scaled and/or rotated.
-   GLFreeForm1.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'teapot.3ds');
+   GLFreeForm1.LoadFromFile('teapot.3ds');
 end;
 
 procedure TForm1.CBVertexProgramClick(Sender: TObject);
@@ -262,8 +276,5 @@ procedure TForm1.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   if key=#27 then close;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

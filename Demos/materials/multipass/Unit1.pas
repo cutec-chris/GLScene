@@ -20,19 +20,15 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  SysUtils, Classes, Graphics, Controls, Forms, GLColor, GLRenderContextInfo,
-  Dialogs, GLScene, GLObjects, GLTexture, OpenGL1x, GLMaterial,
-  StdCtrls, GLGeomObjects, GLState, LResources,Buttons, GLViewer;
+  SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLScene, GLObjects, GLLCLViewer, GLTexture, OpenGL1x,
+  StdCtrls, GLGeomObjects, GLState, GLColor, GLMaterial, GLCoordinates,
+  GLCrossPlatform, GLBaseClasses, GLRenderContextInfo;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -55,7 +51,7 @@ type
     { Private declarations }
   public
     { Public declarations }
-    mx, my : Integer;
+    mx, my: Integer;
   end;
 
 var
@@ -63,157 +59,173 @@ var
 
 implementation
 
+{$R *.lfm}
 
 type
 
-   THiddenLineShader = class (TGLShader)
-      private
-         BackgroundColor, LineColor : TColorVector;
-         PassCount : Integer;
-      public
-         procedure DoApply(var rci : TRenderContextInfo; Sender : TObject); override;
-         function DoUnApply(var rci : TRenderContextInfo) : Boolean; override;
-   end;
+  THiddenLineShader = class(TGLShader)
+  private
+    BackgroundColor, LineColor: TColorVector;
+    PassCount: Integer;
+  public
+    procedure DoApply(var rci: TRenderContextInfo; Sender: TObject); override;
+    function DoUnApply(var rci: TRenderContextInfo): Boolean; override;
+  end;
 
-   TOutLineShader = class (TGLShader)
-      private
-         BackgroundColor, LineColor : TColorVector;
-         OutlineSmooth, Lighting : Boolean;
-         OutlineWidth, Oldlinewidth : Single;
-         PassCount : Integer;
-      public
-         procedure DoApply(var rci : TRenderContextInfo; Sender : TObject); override;
-         function DoUnApply(var rci : TRenderContextInfo) : Boolean; override;
-   end;
+  TOutLineShader = class(TGLShader)
+  private
+    BackgroundColor, LineColor: TColorVector;
+    OutlineSmooth, Lighting: Boolean;
+    OutlineWidth, Oldlinewidth: Single;
+    PassCount: Integer;
+  public
+    procedure DoApply(var rci: TRenderContextInfo; Sender: TObject); override;
+    function DoUnApply(var rci: TRenderContextInfo): Boolean; override;
+  end;
 
-procedure THiddenLineShader.DoApply(var rci : TRenderContextInfo; Sender : TObject);
+procedure THiddenLineShader.DoApply(var rci: TRenderContextInfo; Sender:
+  TObject);
 begin
-   // new object getting rendered, 1st pass
-   PassCount:=1;
-
-   // backup state
-   glPushAttrib(GL_ENABLE_BIT);
-   // disable lighting, this is a solid fill
-   glDisable(GL_LIGHTING);
-   rci.GLStates.SetGLPolygonMode(cmFrontAndBack, pmFill);
-   // use background color
-   glColor3fv(@BackgroundColor);
-   // enable and adjust polygon offset
-   glEnable(GL_POLYGON_OFFSET_FILL);
-   glPolygonOffset(1, 2);
+  // new object getting rendered, 1st pass
+  PassCount := 1;
+  with rci.GLStates do
+  begin
+    // disable lighting, this is a solid fill
+    Disable(stLighting);
+    PolygonMode := pmFill;
+    // use background color
+    glColor3fv(@BackgroundColor);
+    // enable and adjust polygon offset
+    Enable(stPolygonOffsetFill);
+    SetPolygonOffset(1, 2);
+  end;
 end;
 
-function THiddenLineShader.DoUnApply(var rci : TRenderContextInfo) : Boolean;
+function THiddenLineShader.DoUnApply(var rci: TRenderContextInfo): Boolean;
 begin
-   case PassCount of
-      1 : begin
-         // 1st pass completed, we setup for the second
-         PassCount:=2;
+  case PassCount of
+    1:
+      with rci.GLStates do
+      begin
+        // 1st pass completed, we setup for the second
+        PassCount := 2;
 
-         // switch to wireframe and its color
-         rci.GLStates.SetGLPolygonMode(cmFrontAndBack, pmFill);
-         glColor3fv(@LineColor);
-         // disable polygon offset
-         glDisable(GL_POLYGON_OFFSET_LINE);
-
-         Result:=True;
+        // switch to wireframe and its color
+        PolygonMode := pmLines;
+        Disable(stPolygonOffsetLine);
+        Disable(stLineStipple);
+        LineWidth := 1;
+        glColor3fv(@LineColor);
+        Result := True;
       end;
-      2 : begin
-         // restore state
-         glPopAttrib;
-
-         // we're done
-         Result:=False;
+    2:
+      with rci.GLStates do
+      begin
+        // restore state
+        PolygonMode := pmFill;
+        Disable(stPolygonOffsetFill);
+        // we're done
+        Result := False;
       end;
-   else
-      // doesn't hurt to be cautious
-      Assert(False);
-      Result:=False;
-   end;
+  else
+    // doesn't hurt to be cautious
+    Assert(False);
+    Result := False;
+  end;
 end;
 
-procedure TOutLineShader.DoApply(var rci : TRenderContextInfo; Sender : TObject);
+procedure TOutLineShader.DoApply(var rci: TRenderContextInfo; Sender: TObject);
 begin
-   PassCount:=1;
-   glPushAttrib(GL_ENABLE_BIT);
-   glDisable(GL_LIGHTING);
+  PassCount := 1;
+  with rci.GLStates do
+  begin
+    Disable(stLighting);
 
-   if outlineSmooth then begin
-      glEnable(GL_BLEND);
-      glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-      glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-      glEnable(GL_LINE_SMOOTH);
-   end else glDisable(GL_LINE_SMOOTH);
+    if outlineSmooth then
+    begin
+      Enable(stBlend);
+      SetBlendFunc(bfSrcAlpha, bfOneMinusSrcAlpha);
+      LineSmoothHint := hintNicest;
+      Enable(stLineSmooth);
+    end
+    else
+      Disable(stLineSmooth);
 
-   glGetFloatv(GL_LINE_WIDTH,@oldlinewidth);
-   glLineWidth(OutLineWidth);
-   glPolygonMode(GL_BACK, GL_LINE);
-   glCullFace(GL_FRONT);
-   glDepthFunc(GL_LEQUAL);
-   glColor3fv(@lineColor);
+    LineStippleFactor := 1;
+    LineStipplePattern := $FFFF;
+    LineWidth := OutLineWidth;
+    PolygonMode := pmLines;
+    CullFaceMode := cmFront;
+    DepthFunc := cfLEqual;
+    glColor3fv(@lineColor);
+  end;
 end;
 
-function TOutLineShader.DoUnApply(var rci : TRenderContextInfo) : Boolean;
+function TOutLineShader.DoUnApply(var rci: TRenderContextInfo): Boolean;
 begin
-   case PassCount of
-      1 : begin
-         PassCount:=2;
-         if lighting then
-           glEnable(GL_LIGHTING)
-         else glColor3fv(@backGroundColor);
-         glDepthFunc(GL_LESS);
-         glCullFace(GL_BACK);
-         glPolygonMode(GL_BACK, GL_FILL);
-
-         Result:=True;
+  case PassCount of
+    1:
+      with rci.GLStates do
+      begin
+        PassCount := 2;
+        if lighting then
+          Enable(stLighting)
+        else
+          glColor3fv(@backGroundColor);
+        DepthFunc := cfLess;
+        PolygonMode := pmFill;
+        CullFaceMode := cmBack;
+        Result := True;
       end;
-      2 : begin
-         glPopAttrib;
-         glLineWidth(oldLineWidth);
-         Result:=False;
+    2:
+      begin
+        Result := False;
       end;
-   else
-      Assert(False);
-      Result:=False;
-   end;
+  else
+    Assert(False);
+    Result := False;
+  end;
 end;
 
 procedure TForm1.BUBindClick(Sender: TObject);
 var
-   shader1 : THiddenLineShader;
-   shader2 ,shader3: TOutLineShader;
+  shader1: THiddenLineShader;
+  shader2, shader3: TOutLineShader;
 
 begin
-   BUBind.Enabled:=False;
+  BUBind.Enabled := False;
 
-   // instantiate our shaders
-   
-   shader1:=THiddenLineShader.Create(Self);
-   shader1.BackgroundColor:=ConvertWinColor(GLSceneViewer1.Buffer.BackgroundColor);
-   shader1.LineColor:=clrBlue;
+  // instantiate our shaders
 
-   shader2:=TOutLineShader.Create(Self);
-   with shader2 do begin
-      BackgroundColor:=ConvertWinColor(GLSceneViewer1.Buffer.BackgroundColor);
-      Outlinesmooth:=true;
-      OutLineWidth:=2;
-      Lighting:=false;
-      LineColor:=clrBlack;
-   end;
+  shader1 := THiddenLineShader.Create(Self);
+  shader1.BackgroundColor :=
+    ConvertWinColor(GLSceneViewer1.Buffer.BackgroundColor);
+  shader1.LineColor := clrBlue;
 
-   shader3:=TOutLineShader.Create(Self);
-   with shader3 do begin
-      BackgroundColor:=ConvertWinColor(GLSceneViewer1.Buffer.BackgroundColor);
-      Outlinesmooth:=false;
-      OutLineWidth:=4;
-      Lighting:=true;
-      LineColor:=clrRed;
-   end;
+  shader2 := TOutLineShader.Create(Self);
+  with shader2 do
+  begin
+    BackgroundColor := ConvertWinColor(GLSceneViewer1.Buffer.BackgroundColor);
+    Outlinesmooth := true;
+    OutLineWidth := 2;
+    Lighting := false;
+    LineColor := clrBlack;
+  end;
 
-   // binds the shaders to the materials
-   GLMaterialLibrary1.Materials[0].Shader:=shader1;
-   GLMaterialLibrary1.Materials[1].Shader:=shader2;
-   GLMaterialLibrary1.Materials[2].Shader:=shader3;
+  shader3 := TOutLineShader.Create(Self);
+  with shader3 do
+  begin
+    BackgroundColor := ConvertWinColor(GLSceneViewer1.Buffer.BackgroundColor);
+    Outlinesmooth := false;
+    OutLineWidth := 4;
+    Lighting := true;
+    LineColor := clrRed;
+  end;
+
+  // binds the shaders to the materials
+  GLMaterialLibrary1.Materials[0].Shader := shader1;
+  GLMaterialLibrary1.Materials[1].Shader := shader2;
+  GLMaterialLibrary1.Materials[2].Shader := shader3;
 
 end;
 
@@ -224,20 +236,20 @@ end;
 procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-   mx:=x; my:=y;
+  mx := x;
+  my := y;
 end;
 
 procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
-   if Shift=[ssLeft] then
-      GLCamera1.MoveAroundTarget(my-y, mx-x)
-   else if Shift=[ssRight] then
-      GLCamera1.RotateTarget(my-y, mx-x);
-   mx:=x; my:=y;
+  if Shift = [ssLeft] then
+    GLCamera1.MoveAroundTarget(my - y, mx - x)
+  else if Shift = [ssRight] then
+    GLCamera1.RotateTarget(my - y, mx - x);
+  mx := x;
+  my := y;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

@@ -23,18 +23,18 @@
       <li>29/11/03 - JAJ - Created and Submitted to GLScene.
 	</ul></font>
 }
-unit mainformunit;
+unit MainFormUnit;
 
 interface
 
 uses
-  SysUtils, Classes, Controls, Forms, Dialogs, GLScene, GLVectorFileObjects,
-  StdCtrls, GLBSP, GLMeshCSG, GLViewer, GLObjects, GLTexture, GLFile3DS,
-  ExtCtrls, ComCtrls, GLCrossPlatform, GLLCLViewer, GLMaterial, GLCoordinates,
-  GLState, GLSimpleNavigation;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  GLScene, GLVectorFileObjects, StdCtrls, GLBSP, GLMeshCSG, GLLCLViewer,
+  GLObjects, GLTexture, GLFile3ds, ExtCtrls, ComCtrls, GLCrossPlatform,
+  GLMaterial, GLCoordinates, GLBaseClasses, GLState, GLSimpleNavigation;
 
 type
-  
+
   { TForm1 }
 
   TForm1 = class(TForm)
@@ -85,7 +85,8 @@ var
 
 implementation
 
-uses VectorGeometry, FileUtil;
+uses GLVectorGeometry, GLUtils;
+
 {$R *.lfm}
 
 procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject;
@@ -126,16 +127,8 @@ end;
 // Demo starts here above is just navigation.
            
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  path: UTF8String;
-  p: Integer;
 begin
-  path := ExtractFilePath(ParamStrUTF8(0));
-  p := Pos('DemosLCL', path);
-  Delete(path, p+5, Length(path));
-  path := IncludeTrailingPathDelimiter(path) + IncludeTrailingPathDelimiter('media');
-  SetCurrentDirUTF8(path);
-
+  SetGLSceneMediaDir();
   // scaled 40
   GLFreeForm1.LoadFromFile('polyhedron.3ds');
 

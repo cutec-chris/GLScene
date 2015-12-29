@@ -1,118 +1,114 @@
 object Form1: TForm1
-  Left = 336
+  Left = 173
   Height = 357
-  Top = 196
+  Top = 100
   Width = 511
-  HorzScrollBar.Page = 510
-  VertScrollBar.Page = 356
+  BorderWidth = 2
   Caption = 'Form1'
   ClientHeight = 357
   ClientWidth = 511
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   ShowHint = True
-  LCLVersion = '1.5'
+  LCLVersion = '0.9.29'
   object Label1: TLabel
-    Left = 394
-    Height = 357
-    Top = 0
+    Left = 392
+    Height = 353
+    Top = 2
     Width = 2
     Align = alRight
     AutoSize = False
     ParentColor = False
   end
   object GLSceneViewer1: TGLSceneViewer
-    Left = 0
-    Height = 357
-    Top = 0
-    Width = 394
+    Left = 2
+    Height = 353
+    Top = 2
+    Width = 390
     Camera = GLCamera1
     Buffer.BackgroundColor = 13619151
     Buffer.FaceCulling = False
-    FieldOfView = 148.703598022461
+    FieldOfView = 148.366622924804
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
-    TabOrder = 1
+    TabOrder = 0
   end
   object Panel1: TPanel
-    Left = 396
-    Height = 357
-    Top = 0
+    Left = 394
+    Height = 353
+    Top = 2
     Width = 115
     Align = alRight
     BevelOuter = bvLowered
-    ClientHeight = 357
+    ClientHeight = 353
     ClientWidth = 115
-    FullRepaint = False
-    TabOrder = 0
+    TabOrder = 1
     object LASubdivideTime: TLabel
-      Left = 8
+      Left = 6
       Height = 13
-      Top = 200
+      Top = 190
       Width = 97
       Alignment = taCenter
       AutoSize = False
       Caption = 'LASubdivideTime'
       ParentColor = False
     end
+    object BULoad: TButton
+      Left = 16
+      Height = 25
+      Top = 8
+      Width = 83
+      Caption = 'Load'
+      OnClick = BULoadClick
+      TabOrder = 0
+    end
     object BUSubdivide: TButton
       Left = 8
       Height = 25
       Top = 112
       Width = 99
-      BorderSpacing.InnerBorder = 4
       Caption = 'Subdivide'
       Enabled = False
       OnClick = BUSubdivideClick
-      TabOrder = 0
+      TabOrder = 1
     end
     object TrackBar1: TTrackBar
-      Left = 8
-      Height = 33
+      Left = 6
+      Height = 44
       Hint = 'Subdivision smoothness'
-      Top = 152
+      Top = 142
       Width = 97
       Position = 5
-      TabOrder = 1
+      TabOrder = 2
     end
     object RBWireFrame: TRadioButton
       Left = 16
-      Height = 22
+      Height = 20
       Top = 40
-      Width = 84
+      Width = 82
       Caption = 'Wireframe'
       OnClick = RBWireFrameClick
-      TabOrder = 2
+      TabOrder = 3
     end
     object RBSolid: TRadioButton
       Left = 16
-      Height = 22
+      Height = 20
       Top = 56
-      Width = 51
+      Width = 49
       Caption = 'Solid'
       Checked = True
       OnClick = RBSolidClick
-      TabOrder = 3
+      TabOrder = 4
       TabStop = True
     end
     object CBAnimate: TCheckBox
       Left = 16
-      Height = 22
+      Height = 20
       Top = 80
-      Width = 71
+      Width = 69
       Caption = 'Animate'
       OnClick = CBAnimateClick
-      TabOrder = 4
-    end
-    object BULoad1: TButton
-      Left = 16
-      Height = 25
-      Top = 8
-      Width = 83
-      BorderSpacing.InnerBorder = 4
-      Caption = 'Load'
-      OnClick = BULoadClick
       TabOrder = 5
     end
   end
@@ -177,4 +173,4 @@ object Form1: TForm1
     left = 40
     top = 56
   end
-end
+end

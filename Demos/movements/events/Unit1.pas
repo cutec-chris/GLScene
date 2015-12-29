@@ -1,18 +1,13 @@
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  Classes, Graphics, Controls, Forms, GLObjects, GLTexture,
-  GLCadencer, StdCtrls, ComCtrls, GLTimeEventsMgr, ExtCtrls,
-  LResources, GLScene, GLViewer;
+  Classes, Graphics, Controls, Forms, GLScene, GLObjects, GLTexture,
+  GLCadencer, ComCtrls, GLLCLViewer, GLTimeEventsMgr, ExtCtrls,
+  GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -24,7 +19,6 @@ type
     Cube2: TGLCube;
     DummyCube1: TGLDummyCube;
     Cube3: TGLCube;
-    procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure GLTimeEventsMGR1Events0Event(event: TTimeEvent);
     procedure GLTimeEventsMGR1Events1Event(event: TTimeEvent);
@@ -43,6 +37,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 uses SysUtils;
 
@@ -50,11 +45,6 @@ procedure TForm1.Timer1Timer(Sender: TObject);
 begin
 	Caption:=Format('TIME: %.4f', [GLCadencer1.CurrentTime]);
 	GLSceneViewer1.ResetPerformanceMonitor;
-end;
-
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-
 end;
 
 procedure TForm1.GLTimeEventsMGR1Events0Event(event: TTimeEvent);
@@ -87,7 +77,4 @@ begin
    cube3.RollAngle:=event.TickCount/200*90;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
-end.
+end.

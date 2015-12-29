@@ -3,16 +3,14 @@
 
 unit fFurBall;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  lcltype, Messages, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLScene, GLObjects, GLCadencer, ODEImport,
-  StdCtrls, GLTexture, GLExtrusion, VectorGeometry, GLShadowPlane, GLNavigator,
-  VerletClasses, VerletHairClasses, jpeg, GLKeyboard, ExtCtrls, ComCtrls,
-  LResources, GLLCLViewer, GLViewer, GLColor;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLLCLViewer, GLScene, GLObjects, GLCadencer, ODEImport,
+  StdCtrls, GLTexture, GLExtrusion, GLVectorGeometry, GLShadowPlane, GLNavigator,
+  GLVerletTypes, GLVerletHairClasses, GLKeyboard, ExtCtrls, ComCtrls,GLColor,
+  GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 const
   cMaxWindMag = 8;
@@ -93,6 +91,7 @@ implementation
 
 uses ODEGL, GLVerletClasses;
 
+{$R *.lfm}
 
 procedure nearCallback (data : pointer; o1, o2 : PdxGeom); cdecl;
 const
@@ -429,8 +428,4 @@ procedure TfrmFurBall.CheckBox_InertiaClick(Sender: TObject);
 begin
   VerletWorld.Inertia := CheckBox_Inertia.Checked;
 end;
-
-initialization
-  {$i fFurBall.lrs}
-
 end.

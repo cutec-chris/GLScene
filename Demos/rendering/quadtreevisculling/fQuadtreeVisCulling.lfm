@@ -1,13 +1,13 @@
 object frmQuadtreeVisCulling: TfrmQuadtreeVisCulling
-  Left = 282
+  Left = 297
   Height = 480
-  Top = 235
+  Top = 155
   Width = 640
-  HorzScrollBar.Page = 639
-  VertScrollBar.Page = 479
   Caption = 'Quadtree Visibility Culling'
   ClientHeight = 480
   ClientWidth = 640
+  Color = clBtnFace
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   KeyPreview = True
@@ -15,7 +15,7 @@ object frmQuadtreeVisCulling: TfrmQuadtreeVisCulling
   OnDestroy = FormDestroy
   OnKeyPress = FormKeyPress
   Position = poScreenCenter
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object Label2: TLabel
     Left = 288
     Height = 14
@@ -34,18 +34,19 @@ object frmQuadtreeVisCulling: TfrmQuadtreeVisCulling
     Buffer.FogEnvironment.FogEnd = 3950
     Buffer.BackgroundColor = clWhite
     Buffer.Lighting = False
-    FieldOfView = 153.816207885742
+    FieldOfView = 153.816223144531
     Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 0
   end
   object cbUseQuadtree: TCheckBox
     Left = 8
-    Height = 17
+    Height = 19
     Top = 8
     Width = 64
     Caption = 'Quadtree'
     Checked = True
     State = cbChecked
-    TabOrder = 0
+    TabOrder = 1
   end
   object Panel1: TPanel
     Left = 224
@@ -54,8 +55,7 @@ object frmQuadtreeVisCulling: TfrmQuadtreeVisCulling
     Width = 185
     ClientHeight = 49
     ClientWidth = 185
-    FullRepaint = False
-    TabOrder = 1
+    TabOrder = 2
     object Label1: TLabel
       Left = 8
       Height = 14
@@ -74,22 +74,22 @@ object frmQuadtreeVisCulling: TfrmQuadtreeVisCulling
   end
   object cbShowQuadtree: TCheckBox
     Left = 184
-    Height = 17
+    Height = 19
     Top = 8
     Width = 94
     Caption = 'Show &Quadtree'
     OnClick = cbShowQuadtreeClick
-    TabOrder = 2
+    TabOrder = 3
   end
   object cbUseExtendedFrustum: TCheckBox
     Left = 72
-    Height = 17
+    Height = 19
     Top = 8
     Width = 105
     Caption = 'E&xtended Frustum'
     Checked = True
     State = cbChecked
-    TabOrder = 3
+    TabOrder = 4
   end
   object GLScene1: TGLScene
     left = 92
@@ -232,16 +232,16 @@ object frmQuadtreeVisCulling: TfrmQuadtreeVisCulling
     Materials = <    
       item
         Name = '1'
+        Tag = 0
         Material.Texture.TextureMode = tmReplace
         Material.Texture.Disabled = False
-        Tag = 0
         Texture2Name = '2'
       end    
       item
         Name = '2'
+        Tag = 0
         Material.Texture.TextureMode = tmModulate
         Material.Texture.Disabled = False
-        Tag = 0
       end>
     left = 80
     top = 156

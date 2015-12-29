@@ -1,18 +1,15 @@
 object Form1: TForm1
-  Left = 345
+  Left = 227
   Height = 191
-  Top = 270
+  Top = 96
   Width = 280
-  HorzScrollBar.Page = 279
-  VertScrollBar.Page = 190
   BorderStyle = bsDialog
   Caption = 'Form1'
   ClientHeight = 191
   ClientWidth = 280
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnCreate = FormCreate
-  LCLVersion = '1.5'
+  LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 5
     Height = 181
@@ -82,8 +79,8 @@ object Form1: TForm1
       Up.Coordinates = {
         F604B53EF304353F70C41CBF00000000
       }
-      MajorRadius = 0.699999988079071
-      MinorRadius = 0.200000002980232
+      MajorRadius = 0.69999998807907
+      MinorRadius = 0.20000000298023
     end
     object Cone: TGLCone
       TagFloat = 0
@@ -112,4 +109,4 @@ object Form1: TForm1
       }
     end
   end
-end
+end

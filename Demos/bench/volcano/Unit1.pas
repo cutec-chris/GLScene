@@ -29,13 +29,11 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLObjects, GLParticleFX, GLCadencer, ExtCtrls,
-  GLBehaviours, StdCtrls, LResources, GLViewer, GLScene;
+  Dialogs, GLScene, GLObjects, GLParticleFX, GLCadencer, ExtCtrls,
+  GLBehaviours, StdCtrls, GLLCLViewer, GLCrossPlatform, GLCoordinates,
+  GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -50,7 +48,6 @@ type
     PFXBlue: TGLPolygonPFXManager;
     DCCamera: TGLDummyCube;
     RadioGroup1: TRadioGroup;
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
       newTime: Double);
     procedure Timer1Timer(Sender: TObject);
@@ -67,16 +64,12 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
   newTime: Double);
 begin
    GLSceneViewer1.Invalidate;
-end;
-
-procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-begin
-  GLCadencer1.Free; // remove a error with the ondestroy lazarus hack fix k00m
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
@@ -108,8 +101,5 @@ begin
    RadioGroup1Click(Self);
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
- 
+ 

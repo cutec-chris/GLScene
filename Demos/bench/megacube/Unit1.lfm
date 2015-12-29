@@ -1,17 +1,15 @@
 object Form1: TForm1
-  Left = 331
+  Left = 198
   Height = 302
-  Top = 294
+  Top = 107
   Width = 344
-  HorzScrollBar.Page = 343
-  VertScrollBar.Page = 301
   Caption = 'Form1'
   ClientHeight = 302
   ClientWidth = 344
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '1.7'
+  LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 302
@@ -73,4 +71,4 @@ object Form1: TForm1
     left = 8
     top = 72
   end
-end
+end

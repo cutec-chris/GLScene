@@ -1,0 +1,246 @@
+object Form1: TForm1
+  Left = 140
+  Height = 391
+  Top = 116
+  Width = 561
+  Caption = 'Gui Skin Editor and Manager'
+  ClientHeight = 371
+  ClientWidth = 561
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Menu = MainMenu1
+  OnCreate = FormCreate
+  LCLVersion = '0.9.29'
+  object Label1: TLabel
+    Left = 8
+    Height = 14
+    Top = 8
+    Width = 100
+    Caption = 'Layouts in collection:'
+    ParentColor = False
+  end
+  object ListBox: TListBox
+    Left = 8
+    Height = 281
+    Top = 56
+    Width = 233
+    ItemHeight = 0
+    OnClick = ListBoxClick
+    PopupMenu = ListPopup
+    TabOrder = 0
+  end
+  object GLSceneViewer1: TGLSceneViewer
+    Left = 248
+    Height = 329
+    Top = 8
+    Width = 297
+    Camera = GLCamera1
+    Buffer.BackgroundColor = clBackground
+    FieldOfView = 142.783203125
+    TabOrder = 1
+  end
+  object Edit3: TEdit
+    Left = 8
+    Height = 21
+    Top = 24
+    Width = 153
+    OnChange = Edit3Change
+    OnKeyPress = Edit3KeyPress
+    TabOrder = 2
+    Text = 'Newly Added'
+  end
+  object Button1: TButton
+    Left = 168
+    Height = 25
+    Top = 24
+    Width = 33
+    Caption = 'Add'
+    OnClick = Button1Click
+    TabOrder = 3
+  end
+  object Button2: TButton
+    Left = 208
+    Height = 25
+    Top = 24
+    Width = 33
+    Caption = 'Edit'
+    OnClick = Button2Click
+    TabOrder = 4
+  end
+  object MainMenu1: TMainMenu
+    left = 24
+    top = 48
+    object File1: TMenuItem
+      Caption = '&File'
+      object Open1: TMenuItem
+        Caption = 'Open'
+        OnClick = Open1Click
+      end
+      object Save1: TMenuItem
+        Caption = 'Save'
+        OnClick = Save1Click
+      end
+      object Close1: TMenuItem
+        Caption = 'Close'
+        OnClick = Close1Click
+      end
+      object N1: TMenuItem
+        Caption = '-'
+      end
+      object Import1: TMenuItem
+        Caption = 'Import'
+        OnClick = Import1Click
+      end
+      object N2: TMenuItem
+        Caption = '-'
+      end
+      object Exit1: TMenuItem
+        Caption = 'Exit'
+        OnClick = Exit1Click
+      end
+    end
+    object Edit1: TMenuItem
+      Caption = 'Edit'
+      object EditLayout1: TMenuItem
+        Caption = 'Edit Layout'
+        OnClick = EditLayout1Click
+      end
+    end
+    object Image1: TMenuItem
+      Caption = 'Image'
+      object Load1: TMenuItem
+        Caption = 'Load'
+        OnClick = Load1Click
+      end
+    end
+  end
+  object OpenDialog: TOpenDialog
+    Title = 'Open Layout'
+    DefaultExt = '.*.layout'
+    Filter = 'Layouts|*.layout'
+    left = 24
+    top = 88
+  end
+  object SaveDialog: TSaveDialog
+    Title = 'Save Layout'
+    DefaultExt = '.*.layout'
+    Filter = 'Layouts|*.layout'
+    left = 24
+    top = 120
+  end
+  object GLGuiLayout1: TGLGuiLayout
+    BitmapFont = WindowsBitmapFont1
+    Material.MaterialLibrary = GLMaterialLibrary1
+    Material.LibMaterialName = 'LibMaterial'
+    GuiComponents = <>
+    left = 80
+    top = 88
+  end
+  object ImportDialog: TOpenDialog
+    DefaultExt = '.*.layout'
+    Filter = 'Layouts|*.layout'
+    Options = [ofHideReadOnly, ofAllowMultiSelect, ofFileMustExist, ofEnableSizing]
+    left = 24
+    top = 168
+  end
+  object ListPopup: TPopupMenu
+    left = 128
+    top = 120
+    object Add1: TMenuItem
+      Caption = 'Add'
+      OnClick = Add1Click
+    end
+    object Remove1: TMenuItem
+      Caption = 'Remove'
+      OnClick = Remove1Click
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object Edit2: TMenuItem
+      Caption = 'Edit'
+      OnClick = Edit2Click
+    end
+  end
+  object GLScene1: TGLScene
+    left = 184
+    top = 88
+    object HUDSprite1: TGLHUDSprite
+      TagFloat = 0
+      Material.MaterialLibrary = GLMaterialLibrary1
+      Material.LibMaterialName = 'LibMaterial'
+      PitchAngle = 0
+      Position.Coordinates = {
+        0000164300001643000000000000803F
+      }
+      RollAngle = 0
+      TurnAngle = 0
+      Width = 200
+      Height = 200
+      Rotation = 0
+    end
+    object GLPanel1: TGLPanel
+      TagFloat = 0
+      Autosize = False
+      RedrawAtOnce = False
+      GuiLayout = GLGuiLayout1
+      Rotation = 0
+      NoZWrite = False
+      DoChangesOnProgress = False
+      Width = 200
+      Height = 200
+      Left = 50
+      Top = 50
+      Position.Coordinates = {
+        0000484200004842000000000000803F
+      }
+    end
+    object GLCamera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 50
+    end
+  end
+  object WindowsBitmapFont1: TGLWindowsBitmapFont
+    Font.Color = clWhite
+    Font.Height = -16
+    Font.Name = 'Verdana'
+    Ranges = <    
+      item
+        StartASCII = 'A'
+        StopASCII = 'Z'
+        StartGlyphIdx = 0
+      end    
+      item
+        StartASCII = 'a'
+        StopASCII = 'z'
+        StartGlyphIdx = 0
+      end    
+      item
+        StartASCII = '0'
+        StopASCII = '9'
+        StartGlyphIdx = 26
+      end    
+      item
+        StartASCII = ' '
+        StopASCII = ' '
+        StartGlyphIdx = 36
+      end>
+    left = 80
+    top = 48
+  end
+  object OpenPictureDialog: TOpenPictureDialog
+    left = 128
+    top = 88
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'LibMaterial'
+        Material.Texture.Disabled = False
+        Tag = 0
+      end>
+    left = 184
+    top = 48
+  end
+end

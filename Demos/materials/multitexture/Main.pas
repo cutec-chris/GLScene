@@ -18,23 +18,19 @@
 
    When multi-texturing, never forget that both texture modes (decal, modulate etc.)
    are honoured. For instance, if you "Decal" a non-transparent second texture,
-   the base texture will be completely replaced! 
+   the base texture will be completely replaced!
 }
 unit Main;
-
-{$MODE Delphi}
 
 interface
 
 uses
-  LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLScene, GLObjects, GLTexture, ComCtrls, StdCtrls, ExtCtrls,
-  ExtDlgs, LResources, GLViewer, GLMaterial;
+  ExtDlgs, GLLCLViewer, GLMaterial, GLCoordinates, GLCrossPlatform,
+  GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -66,57 +62,62 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses Jpeg;
+uses
+  GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-   SetCurrentDir(ExtractFilePath(Application.ExeName));
-   // prepare images to merge in the multitexture
-   with GLMaterialLibrary1 do begin
-      Image1.Picture.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'ashwood.jpg');
-      Materials[0].Material.Texture.Image.Assign(Image1.Picture);
-      Image2.Picture.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'Flare1.bmp');
-      Materials[1].Material.Texture.Image.Assign(Image2.Picture);
-   end;
+  SetGLSceneMediaDir();
+  // prepare images to merge in the multitexture
+  with GLMaterialLibrary1 do
+  begin
+    Image1.Picture.LoadFromFile('ashwood.jpg');
+    Materials[0].Material.Texture.Image.Assign(Image1.Picture);
+    Image2.Picture.LoadFromFile('Flare1.bmp');
+    Materials[1].Material.Texture.Image.Assign(Image2.Picture);
+  end;
 end;
 
 procedure TForm1.Image1Click(Sender: TObject);
 begin
-   // load a new Image1
-   if OpenPictureDialog1.Execute then begin
-      Image1.Picture.LoadFromFile(OpenPictureDialog1.FileName);
-      GLMaterialLibrary1.Materials[0].Material.Texture.Image.Assign(Image1.Picture);
-   end;
+  // load a new Image1
+  if OpenPictureDialog1.Execute then
+  begin
+    Image1.Picture.LoadFromFile(OpenPictureDialog1.FileName);
+    GLMaterialLibrary1.Materials[0].Material.Texture.Image.Assign(Image1.Picture);
+  end;
 end;
 
 procedure TForm1.Image2Click(Sender: TObject);
 begin
-   // load a new Image2
-   if OpenPictureDialog1.Execute then begin
-      Image2.Picture.LoadFromFile(OpenPictureDialog1.FileName);
-      GLMaterialLibrary1.Materials[1].Material.Texture.Image.Assign(Image2.Picture);
-   end;
+  // load a new Image2
+  if OpenPictureDialog1.Execute then
+  begin
+    Image2.Picture.LoadFromFile(OpenPictureDialog1.FileName);
+    GLMaterialLibrary1.Materials[1].Material.Texture.Image.Assign(Image2.Picture);
+  end;
 end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
 begin
-   // adjust scale
-   with GLMaterialLibrary1.Materials[1].TextureScale do begin
-      X:=TrackBar1.Position/10;
-      Y:=TrackBar1.Position/10;
-   end;
+  // adjust scale
+  with GLMaterialLibrary1.Materials[1].TextureScale do
+  begin
+    X := TrackBar1.Position / 10;
+    Y := TrackBar1.Position / 10;
+  end;
 end;
 
 procedure TForm1.CBClampTex2Click(Sender: TObject);
 begin
-   with GLMaterialLibrary1.Materials[1].Material.Texture do
-      if CBClampTex2.Checked then
-         TextureWrap:=twNone
-      else TextureWrap:=twBoth;
+  with GLMaterialLibrary1.Materials[1].Material.Texture do
+    if CBClampTex2.Checked then
+      TextureWrap := twNone
+    else
+      TextureWrap := twBoth;
 end;
 
-initialization
-  {$i Main.lrs}
-
 end.
+

@@ -8,13 +8,16 @@ unit Unit1;
 interface
 
 uses
-  Windows, Forms, GLScene, GLObjects, ComCtrls, ExtCtrls, StdCtrls,
+  Forms, GLScene, GLObjects, ComCtrls, ExtCtrls, StdCtrls,
   Classes, Controls, GLCadencer, GLBehaviours, Buttons, GLGraph, GLMovement,
-  {$IFNDEF FPC} GLWin32Viewer, {$ELSE} GLLCLViewer, LResources,{$ENDIF}
-  GLCrossPlatform, GLCoordinates, BaseClasses, GLUtils,
+  GLViewer, LResources,
+  GLCrossPlatform, GLCoordinates, GLBaseClasses, GLUtils,
   GLSimpleNavigation;
 
 type
+
+  { TForm1 }
+
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -28,6 +31,8 @@ type
     Sphere1: TGLSphere;
     GLSimpleNavigation1: TGLSimpleNavigation;
     procedure FormActivate(Sender: TObject);
+    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
+      newTime: Double);
     procedure MoveBtnClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
@@ -41,14 +46,10 @@ var
 
 implementation
 
-{$IFNDEF FPC}
-{$R *.dfm}
-{$ELSE}
 {$R *.lfm}
-{$ENDIF}
 
 uses
-   SysUtils, VectorGeometry;
+   SysUtils, GLVectorGeometry;
 
 procedure TForm1.FormActivate(Sender: TObject);
 var
@@ -97,6 +98,12 @@ begin
   Movement.ActivePathIndex := 0;
 end;
 
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
+  newTime: Double);
+begin
+  GLSceneViewer1.Invalidate;
+end;
+
 procedure TForm1.MoveBtnClick(Sender: TObject);
 var
   Movement: TGLMovement;
@@ -126,8 +133,8 @@ begin
    GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
-{$IFDEF FPC}
+
 initialization
 {$i Unit1.lrs}
-{$ENDIF}
-end.
+
+end.

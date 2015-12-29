@@ -11,8 +11,8 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLObjects, StdCtrls, ComCtrls, GLTexture, ExtCtrls,
-  GLExtrusion, GLViewer, LResources, GLScene;
+  GLScene, GLObjects, StdCtrls, ComCtrls, GLTexture, ExtCtrls,
+  GLExtrusion, GLLCLViewer, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -59,12 +59,14 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses JPeg;
+uses GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-   RotationSolid1.Material.Texture.Image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'ashwood.jpg');
+   SetGLSceneMediaDir();
+   RotationSolid1.Material.Texture.Image.LoadFromFile('ashwood.jpg');
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
@@ -129,8 +131,5 @@ begin
       GLCamera1.MoveAroundTarget(my-y, mx-x);
    mx:=x; my:=y;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

@@ -1,10 +1,8 @@
 object Form1: TForm1
-  Left = 246
+  Left = 62
   Height = 574
-  Top = 130
+  Top = 15
   Width = 705
-  HorzScrollBar.Page = 704
-  VertScrollBar.Page = 573
   Caption = 'Form1'
   ClientHeight = 574
   ClientWidth = 705
@@ -23,6 +21,7 @@ object Form1: TForm1
     Buffer.ShadeModel = smFlat
     FieldOfView = 157.770050048828
     Align = alClient
+    TabOrder = 0
   end
   object Panel1: TPanel
     Left = 0
@@ -33,8 +32,7 @@ object Form1: TForm1
     BevelOuter = bvNone
     ClientHeight = 65
     ClientWidth = 705
-    FullRepaint = False
-    TabOrder = 0
+    TabOrder = 1
     object Label1: TLabel
       Left = 424
       Height = 14
@@ -69,7 +67,7 @@ object Form1: TForm1
     end
     object TrackBar1: TTrackBar
       Left = 112
-      Height = 33
+      Height = 25
       Top = 24
       Width = 265
       Max = 50
@@ -81,7 +79,6 @@ object Form1: TForm1
       Height = 25
       Top = 24
       Width = 75
-      BorderSpacing.InnerBorder = 4
       Caption = 'Reset'
       OnClick = Button1Click
       TabOrder = 1
@@ -119,9 +116,6 @@ object Form1: TForm1
       CubeSize = 1
       object FreeForm1: TGLFreeForm
         TagFloat = 0
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         Direction.Coordinates = {
           000000000000803F0000000000000000
         }
@@ -138,9 +132,6 @@ object Form1: TForm1
       Material.FrontProperties.Emission.Color = {
         0000803F0000803F000000000000803F
       }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       Direction.Coordinates = {
         000000000000803F0000000000000000
       }
@@ -150,7 +141,7 @@ object Form1: TForm1
       Up.Coordinates = {
         E9DC72BF000000009BE8A13E00000000
       }
-      Radius = 0.10000000149011
+      Radius = 0.10000000149012
       Slices = 6
       Stacks = 6
       object ArrowLine1: TGLArrowLine
@@ -162,18 +153,15 @@ object Form1: TForm1
           1283803E1283803E000000000000803F
         }
         Material.BlendingMode = bmTransparency
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         PitchAngle = 0
         Position.Coordinates = {
           0000000000000000CDCCCC3D0000803F
         }
         RollAngle = 0
         TurnAngle = 0
-        BottomRadius = 0.05000000074505
+        BottomRadius = 0.05000000074506
         Height = 1
-        TopRadius = 0.10000000149011
+        TopRadius = 0.10000000149012
         TopArrowHeadHeight = 2
         TopArrowHeadRadius = 0.20000000298023
         BottomArrowHeadHeight = 0.5

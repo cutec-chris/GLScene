@@ -44,24 +44,19 @@
       performance hit from the PlaneClip because it basicly turns-off hardware T&L.
       The glEval-based teapot also performs (relatively) poorly on those boards,
       while on an old-fashioned TNT2 f.i., plane clipping has a negligible
-      performance impact.  
+      performance impact.
 }
 unit Unit1;
-
-{$MODE Delphi}
 
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms,
   GLScene, GLObjects, GLExtrusion, GLMirror, GLMultiPolygon,
-  ExtCtrls, GLCadencer, StdCtrls, GLTeapot, GLGeomObjects,
-  LResources, GLViewer;
+  ExtCtrls, GLCadencer, StdCtrls, GLLCLViewer, GLTeapot, GLGeomObjects,
+  GLCoordinates, GLCrossPlatform, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -85,13 +80,13 @@ type
     CylinderThroughMirror: TGLCylinder;
     CBPlaneClip: TCheckBox;
     DCNonReflectingStuff: TGLDummyCube;
-    procedure GLSceneViewer1MouseDown(Sender: TObject;
-      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
+      X, Y: integer);
     procedure Timer1Timer(Sender: TObject);
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure GLCadencer1Progress(Sender: TObject;
+      const deltaTime, newTime: double);
     procedure CBOpaqueClick(Sender: TObject);
     procedure CBStencilClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -101,7 +96,7 @@ type
     { Déclarations privées }
   public
     { Déclarations publiques }
-    mx, my : Integer;
+    mx, my: integer;
   end;
 
 var
@@ -109,81 +104,86 @@ var
 
 implementation
 
+{$R *.lfm}
 
-//
+
 // Those events simply add/remove one of the mirror options
 // when the related checkbox is clicked
-//
+
 
 procedure TForm1.CBOpaqueClick(Sender: TObject);
 begin
-   if CBOpaque.Checked then
-      GLMirror.MirrorOptions:=GLMirror.MirrorOptions-[moOpaque]
-   else GLMirror.MirrorOptions:=GLMirror.MirrorOptions+[moOpaque];
+  if CBOpaque.Checked then
+    GLMirror.MirrorOptions := GLMirror.MirrorOptions + [moOpaque]
+  else
+    GLMirror.MirrorOptions := GLMirror.MirrorOptions - [moOpaque];
 end;
 
 procedure TForm1.CBStencilClick(Sender: TObject);
 begin
-   if CBStencil.Checked then
-      GLMirror.MirrorOptions:=GLMirror.MirrorOptions+[moUseStencil]
-   else GLMirror.MirrorOptions:=GLMirror.MirrorOptions-[moUseStencil];
+  if CBStencil.Checked then
+    GLMirror.MirrorOptions := GLMirror.MirrorOptions + [moUseStencil]
+  else
+    GLMirror.MirrorOptions := GLMirror.MirrorOptions - [moUseStencil];
 end;
 
 procedure TForm1.CBClearZClick(Sender: TObject);
 begin
-   if CBClearZ.Checked then
-      GLMirror.MirrorOptions:=GLMirror.MirrorOptions+[moClearZBuffer]
-   else GLMirror.MirrorOptions:=GLMirror.MirrorOptions-[moClearZBuffer];
+  if CBClearZ.Checked then
+    GLMirror.MirrorOptions := GLMirror.MirrorOptions + [moClearZBuffer]
+  else
+    GLMirror.MirrorOptions := GLMirror.MirrorOptions - [moClearZBuffer];
 end;
 
 procedure TForm1.CBPlaneClipClick(Sender: TObject);
 begin
-   if CBPlaneClip.Checked then
-      GLMirror.MirrorOptions:=GLMirror.MirrorOptions+[moMirrorPlaneClip]
-   else GLMirror.MirrorOptions:=GLMirror.MirrorOptions-[moMirrorPlaneClip];
+  if CBPlaneClip.Checked then
+    GLMirror.MirrorOptions := GLMirror.MirrorOptions + [moMirrorPlaneClip]
+  else
+    GLMirror.MirrorOptions := GLMirror.MirrorOptions - [moMirrorPlaneClip];
 end;
 
-//
+
 // Standard-issue move around target code
-//
 
-procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+
+procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: integer);
 begin
-   mx:=x; my:=y;
+  mx := x;
+  my := y;
 end;
 
-procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
+procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: integer);
 begin
-   if Shift<>[] then begin
-      GLCamera1.MoveAroundTarget(my-y, mx-x);
-      mx:=x; my:=y;
-   end;
+  if Shift <> [] then
+  begin
+    GLCamera1.MoveAroundTarget(my - y, mx - x);
+    mx := x;
+    my := y;
+  end;
 end;
 
-//
+
 // Standard issue resize/zoom, timer and viewr invalidation (to force redraws)
-//
+
 
 procedure TForm1.FormResize(Sender: TObject);
 begin
-   GLCamera1.SceneScale:=GLSceneViewer1.Width/380;
+  GLCamera1.SceneScale := GLSceneViewer1.Width / 380;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-   Caption:=Format('%.1f FPS', [GLSceneViewer1.FramesPerSecond]);
-   GLSceneViewer1.ResetPerformanceMonitor;
+  Caption := Format('%.1f FPS', [GLSceneViewer1.FramesPerSecond]);
+  GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime, newTime: double);
 begin
-   GLSceneViewer1.Invalidate;
+  GLSceneViewer1.Invalidate;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.
+

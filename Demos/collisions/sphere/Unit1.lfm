@@ -1,31 +1,30 @@
 object Form1: TForm1
-  Left = 285
-  Height = 430
-  Top = 125
-  Width = 540
-  HorzScrollBar.Page = 539
-  VertScrollBar.Page = 429
+  Left = 197
+  Height = 362
+  Top = 104
+  Width = 458
   Caption = 'Form1'
-  ClientHeight = 430
-  ClientWidth = 540
+  ClientHeight = 362
+  ClientWidth = 458
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 365
+    Height = 317
     Top = 0
-    Width = 540
+    Width = 458
     Camera = GLCamera1
-    FieldOfView = 149.356979370117
+    FieldOfView = 144.983474731445
     Align = alClient
+    TabOrder = 0
   end
   object TrackBar1: TTrackBar
     Left = 0
-    Height = 40
-    Top = 365
-    Width = 540
+    Height = 45
+    Top = 317
+    Width = 458
     Frequency = 5
     Max = 20
     Min = -20
@@ -33,19 +32,16 @@ object Form1: TForm1
     Position = 20
     TickMarks = tmBoth
     Align = alBottom
-    TabOrder = 0
+    TabOrder = 1
   end
   object Button1: TButton
-    Left = 0
+    Left = 336
     Height = 25
-    Top = 405
-    Width = 540
-    Align = alBottom
-    Anchors = [akRight, akBottom]
-    BorderSpacing.InnerBorder = 4
+    Top = 16
+    Width = 91
     Caption = 'Test collisions'
     OnClick = Button1Click
-    TabOrder = 1
+    TabOrder = 2
   end
   object GLScene1: TGLScene
     left = 16
@@ -73,9 +69,6 @@ object Form1: TForm1
       Material.FrontProperties.Diffuse.Color = {
         8A8F0F3FBEBC3C3F8A8F0F3F0000803F
       }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       PitchAngle = 0
       Position.Coordinates = {
         0000000000000000000000400000803F
@@ -84,8 +77,8 @@ object Form1: TForm1
       TurnAngle = 0
       Radius = 0.5
       BehavioursData = {
-        0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
-        6E616765723102010200
+        0458434F4C02010201060D54474C42436F6C6C6973696F6E02010611436F6C6C
+        6973696F6E4D616E616765723102010200
       }
     end
     object Sphere2: TGLSphere
@@ -93,16 +86,13 @@ object Form1: TForm1
       Material.FrontProperties.Diffuse.Color = {
         00000000F8FEFE3E0000803F0000803F
       }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       PitchAngle = 0
       RollAngle = 0
       TurnAngle = 0
       Radius = 0.5
       BehavioursData = {
-        0201060D54474C42436F6C6C6973696F6E02010611436F6C6C6973696F6E4D61
-        6E616765723102010200
+        0458434F4C02010201060D54474C42436F6C6C6973696F6E02010611436F6C6C
+        6973696F6E4D616E616765723102010200
       }
     end
     object GLCamera1: TGLCamera
@@ -117,17 +107,9 @@ object Form1: TForm1
       top = 160
     end
   end
-  object CollisionManager1: TCollisionManager
+  object CollisionManager1: TGLCollisionManager
     OnCollision = CollisionManager1Collision
     left = 16
-    top = 48
+    top = 72
   end
-  object GLCadencer1: TGLCadencer
-    Scene = GLScene1
-    MaxDeltaTime = 0
-    MinDeltaTime = 0
-    FixedDeltaTime = 0
-    left = 48
-    top = 16
-  end
-end
+end

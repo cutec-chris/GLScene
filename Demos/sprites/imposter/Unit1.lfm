@@ -1,10 +1,8 @@
 object Form1: TForm1
-  Left = 297
+  Left = 110
   Height = 341
-  Top = 156
+  Top = 65
   Width = 542
-  HorzScrollBar.Page = 541
-  VertScrollBar.Page = 340
   Caption = 'Form1'
   ClientHeight = 341
   ClientWidth = 542
@@ -22,6 +20,7 @@ object Form1: TForm1
     FieldOfView = 135.358093261718
     Align = alClient
     OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
   end
   object Panel1: TPanel
     Left = 415
@@ -32,8 +31,7 @@ object Form1: TForm1
     BevelOuter = bvLowered
     ClientHeight = 341
     ClientWidth = 127
-    FullRepaint = False
-    TabOrder = 0
+    TabOrder = 1
     object Label1: TLabel
       Left = 8
       Height = 14
@@ -54,7 +52,7 @@ object Form1: TForm1
       Left = 8
       Height = 17
       Top = 32
-      Width = 84
+      Width = 82
       Caption = 'Show Teapot'
       Checked = True
       OnClick = CBShowTeapotClick
@@ -65,7 +63,7 @@ object Form1: TForm1
       Left = 8
       Height = 17
       Top = 52
-      Width = 95
+      Width = 93
       Caption = 'Show Imposters'
       Checked = True
       OnClick = CBShowImposterClick

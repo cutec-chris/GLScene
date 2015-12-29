@@ -1,10 +1,9 @@
 object Form1: TForm1
-  Left = 302
+  Left = 173
   Height = 316
-  Top = 132
+  Top = 110
   Width = 457
-  HorzScrollBar.Page = 456
-  VertScrollBar.Page = 315
+  BorderWidth = 3
   Caption = 'Form1'
   ClientHeight = 316
   ClientWidth = 457
@@ -12,14 +11,15 @@ object Form1: TForm1
   Font.Name = 'MS Sans Serif'
   LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
-    Left = 0
-    Height = 316
-    Top = 0
-    Width = 457
+    Left = 3
+    Height = 310
+    Top = 3
+    Width = 451
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
-    FieldOfView = 144.879455566406
+    FieldOfView = 144.242614746093
     Align = alClient
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 16
@@ -34,9 +34,6 @@ object Form1: TForm1
         TagFloat = 0
         Material.FrontProperties.Diffuse.Color = {
           000000000000803F000000000000803F
-        }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
         }
         PitchAngle = 0
         Position.Coordinates = {
@@ -56,8 +53,12 @@ object Form1: TForm1
         }
         Nodes = <        
           item
+            X = 4
+            Y = -4
           end        
           item
+            X = 4
+            Y = 4
           end>
         NodesAspect = lnaInvisible
         Options = []
@@ -88,9 +89,6 @@ object Form1: TForm1
         Material.FrontProperties.Diffuse.Color = {
           C9C8C83EC9C8C83E0000803F0000803F
         }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
         PitchAngle = 0
         Position.Coordinates = {
           000080BF00000000000000000000803F
@@ -114,8 +112,10 @@ object Form1: TForm1
           }
           Nodes = <          
             item
+              Z = -1
             end          
             item
+              Z = 7
             end>
           NodesAspect = lnaInvisible
           Options = []
@@ -124,9 +124,6 @@ object Form1: TForm1
           TagFloat = 0
           Material.FrontProperties.Diffuse.Color = {
             00000000000000000000803F0000803F
-          }
-          Material.Texture.MappingTCoordinates.Coordinates = {
-            000000000000803F0000000000000000
           }
           Direction.Coordinates = {
             000000800000803F0000000000000000
@@ -144,7 +141,6 @@ object Form1: TForm1
           Width = 0.30000001192092
           XOffset = 0
           YOffset = 0
-          NoZWrite = False
         end
       end
     end
@@ -155,9 +151,6 @@ object Form1: TForm1
       }
       Material.FrontProperties.Emission.Color = {
         00000000000000008180003F0000803F
-      }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
       }
       Direction.Coordinates = {
         000000000000803F0000000000000000
@@ -181,9 +174,6 @@ object Form1: TForm1
       }
       Material.FrontProperties.Emission.Color = {
         000000008180803E000000000000803F
-      }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
       }
       Direction.Coordinates = {
         000000000000803F0000000000000000
@@ -222,4 +212,4 @@ object Form1: TForm1
     left = 56
     top = 16
   end
-end
+end

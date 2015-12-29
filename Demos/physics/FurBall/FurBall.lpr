@@ -3,9 +3,13 @@ program FurBall;
 {$MODE Delphi}
 
 uses
-  Interfaces,
-  Forms,
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Forms, Interfaces,
   fFurBall in 'fFurBall.pas' {frmFurBall};
+
+{$R *.res}
 
 begin
   Application.Initialize;

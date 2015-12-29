@@ -12,7 +12,7 @@ object GLSLTestForm: TGLSLTestForm
   OnCreate = FormCreate
   OnMouseWheel = FormMouseWheel
   Position = poScreenCenter
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object Viewer: TGLSceneViewer
     Left = 0
     Height = 400
@@ -23,7 +23,7 @@ object GLSLTestForm: TGLSLTestForm
     Buffer.AntiAliasing = aaNone
     Buffer.DepthPrecision = dp24bits
     Buffer.ColorDepth = cd24bits
-    FieldOfView = 143.991668701171
+    FieldOfView = 143.991668701172
     Align = alClient
     OnMouseDown = ViewerMouseDown
     OnMouseMove = ViewerMouseMove
@@ -40,9 +40,9 @@ object GLSLTestForm: TGLSLTestForm
     TabOrder = 1
     object LightMovingCheckBox: TCheckBox
       Left = 8
-      Height = 17
+      Height = 19
       Top = 8
-      Width = 89
+      Width = 91
       Caption = 'Light is Moving'
       Checked = True
       Color = clBtnFace
@@ -52,17 +52,17 @@ object GLSLTestForm: TGLSLTestForm
     end
     object RollPitchTurnCheckBox: TCheckBox
       Left = 8
-      Height = 17
+      Height = 19
       Top = 24
-      Width = 146
+      Width = 148
       Caption = 'Roll / Pitch / Turn Enabled'
       TabOrder = 1
     end
     object ShaderEnabledCheckBox: TCheckBox
       Left = 176
-      Height = 17
+      Height = 19
       Top = 8
-      Width = 94
+      Width = 96
       Caption = 'Shader Enabled'
       Checked = True
       OnClick = ShaderEnabledCheckBoxClick
@@ -71,18 +71,18 @@ object GLSLTestForm: TGLSLTestForm
     end
     object MultiLightShaderCheckBox: TCheckBox
       Left = 176
-      Height = 17
+      Height = 19
       Top = 24
-      Width = 100
+      Width = 102
       Caption = 'MultiLight Shader'
       OnClick = MultiLightShaderCheckBoxClick
       TabOrder = 3
     end
     object UseSpecularTextureCheckBox: TCheckBox
       Left = 320
-      Height = 17
+      Height = 19
       Top = 8
-      Width = 121
+      Width = 123
       Caption = 'Use Specular Texture'
       Checked = True
       OnClick = UseSpecularTextureCheckBoxClick
@@ -91,9 +91,9 @@ object GLSLTestForm: TGLSLTestForm
     end
     object UseNormalTextureCheckBox: TCheckBox
       Left = 320
-      Height = 17
+      Height = 19
       Top = 24
-      Width = 112
+      Width = 114
       Caption = 'Use Normal Texture'
       Checked = True
       OnClick = UseNormalTextureCheckBoxClick
@@ -102,9 +102,9 @@ object GLSLTestForm: TGLSLTestForm
     end
     object ShowUnsupportedSceneObjectsCheckBox: TCheckBox
       Left = 456
-      Height = 17
+      Height = 19
       Top = 8
-      Width = 176
+      Width = 178
       Caption = 'Show unsupported scene objects'
       OnClick = ShowUnsupportedSceneObjectsCheckBoxClick
       TabOrder = 6
@@ -131,9 +131,9 @@ object GLSLTestForm: TGLSLTestForm
           0000A0410000A0410000A04100000000
         }
         TurnAngle = 0
-        BottomRadius = 0.10000000149011
+        BottomRadius = 0.10000000149012
         Height = 1
-        TopRadius = 0.10000000149011
+        TopRadius = 0.10000000149012
         TopArrowHeadHeight = 0.5
         TopArrowHeadRadius = 0.20000000298023
         BottomArrowHeadHeight = 0.5
@@ -154,17 +154,17 @@ object GLSLTestForm: TGLSLTestForm
           00000000000000000000803F00000000
         }
         XSamplingScale.Min = -200
-        XSamplingScale.Max = 200
+        XSamplingScale.max = 200
         XSamplingScale.Origin = 0
-        XSamplingScale.Step = 20
+        XSamplingScale.step = 20
         YSamplingScale.Min = -200
-        YSamplingScale.Max = 200
+        YSamplingScale.max = 200
         YSamplingScale.Origin = 0
-        YSamplingScale.Step = 20
+        YSamplingScale.step = 20
         ZSamplingScale.Min = -200
-        ZSamplingScale.Max = 200
+        ZSamplingScale.max = 200
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 20
+        ZSamplingScale.step = 20
         Parts = [gpX, gpZ]
       end
     end
@@ -402,6 +402,7 @@ object GLSLTestForm: TGLSLTestForm
     Materials = <    
       item
         Name = 'Earth'
+        Tag = 0
         Material.FrontProperties.Ambient.Color = {
           E7E6E63EEBEAEA3EEBEAEA3E0000803F
         }
@@ -415,13 +416,11 @@ object GLSLTestForm: TGLSLTestForm
         Material.Texture.TextureMode = tmReplace
         Material.Texture.Disabled = False
         Material.MaterialLibrary = MaterialLibrary
-        Material.PolygonMode = pmLines
-        Tag = 0
       end    
       item
         Name = 'EarthNormals'
-        Material.Texture.Disabled = False
         Tag = 0
+        Material.Texture.Disabled = False
       end    
       item
         Name = 'EarthHeight'
@@ -429,8 +428,8 @@ object GLSLTestForm: TGLSLTestForm
       end    
       item
         Name = 'EarthGross'
-        Material.Texture.Disabled = False
         Tag = 0
+        Material.Texture.Disabled = False
       end>
     left = 24
     top = 88

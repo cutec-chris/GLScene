@@ -17,9 +17,10 @@ unit Unit1;
 interface
 
 uses
-  GLColor, SysUtils, Classes, Graphics, Controls, Forms,
-  GLObjects, GLExtrusion, GLCadencer, VectorGeometry,
-  GLTexture, ExtCtrls, LResources, GLViewer, GLScene;
+  SysUtils, Classes, Graphics, Controls, Forms,
+  GLScene, GLObjects, GLExtrusion, GLCadencer, GLVectorGeometry,
+  GLTexture, ExtCtrls, GLLCLViewer, GLColor, GLCrossPlatform, GLCoordinates,
+  GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -52,6 +53,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 const
    cNbNodes = 32;
@@ -116,7 +118,4 @@ begin
    GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
-end.
+end.

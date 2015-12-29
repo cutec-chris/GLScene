@@ -1,23 +1,21 @@
 object Form1: TForm1
-  Left = 349
-  Height = 297
-  Top = 293
-  Width = 498
-  HorzScrollBar.Page = 497
-  VertScrollBar.Page = 296
+  Left = 179
+  Height = 343
+  Top = 106
+  Width = 505
   AutoSize = True
+  BorderWidth = 4
   Caption = 'Form1'
-  ClientHeight = 297
-  ClientWidth = 498
+  ClientHeight = 343
+  ClientWidth = 505
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnCreate = FormCreate
-  LCLVersion = '1.5'
+  LCLVersion = '0.9.29'
   object Label1: TLabel
     Left = 392
     Height = 14
     Top = 32
-    Width = 91
+    Width = 76
     Caption = 'XY Grid position'
     ParentColor = False
   end
@@ -31,18 +29,18 @@ object Form1: TForm1
     FieldOfView = 99.8219528198242
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
-    TabOrder = 2
+    TabOrder = 0
   end
   object CBCentered: TCheckBox
     Left = 384
-    Height = 22
+    Height = 17
     Top = 0
-    Width = 108
+    Width = 86
     Caption = 'Centered grids'
     Checked = True
     OnClick = CBCenteredClick
     State = cbChecked
-    TabOrder = 0
+    TabOrder = 1
   end
   object TBXYPosition: TTrackBar
     Left = 408
@@ -54,7 +52,7 @@ object Form1: TForm1
     Orientation = trVertical
     Position = 0
     TickMarks = tmBoth
-    TabOrder = 1
+    TabOrder = 2
   end
   object GLScene1: TGLScene
     left = 16
@@ -74,11 +72,11 @@ object Form1: TForm1
       XSamplingScale.Min = -1
       XSamplingScale.Max = 1
       XSamplingScale.Origin = 0
-      XSamplingScale.Step = 0.0199999995529652
+      XSamplingScale.Step = 0.01999999955296
       YSamplingScale.Min = -1
       YSamplingScale.Max = 1
       YSamplingScale.Origin = 0
-      YSamplingScale.Step = 0.0199999995529652
+      YSamplingScale.Step = 0.01999999955296
       OnGetHeight = HeightField1GetHeight
       object YZGrid: TGLXYZGrid
         TagFloat = 0
@@ -91,15 +89,15 @@ object Form1: TForm1
         XSamplingScale.Min = -1
         XSamplingScale.Max = 1
         XSamplingScale.Origin = 0
-        XSamplingScale.Step = 0.100000001490116
+        XSamplingScale.Step = 0.10000000149011
         YSamplingScale.Min = -1
         YSamplingScale.Max = 1
         YSamplingScale.Origin = 0
-        YSamplingScale.Step = 0.100000001490116
+        YSamplingScale.Step = 0.10000000149011
         ZSamplingScale.Min = -1
         ZSamplingScale.Max = 1
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 0.100000001490116
+        ZSamplingScale.Step = 0.10000000149011
         Parts = [gpY, gpZ]
       end
       object XZGrid: TGLXYZGrid
@@ -113,15 +111,15 @@ object Form1: TForm1
         XSamplingScale.Min = -1
         XSamplingScale.Max = 1
         XSamplingScale.Origin = 0
-        XSamplingScale.Step = 0.100000001490116
+        XSamplingScale.Step = 0.10000000149011
         YSamplingScale.Min = -1
         YSamplingScale.Max = 1
         YSamplingScale.Origin = 0
-        YSamplingScale.Step = 0.100000001490116
+        YSamplingScale.Step = 0.10000000149011
         ZSamplingScale.Min = -1
         ZSamplingScale.Max = 1
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 0.100000001490116
+        ZSamplingScale.Step = 0.10000000149011
         Parts = [gpX, gpZ]
       end
       object XYGrid: TGLXYZGrid
@@ -135,15 +133,15 @@ object Form1: TForm1
         XSamplingScale.Min = -1
         XSamplingScale.Max = 1
         XSamplingScale.Origin = 0
-        XSamplingScale.Step = 0.100000001490116
+        XSamplingScale.Step = 0.10000000149011
         YSamplingScale.Min = -1
         YSamplingScale.Max = 1
         YSamplingScale.Origin = 0
-        YSamplingScale.Step = 0.100000001490116
+        YSamplingScale.Step = 0.10000000149011
         ZSamplingScale.Min = -1
         ZSamplingScale.Max = 1
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 0.100000001490116
+        ZSamplingScale.Step = 0.10000000149011
       end
     end
     object GLLightSource1: TGLLightSource
@@ -168,13 +166,5 @@ object Form1: TForm1
       left = 208
       top = 168
     end
-  end
-  object GLCadencer1: TGLCadencer
-    Scene = GLScene1
-    MaxDeltaTime = 0
-    MinDeltaTime = 0
-    FixedDeltaTime = 0
-    left = 54
-    top = 18
   end
 end

@@ -1,13 +1,11 @@
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  LCLType, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLScene, GLObjects, GLTexture, JPeg,
-  GLGeomObjects, LResources, GLViewer, GLMaterial;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLScene, GLObjects, GLLCLViewer, GLTexture,
+  GLGeomObjects, GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses;
 
 type
 
@@ -43,23 +41,22 @@ var
 
 implementation
 
+{$R *.lfm}
 
-procedure TForm1.FormCreate(Sender: TObject);
-var
-  i:Integer;
-begin
-   GLMaterialLibrary.TexturePaths:=ExtractFilePath(ParamStr(0)) + '..' + PathDelim + '..' + PathDelim + 'media';
-   for i:=0 to GLMaterialLibrary.Materials.Count-1 do
-      with GLMaterialLibrary.Materials[i] do begin
-         Material.Texture.ImageClassName:=TGLPersistentImage.ClassName;
-         Material.Texture.Image.LoadFromFile(ExtractFilePath(ParamStr(0)) + '..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + Name + '.jpg');
-      end;
-end;
+uses GLUtils;
 
 procedure TForm1.GLSceneViewer1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
    mx:=x; my:=y;
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  SetGLSceneMediaDir();
+  GLMaterialLibrary.TextureByName('walkway').Image.LoadFromFile('walkway.jpg');
+  GLMaterialLibrary.TextureByName('rawwall').Image.LoadFromFile('rawwall.jpg');
+  GLMaterialLibrary.TextureByName('marbletiles').Image.LoadFromFile('marbletiles.jpg');
 end;
 
 procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
@@ -71,8 +68,5 @@ begin
       GLCamera.MoveTargetInEyeSpace((y-my)*0.05, (mx-x)*0.05, 0);
    mx:=x; my:=y;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

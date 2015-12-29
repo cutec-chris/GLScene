@@ -1,27 +1,26 @@
 object Form1: TForm1
-  Left = 366
-  Height = 398
-  Top = 227
-  Width = 531
-  HorzScrollBar.Page = 518
-  VertScrollBar.Page = 385
+  Left = 160
+  Height = 386
+  Top = 79
+  Width = 519
   Caption = 'Form1'
-  ClientHeight = 398
-  ClientWidth = 531
+  ClientHeight = 386
+  ClientWidth = 519
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '1.5'
+  OnMouseWheel = FormMouseWheel
+  LCLVersion = '0.9.29'
   object SceneViewer: TGLSceneViewer
     Left = 0
-    Height = 398
+    Height = 386
     Top = 0
-    Width = 531
+    Width = 519
     Camera = GLCamera
     Buffer.BackgroundColor = clBlack
     Buffer.FaceCulling = False
     Buffer.AntiAliasing = aa4xHQ
-    FieldOfView = 146.443099975586
+    FieldOfView = 145.461059570312
     Align = alClient
     OnMouseDown = SceneViewerMouseDown
     OnMouseMove = SceneViewerMouseMove
@@ -48,13 +47,13 @@ object Form1: TForm1
         Up.Coordinates = {
           0000000000000000000080BF00000000
         }
-        BottomRadius = 0.100000001490116
+        BottomRadius = 0.10000000149011
         Height = 1
-        TopRadius = 0.100000001490116
+        TopRadius = 0.10000000149011
         TopArrowHeadHeight = 0.5
-        TopArrowHeadRadius = 0.200000002980232
+        TopArrowHeadRadius = 0.20000000298023
         BottomArrowHeadHeight = 0.5
-        BottomArrowHeadRadius = 0.200000002980232
+        BottomArrowHeadRadius = 0.20000000298023
       end
       object GLLightSource1: TGLLightSource
         TagFloat = 0
@@ -126,7 +125,7 @@ object Form1: TForm1
         ZSamplingScale.Min = 0
         ZSamplingScale.Max = 0
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 0.100000001490116
+        ZSamplingScale.Step = 0.10000000149011
       end
     end
     object GLCamera: TGLCamera

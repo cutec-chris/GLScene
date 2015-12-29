@@ -20,9 +20,9 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLHUDObjects, GLObjects, GLCadencer, ExtCtrls,
-  GLBitmapFont, GLViewer, GLWindowsFont, Menus, GLTeapot, LResources,
-  GLScene;
+  GLScene, GLHUDObjects, GLObjects, GLCadencer, ExtCtrls,
+  GLBitmapFont, GLLCLViewer, GLWindowsFont, Menus, GLTeapot, GLCoordinates,
+  GLCrossPlatform, GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -41,8 +41,8 @@ type
     MIPickFont: TMenuItem;
     FontDialog1: TFontDialog;
     MIViewTexture: TMenuItem;
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure GLCadencer1Progress(Sender: TObject;
+      const deltaTime, newTime: double);
     procedure Timer1Timer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure GLSceneViewer1Click(Sender: TObject);
@@ -61,6 +61,7 @@ implementation
 
 uses Unit2;
 
+{$R *.lfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -74,52 +75,54 @@ begin
                   +'occaecat cupidatat non proident, sunt in culpa qui officia'#13#10
                   +'deserunt mollit anim id est laborum.'#13#10
                   +'Woblis ten caracuro Zapothek it Setag!'; // I needed an uppercase 'W' too...
+
+  HUDText1.Text := HUDText1.Text + #13#10'Unicode text...'#$0699#$069A#$963f#$54c0;
+  WindowsBitmapFont1.EnsureString(HUDText1.Text);
 end;
 
 procedure TForm1.MIPickFontClick(Sender: TObject);
 begin
-   FontDialog1.Font:=WindowsBitmapFont1.Font;
-   if FontDialog1.Execute then begin
-      WindowsBitmapFont1.Font:=FontDialog1.Font;
-      HUDText1.ModulateColor.AsWinColor:=FontDialog1.Font.Color;
-   end;
+  FontDialog1.Font := WindowsBitmapFont1.Font;
+  if FontDialog1.Execute then
+  begin
+    WindowsBitmapFont1.Font := FontDialog1.Font;
+    HUDText1.ModulateColor.AsWinColor := FontDialog1.Font.Color;
+  end;
 end;
 
 procedure TForm1.MIViewTextureClick(Sender: TObject);
 begin
-   with Form2.Image1 do begin
-      Picture:=WindowsBitmapFont1.Glyphs;
-      Form2.Width:=Picture.Width;
-      Form2.Height:=Picture.Height;
-   end;
-   Form2.Show;
+  with Form2.Image1 do
+  begin
+    Picture := WindowsBitmapFont1.Glyphs;
+    Form2.Width := Picture.Width;
+    Form2.Height := Picture.Height;
+  end;
+  Form2.Show;
 end;
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime, newTime: double);
 begin
-   // make things move a little
-   HUDText2.Rotation:=HUDText2.Rotation+15*deltaTime;
-   HUDText3.Scale.X:=sin(newTime)+1.5;
-   HUDText3.Scale.Y:=cos(newTime)+1.5;
-   GLSceneViewer1.Invalidate;
+  // make things move a little
+  HUDText2.Rotation := HUDText2.Rotation + 15 * deltaTime;
+  HUDText3.Scale.X := sin(newTime) + 1.5;
+  HUDText3.Scale.Y := cos(newTime) + 1.5;
+  GLSceneViewer1.Invalidate;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-   Caption:=Format('%.1f FPS - %d x %d Font Texture',
-                   [GLSceneViewer1.FramesPerSecond,
-                    WindowsBitmapFont1.FontTextureWidth,
-                    WindowsBitmapFont1.FontTextureHeight]);
-   GLSceneViewer1.ResetPerformanceMonitor;
+  Caption := Format('%.1f FPS - %d x %d Font Texture',
+    [GLSceneViewer1.FramesPerSecond,
+    WindowsBitmapFont1.FontTextureWidth,
+    WindowsBitmapFont1.FontTextureHeight]);
+  GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
 procedure TForm1.GLSceneViewer1Click(Sender: TObject);
 begin
-   Teapot1.Visible:=not Teapot1.Visible;
+  Teapot1.Visible := not Teapot1.Visible;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

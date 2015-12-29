@@ -3,11 +3,13 @@ program OctreeDemo;
 {$MODE Delphi}
 
 uses
-  Interfaces,
-  Forms,
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Forms, Interfaces,
   fOctreeDemo in 'fOctreeDemo.pas' {frmOctreeDemo};
 
-{ $R *.res}
+{$R *.res}
 
 begin
   Application.Initialize;

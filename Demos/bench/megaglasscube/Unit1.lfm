@@ -1,10 +1,8 @@
 object Form1: TForm1
-  Left = 269
+  Left = 198
   Height = 302
-  Top = 133
+  Top = 107
   Width = 344
-  HorzScrollBar.Page = 343
-  VertScrollBar.Page = 301
   Caption = 'Form1'
   ClientHeight = 302
   ClientWidth = 344
@@ -21,6 +19,7 @@ object Form1: TForm1
     Buffer.BackgroundColor = clBlack
     FieldOfView = 143.35791015625
     Align = alClient
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     ObjectsSorting = osNone
@@ -71,4 +70,4 @@ object Form1: TForm1
     left = 8
     top = 72
   end
-end
+end

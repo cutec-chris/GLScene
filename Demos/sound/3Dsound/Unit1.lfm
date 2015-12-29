@@ -1,363 +1,262 @@
 object Form1: TForm1
-  Left = 275
-  Height = 387
-  Top = 140
-  Width = 443
-  HorzScrollBar.Page = 442
-  VertScrollBar.Page = 386
+  Left = 209
+  Top = 92
+  Width = 483
+  Height = 391
   Caption = 'Form1'
-  ClientHeight = 387
-  ClientWidth = 443
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnClose = FormClose
+  Font.Style = []
+  OldCreateOrder = False
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  PixelsPerInch = 96
+  TextHeight = 13
   object GLSceneViewer: TGLSceneViewer
     Left = 0
-    Height = 294
     Top = 66
-    Width = 443
+    Width = 467
+    Height = 260
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
     Buffer.AntiAliasing = aaNone
-    FieldOfView = 142.429962158203
+    FieldOfView = 137.924972534179700000
     Align = alClient
+    TabOrder = 0
   end
   object TrackBar: TTrackBar
     Left = 0
+    Top = 326
+    Width = 467
     Height = 27
-    Top = 360
-    Width = 443
-    Frequency = 45
+    Align = alBottom
     Max = 180
     Min = -180
-    OnChange = TrackBarChange
     PageSize = 45
-    Position = 0
+    Frequency = 45
+    TabOrder = 1
+    ThumbLength = 10
     TickMarks = tmBoth
-    Align = alBottom
-    TabOrder = 0
+    OnChange = TrackBarChange
   end
   object TrackBar1: TTrackBar
     Left = 0
-    Height = 33
     Top = 33
-    Width = 443
-    Frequency = 10
+    Width = 467
+    Height = 33
+    Align = alTop
     Max = 50
     Min = -50
-    OnChange = TrackBar1Change
     PageSize = 45
-    Position = 0
+    Frequency = 10
+    TabOrder = 2
+    ThumbLength = 10
     TickMarks = tmBoth
-    Align = alTop
-    TabOrder = 1
+    OnChange = TrackBar1Change
   end
   object Panel1: TPanel
     Left = 0
-    Height = 33
     Top = 0
-    Width = 443
+    Width = 467
+    Height = 33
     Align = alTop
     BevelOuter = bvNone
-    ClientHeight = 33
-    ClientWidth = 443
-    FullRepaint = False
-    TabOrder = 2
+    TabOrder = 3
+    DesignSize = (
+      467
+      33)
     object Label1: TLabel
       Left = 0
-      Height = 14
       Top = 8
-      Width = 83
+      Width = 82
+      Height = 13
       Caption = 'Sound Manager :'
-      ParentColor = False
     end
     object RBBass: TRadioButton
-      Left = 96
+      Left = 89
+      Top = 10
+      Width = 57
       Height = 17
-      Top = 8
-      Width = 48
       Caption = 'BASS'
-      OnClick = RBFMODClick
       TabOrder = 0
+      OnClick = RBFMODClick
     end
     object RBFMOD: TRadioButton
       Left = 152
+      Top = 10
+      Width = 57
       Height = 17
-      Top = 8
-      Width = 51
       Caption = 'FMOD'
-      Checked = True
-      OnClick = RBFMODClick
-      State = cbChecked
       TabOrder = 1
+      OnClick = RBFMODClick
     end
     object Button1: TButton
-      Left = 360
-      Height = 25
+      Left = 384
       Top = 4
       Width = 83
+      Height = 25
       Anchors = [akTop, akRight]
-      BorderSpacing.InnerBorder = 4
       Caption = 'Chimes (WAV)'
-      OnClick = Button1Click
       TabOrder = 2
+      OnClick = Button1Click
     end
-    object Button2: TButton
-      Left = 272
-      Height = 25
-      Top = 4
+    object btnHowl: TButton
+      Left = 295
+      Top = 2
       Width = 83
+      Height = 25
       Anchors = [akTop, akRight]
-      BorderSpacing.InnerBorder = 4
       Caption = 'Howl (MP3)'
-      OnClick = Button2Click
+      Enabled = False
       TabOrder = 3
+      OnClick = btnHowlClick
+    end
+    object RBOpenAL: TRadioButton
+      Left = 215
+      Top = 10
+      Width = 65
+      Height = 17
+      Caption = 'OpenAL'
+      Checked = True
+      TabOrder = 4
+      TabStop = True
+      OnClick = RBFMODClick
     end
   end
   object GLSMFMOD: TGLSMFMOD
-    Active = True
-    MasterVolume = 1
+    MasterVolume = 1.000000000000000000
     Listener = Mickey
     Sources = <>
     Cadencer = GLCadencer1
-    left = 8
-    top = 144
+    Left = 8
+    Top = 144
   end
   object GLSMBASS: TGLSMBASS
     MaxChannels = 32
-    MasterVolume = 1
+    MasterVolume = 1.000000000000000000
     Listener = Mickey
     Sources = <>
     Cadencer = GLCadencer1
-    left = 40
-    top = 144
+    Left = 40
+    Top = 144
+  end
+  object GLSMOpenAL: TGLSMOpenAL
+    Active = True
+    MaxChannels = 32
+    MasterVolume = 1.000000000000000000
+    Listener = Mickey
+    Sources = <>
+    Cadencer = GLCadencer1
+    Environment = seAuditorium
+    Left = 72
+    Top = 144
   end
   object GLSoundLibrary: TGLSoundLibrary
     Samples = <>
-    left = 8
-    top = 104
+    Left = 8
+    Top = 104
   end
   object GLScene: TGLScene
-    left = 8
-    top = 64
+    Left = 8
+    Top = 64
     object DummyCube: TGLDummyCube
-      TagFloat = 0
-      PitchAngle = 0
-      RollAngle = 0
-      TurnAngle = 0
-      CubeSize = 1
+      CubeSize = 1.000000000000000000
       object Torus1: TGLTorus
-        TagFloat = 0
-        Material.FrontProperties.Diffuse.Color = {
-          00000000000000000000803F0000803F
-        }
-        Material.FrontProperties.Emission.Color = {
-          000000008180803E8180003F0000803F
-        }
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
-        Direction.Coordinates = {
-          000000000000803F2EBD3BB300000000
-        }
-        PitchAngle = 0
-        Position.Coordinates = {
-          00000000000000BF000000000000803F
-        }
-        RollAngle = 0
-        Scale.Coordinates = {
-          0000803F0000803F0000003F00000000
-        }
-        TurnAngle = 0
-        Up.Coordinates = {
-          000000002EBD3BB3000080BF00000000
-        }
-        MajorRadius = 5
-        MinorRadius = 0.10000000149011
+        Material.FrontProperties.Diffuse.Color = {00000000000000000000803F0000803F}
+        Material.FrontProperties.Emission.Color = {000000008180803E8180003F0000803F}
+        Direction.Coordinates = {000000000000803F2EBD3BB300000000}
+        Position.Coordinates = {00000000000000BF000000000000803F}
+        Scale.Coordinates = {0000803F0000803F0000003F00000000}
+        Up.Coordinates = {000000002EBD3BB3000080BF00000000}
+        MajorRadius = 5.000000000000000000
+        MinorRadius = 0.100000001490116100
         Rings = 16
         Sides = 3
       end
       object Mickey: TGLSphere
-        TagFloat = 0
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
-        PitchAngle = 0
-        Position.Coordinates = {
-          000000000000003F000000000000803F
-        }
-        RollAngle = 0
-        TurnAngle = 0
-        Radius = 0.5
+        Position.Coordinates = {000000000000003F000000000000803F}
+        Radius = 0.500000000000000000
         Slices = 9
         Stacks = 9
         object Sphere2: TGLSphere
-          TagFloat = 0
-          Material.Texture.MappingTCoordinates.Coordinates = {
-            000000000000803F0000000000000000
-          }
-          PitchAngle = 0
-          Position.Coordinates = {
-            CDCCCC3ECDCC4C3E000000000000803F
-          }
-          RollAngle = 0
-          TurnAngle = 0
-          Radius = 0.30000001192092
+          Position.Coordinates = {CDCCCC3ECDCC4C3E000000000000803F}
+          Radius = 0.300000011920929000
           Slices = 6
           Stacks = 6
         end
         object Sphere3: TGLSphere
-          TagFloat = 0
-          Material.Texture.MappingTCoordinates.Coordinates = {
-            000000000000803F0000000000000000
-          }
-          PitchAngle = 0
-          Position.Coordinates = {
-            CDCCCCBECDCC4C3E000000000000803F
-          }
-          RollAngle = 0
-          TurnAngle = 0
-          Radius = 0.30000001192092
+          Position.Coordinates = {CDCCCCBECDCC4C3E000000000000803F}
+          Radius = 0.300000011920929000
           Slices = 6
           Stacks = 6
         end
         object Cone1: TGLCone
-          TagFloat = 0
-          Material.Texture.MappingTCoordinates.Coordinates = {
-            000000000000803F0000000000000000
-          }
-          Direction.Coordinates = {
-            2EF964BF2EF9E43E0000000000000000
-          }
-          PitchAngle = 0
-          Position.Coordinates = {
-            00000000000000000000003F0000803F
-          }
-          RollAngle = 0
-          TurnAngle = 0
-          Up.Coordinates = {
-            00000000000000000000803F00000000
-          }
-          BottomRadius = 0.30000001192092
-          Height = 0.5
+          Direction.Coordinates = {2EF964BF2EF9E43E0000000000000000}
+          Position.Coordinates = {00000000000000000000003F0000803F}
+          Up.Coordinates = {00000000000000000000803F00000000}
+          BottomRadius = 0.300000011920929000
+          Height = 0.500000000000000000
           Slices = 8
           Stacks = 2
           Parts = [coSides]
         end
       end
       object Plane1: TGLPlane
-        TagFloat = 0
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
-        Direction.Coordinates = {
-          000000000000803F2EBD3BB300000000
-        }
-        PitchAngle = 0
-        Position.Coordinates = {
-          00000000000000BF000000000000803F
-        }
-        RollAngle = 0
-        TurnAngle = 0
-        Up.Coordinates = {
-          000000002EBD3BB3000080BF00000000
-        }
-        Height = 10
-        Width = 0.5
-        XOffset = 0
-        YOffset = 0
-        NoZWrite = False
+        Direction.Coordinates = {000000000000803F2EBD3BB300000000}
+        Position.Coordinates = {00000000000000BF000000000000803F}
+        Up.Coordinates = {000000002EBD3BB3000080BF00000000}
+        Height = 10.000000000000000000
+        Width = 0.500000000000000000
       end
     end
     object Sphere: TGLSphere
-      TagFloat = 0
-      Material.FrontProperties.Diffuse.Color = {
-        0000803F00000000000000000000803F
-      }
-      Material.FrontProperties.Emission.Color = {
-        8180003F00000000000000000000803F
-      }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
-      PitchAngle = 0
-      Position.Coordinates = {
-        000000400000003F000000000000803F
-      }
-      RollAngle = 0
-      TurnAngle = 0
+      Material.FrontProperties.Diffuse.Color = {0000803F00000000000000000000803F}
+      Material.FrontProperties.Emission.Color = {8180003F00000000000000000000803F}
+      Position.Coordinates = {000000400000003F000000000000803F}
       OnProgress = SphereProgress
-      Radius = 0.5
+      Radius = 0.500000000000000000
       Slices = 9
       Stacks = 9
       BehavioursData = {
         0201061054474C42536F756E64456D6974746572020002000200020005000000
         0000000080FF3F050000000000000080FF3F0500000000000000C80540050000
         0000000000B407400500000000000000B407400500000000000000000000060E
-        474C536F756E644C696272617279060C6472756D6C6F6F702E776176080803E7
-        0309
-      }
+        474C536F756E644C696272617279060C6472756D6C6F6F702E77617608080203
+        09}
       object Disk1: TGLDisk
-        TagFloat = 0
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
-        Direction.Coordinates = {
-          000000000000803F2EBD3BB300000000
-        }
-        PitchAngle = 0
-        Position.Coordinates = {
-          00000000000080BF000000000000803F
-        }
-        RollAngle = 0
-        TurnAngle = 0
-        Up.Coordinates = {
-          000000002EBD3BB3000080BF00000000
-        }
-        InnerRadius = 0
-        OuterRadius = 0.5
+        Direction.Coordinates = {000000000000803F2EBD3BB300000000}
+        Position.Coordinates = {00000000000080BF000000000000803F}
+        Up.Coordinates = {000000002EBD3BB3000080BF00000000}
+        OuterRadius = 0.500000000000000000
         Slices = 12
-        StartAngle = 0
-        SweepAngle = 360
+        SweepAngle = 360.000000000000000000
       end
     end
     object GLLightSource: TGLLightSource
-      TagFloat = 0
-      ConstAttenuation = 1
-      LinearAttenuation = 0
-      QuadraticAttenuation = 0
-      Position.Coordinates = {
-        0000204100002041000020410000803F
-      }
-      SpotCutOff = 180
-      SpotExponent = 0
+      ConstAttenuation = 1.000000000000000000
+      Position.Coordinates = {0000204100002041000020410000803F}
+      SpotCutOff = 180.000000000000000000
     end
     object GLCamera1: TGLCamera
-      TagFloat = 0
-      DepthOfView = 100
-      FocalLength = 50
+      DepthOfView = 100.000000000000000000
+      FocalLength = 50.000000000000000000
       TargetObject = Plane1
-      Position.Coordinates = {
-        000000400000A040000020410000803F
-      }
-      left = 256
-      top = 160
+      Position.Coordinates = {000000400000A040000020410000803F}
+      Left = 256
+      Top = 160
     end
   end
   object GLCadencer1: TGLCadencer
     Scene = GLScene
-    MaxDeltaTime = 0
-    MinDeltaTime = 0
-    FixedDeltaTime = 0
     SleepLength = 1
-    left = 8
-    top = 184
+    Left = 8
+    Top = 184
   end
   object Timer: TTimer
     OnTimer = TimerTimer
-    left = 8
-    top = 224
+    Left = 8
+    Top = 224
   end
 end

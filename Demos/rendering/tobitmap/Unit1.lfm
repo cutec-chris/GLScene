@@ -1,18 +1,18 @@
 object Form1: TForm1
-  Left = 285
+  Left = 195
   Height = 335
-  Top = 113
+  Top = 103
   Width = 465
-  HorzScrollBar.Page = 464
-  VertScrollBar.Page = 334
   Caption = 'Form1'
   ClientHeight = 335
   ClientWidth = 465
+  Color = clBtnFace
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   OnResize = FormResize
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 335
@@ -20,8 +20,9 @@ object Form1: TForm1
     Width = 352
     Camera = GLCamera1
     Buffer.AntiAliasing = aaNone
-    FieldOfView = 146.758483886718
+    FieldOfView = 146.758483886719
     Align = alClient
+    TabOrder = 0
   end
   object Panel1: TPanel
     Left = 352
@@ -31,14 +32,12 @@ object Form1: TForm1
     Align = alRight
     ClientHeight = 335
     ClientWidth = 113
-    FullRepaint = False
-    TabOrder = 0
+    TabOrder = 1
     object BUSnapShot: TButton
       Left = 8
       Height = 25
       Top = 40
       Width = 97
-      BorderSpacing.InnerBorder = 4
       Caption = 'Buffer SnapShot'
       OnClick = BUSnapShotClick
       TabOrder = 0
@@ -48,7 +47,6 @@ object Form1: TForm1
       Height = 25
       Top = 72
       Width = 97
-      BorderSpacing.InnerBorder = 4
       Caption = 'Render To Bitmap'
       OnClick = BURenderToBitmapClick
       TabOrder = 1
@@ -58,7 +56,6 @@ object Form1: TForm1
       Height = 25
       Top = 120
       Width = 97
-      BorderSpacing.InnerBorder = 4
       Caption = 'Bitmap x2'
       OnClick = BUBitmapx2Click
       TabOrder = 2
@@ -68,7 +65,6 @@ object Form1: TForm1
       Height = 25
       Top = 200
       Width = 97
-      BorderSpacing.InnerBorder = 4
       Caption = 'Bitmap 600 dpi'
       OnClick = BUBitmap600Click
       TabOrder = 3
@@ -78,17 +74,15 @@ object Form1: TForm1
       Height = 25
       Top = 160
       Width = 97
-      BorderSpacing.InnerBorder = 4
       Caption = 'Bitmap 300 dpi'
       OnClick = BUBitmap300Click
       TabOrder = 4
     end
-    object BUViewerSnapShot1: TButton
+    object BUViewerSnapShot: TButton
       Left = 8
       Height = 25
       Top = 8
       Width = 97
-      BorderSpacing.InnerBorder = 4
       Caption = 'Viewer SnapShot'
       OnClick = BUViewerSnapShotClick
       TabOrder = 5
@@ -118,7 +112,6 @@ object Form1: TForm1
       RollAngle = 0
       TurnAngle = 0
       Rotation = 0
-      NoZWrite = True
     end
     object Plane1: TGLPlane
       TagFloat = 0
@@ -137,7 +130,38 @@ object Form1: TForm1
       Width = 6
       XOffset = 0
       YOffset = 0
-      NoZWrite = False
+      object SpaceText1: TGLSpaceText
+        TagFloat = 0
+        Material.FrontProperties.Diffuse.Color = {
+          00000000000000000000803F0000803F
+        }
+        Material.FrontProperties.Specular.Color = {
+          FA7EAA3EFA7EAA3E000000000000803F
+        }
+        PitchAngle = 0
+        Position.Coordinates = {
+          000020C000000000CDCC4C3D0000803F
+        }
+        RollAngle = 0
+        TurnAngle = 0
+        Up.Coordinates = {
+          0000803F000000800000000000000000
+        }
+        Extrusion = 0.05000000074506
+        Font.Color = clWindowText
+        Font.Height = -8
+        Font.Name = 'Arial'
+        Lines.Strings = (
+          'Render to Bitmap'
+        )
+        allowedDeviation = 1
+        CharacterRange = stcrAlphaNum
+        AspectRatio = 1.29999995231628
+        TextHeight = 0.40000000596046
+        Oblique = 0
+        Adjust.Horz = haCenter
+        Adjust.Vert = vaCenter
+      end
     end
     object Sphere1: TGLSphere
       TagFloat = 0

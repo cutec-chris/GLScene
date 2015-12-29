@@ -1,13 +1,11 @@
 object Form1: TForm1
-  Left = 423
+  Left = 264
   Height = 493
-  Top = 175
+  Top = 159
   Width = 482
   Caption = 'Form1'
   ClientHeight = 493
   ClientWidth = 482
-  Color = clBtnFace
-  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Position = poScreenCenter
@@ -155,6 +153,12 @@ object Form1: TForm1
     Brightness = 1
     Gamma = 1
     ParticleSize = 0.5
+    ColorInner.Color = {
+      0000803F0000803F0000803F00000000
+    }
+    ColorOuter.Color = {
+      0000803F0000803F0000803F00000000
+    }
     LifeColors = <    
       item
         ColorInner.Color = {
@@ -202,6 +206,12 @@ object Form1: TForm1
     Rotation = 0
     ShareSprites = SmokePFX
     ParticleSize = 0.200000002980232
+    ColorInner.Color = {
+      0000803F0000803F000000000000003F
+    }
+    ColorOuter.Color = {
+      0000803F0000803F0000000000000000
+    }
     LifeColors = <    
       item
         ColorInner.Color = {

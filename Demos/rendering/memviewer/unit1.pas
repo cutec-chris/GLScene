@@ -12,21 +12,22 @@
    equivalent (even with VSync on, to limit the framerate).<p>
 
    Never forget a memory viewer will use 3D board memory, thus reducing
-   available space for VectorGeometry and textures... try using only one memory
+   available space for GLVectorGeometry and textures... try using only one memory
    viewer and maximize its use.
 
    This sample will only work on 3D boards that support WGL_ARB_pbuffer, which
    should be the case for all of the modern boards, and even some of the older
    ones.
 }
-unit unit1;
+unit Unit1;
 
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, GLScene, StdCtrls, GLObjects, ExtCtrls, GLCadencer,
-  GLTexture, GLViewer, OpenGL1x, GLCrossPlatform, GLCoordinates;
+  GLTexture, GLLCLViewer, OpenGLAdapter, GLCrossPlatform, GLCoordinates,
+  GLBaseClasses, GLContext;
 
 type
   TForm1 = class(TForm)
@@ -86,8 +87,19 @@ end;
 
 procedure TForm1.GLSceneViewer1AfterRender(Sender: TObject);
 begin
-   if not (WGL_ARB_pbuffer or GLX_VERSION_1_3 or GLX_VERSION_1_4) then begin
-      ShowMessage( 'WGL_ARB_pbuffer not supported...'#13#10#13#10
+   if
+{$IFDEF MSWINDOWS}
+   not GLSceneViewer1.Buffer.RenderingContext.GL.W_ARB_pbuffer
+{$ENDIF}
+{$IFDEF LINUX}
+   not (GLSceneViewer1.Buffer.RenderingContext.GL.X_VERSION_1_3 or GLSceneViewer1.Buffer.RenderingContext.GL.X_VERSION_1_4)
+{$ENDIF}
+{$IFDEF DARWIN}
+   not (GLSceneViewer1.Buffer.RenderingContext.GL.A_pixel_buffer)
+{$ENDIF}
+   then
+   begin
+      ShowMessage( 'ARB_pbuffer not supported...'#13#10#13#10
                   +'Get newer graphics hardware or try updating your drivers!');
       GLSceneViewer1.AfterRender:=nil;
       Exit;

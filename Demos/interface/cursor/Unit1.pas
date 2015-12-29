@@ -23,9 +23,10 @@ unit Unit1;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Controls, Forms, Dialogs, GLColor,
-  ExtDlgs, Menus, ComCtrls, GLObjects, GLParticles, GLTexture, GLMaterial,
-  GLCadencer, ExtCtrls, GLHudObjects, GLViewer, LResources, GLScene;
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  ExtDlgs, Menus, ComCtrls, GLScene, GLObjects, GLParticles, GLTexture,
+  GLCadencer, ExtCtrls, GLHUDObjects, GLLCLViewer, GLCrossPlatform,
+  GLMaterial, GLCoordinates, GLBaseClasses, GLColor;
 
 type
   TForm1 = class(TForm)
@@ -51,21 +52,20 @@ type
     MIExit: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
+      X, Y: integer);
     procedure GLParticles1ActivateParticle(Sender: TObject;
       particle: TGLBaseSceneObject);
-    procedure HSParticleProgress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure HSParticleProgress(Sender: TObject; const deltaTime, newTime: double);
     procedure Timer1Timer(Sender: TObject);
     procedure MITrailClick(Sender: TObject);
     procedure MILoadImageClick(Sender: TObject);
     procedure MIExitClick(Sender: TObject);
     procedure GLSceneViewer1AfterRender(Sender: TObject);
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure GLCadencer1Progress(Sender: TObject;
+      const deltaTime, newTime: double);
   private
     { Déclarations privées }
-    handleMouseMoves : Boolean;
+    handleMouseMoves: boolean;
   public
     { Déclarations publiques }
   end;
@@ -75,113 +75,119 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses Jpeg;
+uses GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-   // hide the Windows cursor for the GLSceneViewer
-   GLSceneViewer1.Cursor:=crNone;
-   // and load my ugly cursor (size adjusted in design props)
-   with GLMaterialLibrary1.Materials[0] do
-      Material.Texture.Image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'cursor.bmp');
+  SetGLSceneMediaDir();
+  // hide the Windows cursor for the GLSceneViewer
+  GLSceneViewer1.Cursor := crNone;
+  // and load my ugly cursor (size adjusted in design props)
+  with GLMaterialLibrary1.Materials[0] do
+    Material.Texture.Image.LoadFromFile('cursor.bmp');
 end;
 
 procedure TForm1.MILoadImageClick(Sender: TObject);
 begin
-   if OpenPictureDialog1.Execute then begin
-      // use the hourglass cursor, it may take some time to load the bitmap,
-      // rescale it and generate mipmaps before sending it to OpenGL
-      Screen.Cursor:=crHourGlass;
-      with (HSBitmap.Material.Texture.Image as TGLPictureImage).Picture do begin
-         LoadFromFile(OpenPictureDialog1.FileName);
-         // adjust hud sprite size to match that of the picture
-         HSBitmap.SetSize(Width, Height);
-         // adjust position, hudsprites are centered on their x, y coords
-         HSBitmap.Position.X:=Width/2;
-         HSBitmap.Position.Y:=Height/2;
-      end;
-      Screen.Cursor:=crDefault;
-   end;
+  if OpenPictureDialog1.Execute then
+  begin
+    // use the hourglass cursor, it may take some time to load the bitmap,
+    // rescale it and generate mipmaps before sending it to OpenGL
+    Screen.Cursor := crHourGlass;
+    with (HSBitmap.Material.Texture.Image as TGLPictureImage).Picture do
+    begin
+      LoadFromFile(OpenPictureDialog1.FileName);
+      // adjust hud sprite size to match that of the picture
+      HSBitmap.SetSize(Width, Height);
+      // adjust position, hudsprites are centered on their x, y coords
+      HSBitmap.Position.X := Width / 2;
+      HSBitmap.Position.Y := Height / 2;
+    end;
+    HSBitmap.Material.Texture.Disabled := False;
+    Screen.Cursor := crDefault;
+  end;
 end;
 
-procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
+procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: integer);
 var
-   color : TColor;
+  color: TColor;
 begin
-   // Prevents event floods on slow hardware
-   if not handleMouseMoves then Exit;
-   handleMouseMoves:=False;
-   // Mouse moved, adjust the position of our cursor
-   HSCursor.Position.X:=x;
-   HSCursor.Position.Y:=y;
-   // Update the status bar with some misc. info
-   color:=GLSceneViewer1.Buffer.GetPixelColor(x, y);
-   StatusBar1.SimpleText:=Format('X:%4d Y:%4d, R:%3d G:%3d B:%3d',
-                                 [x, y, GetRValue(color), GetGValue(color), GetBValue(color)]);
-   // Add a trail particle
-   if MITrail.Checked then
-      GLParticles1.CreateParticle;
-   // Update things now
-   GLCadencer1.Progress;
+  // Prevents event floods on slow hardware
+  if not handleMouseMoves then
+    Exit;
+  handleMouseMoves := False;
+  // Mouse moved, adjust the position of our cursor
+  HSCursor.Position.X := x;
+  HSCursor.Position.Y := y;
+  // Update the status bar with some misc. info
+  color := GLSceneViewer1.Buffer.GetPixelColor(x, y);
+  StatusBar1.SimpleText := Format('X:%4d Y:%4d, R:%3d G:%3d B:%3d',
+    [x, y, GetRValue(color), GetGValue(color),
+    GetBValue(color)]);
+  // Add a trail particle
+  if MITrail.Checked then
+    GLParticles1.CreateParticle;
+  // Update things now
+  GLCadencer1.Progress;
 end;
 
 procedure TForm1.GLSceneViewer1AfterRender(Sender: TObject);
 begin
-   handleMouseMoves:=True;
+  handleMouseMoves := True;
 end;
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime, newTime: double);
 begin
-   GLSceneViewer1.Invalidate;
+  GLSceneViewer1.Invalidate;
 end;
 
-procedure TForm1.HSParticleProgress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.HSParticleProgress(Sender: TObject; const deltaTime, newTime: double);
 begin
-   with (Sender as TGLHUDSprite) do begin
-      // decrease life time / alpha
-      TagFloat:=TagFloat-deltaTime;
-      // update alpha channel, but if no more life is left, then suicide
-      if TagFloat<0 then
-         GLParticles1.KillParticle(TGLProxyObject(Sender))
-      else AlphaChannel:=TagFloat*0.2;
-   end;
+  with (Sender as TGLHUDSprite) do
+  begin
+    // decrease life time / alpha
+    TagFloat := TagFloat - deltaTime;
+    // update alpha channel, but if no more life is left, then suicide
+    if TagFloat < 0 then
+      GLParticles1.KillParticle(TGLProxyObject(Sender))
+    else
+      AlphaChannel := TagFloat * 0.2;
+  end;
 end;
 
 procedure TForm1.GLParticles1ActivateParticle(Sender: TObject;
   particle: TGLBaseSceneObject);
 begin
-   with (particle as TGLHUDSprite) do begin
-      // we are cadencing real-time, so these are 5 seconds
-      TagFloat:=5;
-      // new particle stands where cursor is
-      Position.AsVector:=HSCursor.Position.AsVector;
-   end;
+  with (particle as TGLHUDSprite) do
+  begin
+    // we are cadencing real-time, so these are 5 seconds
+    TagFloat := 5;
+    // new particle stands where cursor is
+    Position.AsVector := HSCursor.Position.AsVector;
+  end;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-   // update FPS and sprite count
-   Caption:=Format('%.1f FPS - %d Cursor Sprites',
-                   [GLSceneViewer1.FramesPerSecond, GLParticles1.Count]);
-   GLSceneViewer1.ResetPerformanceMonitor;
+  // update FPS and sprite count
+  Caption := Format('%.1f FPS - %d Cursor Sprites',
+    [GLSceneViewer1.FramesPerSecond, GLParticles1.Count]);
+  GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
 procedure TForm1.MITrailClick(Sender: TObject);
 begin
-   // turn trails on/off
-   MITrail.Checked:=not MITrail.Checked;
+  // turn trails on/off
+  MITrail.Checked := not MITrail.Checked;
 end;
 
 procedure TForm1.MIExitClick(Sender: TObject);
 begin
-   Close;
+  Close;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

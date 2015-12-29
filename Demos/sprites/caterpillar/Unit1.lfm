@@ -1,10 +1,9 @@
 object Form1: TForm1
-  Left = 108
+  Left = 234
   Height = 246
-  Top = 317
+  Top = 106
   Width = 352
-  HorzScrollBar.Page = 351
-  VertScrollBar.Page = 245
+  BorderWidth = 5
   Caption = 'Form1'
   ClientHeight = 246
   ClientWidth = 352
@@ -14,15 +13,16 @@ object Form1: TForm1
   OnResize = FormResize
   LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
-    Left = 0
-    Height = 246
-    Top = 0
-    Width = 352
+    Left = 5
+    Height = 236
+    Top = 5
+    Width = 342
     Camera = GLCamera1
     Buffer.BackgroundColor = clBlack
     Buffer.DepthTest = False
-    FieldOfView = 135.756118774414
+    FieldOfView = 134.072463989257
     Align = alClient
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     ObjectsSorting = osRenderFarthestFirst
@@ -48,13 +48,23 @@ object Form1: TForm1
         Width = 2
         Height = 2
         Rotation = 0
-        NoZWrite = True
       end
     end
     object Sprite1: TGLSprite
       TagFloat = 0
-      Material.MaterialLibrary = GLMaterialLibrary1
-      Material.LibMaterialName = 'RedBell'
+      Material.FrontProperties.Ambient.Color = {
+        0000000000000000000000000000803F
+      }
+      Material.FrontProperties.Diffuse.Color = {
+        0000000000000000000000000000803F
+      }
+      Material.FrontProperties.Emission.Color = {
+        0000803F0000803F000000000000803F
+      }
+      Material.BlendingMode = bmAdditive
+      Material.Texture.MinFilter = miLinear
+      Material.Texture.TextureMode = tmModulate
+      Material.Texture.Disabled = False
       PitchAngle = 0
       RollAngle = 0
       TurnAngle = 0
@@ -88,22 +98,9 @@ object Form1: TForm1
         Material.BlendingMode = bmAdditive
         Material.Texture.MinFilter = miLinear
         Material.Texture.TextureMode = tmModulate
-        Material.Texture.MappingTCoordinates.Coordinates = {
-          000000000000803F0000000000000000
-        }
-        Tag = 0
-      end    
-      item
-        Name = 'RedBell'
-        Material.FrontProperties.Emission.Color = {
-          0000803F0000803FE2E1613F0000803F
-        }
-        Material.BlendingMode = bmAdditive
-        Material.Texture.TextureMode = tmModulate
         Material.Texture.Disabled = False
         Tag = 0
       end>
-    OnTextureNeeded = GLMaterialLibrary1TextureNeeded
     left = 8
     top = 64
   end

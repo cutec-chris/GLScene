@@ -3,6 +3,7 @@ object Form1: TForm1
   Height = 307
   Top = 99
   Width = 479
+  ActiveControl = RB1to1
   BorderStyle = bsDialog
   Caption = 'Form1'
   ClientHeight = 307
@@ -13,9 +14,9 @@ object Form1: TForm1
   LCLVersion = '0.9.29'
   object Label1: TLabel
     Left = 392
-    Height = 20
+    Height = 21
     Top = 8
-    Width = 61
+    Width = 68
     Caption = 'Options'
     Font.Height = -16
     Font.Name = 'Arial'
@@ -27,15 +28,15 @@ object Form1: TForm1
     Left = 384
     Height = 15
     Top = 64
-    Width = 88
+    Width = 96
     Caption = 'Texture framerate'
     ParentColor = False
   end
   object CheckBox1: TCheckBox
     Left = 384
-    Height = 18
+    Height = 22
     Top = 200
-    Width = 51
+    Width = 59
     Caption = 'VSync'
     OnClick = CheckBox1Click
     TabOrder = 0
@@ -54,9 +55,9 @@ object Form1: TForm1
   object RB1to1: TRadioButton
     Tag = 1
     Left = 400
-    Height = 18
+    Height = 22
     Top = 88
-    Width = 33
+    Width = 41
     Caption = '1:1'
     Checked = True
     OnClick = RB1to1Click
@@ -66,9 +67,9 @@ object Form1: TForm1
   object RB1to2: TRadioButton
     Tag = 2
     Left = 400
-    Height = 18
+    Height = 22
     Top = 112
-    Width = 33
+    Width = 41
     Caption = '1:2'
     OnClick = RB1to1Click
     TabOrder = 3
@@ -76,9 +77,9 @@ object Form1: TForm1
   object RB1to10: TRadioButton
     Tag = 10
     Left = 400
-    Height = 18
+    Height = 22
     Top = 136
-    Width = 39
+    Width = 48
     Caption = '1:10'
     OnClick = RB1to1Click
     TabOrder = 4

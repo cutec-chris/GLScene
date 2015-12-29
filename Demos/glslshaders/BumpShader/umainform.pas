@@ -23,7 +23,7 @@ uses
 
   // GLScene
   GLTexture, GLCadencer, GLViewer, GLScene, GLObjects, GLPolyhedron,
-  GLVectorFileObjects, GLGraph, GLGeomObjects, VectorGeometry, GLSLBumpShader,
+  GLVectorFileObjects, GLGraph, GLGeomObjects, GLVectorGeometry, GLSLBumpShader,
   GLCustomShader, GLSLShader, GLCrossPlatform, GLMaterial, GLCoordinates,
 
   // FileFormats
@@ -97,21 +97,14 @@ implementation
 {$R *.lfm}
 
 uses
-  FileUtil, GLCompositeImage, GLFileDDS;
+  GLUtils, GLCompositeImage, GLFileDDS;
 
 procedure TGLSLTestForm.FormCreate(Sender: TObject);
 var
-  path: UTF8String;
-  p: Integer;
   I: Integer;
 begin
-   path := ExtractFilePath(ParamStrUTF8(0));
-   p := Pos('DemosLCL', path);
-   Delete(path, p+5, Length(path));
-   path := IncludeTrailingPathDelimiter(path) + 'media';
-   SetCurrentDirUTF8(path);
+   SetGLSceneMediaDir();
   //First load models
-  TrinityMatlib.TexturePaths := path;
   Fighter.LoadFromFile('TRINITYrage.smd'); //Fighter
   Fighter.AddDataFromFile('walk.smd');
   Fighter.Animations[1].MakeSkeletalTranslationStatic;
@@ -136,11 +129,11 @@ begin
   Teapot.Scale.Scale(0.8);
   //  Teapot.MeshObjects.BuildTangentSpace; does not have texture coordinates...
 
-  Sphere_big.LoadFromFile('Sphere_big.3ds'); //Sphere_big
+  Sphere_big.LoadFromFile('Sphere_big.3DS'); //Sphere_big
   Sphere_big.Scale.Scale(70);
   Sphere_big.MeshObjects.BuildTangentSpace;
 
-  Sphere_little.LoadFromFile('Sphere_little.3ds'); //Sphere_little
+  Sphere_little.LoadFromFile('Sphere_little.3DS'); //Sphere_little
   Sphere_little.Scale.Scale(4);
   Sphere_little.MeshObjects.BuildTangentSpace;
 

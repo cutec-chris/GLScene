@@ -1,36 +1,34 @@
 object Form1: TForm1
-  Left = 310
-  Height = 696
+  Left = 201
+  Height = 356
   Top = 119
-  Width = 1024
-  HorzScrollBar.Page = 1023
-  VertScrollBar.Page = 672
+  Width = 505
   Caption = 'Form1'
-  ClientHeight = 675
-  ClientWidth = 1024
+  ClientHeight = 336
+  ClientWidth = 505
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Menu = MainMenu1
   OnCreate = FormCreate
-  LCLVersion = '1.5'
+  LCLVersion = '0.9.31'
   WindowState = wsMaximized
   object Bevel1: TBevel
     Left = 0
     Height = 3
     Top = 0
-    Width = 1024
+    Width = 505
     Align = alTop
     Shape = bsTopLine
   end
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 649
+    Height = 310
     Top = 3
-    Width = 1024
+    Width = 505
     Camera = GLCamera1
     AfterRender = GLSceneViewer1AfterRender
     Buffer.DepthTest = False
-    FieldOfView = 162.481140136719
+    FieldOfView = 144.242614746094
     Align = alClient
     OnMouseMove = GLSceneViewer1MouseMove
     TabOrder = 0
@@ -38,10 +36,9 @@ object Form1: TForm1
   object StatusBar1: TStatusBar
     Left = 0
     Height = 23
-    Top = 652
-    Width = 1024
+    Top = 313
+    Width = 505
     Panels = <>
-    SimplePanel = False
   end
   object GLScene1: TGLScene
     ObjectsSorting = osNone
@@ -52,7 +49,6 @@ object Form1: TForm1
       Material.FrontProperties.Emission.Color = {
         0000803F0000803F0000803F0000803F
       }
-      Material.Texture.Disabled = False
       PitchAngle = 0
       Position.Coordinates = {
         0000484200004842000000000000803F
@@ -127,8 +123,6 @@ object Form1: TForm1
     end
   end
   object OpenPictureDialog1: TOpenPictureDialog
-    Filter = 'Graphic (*.tga;*.jpeg;*.jpg;*.pbm;*.pgm;*.ppm;*.tga;*.jpeg;*.jpg;*.ico;*.ppm;*.pgm;*.pbm;*.png;*.xpm;*.bmp)|*.tga;*.jpeg;*.jpg;*.pbm;*.pgm;*.ppm;*.tga;*.jpeg;*.jpg;*.ico;*.ppm;*.pgm;*.pbm;*.png;*.xpm;*.bmp|TGA Image File (*.tga)|*.tga|JPEG Image File (*.jpeg)|*.jpeg|JPEG Image File (*.jpg)|*.jpg|PNM Image File (*.pbm)|*.pbm|PNM Image File (*.pgm)|*.pgm|PNM Image File (*.ppm)|*.ppm|Targa (*.tga)|*.tga|JPEG Image File (*.jpeg)|*.jpeg|JPEG Image File (*.jpg)|*.jpg|Icon (*.ico)|*.ico|Portable PixMap (*.ppm)|*.ppm|Portable GrayMap (*.pgm)|*.pgm|Portable BitMap (*.pbm)|*.pbm|Portable Network Graphic (*.png)|*.png|Pixmap (*.xpm)|*.xpm|Bitmaps (*.bmp)|*.bmp|All files (*.*)|*.*|'
-    FilterIndex = 0
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
     left = 72
     top = 16
@@ -146,6 +140,7 @@ object Form1: TForm1
     Materials = <    
       item
         Name = 'cursor'
+        Tag = 0
         Material.FrontProperties.Emission.Color = {
           0000803F0000803F0000803F0000803F
         }
@@ -153,7 +148,6 @@ object Form1: TForm1
         Material.Texture.ImageAlpha = tiaTopLeftPointColorTransparent
         Material.Texture.TextureMode = tmModulate
         Material.Texture.Disabled = False
-        Tag = 0
       end>
     left = 136
     top = 16

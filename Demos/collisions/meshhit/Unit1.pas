@@ -11,16 +11,12 @@ unit Unit1;
 interface
 
 uses
-  SysUtils, Classes, Controls, Forms,
-  GLScene, GLVectorFileObjects, GLObjects, GLViewer,
-  GLGeomObjects, StdCtrls, LResources, GLCadencer;
+  Classes, SysUtils, Controls, Forms,
+  GLScene, GLVectorFileObjects, GLObjects, GLLCLViewer,
+  GLGeomObjects, StdCtrls, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
-    GLCadencer1: TGLCadencer;
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
     GLCamera1: TGLCamera;
@@ -53,13 +49,15 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses VectorGeometry, GLFile3DS;
+uses GLVectorGeometry, GLFile3DS, GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+   SetGLSceneMediaDir();
    // Load mushroom mesh
-   FreeForm1.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'mushroom.3ds');
+   FreeForm1.LoadFromFile('mushroom.3ds');
 end;
 
 // Perform the raycasting for the perspective camera & viewer
@@ -94,7 +92,7 @@ procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
    // when mouse moves, recompute intersection
-   if Shift<>[] then GLSceneViewer1MouseDown(Sender, mbLeft, Shift, x, y);
+   if Shift<>[] then GLSceneViewer1MouseDown(Sender, TMouseButton(mbLeft), Shift, x, y);
 end;
 
 // Perform the raycasting for the perspective camera & viewer
@@ -128,10 +126,7 @@ end;
 procedure TForm1.GLSceneViewer2MouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
-   if Shift<>[] then GLSceneViewer2MouseDown(Sender, mbLeft, Shift, x, y);
+   if Shift<>[] then GLSceneViewer2MouseDown(Sender, TMouseButton(mbLeft), Shift, x, y);
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

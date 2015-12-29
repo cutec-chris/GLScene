@@ -14,20 +14,15 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLScene, GLTexture, GLObjects, StdCtrls, jpeg, ExtCtrls,
-  OpenGL1x, GLTexCombineShader, GLHUDObjects, LResources,Buttons,
-  GLViewer, GLMaterial;
+  Dialogs, GLScene, GLTexture, GLObjects, StdCtrls, ExtCtrls,
+  GLLCLViewer, GLTexCombineShader, GLHUDObjects, GLMaterial,
+  GLCoordinates, GLCrossPlatform, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene: TGLScene;
     SceneViewer: TGLSceneViewer;
@@ -72,69 +67,73 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses GLTextureCombiners;
+uses GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-   // load the textures
-   SetCurrentDir('..' + PathDelim + '..' + PathDelim + 'media');
-   with GLMaterialLibrary.Materials do begin
-      Image1.Picture.LoadFromFile('beigemarble.jpg');
-      Items[0].Material.Texture.Image.Assign(Image1.Picture);
-      Image2.Picture.LoadFromFile('Flare1.bmp');
-      Items[1].Material.Texture.Image.Assign(Image2.Picture);
-      Image3.Picture.LoadFromFile('clover.jpg');
-      Items[2].Material.Texture.Image.Assign(Image3.Picture);
-      Image4.Picture.LoadFromFile('cm_front.jpg');
-      Items[3].Material.Texture.Image.Assign(Image4.Picture);
-   end;
-   GLTexCombineShader.Combiners:=MECombiner.Lines;
-   Application.HintHidePause:=30000;
+  SetGLSceneMediaDir();
+  with GLMaterialLibrary.Materials do
+  begin
+    Image1.Picture.LoadFromFile('beigemarble.jpg');
+    Items[0].Material.Texture.Image.Assign(Image1.Picture);
+    Image2.Picture.LoadFromFile('Flare1.bmp');
+    Items[1].Material.Texture.Image.Assign(Image2.Picture);
+    Image3.Picture.LoadFromFile('clover.jpg');
+    Items[2].Material.Texture.Image.Assign(Image3.Picture);
+    Image4.Picture.LoadFromFile('cm_front.jpg');
+    Items[3].Material.Texture.Image.Assign(Image4.Picture);
+  end;
+  GLTexCombineShader.Combiners.Assign(MECombiner.Lines);
+  Application.HintHidePause := 30000;
 end;
 
 procedure TForm1.BUApplyClick(Sender: TObject);
 begin
-   // Apply new combiner code
-   // Depending on shader and hardware, errors may be triggered during render
-   GLTexCombineShader.Combiners:=MECombiner.Lines;
+  // Apply new combiner code
+  // Depending on shader and hardware, errors may be triggered during render
+  GLTexCombineShader.Combiners.Assign(MECombiner.Lines);
 end;
 
 procedure TForm1.SceneViewerPostRender(Sender: TObject);
 var
-   n : Integer;
+  n: integer;
 begin
-   // disable whatever texture units are not supported by the local hardware
-   n:=SceneViewer.Buffer.LimitOf[limNbTextureUnits];
-   PATex1.Visible:=(n<2);  CBTex1.Enabled:=(n>=2);
-   PATex2.Visible:=(n<3);  CBTex2.Enabled:=(n>=3);
-   PATex3.Visible:=(n<4);  CBTex3.Enabled:=(n>=4);
-   CBTex1.Checked:=CBTex1.Checked and CBTex1.Enabled;
+  // disable whatever texture units are not supported by the local hardware
+  n := SceneViewer.Buffer.LimitOf[limNbTextureUnits];
+  PATex1.Visible := (n < 2);
+  CBTex1.Enabled := (n >= 2);
+  PATex2.Visible := (n < 3);
+  CBTex2.Enabled := (n >= 3);
+  PATex3.Visible := (n < 4);
+  CBTex3.Enabled := (n >= 4);
+  CBTex1.Checked := CBTex1.Checked and CBTex1.Enabled;
 end;
 
 procedure TForm1.CBTex0Click(Sender: TObject);
 var
-   libMat : TGLLibMaterial;
+  libMat: TGLLibMaterial;
 begin
-   // This event is used for all 4 checkboxes of the 4 texture units
-   libMat:=GLMaterialLibrary.Materials.GetLibMaterialByName((Sender as TCheckBox).Caption);
-   if Assigned(libMat) then
-      libMat.Material.Texture.Enabled:=TCheckBox(Sender).Checked;
+  // This event is used for all 4 checkboxes of the 4 texture units
+  libMat := GLMaterialLibrary.Materials.GetLibMaterialByName(
+    (Sender as TCheckBox).Caption);
+  if Assigned(libMat) then
+    libMat.Material.Texture.Enabled := TCheckBox(Sender).Checked;
 end;
 
 procedure TForm1.PAPrimaryClick(Sender: TObject);
 begin
-   // Allow choosing the primary color
-   ColorDialog.Color:=PAPrimary.Color;
-   if ColorDialog.Execute then begin
-      PAPrimary.Color:=ColorDialog.Color;
-      with GLMaterialLibrary.Materials[0].Material.FrontProperties do
-         Diffuse.AsWinColor:=ColorDialog.Color;
-      SceneViewer.Invalidate;
-   end;
+  // Allow choosing the primary color
+  ColorDialog.Color := PAPrimary.Color;
+  if ColorDialog.Execute then
+  begin
+    PAPrimary.Color := ColorDialog.Color;
+    with GLMaterialLibrary.Materials[0].Material.FrontProperties do
+      Diffuse.AsWinColor := ColorDialog.Color;
+    SceneViewer.Invalidate;
+  end;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

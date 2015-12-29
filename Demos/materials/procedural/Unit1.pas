@@ -1,19 +1,15 @@
 {: Procedural Texture Demo / Tobias Peirick }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, GLScene, GLObjects, GLTexture, GLHUDObjects,
-  GLCadencer, GLProcTextures, Spin, LResources, GLViewer;
+  GLCadencer, GLLCLViewer, GLProcTextures, Spin, GLCoordinates,
+  GLCrossPlatform, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -41,13 +37,13 @@ type
     GLPlane1: TGLPlane;
     procedure GLSceneViewer1AfterRender(Sender: TObject);
     procedure CBFormatChange(Sender: TObject);
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure GLCadencer1Progress(Sender: TObject;
+      const deltaTime, newTime: double);
   private
     { Déclarations privées }
   public
     { Déclarations publiques }
-    newSelection : Boolean;
+    newSelection: boolean;
   end;
 
 var
@@ -55,56 +51,62 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses Jpeg;
+uses GLTextureFormat;
 
 procedure TForm1.GLSceneViewer1AfterRender(Sender: TObject);
 var
-   rgb : Integer;
+  rgb: integer;
 begin
-   // update compression stats, only the 1st time after a new selection
-   if newSelection then with GLPlane1.Material.Texture do begin
-      rgb:=Image.Width*Image.Height*4;
-      LARGB32.Caption:=Format('RGBA 32bits would require %d kB', [rgb div 1024]);
-      LAUsedMemory.Caption:=Format('Required memory : %d kB',
-                                   [TextureImageRequiredMemory div 1024]);
-      LACompression.Caption:=Format('Compression ratio : %d %%',
-                                    [100-100*TextureImageRequiredMemory div rgb]);
-      newSelection:=False;
-   end;
+  // update compression stats, only the 1st time after a new selection
+  if newSelection then
+    with GLPlane1.Material.Texture do
+    begin
+      rgb := Image.Width * Image.Height * 4;
+      LARGB32.Caption := Format('RGBA 32bits would require %d kB', [rgb div 1024]);
+      LAUsedMemory.Caption := Format('Required memory : %d kB',
+        [TextureImageRequiredMemory div 1024]);
+      LACompression.Caption := Format('Compression ratio : %d %%',
+        [100 - 100 * TextureImageRequiredMemory div rgb]);
+      newSelection := False;
+    end;
 end;
 
 procedure TForm1.CBFormatChange(Sender: TObject);
 begin
-   // adjust settings from selection and reload the texture map
-   with GLPlane1.Material.Texture do begin
-      TextureFormat:=TGLTextureFormat(Integer(tfRGB)+CBFormat.ItemIndex);
-      Compression:=TGLTextureCompression(Integer(tcNone)+CBCompression.ItemIndex);
-      TGLProcTextureNoise(Image).MinCut := round(SpinEdit1.Value);
-      TGLProcTextureNoise(Image).NoiseSharpness := SpinEdit2.Value /100;
-      TGLProcTextureNoise(Image).Seamless := CheckBox2.Checked;
-      if RBDefault.Checked then begin
-         GLPlane1.Width:= 50;
-         GLPlane1.Height:=50;
-      end else if RBDouble.Checked then begin
-         GLPlane1.Width:=100;
-         GLPlane1.Height:=100;
-      end else begin
-         GLPlane1.Width:=400;
-         GLPlane1.Height:=400;
-      end;
-   end;
-   newSelection:=True;
+  // adjust settings from selection and reload the texture map
+  with GLPlane1.Material.Texture do
+  begin
+    TextureFormat := TGLTextureFormat(integer(tfRGB) + CBFormat.ItemIndex);
+    Compression := TGLTextureCompression(integer(tcNone) + CBCompression.ItemIndex);
+    TGLProcTextureNoise(Image).MinCut := SpinEdit1.Value;
+    TGLProcTextureNoise(Image).NoiseSharpness := SpinEdit2.Value / 100;
+    TGLProcTextureNoise(Image).Seamless := CheckBox2.Checked;
+    if RBDefault.Checked then
+    begin
+      GLPlane1.Width := 50;
+      GLPlane1.Height := 50;
+    end
+    else if RBDouble.Checked then
+    begin
+      GLPlane1.Width := 100;
+      GLPlane1.Height := 100;
+    end
+    else
+    begin
+      GLPlane1.Width := 400;
+      GLPlane1.Height := 400;
+    end;
+  end;
+  newSelection := True;
 end;
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime, newTime: double);
 begin
   if CheckBox1.Checked then
-     TGLProcTextureNoise(GLPlane1.Material.Texture.Image).NoiseAnimate(deltaTime);
+    TGLProcTextureNoise(GLPlane1.Material.Texture.Image).NoiseAnimate(deltaTime);
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

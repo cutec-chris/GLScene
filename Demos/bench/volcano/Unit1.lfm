@@ -1,18 +1,15 @@
 object Form1: TForm1
-  Left = 331
+  Left = 171
   Height = 359
-  Top = 219
+  Top = 95
   Width = 468
-  HorzScrollBar.Page = 467
-  VertScrollBar.Page = 358
   Caption = 'Form1'
   ClientHeight = 359
   ClientWidth = 468
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnClose = FormClose
   OnCreate = FormCreate
-  LCLVersion = '1.7'
+  LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 359
@@ -22,7 +19,7 @@ object Form1: TForm1
     Buffer.BackgroundColor = clBlack
     FieldOfView = 148.869476318359
     Align = alClient
-    TabOrder = 1
+    TabOrder = 0
   end
   object RadioGroup1: TRadioGroup
     Left = 384
@@ -40,8 +37,8 @@ object Form1: TForm1
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 344
-    ClientWidth = 82
+    ClientHeight = 345
+    ClientWidth = 80
     ItemIndex = 1
     Items.Strings = (
       'Sleepy'
@@ -52,7 +49,7 @@ object Form1: TForm1
       'Inferno'
     )
     OnClick = RadioGroup1Click
-    TabOrder = 0
+    TabOrder = 1
   end
   object GLScene1: TGLScene
     left = 16
@@ -62,12 +59,12 @@ object Form1: TForm1
       PitchAngle = 0
       RollAngle = 0
       TurnAngle = 0
-      Visible = False
       CubeSize = 1
       BehavioursData = {
-        0458434F4C02010201060B54474C42496E657274696102000600020002000500
-        00000000000080FF3F0200080500000000000000B40540050000000000000000
-        0000050000000000000000000009020008020008
+        0458434F4C02010201060B54474C42496E65727469610200060E53696D706C65
+        20496E657274696102000200050000000000000080FF3F020008050000000000
+        0000000000050000000000000000000005000000000000000000000902000802
+        0008
       }
       EffectsData = {
         0458434F4C02010201061254474C536F75726365504658456666656374020106
@@ -90,7 +87,7 @@ object Form1: TForm1
         }
         RollAngle = 0
         TurnAngle = 0
-        Radius = 0.300000011920929
+        Radius = 0.30000001192092
         Slices = 12
         Stacks = 12
         EffectsData = {
@@ -177,7 +174,7 @@ object Form1: TForm1
     Cadencer = GLCadencer1
     Renderer = PFXRenderer
     Friction = 1
-    ParticleSize = 0.550000011920929
+    ParticleSize = 0.55000001192092
     ColorInner.Color = {
       00000000000000000000803F0000803F
     }
@@ -194,6 +191,6 @@ object Form1: TForm1
         RotateAngle = 0
       end>
     left = 56
-    top = 56
+    top = 80
   end
-end
+end

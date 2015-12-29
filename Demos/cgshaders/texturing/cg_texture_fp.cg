@@ -23,10 +23,10 @@ fragout main( vert2Frag IN,
 {
     fragout OUT;
 
-    OUT.col  = f4tex2D(Map0,IN.Tex0) * weights[0];
-    OUT.col += f4tex2D(Map1,IN.Tex1) * weights[1];
-    OUT.col += f4tex2D(Map2,IN.Tex2) * weights[2];
-    OUT.col += f4tex2D(Map3,IN.Tex3) * weights[3];
+    OUT.col  = f4tex2D(Map0,IN.Tex0.xyz) * weights[0];
+    OUT.col += f4tex2D(Map1,IN.Tex1.xyz) * weights[1];
+    OUT.col += f4tex2D(Map2,IN.Tex2.xyz) * weights[2];
+    OUT.col += f4tex2D(Map3,IN.Tex3.xyz) * weights[3];
 
     return OUT;
 }

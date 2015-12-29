@@ -30,20 +30,15 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  LCLIntf, LCLType, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  GLTerrainRenderer, GLObjects, jpeg, GLHeightData, ExtCtrls, StdCtrls,
-  VectorGeometry, LResources, gllclviewer, GLScene, GLCadencer, GLTexture,
-  GLViewer, GLMaterial;
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  GLScene, GLTerrainRenderer, GLObjects, GLHeightData,
+  ExtCtrls, GLCadencer, StdCtrls, GLTexture, GLLCLViewer, GLVectorGeometry,
+  GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -54,7 +49,6 @@ type
     GLCadencer1: TGLCadencer;
     GLMaterialLibrary1: TGLMaterialLibrary;
     GLCustomHDS: TGLCustomHDS;
-    procedure FormKeyPress(Sender: TObject; var Key: char);
     procedure GLSceneViewer1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
@@ -63,6 +57,7 @@ type
     procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
       newTime: Double);
     procedure FormCreate(Sender: TObject);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure GLCustomHDSStartPreparingData(heightData: THeightData);
   private
     { Déclarations privées }
@@ -78,8 +73,9 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses GLKeyboard, OpenGL1x;
+uses GLKeyboard, LCLType;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
@@ -99,12 +95,9 @@ begin
    // all use automatic texture mapping corodinates, in ObjectLinear method
    // (ie. texture coordinates for a vertex depend on that vertex coordinates)
    bmp:=TBitmap.Create;
-   bmp.PixelFormat:=pf32bit;
-   bmp.Width:=255;
-   
-   //Cause a error on lazarus if the texture is set to pf24bit k00m
+   bmp.PixelFormat:=pf24bit;
+   bmp.Width:=256;
    bmp.Height:=1;
-   
    // Black-White ramp, autotexture maps to Z coordinate
    // This one changes with altitude, this is a quick way to obtain
    // altitude-dependant coloring
@@ -144,7 +137,7 @@ end;
 procedure TForm1.GLCustomHDSStartPreparingData(heightData: THeightData);
 var
    y, x : Integer;
-   rasterLine : GLHeightData.PByteArray;
+   rasterLine : PByteArray;
    oldType : THeightDataType;
    b : Byte;
    d, dy : Single;
@@ -237,7 +230,7 @@ procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
 var
    speed : Single;
 begin
-    // handle keypresses
+   // handle keypresses
    if IsKeyDown(VK_SHIFT) then
       speed:=5*deltaTime
    else speed:=deltaTime;
@@ -259,10 +252,6 @@ begin
    // don't drop through terrain!
    with DummyCube1.Position do
       Y:=TerrainRenderer1.InterpolatedHeight(AsVector)+FCamHeight;
-  GLSceneViewer1.Invalidate;
 end;
 
-initialization
-  {$i unit1.lrs}
-
-end.
+end.

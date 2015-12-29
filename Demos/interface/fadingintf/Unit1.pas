@@ -23,19 +23,14 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  Forms, GLObjects, GLTexture, Classes, Controls, GLColor,
-  ExtCtrls, SysUtils, VectorGeometry, GLViewer, GLGeomObjects, LResources,
-  GLScene;
+  Forms, GLScene, GLObjects, GLTexture, Classes, Controls,
+  ExtCtrls, SysUtils, GLVectorGeometry, GLLCLViewer, GLGeomObjects, GLColor,
+  GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
@@ -48,8 +43,7 @@ type
     Cone: TGLCone;
 	 Timer1: TTimer;
     TIPickTimer: TTimer;
-procedure FormCreate(Sender: TObject);
-procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
+	 procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
 		X, Y: Integer);
 	 procedure GLSceneViewer1MouseDown(Sender: TObject;
 		Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -69,8 +63,9 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses Dialogs;
+uses Dialogs, GLScreen;
 
 procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
@@ -78,17 +73,12 @@ begin
    TIPickTimer.Enabled:=True;
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-
-end;
-
 procedure TForm1.TIPickTimerTimer(Sender: TObject);
 var
    cp : TPoint;
 begin
 	// get what is under the mouse
-   cp := Mouse.CursorPos;
+   GLGetCursorPos(cp);
    cp:=GLSceneViewer1.ScreenToClient(cp);
 	currentPick:=(GLSceneViewer1.Buffer.GetPickedObject(cp.x, cp.y) as TGLCustomSceneObject);
    TIPickTimer.Enabled:=False;
@@ -129,8 +119,5 @@ begin
 			Color:=VectorLerp(targetColor, Color, 0.66)
 	end;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

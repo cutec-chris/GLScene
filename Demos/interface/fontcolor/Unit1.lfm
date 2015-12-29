@@ -1,17 +1,15 @@
 object Form1: TForm1
-  Left = 357
+  Left = 219
   Height = 299
-  Top = 197
+  Top = 107
   Width = 370
-  HorzScrollBar.Page = 369
-  VertScrollBar.Page = 298
   Caption = 'Bitmap Text with Color Properties'
   ClientHeight = 299
   ClientWidth = 370
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '1.5'
+  LCLVersion = '0.9.31'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 299
@@ -149,6 +147,35 @@ object Form1: TForm1
     HSpace = 0
     left = 8
     top = 104
+  end
+  object GLTimeEventsMGR1: TGLTimeEventsMGR
+    Cadencer = GLCadencer1
+    Events = <    
+      item
+        Name = 'Event0'
+        StartTime = 1.5
+        EndTime = 3
+        Period = 0
+        EventType = etContinuous
+        OnEvent = GLTimeEventsMGR1Events0Event
+      end    
+      item
+        Name = 'Event1'
+        StartTime = 0
+        EndTime = 0
+        Period = 0
+        OnEvent = GLTimeEventsMGR1Events1Event
+      end    
+      item
+        Name = 'Event2'
+        StartTime = 2
+        EndTime = 10
+        Period = 0
+        EventType = etContinuous
+        OnEvent = GLTimeEventsMGR1Events2Event
+      end>
+    left = 8
+    top = 8
   end
   object GLCadencer1: TGLCadencer
     Scene = GLScene1

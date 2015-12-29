@@ -23,19 +23,15 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLScene, GLObjects, GLCadencer, GLVectorFileObjects, ExtCtrls,
-  StdCtrls, GLTexture, LResources, GLViewer, GLMaterial, GLRenderContextInfo;
+  StdCtrls, GLLCLViewer, GLTexture, GLCrossPlatform, GLMaterial,
+  GLCoordinates, GLBaseClasses, GLRenderContextInfo;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     Viewer: TGLSceneViewer;
     RBNone: TRadioButton;
@@ -73,8 +69,9 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses Jpeg, GLFileMD2;
+uses GLFileMD2, GLUtils;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
@@ -82,6 +79,7 @@ var
    newSphere : TGLSphere;
    newActor : TGLActor;
 begin
+   SetGLSceneMediaDir();
    // Spheres are used as standalone, high-polycount objects
    // that are highly T&L friendly
    for i:=-4 to 4 do for j:=-4 to 4 do begin
@@ -93,8 +91,8 @@ begin
    // Actors are used as standalone, med-polycount objects
    // that aren't T&L friendly (all geometry must be sent to
    // the hardware at each frame)
-   GLMaterialLibrary.Materials[0].Material.Texture.Image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'waste.jpg');
-   ACReference.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'waste.md2');
+   GLMaterialLibrary.Materials[0].Material.Texture.Image.LoadFromFile('waste.jpg');
+   ACReference.LoadFromFile('waste.md2');
    for i:=-3 to 3 do for j:=-3 to 3 do begin
       newActor:=(DCActors.AddNewChild(TGLActor) as TGLActor);
       newActor.Assign(ACReference);
@@ -130,8 +128,5 @@ begin
       GLScene.VisibilityCulling:=vcHierarchical
    else GLScene.VisibilityCulling:=vcNone;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

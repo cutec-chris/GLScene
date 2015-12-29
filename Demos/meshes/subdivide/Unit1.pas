@@ -6,22 +6,16 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, GLVectorFileObjects, GLObjects, GLTexture,
-  VectorLists, ComCtrls, ExtCtrls, GLMaterial,
-  LResources, GLScene, GLCadencer, Buttons, GLViewer,GLState;
+  Dialogs, StdCtrls, GLScene, GLVectorFileObjects, GLObjects, GLTexture,
+  GLLCLViewer, GLVectorLists, ComCtrls, ExtCtrls, GLCadencer,
+  GLCrossPlatform, GLMaterial, GLCoordinates, GLBaseClasses, GLState;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
-    BULoad1: TButton;
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
     GLCamera1: TGLCamera;
@@ -29,6 +23,7 @@ type
     Timer1: TTimer;
     GLCadencer1: TGLCadencer;
     Panel1: TPanel;
+    BULoad: TButton;
     BUSubdivide: TButton;
     TrackBar1: TTrackBar;
     RBWireFrame: TRadioButton;
@@ -62,31 +57,20 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses MeshUtils, VectorGeometry, Jpeg, GLFileObj, GLCrossPlatform,
-     GLFile3DS, GLFileMD2;
+uses GLUtils, MeshUtils, GLVectorGeometry, TGA, GLFileOBJ,
+     GLFile3DS, GLFileMD2, GLFileSMD;
 
 procedure TForm1.BULoadClick(Sender: TObject);
 begin
+   SetGLSceneMediaDir();
    BUSubdivide.Enabled:=True;
 
-   GLMaterialLibrary1.TexturePaths:='..' + PathDelim + '..' + PathDelim + 'media';
-
-//   GLFreeForm1.LoadFromFile('e:\sf\glscene\demos\media\polyhedron.3ds');
-//   GLFreeForm1.LoadFromFile('e:\sf\glscene\demos\media\mushroom.3ds');
-//   GLFreeForm1.LoadFromFile('e:\sf\glscene\demos\media\trinityrage.smd');
-
-{   GLActor1.LoadFromFile('e:\sf\glscene\demos\media\trinityrage.smd');
-   GLActor1.AddDataFromFile('e:\sf\glscene\demos\media\run.smd');
-   GLActor1.Animations[1].MakeSkeletalTranslationStatic;
-   GLActor1.SwitchToAnimation(GLActor1.Animations[1]);}
-
-   GLActor1.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'waste.md2');
-   GLActor1.Material.Texture.Image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'waste.jpg');
+   GLActor1.LoadFromFile('waste.md2');
+   GLActor1.Material.Texture.Image.LoadFromFile('waste.jpg');
    GLActor1.Material.Texture.Enabled:=True;
    GLActor1.SwitchToAnimation(GLActor1.Animations[0]); 
-
-//   GLFreeForm1.LoadFromFile('e:\sf\glscene\demos\media\HighPolyObject.3ds');
 
    CBAnimateClick(Self);
 end;
@@ -102,7 +86,7 @@ begin
    BUSubdivide.Enabled:=False;
 
    Screen.Cursor:=crHourGlass;
-   //t:=StartPrecisionTimer;
+   t:=StartPrecisionTimer;
 
    for i:=0 to GLActor1.MeshObjects.Count-1 do begin
       tex:=TAffineVectorList.Create;
@@ -227,10 +211,7 @@ begin
    if Shift=[ssLeft] then begin
       GLCamera1.MoveAroundTarget(my-y, mx-x);
    end else if Shift=[ssRight] then begin
-      GLCamera1.MoveAroundTarget(mx-x, my-y);
-   //Bug With Lazarus k00m
-   //end else if Shift=[ssRight] then begin
-   //   GLCamera1.RotateTarget(my-y, mx-x);
+      GLCamera1.RotateTarget(my-y, mx-x);
    end;
    mx:=x;
    my:=y;
@@ -238,14 +219,12 @@ end;
 
 procedure TForm1.RBWireFrameClick(Sender: TObject);
 begin
-   GLActor1.Material.FrontProperties.PolygonMode:=pmLines;
-   GLActor1.Material.BackProperties.PolygonMode:=pmLines;
+   GLActor1.Material.PolygonMode:=pmLines;
 end;
 
 procedure TForm1.RBSolidClick(Sender: TObject);
 begin
-   GLActor1.Material.FrontProperties.PolygonMode:=pmFill;
-   GLActor1.Material.BackProperties.PolygonMode:=pmFill;
+   GLActor1.Material.PolygonMode:=pmFill;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
@@ -266,7 +245,7 @@ procedure TForm1.CBAnimateClick(Sender: TObject);
 begin
    // not only turns on/off animation, but also forces the TGLActor
    // to generate a display list when animation is off
-   if not CBAnimate.Checked then begin
+   if CBAnimate.Checked then begin
       GLActor1.AnimationMode:=aamLoop;
       GLActor1.ObjectStyle:=GLActor1.ObjectStyle+[osDirectDraw];
       GLActor1.Reference:=aarMorph;
@@ -278,8 +257,5 @@ begin
       GLActor1.ObjectStyle:=GLActor1.ObjectStyle-[osDirectDraw];
    end;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

@@ -1,17 +1,15 @@
 object Form1: TForm1
-  Left = 361
-  Height = 302
-  Top = 276
-  Width = 562
-  HorzScrollBar.Page = 561
-  VertScrollBar.Page = 301
+  Left = 108
+  Height = 306
+  Top = 101
+  Width = 567
   Caption = 'Form1'
-  ClientHeight = 302
-  ClientWidth = 562
+  ClientHeight = 306
+  ClientWidth = 567
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '1.5'
+  LCLVersion = '1.7'
   object Label1: TLabel
     Left = 8
     Height = 14
@@ -150,13 +148,5 @@ object Form1: TForm1
         0000204100002041000020410000803F
       }
     end
-  end
-  object GLCadencer1: TGLCadencer
-    Scene = GLScene1
-    MaxDeltaTime = 0
-    MinDeltaTime = 0
-    FixedDeltaTime = 0
-    left = 48
-    top = 16
   end
 end

@@ -19,15 +19,15 @@
 
    Carlos Arteaga Rivero <carteaga@superele.gov.bo>
 }
-unit unit1;
+unit Unit1;
 
 interface
 
 uses
   GLCadencer, GLVectorFileObjects, GLScene, GLObjects,
   StdCtrls, Buttons, Controls, ExtCtrls, ComCtrls, Classes, Forms, Graphics,
-  GLSkydome, GLViewer, GLNavigator, GLFileMD2, GLFile3DS,
-  GLGeomObjects, GLCrossPlatform, GLCoordinates, BaseClasses;
+  GLSkydome, GLLCLViewer, GLNavigator, GLFileMD2, GLFile3DS,
+  GLGeomObjects, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
   TForm1 = class(TForm)
@@ -77,7 +77,7 @@ implementation
 
 {$R *.lfm}
 
-uses VectorGeometry, SysUtils, GLKeyboard, FileUtil, LCLType;
+uses GLVectorGeometry, SysUtils, GLKeyboard, GLUtils, LCLType;
 
 const
   cWalkStep = 6;   // this is our walking speed, in 3D units / second
@@ -88,15 +88,8 @@ const
   cNbMushrooms = 15;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var
-  path: UTF8String;
-  p: Integer;
 begin
-  path := ExtractFilePath(ParamStrUTF8(0));
-  p := Pos('DemosLCL', path);
-  Delete(path, p+5, Length(path));
-  path := IncludeTrailingPathDelimiter(path) + IncludeTrailingPathDelimiter('media');
-  SetCurrentDirUTF8(path);
+   SetGLSceneMediaDir();
 
    // Load mushroom mesh
    FreeForm1.LoadFromFile('mushroom.3ds');
@@ -110,8 +103,8 @@ begin
    Actor1.Animations.LoadFromFile('Quake2Animations.aaf');
    Actor1.Scale.SetVector(0.04, 0.04, 0.04, 0);
    // Load weapon model and texture
-   Actor2.LoadFromFile('WeaponWaste.md2');
-   Actor2.Material.Texture.Image.LoadFromFile('WeaponWaste.jpg');
+   Actor2.LoadFromFile('weaponWaste.md2');
+   Actor2.Material.Texture.Image.LoadFromFile('weaponWaste.jpg');
    Actor2.Animations.Assign(Actor1.Animations);
 
    // Define animation properties

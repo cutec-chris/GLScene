@@ -1,16 +1,13 @@
 object Form1: TForm1
-  Left = 275
+  Left = 209
   Height = 346
-  Top = 200
+  Top = 106
   Width = 511
-  HorzScrollBar.Page = 510
-  VertScrollBar.Page = 345
   Caption = 'Form1'
   ClientHeight = 346
   ClientWidth = 511
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  OnCreate = FormCreate
   LCLVersion = '0.9.29'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
@@ -21,6 +18,7 @@ object Form1: TForm1
     Buffer.BackgroundColor = clSilver
     FieldOfView = 147.759567260742
     Align = alClient
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 464
@@ -42,9 +40,6 @@ object Form1: TForm1
       }
       Material.FrontProperties.Emission.Color = {
         0000803F00000000000000000000803F
-      }
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
       }
       PitchAngle = 0
       Position.Coordinates = {
@@ -164,4 +159,4 @@ object Form1: TForm1
     left = 464
     top = 104
   end
-end
+end

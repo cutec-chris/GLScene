@@ -3,9 +3,11 @@ program Actor;
 {$MODE Delphi}
 
 uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
   Forms, Interfaces,
-  demo in 'demo.pas',
-  glscene_designtime, glscene_runtime ;
+  demo;
 
 {$R *.res}
 

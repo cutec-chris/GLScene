@@ -1,21 +1,16 @@
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  LCLIntf, Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  {GLScene,} GLTerrainRenderer, GLObjects, jpeg, GLHeightData,
-  ExtCtrls, {GLCadencer,} StdCtrls, {GLTexture,} GLHUDObjects, GLBitmapFont,
-  {GLSkydome,} {GLWin32Viewer,} VectorGeometry, GLLensFlare, GLODEManager,
-  GLODECustomColliders, GLNavigator, GLGeomObjects, LResources, gllclviewer,
-  GLScene, GLCadencer, GLTexture, GLMaterial, GLViewer;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  GLScene, GLTerrainRenderer, GLObjects, GLHeightData,
+  ExtCtrls, GLCadencer, StdCtrls, GLTexture, GLHUDObjects, GLBitmapFont,
+  GLSkydome, GLLCLViewer, GLVectorGeometry, GLLensFlare, GLODEManager,
+  GLODECustomColliders, GLNavigator, GLGeomObjects,GLColor, GLCrossPlatform,
+  GLMaterial, GLCoordinates, GLBaseClasses, GLState;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLBitmapHDS1: TGLBitmapHDS;
@@ -27,7 +22,7 @@ type
     GLMaterialLibrary1: TGLMaterialLibrary;
     BitmapFont1: TGLBitmapFont;
     HUDText1: TGLHUDText;
-    //SkyDome1: TGLSkyDome;
+    SkyDome1: TGLSkyDome;
     SPMoon: TGLSprite;
     SPSun: TGLSprite;
     GLLensFlare: TGLLensFlare;
@@ -57,8 +52,9 @@ var
 
 implementation
 
+{$R *.lfm}
 
-uses Keyboard, OpenGL1x;
+uses GLKeyboard;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -69,8 +65,8 @@ begin
    GLBitmapHDS1.Picture.LoadFromFile('terrain.bmp');
    GLMaterialLibrary1.Materials[0].Material.Texture.Image.LoadFromFile('snow512.jpg');
    GLMaterialLibrary1.Materials[1].Material.Texture.Image.LoadFromFile('detailmap.jpg');
-   //SPMoon.Material.Texture.Image.LoadFromFile('moon.bmp');
-   //SPSun.Material.Texture.Image.LoadFromFile('flare1.bmp');
+   SPMoon.Material.Texture.Image.LoadFromFile('moon.bmp');
+   SPSun.Material.Texture.Image.LoadFromFile('flare1.bmp');
    TerrainRenderer1.TilesPerTexture:=256/TerrainRenderer1.TileSize;
    BitmapFont1.Glyphs.LoadFromFile('darkgold_font.bmp');
    GLSceneViewer1.Buffer.BackgroundColor:=clWhite;
@@ -85,7 +81,7 @@ var
    speed, interpolated_height : Single;
 begin
    // handle keypresses
-{   if IsKeyDown(VK_SHIFT) then
+   if IsKeyDown(VK_SHIFT) then
       speed:=50*deltaTime
    else speed:=10*deltaTime;
    with GLCamera1.Position do begin
@@ -106,7 +102,7 @@ begin
       interpolated_height:=TerrainRenderer1.InterpolatedHeight(AsVector);
       if Z<interpolated_height+5 then
          Z:=interpolated_height+5;
-   end;                 }
+   end;
 
    GLODEManager1.Step(deltaTime);
 
@@ -124,7 +120,7 @@ end;
 procedure TForm1.FormKeyPress(Sender: TObject; var Key: Char);
 begin
    case Key of
-      'w', 'W' : with GLMaterialLibrary1.Materials[0].Material.FrontProperties do begin
+      'w', 'W' : with GLMaterialLibrary1.Materials[0].Material do begin
          if PolygonMode=pmLines then
             PolygonMode:=pmFill
          else PolygonMode:=pmLines;
@@ -151,7 +147,7 @@ begin
          if QualityDistance>40 then QualityDistance:=Round(QualityDistance*0.8);
       '9' : with TerrainRenderer1 do
          if QualityDistance<1000 then QualityDistance:=Round(QualityDistance*1.2);
-      {'n', 'N' : with SkyDome1 do if Stars.Count=0 then begin
+      'n', 'N' : with SkyDome1 do if Stars.Count=0 then begin
          // turn on 'night' mode
          Bands[1].StopColor.AsWinColor:=RGB(0, 0, 16);
          Bands[1].StartColor.AsWinColor:=RGB(0, 0, 8);
@@ -192,13 +188,13 @@ begin
          if sdoTwinkle in Options then
             Options:=Options-[sdoTwinkle]
          else Options:=Options+[sdoTwinkle];
-      end; }
+      end;
       'l' : with GLLensFlare do Visible:=(not Visible) and SPSun.Visible;
       '1' : DropODEObject(TODEElementSphere);
       '2' : DropODEObject(TODEElementBox);
       '3' : DropODEObject(TODEElementCapsule);
       '4' : DropODEObject(TODEElementCylinder);
-      '5' : DropODEObject(TODEElementCone);
+//      '5' : DropODEObject(TODEElementCone); CONE is currently unsupported
    end;
    Key:=#0;
 end;
@@ -216,11 +212,8 @@ begin
   dummy:=ODEObjects.AddNewChild(TGLDummyCube);
   dummy.Position.AsVector:=ODEDrop.AbsolutePosition;
   dyn:=TGLODEDynamic.Create(dummy.Behaviours);
+  dyn.AddNewElement(anElementClass);  // mrqzzz : AddNewElement must come *before* setting manager!
   dyn.Manager:=GLODEManager1;
-  dyn.AddNewElement(anElementClass);
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

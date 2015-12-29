@@ -1,24 +1,19 @@
 unit fOctreeDemo;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  LCLType, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, GLObjects, GLScene, VectorGeometry, StdCtrls,
+  SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, GLObjects, GLScene, GLLCLViewer, GLVectorGeometry, StdCtrls,
   GeometryBB, GLTexture, OpenGL1x, GLCadencer, SpatialPartitioning,
-  ComCtrls, LResources, Buttons, GLViewer, GLRenderContextInfo;
+  ComCtrls, GLCrossPlatform, GLCoordinates, GLBaseClasses, GLRenderContextInfo,
+  GLState;
 
 const
   cBOX_SIZE = 14.2;
 
 type
-
-  { TfrmOctreeDemo }
-
   TfrmOctreeDemo = class(TForm)
-    GLLines1: TGLLines;
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
     GLLightSource1: TGLLightSource;
@@ -71,9 +66,13 @@ var
 
 implementation
 
+{$R *.lfm}
+
+uses OpenGlTokens, GLContext;
 
 var
   mx, my : integer;
+
 procedure TfrmOctreeDemo.GLSceneViewer1MouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -135,9 +134,9 @@ begin
   GLBaseSceneObject := aGLBaseSceneObject;
 
   // Set them all off in the same direction
-  Direction[0] := random;
-  Direction[1] := random;
-  Direction[2] := random;//}
+  Direction.X := random;
+  Direction.Y := random;
+  Direction.Z := random;//}
 
   NormalizeVector(Direction);
 
@@ -158,33 +157,33 @@ procedure TfrmOctreeDemo.GLDirectOpenGL1Render(Sender : TObject; var rci: TRende
 
   procedure RenderAABB(AABB : TAABB; w, r,g,b : single);
   begin
-    glColor3f(r,g,b);
-    glLineWidth(w);
+    GL.Color3f(r,g,b);
+    rci.GLStates.LineWidth := w;
 
-    glBegin(GL_LINE_STRIP);
-      glVertex3f(AABB.min[0],AABB.min[1], AABB.min[2]);
-      glVertex3f(AABB.min[0],AABB.max[1], AABB.min[2]);
-      glVertex3f(AABB.max[0],AABB.max[1], AABB.min[2]);
-      glVertex3f(AABB.max[0],AABB.min[1], AABB.min[2]);
-      glVertex3f(AABB.min[0],AABB.min[1], AABB.min[2]);
+    GL.Begin_(GL_LINE_STRIP);
+      GL.Vertex3f(AABB.min.X,AABB.min.Y, AABB.min.Z);
+      GL.Vertex3f(AABB.min.X,AABB.max.Y, AABB.min.Z);
+      GL.Vertex3f(AABB.max.X,AABB.max.Y, AABB.min.Z);
+      GL.Vertex3f(AABB.max.X,AABB.min.Y, AABB.min.Z);
+      GL.Vertex3f(AABB.min.X,AABB.min.Y, AABB.min.Z);
 
-      glVertex3f(AABB.min[0],AABB.min[1], AABB.max[2]);
-      glVertex3f(AABB.min[0],AABB.max[1], AABB.max[2]);
-      glVertex3f(AABB.max[0],AABB.max[1], AABB.max[2]);
-      glVertex3f(AABB.max[0],AABB.min[1], AABB.max[2]);
-      glVertex3f(AABB.min[0],AABB.min[1], AABB.max[2]);
-    glEnd;
+      GL.Vertex3f(AABB.min.X,AABB.min.Y, AABB.max.Z);
+      GL.Vertex3f(AABB.min.X,AABB.max.Y, AABB.max.Z);
+      GL.Vertex3f(AABB.max.X,AABB.max.Y, AABB.max.Z);
+      GL.Vertex3f(AABB.max.X,AABB.min.Y, AABB.max.Z);
+      GL.Vertex3f(AABB.min.X,AABB.min.Y, AABB.max.Z);
+    GL.End_;
 
-    glBegin(GL_LINES);
-      glVertex3f(AABB.min[0],AABB.max[1], AABB.min[2]);
-      glVertex3f(AABB.min[0],AABB.max[1], AABB.max[2]);
+    GL.Begin_(GL_LINES);
+      GL.Vertex3f(AABB.min.X,AABB.max.Y, AABB.min.Z);
+      GL.Vertex3f(AABB.min.X,AABB.max.Y, AABB.max.Z);
 
-      glVertex3f(AABB.max[0],AABB.max[1], AABB.min[2]);
-      glVertex3f(AABB.max[0],AABB.max[1], AABB.max[2]);
+      GL.Vertex3f(AABB.max.X,AABB.max.Y, AABB.min.Z);
+      GL.Vertex3f(AABB.max.X,AABB.max.Y, AABB.max.Z);
 
-      glVertex3f(AABB.max[0],AABB.min[1], AABB.min[2]);
-      glVertex3f(AABB.max[0],AABB.min[1], AABB.max[2]);
-    glEnd;
+      GL.Vertex3f(AABB.max.X,AABB.min.Y, AABB.min.Z);
+      GL.Vertex3f(AABB.max.X,AABB.min.Y, AABB.max.Z);
+    GL.End_;
   end;
 
   procedure RenderOctreeNode(Node : TSectorNode);
@@ -210,14 +209,13 @@ procedure TfrmOctreeDemo.GLDirectOpenGL1Render(Sender : TObject; var rci: TRende
 var
   AABB : TAABB;
 begin
-  glPushAttrib(GL_ENABLE_BIT or GL_CURRENT_BIT or GL_LINE_BIT or GL_COLOR_BUFFER_BIT);
-  glDisable(GL_LIGHTING);
+  rci.GLStates.PushAttrib([sttEnable, sttCurrent, sttLine, sttColorBuffer]);
+  rci.GLStates.Disable(stLighting);
 
   MakeVector(AABB.min, -cBOX_SIZE, -cBOX_SIZE, -cBOX_SIZE);
   MakeVector(AABB.max,  cBOX_SIZE,  cBOX_SIZE,  cBOX_SIZE);
   RenderAABB(AABB,2, 0,0,0);
   RenderOctreeNode(Octree.RootNode);
-  glPopAttrib;
 end;
 
 procedure TfrmOctreeDemo.FormMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -252,9 +250,9 @@ begin
   begin
     Leaf := TGLSpacePartitionLeaf(Octree.Leaves[i]);
     Cube := TGLCube(Leaf.GLBaseSceneObject);
-    Cube.Position.X := TestMove(Cube.Position.X, Leaf.Direction[0]);
-    Cube.Position.Y := TestMove(Cube.Position.Y, Leaf.Direction[1]);
-    Cube.Position.Z := TestMove(Cube.Position.Z, Leaf.Direction[2]);
+    Cube.Position.X := TestMove(Cube.Position.X, Leaf.Direction.X);
+    Cube.Position.Y := TestMove(Cube.Position.Y, Leaf.Direction.Y);
+    Cube.Position.Z := TestMove(Cube.Position.Z, Leaf.Direction.Z);
 
     Leaf.Changed;
   end;//}
@@ -339,8 +337,6 @@ begin
 
   Label1.Caption := Format('Nodes = %d, Colliding Leaves = %d',
     [Octree.GetNodeCount, CollidingLeafCount]);
-    
-  GLSceneViewer1.Invalidate;
 end;
 
 procedure TfrmOctreeDemo.TrackBar_LeafThresholdChange(Sender: TObject);
@@ -403,8 +399,5 @@ procedure TfrmOctreeDemo.FormDestroy(Sender: TObject);
 begin
   Octree.Free;
 end;
-
-initialization
-  {$i fOctreeDemo.lrs}
 
 end.

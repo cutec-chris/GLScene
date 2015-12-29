@@ -3,8 +3,11 @@ program Terrain;
 {$MODE Delphi}
 
 uses
-  Forms, Interfaces,
-  unit1, glscene_designtime, glscene_runtime;
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Forms, glscene_runtime, GLSS_BASS, Interfaces,
+  Unit1 in 'Unit1.pas' {Form1};
 
 {$R *.res}
 

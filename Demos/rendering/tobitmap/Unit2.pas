@@ -1,12 +1,10 @@
 unit Unit2;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  LCLIntf, Messages, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, LResources;
+  SysUtils, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls;
 
 type
   TForm2 = class(TForm)
@@ -22,8 +20,6 @@ var
 
 implementation
 
-
-initialization
-  {$i unit2.lrs}
+{$R *.lfm}
 
 end.

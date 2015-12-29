@@ -5,8 +5,8 @@ unit Unit2;
 interface
 
 uses
-  LCLIntf, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, LResources;
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls;
 
 type
   TForm2 = class(TForm)
@@ -22,8 +22,6 @@ var
 
 implementation
 
+{$R *.lfm}
 
-initialization
-  {$i Unit2.lrs}
-
-end.
+end.

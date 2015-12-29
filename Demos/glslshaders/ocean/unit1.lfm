@@ -9,7 +9,7 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 471
@@ -50,7 +50,7 @@ object Form1: TForm1
         RollAngle = 0
         TurnAngle = 0
         Visible = False
-        Radius = 0.05000000074505
+        Radius = 0.05000000074506
       end
     end
     object DOInitialize: TGLDirectOpenGL
@@ -86,13 +86,13 @@ object Form1: TForm1
       RollAngle = 0
       TurnAngle = 0
       XSamplingScale.Min = -100
-      XSamplingScale.Max = 100
+      XSamplingScale.max = 100
       XSamplingScale.Origin = 0
-      XSamplingScale.Step = 2
+      XSamplingScale.step = 2
       YSamplingScale.Min = -100
-      YSamplingScale.Max = 100
+      YSamplingScale.max = 100
       YSamplingScale.Origin = 0
-      YSamplingScale.Step = 2
+      YSamplingScale.step = 2
       OnGetHeight = GLHeightField1GetHeight
     end
     object GLSphere2: TGLSphere
@@ -128,21 +128,21 @@ object Form1: TForm1
     Materials = <    
       item
         Name = 'water'
+        Tag = 0
         Material.Texture.TextureMode = tmReplace
         Material.Texture.TextureFormat = tfRGB
         Material.Texture.Disabled = False
-        Material.Texture.NormalMapScale = 0.05000000074505
-        Tag = 0
+        Material.Texture.NormalMapScale = 0.05000000074506
         Shader = GLUserShader1
       end    
       item
         Name = 'cubeMap'
+        Tag = 0
         Material.Texture.ImageClassName = 'TGLCubeMapImage'
         Material.Texture.TextureMode = tmReplace
         Material.Texture.TextureWrap = twNone
         Material.Texture.MappingMode = tmmCubeMapNormal
         Material.Texture.Disabled = False
-        Tag = 0
       end>
     left = 16
     top = 56
@@ -171,6 +171,7 @@ object Form1: TForm1
     Camera = CameraCubeMap
     Width = 128
     Height = 128
+    BeforeRender = GLMemoryViewer1BeforeRender
     Buffer.BackgroundColor = clBlack
     left = 64
     top = 56

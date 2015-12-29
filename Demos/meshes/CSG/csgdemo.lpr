@@ -1,10 +1,13 @@
-program csgdemo;
+program CSGDemo;
 
 {$MODE Delphi}
 
 uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
   Forms, Interfaces,
-  mainformunit, glscene_designtime, glscene_runtime {Form1};
+  MainFormUnit in 'MainFormUnit.pas' {Form1};
 
 {$R *.res}
 

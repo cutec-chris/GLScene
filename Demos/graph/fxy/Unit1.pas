@@ -25,15 +25,11 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, StdCtrls,
-  ComCtrls, GLObjects, GLGraph, GLScene, VectorGeometry, VectorTypes,
-  GLViewer, LResources, GLCadencer;
+  ComCtrls, GLObjects, GLGraph, GLScene, GLVectorGeometry, GLVectorTypes,
+  GLLCLViewer, GLCrossPlatform, GLCoordinates;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
-    GLCadencer1: TGLCadencer;
     GLScene1: TGLScene;
     GLSceneViewer1: TGLSceneViewer;
     GLCamera1: TGLCamera;
@@ -45,7 +41,6 @@ type
     CBCentered: TCheckBox;
     TBXYPosition: TTrackBar;
     Label1: TLabel;
-    procedure FormCreate(Sender: TObject);
     procedure GLSceneViewer1MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure GLSceneViewer1MouseMove(Sender: TObject; Shift: TShiftState;
@@ -66,6 +61,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.HeightField1GetHeight(const x, y: Single; var z: Single;
   var color: TVector4f; var texPoint: TTexPoint);
@@ -99,11 +95,6 @@ begin
    mx:=x; my:=y;
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-
-end;
-
 procedure TForm1.GLSceneViewer1MouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -112,8 +103,5 @@ begin
       mx:=x; my:=y;
    end;
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

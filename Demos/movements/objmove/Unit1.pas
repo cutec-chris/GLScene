@@ -1,24 +1,24 @@
-{: Moving objects with the mouse.<p>
+{ : Moving objects with the mouse.<p>
 
-   In this demo you can move the two cubes around by picking and dragging
-   them. This showcases the use of ScreenVectorIntersectXxxx functions.<p>
+  In this demo you can move the two cubes around by picking and dragging
+  them. This showcases the use of ScreenVectorIntersectXxxx functions.<p>
 
-   You can also use the numeric keypad to move/zoom the camera and the arrow
-   to move the selected object around.<p>
+  You can also use the numeric keypad to move/zoom the camera and the arrow
+  to move the selected object around.<p>
 
-   (Based on Rado Stoyanov's test project)
+  (Based on Rado Stoyanov's test project)
 }
 unit Unit1;
-
-{$MODE Delphi}
 
 interface
 
 uses
-  LCLType, Forms, Dialogs, SysUtils, GLObjects, Classes, Controls, GLGraph,
-  GLCollision, GLTexture, OpenGL1x, StdCtrls, ExtCtrls, VectorGeometry, Graphics,
-  GLVectorFileObjects, GLGeomObjects, LResources,
-  GLScene, GLViewer, GLColor;
+  Forms, Dialogs, SysUtils, GLScene, GLObjects, Classes, Controls,
+  GLGraph,
+  GLCollision, GLTexture, StdCtrls, ExtCtrls, GLVectorGeometry, Graphics,
+  GLVectorFileObjects, GLLCLViewer, GLSpaceText, GLGeomObjects, GLColor,
+  GLCrossPlatform, GLCoordinates, GLBaseClasses, GLBitmapFont, GLWindowsFont,
+  GLHUDObjects;
 
 type
 
@@ -37,99 +37,146 @@ type
     Cube2: TGLCube;
     Floor: TGLCube;
     Panel1: TPanel;
+    Button1: TButton;
     Label2: TLabel;
     Label1: TLabel;
+    TxtX: TGLSpaceText;
+    TxtY: TGLSpaceText;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
-    procedure FormMouseDown(Sender: TOBject; Button: TMouseButton;
+    TxtZ: TGLSpaceText;
+    TopText: TGLHUDText;
+    GLWindowsBitmapFont1: TGLWindowsBitmapFont;
+    ObjText: TGLHUDText;
+    GroupBox1: TGroupBox;
+    ShowAxes: TCheckBox;
+    procedure ScnMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure ScnMouseDown(Sender: TObject;
-      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-	 procedure ScnMouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
+    procedure ScnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure ScnAfterRender(Sender: TObject);
-    procedure FormKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormCreate(Sender: TObject);
+    procedure ShowAxesClick(Sender: TObject);
   private
-    lastMouseWorldPos : TVector;
-    movingOnZ : Boolean;
+    lastMouseWorldPos: TVector;
+    movingOnZ: Boolean;
     CurrentPick: TGLCustomSceneObject;
-    function MouseWorldPos(x, y : Integer) : TVector;
+    ScnMouseMoveCnt: Integer;
+    function MouseWorldPos(X, Y: Integer): TVector;
+    procedure UpdateHudText;
+    procedure ProcessPick(pick: TGLBaseSceneObject);
   end;
 
 const
-  SelectionColor: TColorVector = (0.243, 0.243, 0.243, 1.000);
+  SelectionColor: TColorVector = (X: 0.243; Y: 0.243; Z: 0.243; W: 1.000);
 
 var
   Form1: TForm1;
 
 implementation
 
+{$R *.lfm}
 
-function TForm1.MouseWorldPos(x, y : Integer) : TVector;
-var
-   v : TVector;
+uses
+  LCLType;
+
+procedure TForm1.FormCreate(Sender: TObject);
 begin
-   y:=Scn.Height-y;
-   if Assigned(currentPick) then begin
-      SetVector(v, x, y, 0);
-      if movingOnZ then
-         Scn.Buffer.ScreenVectorIntersectWithPlaneXZ(v, currentPick.Position.Y, Result)
-      else Scn.Buffer.ScreenVectorIntersectWithPlaneXY(v, currentPick.Position.Z, Result);
-   end else SetVector(Result, NullVector);
+  UpdateHudText;
 end;
 
-procedure TForm1.ScnMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+function TForm1.MouseWorldPos(X, Y: Integer): TVector;
 var
-   pick : TGLBaseSceneObject;
+  v: TVector;
 begin
-   movingOnZ:=(ssShift in Shift);
-   // If an object is picked...
-   pick:=(Scn.Buffer.GetPickedObject(x, y) as TGLCustomSceneObject);
-   if Assigned(Pick) then begin
-      // Only Cube1 and Cube2 can be selected
-      if (pick.Name <> 'Cube1') and (pick.Name <> 'Cube2') then
-         pick := nil;
-   end;
-   if pick<>currentPick then begin
-      if Assigned(currentPick) then
-         currentPick.Material.FrontProperties.Emission.Color := clrBlack;
-      currentPick:=TGLCustomSceneObject(pick);
-      if Assigned(currentPick) then
-         CurrentPick.Material.FrontProperties.Emission.Color := SelectionColor;
-   end;
-   // store mouse pos
-   if Assigned(currentPick) then
-      lastMouseWorldPos:=MouseWorldPos(x, y);
+  Y := Scn.Height - Y;
+  if Assigned(CurrentPick) then
+  begin
+    SetVector(v, X, Y, 0);
+    if movingOnZ then
+      Scn.Buffer.ScreenVectorIntersectWithPlaneXZ(v, CurrentPick.Position.Y,
+        Result)
+    else
+      Scn.Buffer.ScreenVectorIntersectWithPlaneXY(v, CurrentPick.Position.Z,
+        Result);
+  end
+  else
+    SetVector(Result, NullVector);
 end;
 
-procedure TForm1.FormMouseDown(Sender: TOBject; Button: TMouseButton;
+procedure TForm1.ProcessPick(pick: TGLBaseSceneObject);
+begin
+  if Assigned(pick) then
+  begin
+    // Only Cube1 and Cube2 can be selected
+    if (pick.Name <> 'Cube1') and (pick.Name <> 'Cube2') then
+      pick := nil;
+  end;
+  if pick <> CurrentPick then
+  begin
+    if Assigned(CurrentPick) then
+    begin
+      CurrentPick.ShowAxes := false;
+      CurrentPick.Material.FrontProperties.Emission.Color := clrBlack;
+    end;
+    CurrentPick := TGLCustomSceneObject(pick);
+    if Assigned(CurrentPick) then
+    begin
+      if ShowAxes.Checked then
+        CurrentPick.ShowAxes := true;
+      CurrentPick.Material.FrontProperties.Emission.Color := SelectionColor;
+    end;
+  end;
+  UpdateHudText;
+end;
+
+procedure TForm1.ScnMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+var
+  pick: TGLBaseSceneObject;
 begin
+  movingOnZ := (ssShift in Shift);
+  // If an object is picked...
+  pick := (Scn.Buffer.GetPickedObject(X, Y) as TGLCustomSceneObject);
+  ProcessPick(Pick);
 
+  // store mouse pos
+  if Assigned(CurrentPick) then
+    lastMouseWorldPos := MouseWorldPos(X, Y);
 end;
 
-procedure TForm1.ScnMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
+procedure TForm1.ScnMouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: Integer);
 var
-   newPos : TVector;
+  newPos: TVector;
 begin
-   if ssLeft in Shift then begin
-      // handle hold/unhold of shift
-      if (ssShift in Shift)<>movingOnZ then begin
-         movingOnZ:=(ssShift in Shift);
-         lastMouseWorldPos:=MouseWorldPos(x, y);
-      end;
-      newPos:=MouseWorldPos(x, y);
-      if Assigned(currentPick) and (VectorNorm(lastMouseWorldPos)<>0) then
-         currentPick.Position.Translate(VectorSubtract(newPos, lastMouseWorldPos));
-      lastMouseWorldPos:=newPos;
-   end;
+  Inc(ScnMouseMoveCnt);
+  Assert(ScnMouseMoveCnt < 2);
+  if ssLeft in Shift then
+  begin
+    // handle hold/unhold of shift
+    if (ssShift in Shift) <> movingOnZ then
+    begin
+      movingOnZ := (ssShift in Shift);
+      lastMouseWorldPos := MouseWorldPos(X, Y);
+    end;
+    newPos := MouseWorldPos(X, Y);
+    if Assigned(CurrentPick) and (VectorNorm(lastMouseWorldPos) <> 0) then
+      CurrentPick.Position.Translate(VectorSubtract(newPos, lastMouseWorldPos));
+    lastMouseWorldPos := newPos;
+
+    UpdateHudText;
+  end;
+  Dec(ScnMouseMoveCnt);
+end;
+
+procedure TForm1.ShowAxesClick(Sender: TObject);
+begin
+  // Unselect all
+  ProcessPick(nil);
 end;
 
 procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -137,66 +184,78 @@ procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState;
 begin
   // Note that 1 wheel-step induces a WheelDelta of 120,
   // this code adjusts the distance to target with a 10% per wheel-step ratio
-  GLCamera1.AdjustDistanceToTarget(Power(1.1, WheelDelta / 120));
+  if WheelDelta <> 0 then
+    GLCamera1.AdjustDistanceToTarget(Power(1.1, -WheelDelta / 120));
 end;
 
 procedure TForm1.FormKeyPress(Sender: TObject; var Key: Char);
 begin
-   with GLCamera1 do case Key of
-      '2': MoveAroundTarget(3, 0);
-      '4': MoveAroundTarget(0, -3);
-      '6': MoveAroundTarget(0, 3);
-      '8': MoveAroundTarget(-3, 0);
-      '-': AdjustDistanceToTarget(1.1);
-      '+': AdjustDistanceToTarget(1 / 1.1);
-   end;
-end;
-
-procedure TForm1.ScnAfterRender(Sender: TObject);
-var
-   objPos, winPos : TAffineVector;
-   canvas : TCanvas;
-begin
-   canvas:=TCanvas.Create;
-   try
-      canvas.Handle:=Scn.RenderDC;
-      canvas.Brush.Style := bsClear;
-      canvas.Font.Name := 'Verdana';
-      canvas.Font.Color := clWhite;
-
-      if Assigned(currentPick) then begin
-         SetVector(objPos, currentPick.AbsolutePosition);
-         canvas.TextOut(3, 3 + 1 * canvas.TextHeight('A'),
-                        Format('New Object Position: Xn: %4.4f, Yn: %4.4f, Zn: %4.4f',
-                               [objPos[0], objPos[1], objPos[2]]));
-         winPos:=Scn.Buffer.WorldToScreen(objPos);
-         canvas.TextOut(Round(winPos[0]), Scn.Height-Round(winPos[1]),
-                        currentPick.Name);
-      end else begin
-         canvas.TextOut(3, 3+canvas.TextHeight('A'), 'No selected object');
-      end;
-   finally
-      canvas.Free;
-   end;
-end;
-
-procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-   if Assigned(currentPick) then with currentPick do case Key of
-      VK_UP :     if ssShift in Shift then
-                     Translate(0, 0, 0.3)
-                  else Translate(-0.3, 0, 0);
-      VK_DOWN :   if ssShift in Shift then
-                     Translate(0, 0, -0.3)
-                  else Translate(0.3, 0, 0);
-      VK_LEFT :   Translate(0, -0.3, 0);
-      VK_RIGHT :  Translate(0, 0.3, 0);
+  with GLCamera1 do
+    case Key of
+      '2':
+        MoveAroundTarget(3, 0);
+      '4':
+        MoveAroundTarget(0, -3);
+      '6':
+        MoveAroundTarget(0, 3);
+      '8':
+        MoveAroundTarget(-3, 0);
+      '-':
+        AdjustDistanceToTarget(1.1);
+      '+':
+        AdjustDistanceToTarget(1 / 1.1);
     end;
 end;
 
-initialization
-  {$i Unit1.lrs}
+procedure TForm1.UpdateHudText;
+var
+  objPos, winPos: TAffineVector;
+begin
+  if Assigned(CurrentPick) then
+  begin
+    SetVector(objPos, CurrentPick.AbsolutePosition);
+
+    TopText.Text := Format(
+      'New Object Position: Xn: %4.4f, Yn: %4.4f, Zn: %4.4f',
+      [objPos.X, objPos.Y, objPos.Z]);
+
+    winPos := Scn.Buffer.WorldToScreen(objPos);
+
+    with ObjText do
+    begin
+      Visible := true;
+      Text := CurrentPick.Name;
+      Position.X := winPos.X + 10;
+      Position.Y := Scn.Height - winPos.Y + 10;
+    end;
+  end
+  else
+  begin
+    TopText.Text := 'No selected object';
+    ObjText.Visible := false;
+  end;
+end;
+
+procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(CurrentPick) then
+    with CurrentPick do
+      case Key of
+        VK_UP:
+          if ssShift in Shift then
+            Translate(0, 0, 0.3)
+          else
+            Translate(-0.3, 0, 0);
+        VK_DOWN:
+          if ssShift in Shift then
+            Translate(0, 0, -0.3)
+          else
+            Translate(0.3, 0, 0);
+        VK_LEFT:
+          Translate(0, -0.3, 0);
+        VK_RIGHT:
+          Translate(0, 0.3, 0);
+      end;
+end;
 
 end.
-

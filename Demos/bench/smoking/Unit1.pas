@@ -13,19 +13,12 @@ unit Unit1;
 interface
 
 uses
-  LCLIntf, LCLType, LMessages, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, GLCadencer, GLParticleFX, GLPerlinPFX, GLScene, GLObjects,
   GLLCLViewer, ExtCtrls, GLCrossPlatform, GLCoordinates, GLBaseClasses;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
-    DCFire2: TGLDummyCube;
-    DCFire3: TGLDummyCube;
-    DCFire4: TGLDummyCube;
-    DCFire5: TGLDummyCube;
     GLSceneViewer: TGLSceneViewer;
     GLScene: TGLScene;
     GLCamera: TGLCamera;

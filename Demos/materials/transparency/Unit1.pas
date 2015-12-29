@@ -29,20 +29,15 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   GLScene, GLObjects, StdCtrls, GLCadencer, GLBehaviours, GLTexture,
-  VectorGeometry, GLGeomObjects, LResources, GLViewer, GLMaterial,
-  GLRenderContextInfo;
+  GLVectorGeometry, GLLCLViewer, GLGeomObjects, GLCoordinates, GLCrossPlatform,
+  GLBaseClasses, GLMaterial, GLRenderContextInfo;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -51,8 +46,8 @@ type
     Cone1: TGLCone;
     DCCentral: TGLDummyCube;
     CentralSphere: TGLSphere;
-    Memo1: TMemo;
     Torus1: TGLTorus;
+    Label1: TLabel;
     RBSTC: TRadioButton;
     RBTSC: TRadioButton;
     RBTCS: TRadioButton;
@@ -82,6 +77,7 @@ var
 
 implementation
 
+{$R *.lfm}
 
 procedure TForm1.RBSTCClick(Sender: TObject);
 begin
@@ -134,8 +130,5 @@ begin
    alpha:=alpha+PI/2;
    OrbitingSphere2.Position.SetPoint(1.5*cos(alpha), 1.5*sin(alpha), 1.5*sin(alpha));
 end;
-
-initialization
-  {$i Unit1.lrs}
 
 end.

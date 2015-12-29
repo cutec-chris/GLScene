@@ -1,0 +1,160 @@
+object Form1: TForm1
+  Left = 311
+  Height = 462
+  Top = 96
+  Width = 582
+  Caption = 'Form1'
+  ClientHeight = 462
+  ClientWidth = 582
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.31'
+  object viewer: TGLSceneViewer
+    Left = 0
+    Height = 365
+    Top = 0
+    Width = 582
+    Camera = Camera1
+    FieldOfView = 149.356979370117
+    Align = alClient
+    OnMouseDown = viewerMouseDown
+    OnMouseMove = viewerMouseMove
+    TabOrder = 0
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 97
+    Top = 365
+    Width = 582
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 97
+    ClientWidth = 582
+    TabOrder = 1
+    object Label2: TLabel
+      Left = 8
+      Height = 14
+      Top = 56
+      Width = 23
+      Caption = 'Step'
+      ParentColor = False
+    end
+    object Label1: TLabel
+      Left = 8
+      Height = 14
+      Top = 3
+      Width = 48
+      Caption = 'MaxSteps'
+      ParentColor = False
+    end
+    object Label3: TLabel
+      Left = 424
+      Height = 14
+      Top = 3
+      Width = 32
+      Caption = 'Speed'
+      ParentColor = False
+    end
+    object CheckOn: TCheckBox
+      Left = 488
+      Height = 19
+      Top = 64
+      Width = 34
+      Caption = 'On'
+      OnClick = CheckOnClick
+      TabOrder = 0
+    end
+    object Button1: TButton
+      Left = 408
+      Height = 25
+      Top = 64
+      Width = 75
+      Caption = 'Reset'
+      OnClick = Button1Click
+      TabOrder = 1
+    end
+    object StepBar: TProgressBar
+      Left = 8
+      Height = 16
+      Top = 72
+      Width = 393
+      Max = 200
+      Smooth = True
+      TabOrder = 2
+    end
+    object MaxStepsBar: TTrackBar
+      Left = 0
+      Height = 25
+      Top = 24
+      Width = 409
+      Max = 200
+      OnChange = MaxStepsBarChange
+      Position = 0
+      TabOrder = 3
+    end
+    object SpeedBar: TTrackBar
+      Left = 416
+      Height = 25
+      Top = 24
+      Width = 121
+      Max = 20
+      OnChange = SpeedBarChange
+      Position = 1
+      TabOrder = 4
+    end
+  end
+  object GLScene1: TGLScene
+    left = 16
+    top = 16
+    object mesh: TGLFreeForm
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      Scale.Coordinates = {
+        CDCCCC3ECDCCCC3ECDCCCC3E00000000
+      }
+      TurnAngle = 0
+      NormalsOrientation = mnoInvert
+    end
+    object Camera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 100
+      FocalLength = 50
+      TargetObject = mesh
+      Position.Coordinates = {
+        0000000000004842000000000000803F
+      }
+      Direction.Coordinates = {
+        00000000000080BF0000000000000000
+      }
+      Up.Coordinates = {
+        E8DC723F000000009BE8A1BE00000000
+      }
+      left = 328
+      top = 216
+      object GLLightSource1: TGLLightSource
+        TagFloat = 0
+        ConstAttenuation = 1
+        LinearAttenuation = 0
+        QuadraticAttenuation = 0
+        SpotCutOff = 180
+        SpotDirection.Coordinates = {
+          00000000000000000000803F00000000
+        }
+        SpotExponent = 0
+      end
+    end
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    OnProgress = GLCadencer1Progress
+    left = 16
+    top = 48
+  end
+end

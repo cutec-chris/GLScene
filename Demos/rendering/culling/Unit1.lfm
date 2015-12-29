@@ -3,22 +3,23 @@ object Form1: TForm1
   Height = 340
   Top = 112
   Width = 544
-  HorzScrollBar.Page = 543
-  VertScrollBar.Page = 339
   Caption = 'Form1'
   ClientHeight = 340
   ClientWidth = 544
+  Color = clBtnFace
+  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Arial'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object Label1: TLabel
-    Left = 453
+    Left = 448
     Height = 16
     Top = 8
     Width = 76
     Anchors = [akTop, akRight]
     Caption = 'Culling Mode:'
+    Font.Color = clWindowText
     Font.Height = -12
     Font.Name = 'Arial'
     Font.Style = [fsBold]
@@ -26,12 +27,13 @@ object Form1: TForm1
     ParentFont = False
   end
   object Label2: TLabel
-    Left = 446
+    Left = 466
     Height = 16
     Top = 120
     Width = 48
     Anchors = [akTop, akRight]
     Caption = 'Objects:'
+    Font.Color = clWindowText
     Font.Height = -12
     Font.Name = 'Arial'
     Font.Style = [fsBold]
@@ -47,38 +49,39 @@ object Form1: TForm1
     Buffer.BackgroundColor = 12040119
     FieldOfView = 142.783203125
     Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 0
   end
   object RBNone: TRadioButton
-    Left = 449
-    Height = 18
+    Left = 446
+    Height = 19
     Top = 32
     Width = 45
     Anchors = [akTop, akRight]
     Caption = 'None'
     Checked = True
     OnClick = RBNoneClick
-    State = cbChecked
-    TabOrder = 0
+    TabOrder = 1
+    TabStop = True
   end
   object RBObject: TRadioButton
-    Left = 460
-    Height = 18
+    Left = 440
+    Height = 19
     Top = 56
     Width = 84
     Anchors = [akTop, akRight]
     Caption = 'Object based'
     OnClick = RBNoneClick
-    TabOrder = 1
+    TabOrder = 2
   end
   object RBHierarchical: TRadioButton
-    Left = 458
-    Height = 18
+    Left = 441
+    Height = 19
     Top = 80
     Width = 77
     Anchors = [akTop, akRight]
     Caption = 'Hierarchical'
     OnClick = RBNoneClick
-    TabOrder = 2
+    TabOrder = 3
     Visible = False
   end
   object Panel1: TPanel
@@ -90,22 +93,21 @@ object Form1: TForm1
     BevelOuter = bvNone
     ClientHeight = 65
     ClientWidth = 89
-    FullRepaint = False
-    TabOrder = 3
+    TabOrder = 4
     object RBSpheres: TRadioButton
       Left = 0
-      Height = 18
+      Height = 19
       Top = 0
       Width = 61
       Caption = 'Spheres'
       Checked = True
       OnClick = RBSpheresClick
-      State = cbChecked
       TabOrder = 0
+      TabStop = True
     end
     object RBActors: TRadioButton
       Left = 0
-      Height = 18
+      Height = 19
       Top = 24
       Width = 53
       Caption = 'Actors'
@@ -114,8 +116,8 @@ object Form1: TForm1
     end
   end
   object GLScene: TGLScene
-    left = 16
-    top = 16
+    left = 24
+    top = 304
     object GLLightSource1: TGLLightSource
       TagFloat = 0
       ConstAttenuation = 1
@@ -189,24 +191,23 @@ object Form1: TForm1
     MaxDeltaTime = 0
     MinDeltaTime = 0
     FixedDeltaTime = 0
-    Mode = cmApplicationIdle
     OnProgress = GLCadencerProgress
-    left = 48
-    top = 16
+    left = 64
+    top = 304
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer
-    left = 16
-    top = 48
+    left = 104
+    top = 304
   end
   object GLMaterialLibrary: TGLMaterialLibrary
     Materials = <    
       item
         Name = 'ActorTexture'
-        Material.Texture.Disabled = False
         Tag = 0
+        Material.Texture.Disabled = False
       end>
-    left = 48
-    top = 48
+    left = 144
+    top = 304
   end
 end

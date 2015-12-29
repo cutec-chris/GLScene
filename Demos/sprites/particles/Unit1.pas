@@ -23,19 +23,14 @@
 }
 unit Unit1;
 
-{$MODE Delphi}
-
 interface
 
 uses
-  Forms, GLObjects, GLParticles, StdCtrls, ExtCtrls,
-  GLBehaviours, Classes, Controls, VectorGeometry, SysUtils, GLLCLViewer,
-  LResources, GLScene, GLCadencer, GLViewer;
+  Forms, GLScene, GLObjects, GLParticles, StdCtrls, GLCadencer, ExtCtrls,
+  GLBehaviours, Classes, Controls, GLVectorGeometry, SysUtils, GLLCLViewer,
+  GLCrossPlatform, GLCoordinates;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     GLSceneViewer1: TGLSceneViewer;
     GLScene1: TGLScene;
@@ -44,12 +39,9 @@ type
     Sprite1: TGLSprite;
     GLCadencer1: TGLCadencer;
     Timer1: TTimer;
-    procedure GLCadencer1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
     procedure GLParticles1ActivateParticle(Sender: TObject;
       particle: TGLBaseSceneObject);
-    procedure Sprite1Progress(Sender: TObject; const deltaTime,
-      newTime: Double);
+    procedure Sprite1Progress(Sender: TObject; const deltaTime, newTime: double);
     procedure Timer1Timer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -64,77 +56,84 @@ var
 
 implementation
 
+{$R *.lfm}
+
+uses
+  FileUtil;
 
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  path: UTF8String;
+  p: integer;
 begin
-   // if we don't do this, our random won't look like random
-   Randomize;
+  path := ExtractFilePath(ParamStrUTF8(0));
+  p := Pos('DemosLCL', path);
+  Delete(path, p + 5, Length(path));
+  path := IncludeTrailingPathDelimiter(path) + 'media';
+  SetCurrentDirUTF8(path);
+  Sprite1.Material.Texture.Image.LoadFromFile('flare1.bmp');
+  // if we don't do this, our random won't look like random
+  Randomize;
 end;
 
 procedure TForm1.GLParticles1ActivateParticle(Sender: TObject;
   particle: TGLBaseSceneObject);
 begin
-   // this event is called when a particle is activated,
-   // ie. just before it will be rendered
-   with TGLSprite(particle) do begin
-      with Material.FrontProperties do begin
-         // we pick a random color
-         Emission.Color:=PointMake(Random, Random, Random);
-         // our halo starts transparent
-         Diffuse.Alpha:=0;
-      end;
-      // this is our "birth time"
-      material.texture.image.LoadFromFile('..' + PathDelim + '..' + PathDelim + 'media' + PathDelim + 'Flare1.bmp');
-      TagFloat:=GLCadencer1.CurrentTime;
-   end;
+  // this event is called when a particle is activated,
+  // ie. just before it will be rendered
+  with TGLSprite(particle) do
+  begin
+    with Material.FrontProperties do
+    begin
+      // we pick a random color
+      Emission.Color := PointMake(Random, Random, Random);
+      // our halo starts transparent
+      Diffuse.Alpha := 0;
+    end;
+    // this is our "birth time"
+    TagFloat := GLCadencer1.CurrentTime;
+  end;
 end;
 
-procedure TForm1.GLCadencer1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
-begin
-
-end;
-
-procedure TForm1.Sprite1Progress(Sender: TObject; const deltaTime,
-  newTime: Double);
+procedure TForm1.Sprite1Progress(Sender: TObject; const deltaTime, newTime: double);
 var
-   life : Double;
+  life: double;
 begin
-   with TGLSprite(Sender) do begin
-      // calculate for how long we've been living
-      life:=(newTime-TagFloat);
-      if life>10 then
-         // old particle to kill
-         GLParticles1.KillParticle(TGLSprite(Sender))
-      else if life<1 then
-         // baby particles become brighter in their 1st second of life...
-         Material.FrontProperties.Diffuse.Alpha:=life
-      else // ...and slowly disappear in the darkness
-         Material.FrontProperties.Diffuse.Alpha:=(9-life)/9;
-   end;
+  with TGLSprite(Sender) do
+  begin
+    // calculate for how long we've been living
+    life := (newTime - TagFloat);
+    if life > 10 then
+      // old particle to kill
+      GLParticles1.KillParticle(TGLSprite(Sender))
+    else if life < 1 then
+      // baby particles become brighter in their 1st second of life...
+      Material.FrontProperties.Diffuse.Alpha := life
+    else // ...and slowly disappear in the darkness
+      Material.FrontProperties.Diffuse.Alpha := (9 - life) / 9;
+  end;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-   // every timer, we create a particle at a random position
-   with TGLSprite(GLParticles1.CreateParticle).Position do begin
-      X:=3*(Random-0.5);
-      Y:=3*(Random-0.5);
-      Z:=3*(Random-0.5);
-   end;
-   // infos for the user
-   Caption:=Format('%d particles, %.1f FPS',
-                   [GLParticles1.Count-1, GLSceneViewer1.FramesPerSecond]);
-   GLSceneViewer1.ResetPerformanceMonitor;
+  // every timer, we create a particle at a random position
+  with TGLSprite(GLParticles1.CreateParticle).Position do
+  begin
+    X := 3 * (Random - 0.5);
+    Y := 3 * (Random - 0.5);
+    Z := 3 * (Random - 0.5);
+  end;
+  // infos for the user
+  Caption := Format('%d particles, %.1f FPS', [GLParticles1.Count -
+    1, GLSceneViewer1.FramesPerSecond]);
+  GLSceneViewer1.ResetPerformanceMonitor;
 end;
 
 procedure TForm1.FormResize(Sender: TObject);
 begin
-   // change focal so the view will shrink and not just get clipped
-   GLCamera1.FocalLength:=50*Width/280;
+  // change focal so the view will shrink and not just get clipped
+  GLCamera1.FocalLength := 50 * Width / 280;
 end;
 
-initialization
-  {$i Unit1.lrs}
-
 end.
+

@@ -1,25 +1,24 @@
 object Form1: TForm1
-  Left = 275
+  Left = 185
   Height = 368
-  Top = 129
+  Top = 101
   Width = 452
-  HorzScrollBar.Page = 451
-  VertScrollBar.Page = 367
   Caption = 'Form1'
   ClientHeight = 368
   ClientWidth = 452
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
     Height = 368
     Top = 0
     Width = 452
     Camera = GLCamera1
-    FieldOfView = 135.647521972656
+    FieldOfView = 135.647537231445
     Align = alClient
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 8
@@ -30,11 +29,6 @@ object Form1: TForm1
       RollAngle = 0
       TurnAngle = 0
       CubeSize = 1
-      BehavioursData = {
-        0201060B54474C42496E657274696102000200050000000000000080FF3F0200
-        080500000000000000B405400500000000000000000000050000000000000000
-        000009020008020008
-      }
       object DirectOpenGL1: TGLDirectOpenGL
         TagFloat = 0
         Direction.Coordinates = {
@@ -53,9 +47,6 @@ object Form1: TForm1
     end
     object Torus1: TGLTorus
       TagFloat = 0
-      Material.Texture.MappingTCoordinates.Coordinates = {
-        000000000000803F0000000000000000
-      }
       Direction.Coordinates = {
         000000000000803F2EBD3BB300000000
       }
@@ -66,13 +57,11 @@ object Form1: TForm1
         000000002EBD3BB3000080BF00000000
       }
       MajorRadius = 1.29999995231628
-      MinorRadius = 0.10000000149011
+      MinorRadius = 0.10000000149012
       Rings = 36
-      BehavioursData = {
-        0201060B54474C42496E657274696102000200050000000000000080FF3F0200
-        08050000000000000000000005000000000000000000000500000000000000F0
-        034009020008020008
-      }
+      StartAngle = 0
+      StopAngle = 360
+      Parts = [toSides, toStartDisk, toStopDisk]
     end
     object GLLightSource1: TGLLightSource
       TagFloat = 0
@@ -106,7 +95,28 @@ object Form1: TForm1
     MaxDeltaTime = 0
     MinDeltaTime = 0
     FixedDeltaTime = 0
+    OnProgress = GLCadencer1Progress
     left = 8
     top = 72
+  end
+  object GLSimpleNavigation1: TGLSimpleNavigation
+    Form = Owner
+    GLSceneViewer = GLSceneViewer1
+    FormCaption = 'Form1 - %FPS'
+    KeyCombinations = <    
+      item
+        ShiftState = [ssLeft, ssRight]
+        Action = snaZoom
+      end    
+      item
+        ShiftState = [ssLeft]
+        Action = snaMoveAroundTarget
+      end    
+      item
+        ShiftState = [ssRight]
+        Action = snaMoveAroundTarget
+      end>
+    left = 8
+    top = 104
   end
 end

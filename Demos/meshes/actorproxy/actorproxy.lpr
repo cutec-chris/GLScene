@@ -1,10 +1,13 @@
-program actorproxy;
+program ActorProxy;
 
 {$MODE Delphi}
 
 uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
   Forms, Interfaces,
-  unit1, glscene_runtime, glscene_designtime;
+  Unit1 in 'Unit1.pas' {Form1};
 
 {$R *.res}
 

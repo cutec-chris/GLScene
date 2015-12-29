@@ -1,10 +1,8 @@
 object Form1: TForm1
-  Left = 326
+  Left = 284
   Height = 280
-  Top = 230
+  Top = 105
   Width = 280
-  HorzScrollBar.Page = 279
-  VertScrollBar.Page = 279
   Caption = 'Form1'
   ClientHeight = 280
   ClientWidth = 280
@@ -23,6 +21,7 @@ object Form1: TForm1
     Buffer.DepthTest = False
     FieldOfView = 140.692352294921
     Align = alClient
+    TabOrder = 0
   end
   object GLScene1: TGLScene
     left = 8
@@ -39,9 +38,10 @@ object Form1: TForm1
       CubeSize = 1
       OnActivateParticle = GLParticles1ActivateParticle
       BehavioursData = {
-        0201060B54474C42496E657274696102000200050000000000000080FF3F0200
-        080500000000000000F003400500000000000000000000050000000000000000
-        000008020008020008
+        0458434F4C02010201060B54474C42496E65727469610200060E53696D706C65
+        20496E657274696102000200050000000000000080FF3F020008050000000000
+        0000F00340050000000000000000000005000000000000000000000802000802
+        0008
       }
       object Sprite1: TGLSprite
         TagFloat = 0
@@ -80,7 +80,6 @@ object Form1: TForm1
     MinDeltaTime = 0
     FixedDeltaTime = 0
     SleepLength = 1
-    OnProgress = GLCadencer1Progress
     left = 8
     top = 48
   end

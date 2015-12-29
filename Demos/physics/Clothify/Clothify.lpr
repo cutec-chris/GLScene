@@ -3,9 +3,13 @@ program Clothify;
 {$MODE Delphi}
 
 uses
-  Interfaces,
-  Forms,
-  fClothify in 'fClothify.pas' {frmClothify};
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Forms, Interfaces,
+  fClothify in 'fClothify.pas'{frmClothify};
+
+{$R *.res}
 
 begin
   Application.Initialize;

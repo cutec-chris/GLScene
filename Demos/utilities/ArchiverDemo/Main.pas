@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, GLScene,
   GLObjects, GLVectorFileObjects, GLMaterial, GLCadencer, GLSArchiveManager,
-  GLLCLViewer, BaseClasses, VectorGeometry,
+  GLLCLViewer, GLBaseClasses, GLVectorGeometry,
   GLFileMS3D, TGA, GLFileZLIB;
 
 type

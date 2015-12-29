@@ -11,7 +11,7 @@ object GLSLTestForm: TGLSLTestForm
   OnClose = FormClose
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   object Viewer: TGLSceneViewer
     Left = 0
     Height = 416
@@ -19,11 +19,9 @@ object GLSLTestForm: TGLSLTestForm
     Width = 641
     Camera = Camera
     Buffer.BackgroundColor = clBackground
-    Buffer.ContextOptions = [roHardwareAcceleration, roDoubleBuffer, roStencilBuffer, roRenderToWindow]
-    Buffer.AntiAliasing = aaNone
     Buffer.DepthPrecision = dp24bits
     Buffer.ColorDepth = cd24bits
-    FieldOfView = 145.291946411132
+    FieldOfView = 145.291946411133
     Align = alClient
     TabOrder = 0
   end
@@ -38,9 +36,9 @@ object GLSLTestForm: TGLSLTestForm
     TabOrder = 1
     object LightMovingCheckBox: TCheckBox
       Left = 8
-      Height = 17
+      Height = 19
       Top = 8
-      Width = 89
+      Width = 91
       Caption = 'Light is Moving'
       Checked = True
       Color = clBtnFace
@@ -50,9 +48,9 @@ object GLSLTestForm: TGLSLTestForm
     end
     object ShadeEnabledCheckBox: TCheckBox
       Left = 288
-      Height = 17
+      Height = 19
       Top = 8
-      Width = 94
+      Width = 96
       Caption = 'Shader Enabled'
       Checked = True
       OnClick = ShadeEnabledCheckBoxClick
@@ -61,9 +59,9 @@ object GLSLTestForm: TGLSLTestForm
     end
     object TurnPitchrollCheckBox: TCheckBox
       Left = 112
-      Height = 17
+      Height = 19
       Top = 8
-      Width = 130
+      Width = 132
       Caption = 'Turn-Pitch-Roll Enabled'
       TabOrder = 2
     end
@@ -89,9 +87,9 @@ object GLSLTestForm: TGLSLTestForm
           0000A0410000A0410000A04100000000
         }
         TurnAngle = 0
-        BottomRadius = 0.10000000149011
+        BottomRadius = 0.10000000149012
         Height = 1
-        TopRadius = 0.10000000149011
+        TopRadius = 0.10000000149012
         TopArrowHeadHeight = 0.5
         TopArrowHeadRadius = 0.20000000298023
         BottomArrowHeadHeight = 0.5
@@ -112,17 +110,17 @@ object GLSLTestForm: TGLSLTestForm
           00000000000000000000803F00000000
         }
         XSamplingScale.Min = -200
-        XSamplingScale.Max = 200
+        XSamplingScale.max = 200
         XSamplingScale.Origin = 0
-        XSamplingScale.Step = 20
+        XSamplingScale.step = 20
         YSamplingScale.Min = -200
-        YSamplingScale.Max = 200
+        YSamplingScale.max = 200
         YSamplingScale.Origin = 0
-        YSamplingScale.Step = 20
+        YSamplingScale.step = 20
         ZSamplingScale.Min = -200
-        ZSamplingScale.Max = 200
+        ZSamplingScale.max = 200
         ZSamplingScale.Origin = 0
-        ZSamplingScale.Step = 20
+        ZSamplingScale.step = 20
         Parts = [gpX, gpZ]
       end
     end
@@ -258,6 +256,7 @@ object GLSLTestForm: TGLSLTestForm
     Materials = <    
       item
         Name = 'Earth'
+        Tag = 0
         Material.FrontProperties.Ambient.Color = {
           BFBEBE3EBBBABA3EBBBABA3E0000803F
         }
@@ -270,17 +269,16 @@ object GLSLTestForm: TGLSLTestForm
         Material.BlendingMode = bmTransparency
         Material.Texture.TextureMode = tmModulate
         Material.Texture.Disabled = False
-        Tag = 0
       end    
       item
         Name = 'ShaderMaterial'
+        Tag = 0
         Material.FrontProperties.Emission.Color = {
           A1A0A03D9190903D8180803D0000803F
         }
         Material.FrontProperties.Specular.Color = {
           DEDD5D3FDCDB5B3FDCDB5B3F0000803F
         }
-        Tag = 0
         Shader = GLSLShader
       end>
     left = 88

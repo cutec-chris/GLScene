@@ -1,0 +1,185 @@
+object Form1: TForm1
+  Left = 440
+  Height = 473
+  Top = 264
+  Width = 640
+  Caption = 'Form1'
+  ClientHeight = 473
+  ClientWidth = 640
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  OnMouseWheel = FormMouseWheel
+  LCLVersion = '0.9.31'
+  Visible = True
+  object GLSceneViewer1: TGLSceneViewer
+    Left = 8
+    Height = 430
+    Top = 8
+    Width = 617
+    Camera = GLCamera1
+    Buffer.BackgroundColor = 3080192
+    Buffer.Lighting = False
+    Buffer.AntiAliasing = aaNone
+    FieldOfView = 153.816223144531
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    OnMouseDown = GLSceneViewer1MouseDown
+    OnMouseMove = GLSceneViewer1MouseMove
+    TabOrder = 0
+  end
+  object GLScene1: TGLScene
+    left = 408
+    object GLSLProjectedTextures1: TGLSLProjectedTextures
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      Emitters = <      
+        item
+          Emitter = GLSLTextureEmitter1
+        end      
+        item
+          Emitter = GLSLTextureEmitter2
+        end>
+      Ambient.Color = {
+        0000003F0000003F0000003F0000003F
+      }
+      UseLightmaps = True
+      object GLFreeForm1: TGLFreeForm
+        TagFloat = 0
+        PitchAngle = 0
+        RollAngle = 0
+        TurnAngle = 0
+        MaterialLibrary = GLMaterialLibrary1
+        LightmapLibrary = GLMaterialLibrary1
+      end
+      object GLCube1: TGLCube
+        TagFloat = 0
+        PitchAngle = 0
+        Position.Coordinates = {
+          000000000000A0400000F0410000803F
+        }
+        RollAngle = 0
+        TurnAngle = 0
+        CubeSize = {
+          000020410000204100002041
+        }
+      end
+    end
+    object GLDummyCube3: TGLDummyCube
+      TagFloat = 0
+      PitchAngle = 0
+      RollAngle = 0
+      TurnAngle = 0
+      CubeSize = 1
+      object GLSLTextureEmitter2: TGLSLTextureEmitter
+        TagFloat = 0
+        FOV = 50
+        Aspect = 2
+        Style = ptsLight
+        Attenuation = 100
+        Brightness = 1.29999995231628
+        Color.Color = {
+          0000803F0000803F0000803F0000803F
+        }
+        UseAttenuation = False
+        UseQuadraticAttenuation = False
+        AllowReverseProjection = False
+        PitchAngle = 0
+        Position.Coordinates = {
+          000000000000A040000000000000803F
+        }
+        RollAngle = 0
+        ShowAxes = True
+        TurnAngle = 0
+      end
+      object GLArrowLine1: TGLArrowLine
+        TagFloat = 0
+        Direction.Coordinates = {
+          00000000000080BF2EBD3BB300000000
+        }
+        PitchAngle = -90
+        Position.Coordinates = {
+          0000A0C10000A0410000A0C10000803F
+        }
+        RollAngle = 0
+        TurnAngle = 0
+        Up.Coordinates = {
+          000000002EBD3BB30000803F00000000
+        }
+        BottomRadius = 1
+        Height = 10
+        TopRadius = 1
+        TopArrowHeadHeight = 5
+        TopArrowHeadRadius = 2
+        BottomArrowHeadHeight = 5
+        BottomArrowHeadRadius = 2
+        object GLSLTextureEmitter1: TGLSLTextureEmitter
+          TagFloat = 0
+          FOV = 25
+          Aspect = 1
+          Style = ptsShadow
+          Attenuation = 100
+          Brightness = 0.80000001192093
+          Color.Color = {
+            0000803F0000803F0000803F0000803F
+          }
+          UseAttenuation = False
+          UseQuadraticAttenuation = False
+          AllowReverseProjection = False
+          PitchAngle = 0
+          Position.Coordinates = {
+            0000000000000000000020C10000803F
+          }
+          RollAngle = 0
+          ShowAxes = True
+          TurnAngle = 0
+        end
+      end
+    end
+    object GLCamera1: TGLCamera
+      TagFloat = 0
+      DepthOfView = 1000
+      FocalLength = 50
+      NearPlaneBias = 0.0010000000475
+      TargetObject = GLDummyCube3
+      OnCustomPerspective = GLCamera1CustomPerspective
+      Position.Coordinates = {
+        000048C200002041000048C20000803F
+      }
+      object GLLightSource2: TGLLightSource
+        TagFloat = 0
+        ConstAttenuation = 1
+        LinearAttenuation = 0
+        QuadraticAttenuation = 0.0010000000475
+        Specular.Color = {
+          0000803F0000803F0000803F0000803F
+        }
+        SpotCutOff = 180
+        SpotExponent = 0
+      end
+    end
+  end
+  object GLCadencer1: TGLCadencer
+    Scene = GLScene1
+    MaxDeltaTime = 0
+    MinDeltaTime = 0
+    FixedDeltaTime = 0
+    OnProgress = GLCadencer1Progress
+    left = 344
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    left = 440
+  end
+  object GLMaterialLibrary1: TGLMaterialLibrary
+    Materials = <    
+      item
+        Name = 'LibMaterial'
+        Tag = 0
+      end>
+    left = 376
+  end
+end
