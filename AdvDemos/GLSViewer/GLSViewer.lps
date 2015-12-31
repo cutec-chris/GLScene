@@ -20,7 +20,7 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="544"/>
+        <TopLine Value="552"/>
         <CursorPos X="28" Y="580"/>
         <UsageCount Value="58"/>
         <Loaded Value="True"/>
@@ -230,10 +230,11 @@
       <Unit25>
         <Filename Value="../../Source/glcontext.pas"/>
         <UnitName Value="GLContext"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="157"/>
-        <CursorPos X="15" Y="170"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="2432"/>
+        <CursorPos X="14" Y="2460"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit25>
       <Unit26>
@@ -835,7 +836,7 @@
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit92>
     </Units>
-    <JumpHistory Count="6" HistoryIndex="5">
+    <JumpHistory Count="7" HistoryIndex="6">
       <Position1>
         <Filename Value="FMain.pas"/>
         <Caret Line="188" Column="44" TopLine="161"/>
@@ -860,6 +861,10 @@
         <Filename Value="GLSViewer.lpr"/>
         <Caret Line="19"/>
       </Position6>
+      <Position7>
+        <Filename Value="../../Source/glcontext.pas"/>
+        <Caret Line="170" Column="15" TopLine="157"/>
+      </Position7>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

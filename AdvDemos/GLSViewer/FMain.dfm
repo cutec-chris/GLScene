@@ -1,11 +1,11 @@
 object Main: TMain
-  Left = 348
-  Height = 479
-  Top = 215
-  Width = 588
+  Left = 342
+  Height = 472
+  Top = 197
+  Width = 570
   Caption = 'Main'
-  ClientHeight = 458
-  ClientWidth = 588
+  ClientHeight = 451
+  ClientWidth = 570
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -11
@@ -21,7 +21,7 @@ object Main: TMain
     Left = 0
     Height = 24
     Top = 0
-    Width = 588
+    Width = 570
     Caption = 'ToolBar'
     Images = ImageList
     TabOrder = 0
@@ -116,8 +116,8 @@ object Main: TMain
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 435
-    Width = 588
+    Top = 428
+    Width = 570
     Panels = <    
       item
         Alignment = taCenter
@@ -133,16 +133,16 @@ object Main: TMain
   end
   object GLSceneViewer: TGLSceneViewer
     Left = 0
-    Height = 411
+    Height = 404
     Top = 24
-    Width = 588
+    Width = 570
     Camera = GLCamera
     BeforeRender = GLSceneViewerBeforeRender
     AfterRender = GLSceneViewerAfterRender
     Buffer.BackgroundColor = 14540253
     Buffer.ContextOptions = [roDoubleBuffer, roRenderToWindow, roTwoSideLighting]
     Buffer.FaceCulling = False
-    FieldOfView = 152.650268554688
+    FieldOfView = 152.194625854492
     Align = alClient
     OnMouseDown = GLSceneViewerMouseDown
     OnMouseMove = GLSceneViewerMouseMove

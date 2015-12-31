@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 145
+  Left = 273
   Height = 441
-  Top = 99
+  Top = 210
   Width = 526
   Caption = 'Form1'
   ClientHeight = 441
@@ -10,15 +10,15 @@ object Form1: TForm1
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   OnMouseWheel = FormMouseWheel
-  LCLVersion = '0.9.29'
+  LCLVersion = '1.7'
   object GLSceneViewer1: TGLSceneViewer
     Left = 0
-    Height = 382
+    Height = 380
     Top = 38
     Width = 526
     Camera = GLCamera1
     Buffer.BackgroundColor = clSilver
-    FieldOfView = 51.0489501953125
+    FieldOfView = 50.8154373168945
     Align = alClient
     OnMouseDown = GLSceneViewer1MouseDown
     OnMouseMove = GLSceneViewer1MouseMove
@@ -26,8 +26,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 21
-    Top = 420
+    Height = 23
+    Top = 418
     Width = 526
     Panels = <    
       item
@@ -123,15 +123,15 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 8
-      Height = 13
+      Height = 14
       Top = 14
-      Width = 56
+      Width = 65
       Caption = 'Animation :'
       ParentColor = False
     end
     object CBAnimations: TComboBox
       Left = 64
-      Height = 31
+      Height = 29
       Hint = 'Change State'
       Top = 3
       Width = 109
@@ -155,7 +155,7 @@ object Form1: TForm1
       Left = 280
       Height = 22
       Top = 12
-      Width = 61
+      Width = 71
       Caption = 'Smooth'
       Checked = True
       OnClick = CBSmoothClick

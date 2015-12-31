@@ -113,7 +113,7 @@ function SavePictureDialog(var aFileName: string; const aTitle: string = ''): Bo
 {: Pops up a simple open picture dialog. }
 function OpenPictureDialog(var aFileName: string; const aTitle: string = ''): Boolean;
 
-procedure SetGLSceneMediaDir();
+procedure SetGLSceneMediaDir(BasePath : string = 'Demos');
 
 //------------------------------------------------------
 //------------------------------------------------------
@@ -711,15 +711,15 @@ begin
   end;
 end;
 
-procedure SetGLSceneMediaDir();
+procedure SetGLSceneMediaDir(BasePath : string = 'Demos');
 var
   {$IFDEF FPC}path: UTF8String{$ELSE}path: String {$ENDIF};
   p: Integer;
 begin
    path := {$IFDEF FPC}ParamStrUTF8(0){$ELSE}ParamStr(0){$ENDIF};
-   path := LowerCase(ExtractFilePath(path));
-   p := Pos('samples', path);
-   Delete(path, p+7, Length(path));
+   path := ExtractFilePath(path);
+   p := Pos(BasePath, path);
+   Delete(path, p+length(BasePath), Length(path));
    path := IncludeTrailingPathDelimiter(path) + 'media';
    {$IFDEF FPC}SetCurrentDirUTF8(path);{$ELSE}SetCurrentDir(path);{$ENDIF}
 end;

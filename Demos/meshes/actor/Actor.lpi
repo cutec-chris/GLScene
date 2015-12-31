@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -6,7 +6,6 @@
     <General>
       <MainUnit Value="0"/>
       <UseXPManifest Value="True"/>
-      <ActiveWindowIndexAtStart Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -39,13 +38,10 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="8">
+    <Units Count="10">
       <Unit0>
         <Filename Value="Actor.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="0"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
         <CursorPos X="21" Y="9"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
@@ -57,25 +53,19 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="Unit1"/>
-        <TopLine Value="1"/>
         <CursorPos X="26" Y="7"/>
         <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\..\..\Source\GLGameMenu.pas"/>
-        <UnitName Value="GLGameMenu"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="484"/>
-        <CursorPos X="1" Y="521"/>
+        <CursorPos Y="521"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="..\..\..\Source\Base\GLPipelineTransformation.pas"/>
-        <UnitName Value="GLPipelineTransformation"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="211"/>
         <CursorPos X="50" Y="231"/>
         <UsageCount Value="10"/>
@@ -86,20 +76,16 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="demo"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="103"/>
-        <CursorPos X="23" Y="93"/>
+        <TopLine Value="75"/>
+        <CursorPos Y="95"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\Source\Base\GLApplicationFileIO.pas"/>
-        <UnitName Value="GLApplicationFileIO"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="179"/>
         <CursorPos X="52" Y="201"/>
         <UsageCount Value="10"/>
@@ -108,31 +94,156 @@
       <Unit6>
         <Filename Value="..\actortwocam\actortwocam.lpr"/>
         <UnitName Value="ActorTwoCam"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\..\..\..\Source\GLApplicationFileIO.pas"/>
-        <UnitName Value="GLApplicationFileIO"/>
-        <WindowIndex Value="0"/>
         <TopLine Value="188"/>
-        <CursorPos X="1" Y="209"/>
+        <CursorPos Y="209"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
+      <Unit8>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <UnitName Value="GLUtils"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="700"/>
+        <CursorPos Y="725"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="..\..\..\..\..\..\lazarus\lcl\include\customform.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="948"/>
+        <CursorPos X="16" Y="945"/>
+        <UsageCount Value="10"/>
+      </Unit9>
     </Units>
-    <JumpHistory Count="2" HistoryIndex="1">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="demo.pas"/>
         <Caret Line="48" Column="42" TopLine="21"/>
       </Position1>
       <Position2>
         <Filename Value="Actor.lpr"/>
-        <Caret Line="9" Column="21" TopLine="1"/>
+        <Caret Line="9" Column="21"/>
       </Position2>
+      <Position3>
+        <Filename Value="demo.pas"/>
+        <Caret Line="84" Column="19" TopLine="75"/>
+      </Position3>
+      <Position4>
+        <Filename Value="demo.pas"/>
+        <Caret Line="93" TopLine="75"/>
+      </Position4>
+      <Position5>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="718" TopLine="699"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="719" TopLine="699"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="720" TopLine="699"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="721" Column="12" TopLine="699"/>
+      </Position8>
+      <Position9>
+        <Filename Value="demo.pas"/>
+        <Caret Line="93" TopLine="75"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="719" TopLine="699"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="720" TopLine="699"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="721" Column="19" TopLine="700"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="719" TopLine="700"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="720" TopLine="700"/>
+      </Position14>
+      <Position15>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="721" TopLine="700"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="722" TopLine="700"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="723" TopLine="700"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="722" Column="34" TopLine="700"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="714" Column="11" TopLine="700"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="116" Column="29" TopLine="116"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="714" Column="57" TopLine="700"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="116" Column="57" TopLine="116"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="719" TopLine="700"/>
+      </Position23>
+      <Position24>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="720" TopLine="700"/>
+      </Position24>
+      <Position25>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="721" TopLine="700"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="722" TopLine="700"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="723" TopLine="700"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="724" TopLine="700"/>
+      </Position28>
+      <Position29>
+        <Filename Value="..\..\..\Source\glutils.pas"/>
+        <Caret Line="725" TopLine="700"/>
+      </Position29>
+      <Position30>
+        <Filename Value="demo.pas"/>
+        <Caret Line="95" TopLine="75"/>
+      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -161,14 +272,17 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <UseMsgFile Value="True"/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\..\Source\glutils.pas"/>
+        <Line Value="723"/>
+      </Item1>
+    </BreakPoints>
     <Exceptions Count="3">
       <Item1>
         <Name Value="EAbort"/>
